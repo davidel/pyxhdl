@@ -543,7 +543,7 @@ class UseArgsEntity(X.Entity):
     OOUT = X.mkwire(A.dtype)
     ArgsEntity(CLK=CLK,
                XIN=A,
-	       XOUT=UOUT,
+	       XOUT=OOUT,
 	       mask=63)
     ...
 ```
