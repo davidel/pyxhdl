@@ -3,6 +3,16 @@
 *PyXHDL* born for developers who are not really in love with any of the HDL languages
 and instead appreciate the simplicity and flexibility of using Python for their workflows.
 
+
+## Install
+
+The easiest way to install *PyXHDL* is using PIP from the direct Github repo.
+
+```Shell
+$ pip install git+https://github.com/davidel/pyxhdl.git
+```
+
+
 ## Description
 
 *PyXHDL* allows to write HDL code in Python, generating VHDL (2008) and Verilog
