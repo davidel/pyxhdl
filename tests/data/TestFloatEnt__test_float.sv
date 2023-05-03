@@ -127,48 +127,48 @@ interface fpu;
   clz_mod #(.N (NM)) add_clz();
   clz_mod #(.N (`MAX(NINT, N))) from_integer_clz();
 
-  function automatic logic [N - 1: 0] _inf;
+  function automatic logic [N - 1: 0] inf;
     input logic      s;
     begin
-      _inf = {s, {NX{1'b1}}, {NM{1'b0}}};
+      inf = {s, {NX{1'b1}}, {NM{1'b0}}};
     end
   endfunction
 
-  function automatic bit [N - 1: 0] _nan;
+  function automatic bit [N - 1: 0] nan;
     begin
-      _nan = {1'b0, {NX{1'b1}}, {(NM - 1){1'b0}}, 1'b1};
+      nan = {1'b0, {NX{1'b1}}, {(NM - 1){1'b0}}, 1'b1};
     end
   endfunction
 
-  function automatic bit _is_abn;
+  function automatic bit is_abn;
     input logic [NX - 1: 0] x;
 
     begin
-      _is_abn = (&x == 1'b1);
+      is_abn = (&x == 1'b1);
     end
   endfunction
 
-  function automatic bit _is_nan;
+  function automatic bit is_nan;
     input logic [NM - 1: 0] m;
 
     begin
-      _is_nan = (|m != 1'b0);
+      is_nan = (|m != 1'b0);
     end
   endfunction
 
-  function automatic bit _is_inf;
+  function automatic bit is_inf;
     input logic [NM - 1: 0] m;
 
     begin
-      _is_inf = (|m == 1'b0);
+      is_inf = (|m == 1'b0);
     end
   endfunction
 
-  function automatic bit _is_zero;
+  function automatic bit is_zero;
     input logic [NX - 1: 0] x;
 
     begin
-      _is_zero = (|x == 1'b0);
+      is_zero = (|x == 1'b0);
     end
   endfunction
 
@@ -262,9 +262,9 @@ interface fpu;
     logic [NM + 2 + ADDSUB_PAD: 0] mas;
     logic [NM - 1: 0]              mr;
     begin
-      if (_is_abn(pv1.exp)) begin
+      if (is_abn(pv1.exp)) begin
         add = v1;
-      end else if (_is_abn(pv2.exp)) begin
+      end else if (is_abn(pv2.exp)) begin
         add = v2;
       end else begin
         m1p = {3'b001, pv1.mant, {ADDSUB_PAD{1'b0}}};
@@ -332,9 +332,9 @@ interface fpu;
     logic [2 * NM + 2 - 1: 0] m1p, m2p, mmul;
     logic [NM - 1: 0]         mr;
     begin
-      if (_is_abn(pv1.exp) || _is_zero(pv1.exp)) begin
+      if (is_abn(pv1.exp) || is_zero(pv1.exp)) begin
         mul = v1;
-      end else if (_is_abn(pv2.exp) || _is_zero(pv2.exp)) begin
+      end else if (is_abn(pv2.exp) || is_zero(pv2.exp)) begin
         mul = v2;
       end else begin
         m1p = {1'b1, pv1.mant};
@@ -369,14 +369,14 @@ interface fpu;
     logic [NM: 0]             m2p;
     logic [NM - 1: 0]         mr;
     begin
-      if (_is_abn(pv1.exp)) begin
+      if (is_abn(pv1.exp)) begin
         div = v1;
-      end else if (_is_zero(pv1.exp)) begin
-        div = _is_zero(pv2.exp) || _is_abn(pv2.exp) ? _nan() : v1;
-      end else if (_is_abn(pv2.exp)) begin
+      end else if (is_zero(pv1.exp)) begin
+        div = is_zero(pv2.exp) || is_abn(pv2.exp) ? nan() : v1;
+      end else if (is_abn(pv2.exp)) begin
         div = v2;
-      end else if (_is_zero(pv2.exp)) begin
-        div = _inf(pv1.sign ^ pv2.sign);
+      end else if (is_zero(pv2.exp)) begin
+        div = inf(pv1.sign ^ pv2.sign);
       end else begin
         m1p = {1'b1, pv1.mant, {(NM + 1){1'b0}}};
         m2p = {1'b1, pv2.mant};
