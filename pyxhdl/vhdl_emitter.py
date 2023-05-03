@@ -630,10 +630,10 @@ class VHDL_Emitter(Emitter):
   def emit_EndIf(self):
     self._emit_line(f'end if;')
 
-  def emit_Assert(self, test, msg):
+  def emit_Assert(self, test, parts):
     xtest = self.svalue(test)
-    if msg:
-      self._emit_line(f'assert {xtest} report "{msg}";')
+    if parts:
+      self._emit_line(f'assert {xtest} report ' + ' & '.join(parts) + ';')
     else:
       self._emit_line(f'assert {xtest};')
 
