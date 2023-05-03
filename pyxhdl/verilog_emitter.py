@@ -790,10 +790,10 @@ class Verilog_Emitter(Emitter):
   def emit_EndIf(self):
     self._emit_line(f'end')
 
-  def emit_Assert(self, test, msg):
+  def emit_Assert(self, test, parts):
     xtest = self.svalue(test)
-    if msg:
-      self._emit_line(f'assert {xtest} else $error("{msg}");')
+    if parts:
+      self._emit_line(f'assert {xtest} else $error("' + ('%s' * len(parts)) + '", ' + ', '.join(parts) + '");')
     else:
       self._emit_line(f'assert {xtest};')
 

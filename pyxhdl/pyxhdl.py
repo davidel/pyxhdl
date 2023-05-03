@@ -1104,7 +1104,8 @@ class CodeGen(_ExecVisitor):
     msg = self.eval_node(node.msg) if node.msg is not None else None
 
     if has_hdl_vars(test):
-      self._emitter.emit_Assert(test, msg)
+      parts = self._get_format_parts(msg, dict()) if msg else None
+      self._emitter.emit_Assert(test, parts)
     elif not test:
       pyu.fatal(msg, exc=AssertionError)
 
