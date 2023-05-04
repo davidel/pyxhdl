@@ -102,11 +102,11 @@ class XLib(X.Entity):
       ctx = A * B
 
     z = X.mkreg(A.dtype)
-    try:
-      with XL.no_hdl():
-        z = A + B
-    except TypeError:
-      XL.comment('Correctly erroring out while adding Value objects in non-HDL context')
+
+    z1 = A + B
+    z2 = z1 - A
+    z3 = z2 + B
+    z = z3
 
     z = A * B
     assigned = X.mkreg(z.dtype)

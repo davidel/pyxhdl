@@ -761,6 +761,23 @@ class VHDL_Emitter(Emitter):
 
     return Value(body.dtype, result)
 
+  # Extension functions.
+  def eval_is_nan(self, value):
+    if not isinstance(value.dtype, Float):
+      pyu.fatal(f'Unsupported type: {value.dtype}')
+
+    result = f'Isnan({self.svalue(value)})'
+
+    return Value(BOOL, value=result)
+
+  def eval_is_inf(self, value):
+    if not isinstance(value.dtype, Float):
+      pyu.fatal(f'Unsupported type: {value.dtype}')
+
+    result = f'not Finite({self.svalue(value)})'
+
+    return Value(BOOL, value=result)
+
 
 # Register VHDL emitter class.
 Emitter.register(VHDL, VHDL_Emitter)

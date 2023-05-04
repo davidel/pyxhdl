@@ -33,6 +33,9 @@ _FPU_FNMAP = {
   'from_integer': _SVMod('fpu', 'from_integer'),
   'one': _SVMod('fpu', 'one'),
   'zero': _SVMod('fpu', 'zero'),
+  'is_nan': _SVMod('fpu', 'is_nan'),
+  'is_inf': _SVMod('fpu', 'is_inf'),
+  'is_zero': _SVMod('fpu', 'is_zero'),
   'from_real': _SVMod('fp_utils', 'from_real'),
   'to_real': _SVMod('fp_utils', 'to_real'),
   'convert': _SVMod('fp_conv', 'convert'),
@@ -944,6 +947,27 @@ class Verilog_Emitter(Emitter):
     pyu.mlog(lambda: f'\tIfExp: {xtest} ? {xbody} : {xorelse}')
 
     return Value(body.dtype, f'{paren(xtest)} ? {xbody} : {xorelse}')
+
+  # Extension functions.
+  def eval_is_nan(self, value):
+    if not isinstance(value.dtype, Float):
+      pyu.fatal(f'Unsupported type: {value.dtype}')
+
+    fspec = self.float_spec(value.dtype)
+    fpcall = self._get_fpcall('is_nan', NX=fspec.exp, NM=fspec.mant)
+    result = f'{fpcall}({self.svalue(value)})'
+
+    return Value(BOOL, value=result)
+
+  def eval_is_inf(self, value):
+    if not isinstance(value.dtype, Float):
+      pyu.fatal(f'Unsupported type: {value.dtype}')
+
+    fspec = self.float_spec(value.dtype)
+    fpcall = self._get_fpcall('is_inf', NX=fspec.exp, NM=fspec.mant)
+    result = f'{fpcall}({self.svalue(value)})'
+
+    return Value(BOOL, value=result)
 
 
 # Register Verilog emitter class.

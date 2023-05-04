@@ -4,6 +4,7 @@ import logging
 import py_misc_utils.utils as pyu
 
 from .types import *
+from .value_base import *
 
 
 # Must have defaults for all fields!
@@ -59,7 +60,7 @@ class Init(object):
     return f'{self.value}' if self.vspec is None else f'({self.value}, {self.vspec})'
 
 
-class Value(object):
+class Value(ValueBase):
 
   def __init__(self, dtype, value=None, isreg=None):
     super().__init__()
