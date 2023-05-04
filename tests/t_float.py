@@ -23,6 +23,8 @@ class FloatEnt(X.Entity):
     sub = A - B
     icplus = A + 3
     ifplus = A + 3.12
+    if A.is_nan() or A.is_inf():
+      add += 1.0
     XOUT = add + mul - div + sub * (icplus - ifplus)
 
 

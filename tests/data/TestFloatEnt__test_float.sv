@@ -419,6 +419,9 @@ module FloatEnt(A, B, XOUT);
     mul = fpu_1.mul(A, B);
     div = fpu_1.div(A, B);
     sub = fpu_1.sub(A, B);
+    if (fpu_1.is_nan(A) || fpu_1.is_inf(A)) begin
+      add = fpu_1.add(add, 32'b00111111100000000000000000000000);
+    end
     XOUT_ = fp_conv_1.convert(fpu_1.add(fpu_1.sub(fpu_1.add(add, mul), div), fpu_1.mul(sub, fpu_1.sub(fpu_1.add(A, 32'b01000000110000000000000000000000), fpu_1.add(A, 32'b01000000110001111010111000010100)))));
   end
   assign XOUT = XOUT_;

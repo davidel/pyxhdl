@@ -258,7 +258,7 @@ begin
     e := dummy.func(A + 1, resize(B * 3, 8));
     wait until (A = to_unsigned(1, 8));
     ctx := resize(A * B, 8);
-    -- Correctly erroring out while adding Value objects in non-HDL context
+    z := ((A + B) - A) + B;
     z := resize(A * B, 8);
     assigned := z - B;
   end process;

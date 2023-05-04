@@ -231,6 +231,9 @@ begin
     mul := A * B;
     div := A / B;
     sub := A - B;
+    if Isnan(A) or (not Finite(A)) then
+      add := add + 1.0;
+    end if;
     XOUT <= resize(((add + mul) - div) + (sub * ((A + 3.0) - (A + 3.12))), 5, 10);
   end process;
 end architecture;

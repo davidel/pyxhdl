@@ -58,7 +58,7 @@ module XLib(CLK, A, B, XOUT);
     e = dummy::func(A + 1, 8'(B * 3));
     @((A == unsigned'(8'(1))));
     #10 ctx = 8'(A * B);
-    // Correctly erroring out while adding Value objects in non-HDL context
+    z = ((A + B) - A) + B;
     z = 8'(A * B);
     assigned = z - B;
   end
