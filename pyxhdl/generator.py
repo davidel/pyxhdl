@@ -1,6 +1,7 @@
 import argparse
 import logging
 
+import py_misc_utils.alog as alog
 import py_misc_utils.utils as pyu
 
 from .emitter import *
@@ -65,15 +66,11 @@ if __name__ == '__main__':
                       help='The path to the output file for the generated code (default STDOUT)')
   parser.add_argument('--testbench', action='store_true',
                       help='Run the entity with a testbench')
-  parser.add_argument('--log_level', type=str, default='INFO',
-                      choices={'DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'},
-                      help='The logging level')
-  parser.add_argument('--log_file', type=str,
-                      help='The log file path')
 
+  alog.add_logging_options(parser)
   tb.add_arguments(parser)
 
   args = parser.parse_args()
-  pyu.setup_logging(log_level=args.log_level, log_file=args.log_file)
+  alog.setup_logging(args)
   _main(args)
 

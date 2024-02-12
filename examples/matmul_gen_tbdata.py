@@ -5,6 +5,7 @@ import yaml
 
 import numpy as np
 
+import py_misc_utils.alog as alog
 import py_misc_utils.utils as pyu
 
 import pyxhdl as X
@@ -102,13 +103,10 @@ if __name__ == '__main__':
                       help='The path to the output file for the generated data (default STDOUT)')
   parser.add_argument('--seed', type=int,
                       help='The random number generator seed')
-  parser.add_argument('--log_level', type=str, default='INFO',
-                      choices={'DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'},
-                      help='The logging level')
-  parser.add_argument('--log_file', type=str,
-                      help='The log file path')
+
+  alog.add_logging_options(parser)
 
   args = parser.parse_args()
-  pyu.setup_logging(log_level=args.log_level, log_file=args.log_file)
+  alog.setup_logging(args)
   _main(args)
 
