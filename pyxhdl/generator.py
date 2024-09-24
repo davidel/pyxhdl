@@ -2,6 +2,7 @@ import argparse
 import logging
 
 import py_misc_utils.alog as alog
+import py_misc_utils.module_utils as pymu
 import py_misc_utils.utils as pyu
 
 from .emitter import *
@@ -19,7 +20,7 @@ def _main(args):
   if args.cfgfile is not None:
     parse_args(args.cfgfile, args)
 
-  mod = pyu.load_module(args.input_file)
+  mod = pymu.load_module(args.input_file)
   ent_class = getattr(mod, args.entity)
 
   gglobals = create_globals(mod, source_globals=globals())
