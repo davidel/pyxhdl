@@ -6,6 +6,7 @@ import yaml
 import numpy as np
 
 import py_misc_utils.alog as alog
+import py_misc_utils.obj as obj
 import py_misc_utils.utils as pyu
 
 import pyxhdl as X
@@ -30,12 +31,12 @@ def _main(args):
 
   mdata = []
   for n in range(args.nsamples):
-    gs = pyu.Obj()
+    gs = obj.Obj()
     gs.RESET = 1
     gs._wait_expr = 'XL.wait_rising(CLK)'
     mdata.append(gs)
 
-    gs = pyu.Obj()
+    gs = obj.Obj()
     gs.RESET = 0
     gs._wait_expr = 'XL.wait_rising(CLK)'
     mdata.append(gs)
@@ -45,43 +46,43 @@ def _main(args):
     cmat = amat @ bmat
 
     for i in range(args.dimsize):
-      gs = pyu.Obj()
+      gs = obj.Obj()
       gs.INFEED = 1
       gs.AROW = amat[i].tolist()
       gs.BROW = bmat[i].tolist()
       gs._wait_expr = 'XL.wait_rising(CLK)'
       mdata.append(gs)
 
-    gs = pyu.Obj()
+    gs = obj.Obj()
     gs.INFEED = 0
     gs.COMPUTE = 1
     gs._wait_expr = 'XL.wait_rising(CLK)'
     mdata.append(gs)
 
-    gs = pyu.Obj()
+    gs = obj.Obj()
     gs.COMPUTE = 0
     gs._wait_expr = 'XL.wait_rising(CLK)'
     mdata.append(gs)
 
-    gs = pyu.Obj()
+    gs = obj.Obj()
     gs._wait_expr = 'if READY != 1:; XL.wait_until(READY == 1)'
     mdata.append(gs)
 
-    gs = pyu.Obj()
+    gs = obj.Obj()
     gs.OUTFEED = 1
     gs._wait_expr = 'XL.wait_rising(CLK)'
     mdata.append(gs)
 
     for i in range(args.dimsize):
-      gs = pyu.Obj()
+      gs = obj.Obj()
       gs.OUTFEED = 1 if i + 1 < args.dimsize else 0
       gs.CROW = cmat[i].tolist()
       gs._wait_expr = 'XL.wait_rising(CLK)'
       mdata.append(gs)
 
 
-  data = pyu.Obj()
-  data.conf = pyu.Obj(loaders={fn: dict(kind='numpy', dtype=args.dtype) for fn in _MFIELDS})
+  data = obj.Obj()
+  data.conf = obj.Obj(loaders={fn: dict(kind='numpy', dtype=args.dtype) for fn in _MFIELDS})
   data.data = mdata
 
   with XM.output_file(args.output_file) as ofd:

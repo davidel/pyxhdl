@@ -5,6 +5,7 @@ import inspect
 import logging
 import os
 
+import py_misc_utils.obj as obj
 import py_misc_utils.utils as pyu
 
 from .pyxhdl import *
@@ -497,7 +498,7 @@ class Emitter(object):
     return pyu.CtxManager(infn, outfn)
 
   def placement(self, place):
-    ctx = pyu.Obj()
+    ctx = obj.Obj()
 
     def infn():
       self._placements.append(place)
