@@ -7,7 +7,7 @@ import re
 import textwrap
 
 import py_misc_utils.ast_utils as asu
-import py_misc_utils.inspect_utils as pyi
+import py_misc_utils.inspect_utils as pyiu
 import py_misc_utils.utils as pyu
 
 from .ast_utils import *
@@ -1353,7 +1353,7 @@ class CodeGen(_ExecVisitor):
 
   def run_code(self, code, args, mode, filename=None, lineno=None):
     if filename is None:
-      filename, lineno = pyi.parent_coords()
+      filename, lineno = pyiu.parent_coords()
 
     cnode = ast.parse(code, filename=filename, mode=mode)
     cnode.lineno = lineno

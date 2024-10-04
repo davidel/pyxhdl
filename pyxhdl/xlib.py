@@ -1,6 +1,6 @@
 import logging
 
-import py_misc_utils.inspect_utils as pyi
+import py_misc_utils.inspect_utils as pyiu
 import py_misc_utils.utils as pyu
 
 from .decorators import *
@@ -108,14 +108,14 @@ def write(fmt, **kwargs):
 def xeval(code, **args):
   ctx = CodeGen.current()
 
-  filename, lineno = pyi.parent_coords()
+  filename, lineno = pyiu.parent_coords()
   return ctx.run_code(code, args, 'eval', filename=filename, lineno=lineno)
 
 
 def xexec(code, **args):
   ctx = CodeGen.current()
 
-  filename, lineno = pyi.parent_coords()
+  filename, lineno = pyiu.parent_coords()
   ctx.run_code(code, args, 'exec', filename=filename, lineno=lineno)
 
 
