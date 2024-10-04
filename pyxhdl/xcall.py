@@ -62,7 +62,7 @@ class _ExternalFunction(object):
   def __init__(self, fnname, fnmap, fnsig=None, dtype=None):
     marshals = []
     if fnsig:
-      for sarg in pyu.strip_split(fnsig, ','):
+      for sarg in pyu.resplit(fnsig, ','):
         marshals.append(_Marshal(sarg, fnname, len(marshals)))
 
     self._fnname = fnname

@@ -698,7 +698,7 @@ class CodeGen(_ExecVisitor):
       if isinstance(v, dict):
         dest.update(v)
       elif isinstance(v, str):
-        for port in pyu.strip_split(v, ','):
+        for port in pyu.resplit(v, ','):
           sargs = dict()
           if port.startswith('+'):
             sargs['trigger'] = POSEDGE

@@ -48,8 +48,8 @@ class _CoreEntity(object):
       return tuple(cports)
     elif isinstance(cports, str):
       ports = []
-      for pdecl in pyu.strip_split(cports, ','):
-        sport, *pargs = pyu.strip_split(pdecl, ':')
+      for pdecl in pyu.resplit(cports, ','):
+        sport, *pargs = pyu.resplit(pdecl, ':')
 
         m = re.match(r'(=|\+)?(\w+)$', sport)
         if not m:
