@@ -1,4 +1,4 @@
-import py_misc_utils.utils as pyu
+import py_misc_utils.template_replace as pytr
 
 import pyxhdl as X
 from pyxhdl import xlib as XL
@@ -23,5 +23,5 @@ class Ex3(X.Entity):
   @X.hdl_process(kind=X.ROOT_PROCESS)
   def run():
     for i in range(A.dtype.nbits):
-      code = pyu.template_replace(_TEMPLATE, vals=dict(i=i))
+      code = pytr.template_replace(_TEMPLATE, vals=dict(i=i))
       XL.xexec(code)

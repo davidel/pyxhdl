@@ -6,6 +6,7 @@ import logging
 import os
 
 import py_misc_utils.obj as obj
+import py_misc_utils.template_replace as pytr
 import py_misc_utils.utils as pyu
 
 from .pyxhdl import *
@@ -413,7 +414,7 @@ class Emitter(object):
     with open(path, mode='r') as fd:
       code = fd.read()
 
-    return pyu.template_replace(code, lookup_fn=self._cfg_lookup, delim='@')
+    return pytr.template_replace(code, lookup_fn=self._cfg_lookup, delim='@')
 
   def _load_libs(self, extra_libs=tuple()):
     pkgdir = os.path.dirname(__file__)

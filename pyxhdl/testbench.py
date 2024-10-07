@@ -8,6 +8,7 @@ import yaml
 
 import numpy as np
 
+import py_misc_utils.template_replace as pytr
 import py_misc_utils.utils as pyu
 
 from .decorators import *
@@ -282,12 +283,12 @@ class TestBench(Entity):
       logging.debug(f'Generating clock "{name}" with period {period}')
 
       clock_fn, clk_name = f'clock_{name}', name
-      scode = pyu.template_replace(textwrap.dedent(self._CLOCK_FN),
-                                   vals=dict(clock_fn=clock_fn,
-                                             clk_name=clk_name,
-                                             sig='eclass, inputs, args',
-                                             period=period,
-                                             ))
+      scode = pytr.template_replace(textwrap.dedent(self._CLOCK_FN),
+                                    vals=dict(clock_fn=clock_fn,
+                                              clk_name=clk_name,
+                                              sig='eclass, inputs, args',
+                                              period=period,
+                                              ))
 
       pfn = pyu.compile(scode, clock_fn, env=env)[0]
 
