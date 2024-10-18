@@ -8,6 +8,7 @@ import re
 import sys
 import textwrap
 
+import py_misc_utils.context_managers as pycm
 import py_misc_utils.utils as pyu
 
 
@@ -174,5 +175,5 @@ def temp_attributes(obj, **attrs):
 
     return False
 
-  return pyu.CtxManager(infn, outfn)
+  return pycm.CtxManager(infn, outfn)
 
