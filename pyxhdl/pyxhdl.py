@@ -7,6 +7,7 @@ import re
 import textwrap
 
 import py_misc_utils.ast_utils as asu
+import py_misc_utils.context_managers as pycm
 import py_misc_utils.inspect_utils as pyiu
 import py_misc_utils.utils as pyu
 
@@ -175,7 +176,7 @@ class _ExecVisitor(_AstVisitor):
       self._frames.pop()
       return False
 
-    return pyu.CtxManager(infn, outfn)
+    return pycm.CtxManager(infn, outfn)
 
   def _hdl_branch(self):
     frame = self.frame
@@ -188,7 +189,7 @@ class _ExecVisitor(_AstVisitor):
       frame.in_hdl_branch -= 1
       return False
 
-    return pyu.CtxManager(infn, outfn)
+    return pycm.CtxManager(infn, outfn)
 
   def _exec_locals(self, tmp_values):
     # Override temporary values, but keep the changes to the locals.
@@ -212,7 +213,7 @@ class _ExecVisitor(_AstVisitor):
 
       return False
 
-    return pyu.CtxManager(infn, outfn)
+    return pycm.CtxManager(infn, outfn)
 
   def _eval_locals(self, tmp_values):
     # Apply temporary changes during the eval operation, but revert to previous
@@ -232,7 +233,7 @@ class _ExecVisitor(_AstVisitor):
 
       return False
 
-    return pyu.CtxManager(infn, outfn)
+    return pycm.CtxManager(infn, outfn)
 
   def _store_value(self, name, value):
     if name in self.global_names:
@@ -1416,5 +1417,5 @@ class CodeGen(_ExecVisitor):
       self.pop_catchall()
       return False
 
-    return pyu.CtxManager(infn, outfn)
+    return pycm.CtxManager(infn, outfn)
 

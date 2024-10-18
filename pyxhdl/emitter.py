@@ -6,6 +6,7 @@ import logging
 import os
 
 import py_misc_utils.obj as obj
+import py_misc_utils.context_managers as pycm
 import py_misc_utils.template_replace as pytr
 import py_misc_utils.utils as pyu
 
@@ -496,7 +497,7 @@ class Emitter(object):
       self._contexts.pop()
       return False
 
-    return pyu.CtxManager(infn, outfn)
+    return pycm.CtxManager(infn, outfn)
 
   def placement(self, place):
     ctx = obj.Obj()
@@ -511,7 +512,7 @@ class Emitter(object):
       self._placements.pop()
       return False
 
-    return pyu.CtxManager(infn, outfn)
+    return pycm.CtxManager(infn, outfn)
 
   def indent(self):
     def infn():
@@ -522,7 +523,7 @@ class Emitter(object):
       self._indent -= 1
       return False
 
-    return pyu.CtxManager(infn, outfn)
+    return pycm.CtxManager(infn, outfn)
 
   def emit_code(self, code):
     for ln in code.split('\n'):
