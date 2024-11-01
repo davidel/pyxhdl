@@ -2,6 +2,7 @@ import argparse
 import logging
 
 import py_misc_utils.alog as alog
+import py_misc_utils.gen_fs as gfs
 import py_misc_utils.module_utils as pymu
 import py_misc_utils.utils as pyu
 
@@ -38,7 +39,7 @@ def _main(args):
     else:
       codegen.generate_entity(ent_class, inputs)
 
-    with output_file(args.output_file) as ofd:
+    with gfs.std_open(args.output_file. mode='w') as ofd:
       for ln in codegen.flush():
         print(ln, file=ofd)
 

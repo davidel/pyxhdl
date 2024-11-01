@@ -1,7 +1,3 @@
-import logging
-import yaml
-import sys
-
 import py_misc_utils.utils as pyu
 
 
@@ -9,8 +5,8 @@ def _add_inputs(inseq, gglobals, ddict):
   for ein in inseq:
     names, expr = ein.split('=', 1)
     value = eval(expr, gglobals)
-    for name in names.split(','):
-      pyu.dict_add(ddict, name.strip(), value)
+    for name in pyu.comma_split(names):
+      pyu.dict_add(ddict, name, value)
 
 
 def parse_kwargs(kwargs, gglobals, ddict=None):
@@ -30,13 +26,7 @@ def parse_inputs(inputs, kwargs, gglobals):
 
 
 def parse_args(cfgfile, args):
-  with open(args.cfgfile, mode='r') as cfd:
-    cfg = yaml.load(cfd)
-
+  cfg = pyu.load_config(cfg_file=args.cfgfile)
   for k, v in cfg.items():
     setattr(args, k, v)
-
-
-def output_file(path, mode='w'):
-  return open(path, mode=mode) if path is not None else sys.stdout
 

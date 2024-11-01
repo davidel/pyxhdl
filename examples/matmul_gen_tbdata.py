@@ -1,11 +1,11 @@
 # TestBench data generator for the trivial MatMul unit.
 import argparse
 import logging
-import yaml
 
 import numpy as np
 
 import py_misc_utils.alog as alog
+import py_misc_utils.gen_fs as gfs
 import py_misc_utils.obj as obj
 import py_misc_utils.utils as pyu
 
@@ -85,8 +85,8 @@ def _main(args):
   data.conf = obj.Obj(loaders={fn: dict(kind='numpy', dtype=args.dtype) for fn in _MFIELDS})
   data.data = mdata
 
-  with XM.output_file(args.output_file) as ofd:
-    yaml.dump(data.as_dict(), ofd, default_flow_style=None)
+  with gfs.std_open(args.output_file, mode='w') as ofd:
+    ofd.write(pyu.config_to_string(data.as_dict()))
 
 
 if __name__ == '__main__':
@@ -100,7 +100,7 @@ if __name__ == '__main__':
                       help='Scaler for integer input matrix')
   parser.add_argument('--nsamples', type=int, default=4,
                       help='How many test cases to be generated')
-  parser.add_argument('--output_file', type=str,
+  parser.add_argument('--output_file', type=str, default='STDOUT',
                       help='The path to the output file for the generated data (default STDOUT)')
   parser.add_argument('--seed', type=int,
                       help='The random number generator seed')
