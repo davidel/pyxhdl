@@ -7,6 +7,7 @@ import numpy as np
 import py_misc_utils.alog as alog
 import py_misc_utils.gen_fs as gfs
 import py_misc_utils.obj as obj
+import py_misc_utils.rnd_utils as pyr
 import py_misc_utils.utils as pyu
 
 import pyxhdl as X
@@ -25,7 +26,7 @@ def _genmat(size, dtype, scaler):
 
 
 def _main(args):
-  pyu.randseed(args.seed)
+  pyr.manual_seed(args.seed)
 
   dtype = np.dtype(args.dtype)
 
