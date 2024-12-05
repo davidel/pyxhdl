@@ -5,7 +5,7 @@ import logging
 import numpy as np
 
 import py_misc_utils.alog as alog
-import py_misc_utils.gen_fs as gfs
+import py_misc_utils.gfs as gfs
 import py_misc_utils.obj as obj
 import py_misc_utils.rnd_utils as pyr
 import py_misc_utils.utils as pyu
