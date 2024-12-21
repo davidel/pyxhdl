@@ -8,6 +8,7 @@ import textwrap
 
 import py_misc_utils.ast_utils as asu
 import py_misc_utils.context_managers as pycm
+import py_misc_utils.core_utils as pycu
 import py_misc_utils.inspect_utils as pyiu
 import py_misc_utils.utils as pyu
 
@@ -374,8 +375,8 @@ class _ExecVisitor(_AstVisitor):
     tmp_names, results, sig = [], [], None
     for i, retval in enumerate(return_values):
       with self._emitter.placement(retval.placement):
-        vsig = pyu.signature(retval.value)
-        if sig is not None and not pyu.equal_signature(sig, vsig):
+        vsig = pycu.signature(retval.value)
+        if sig is not None and not pycu.equal_signature(sig, vsig):
           pyu.fatal(f'Return values signature mismatch: {vsig} vs. {sig}')
         sig = vsig
 
