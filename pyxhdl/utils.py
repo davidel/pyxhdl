@@ -131,7 +131,7 @@ class _EntityRecord(object):
     self.eclass = eclass
     self.pargs = pargs
     self.kwargs = kwargs
-    self.hash = pyu.genhash((eclass, pargs, kwargs))
+    self.hash = pycu.genhash((eclass, pargs, kwargs))
 
   def __hash__(self):
     return self.hash

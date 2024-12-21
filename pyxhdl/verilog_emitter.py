@@ -8,6 +8,7 @@ import re
 
 import numpy as np
 
+import py_misc_utils.core_utils as pycu
 import py_misc_utils.fp_utils as pyf
 import py_misc_utils.utils as pyu
 
@@ -106,7 +107,7 @@ class _Instance(object):
     self.name = name
     self.params = params
     self.args = args
-    self.hash = pyu.genhash((name, params, args))
+    self.hash = pycu.genhash((name, params, args))
 
   def __hash__(self):
     return self.hash
