@@ -9,6 +9,7 @@ import sys
 import textwrap
 
 import py_misc_utils.context_managers as pycm
+import py_misc_utils.core_utils as pycu
 import py_misc_utils.utils as pyu
 
 
@@ -31,11 +32,11 @@ def create_globals(obj, source_globals=None):
   obj_globs = get_obj_globals(obj, defval=dict())
   if source_globals:
     gglobals = copy.copy(source_globals)
-    for k, v in pyu.enum_values(obj_globs):
+    for k, v in pycu.enum_values(obj_globs):
       if not k.startswith('__'):
         gglobals[k] = v
   else:
-    gglobals = {k: v for k, v in pyu.enum_values(obj_globs)}
+    gglobals = {k: v for k, v in pycu.enum_values(obj_globs)}
 
   return gglobals
 
