@@ -575,7 +575,7 @@ class Verilog_Emitter(Emitter):
 
         if abs(step) != 1: pyu.fatal(f'Slice step must be 1: {step}')
 
-        start, stop = pyu.norm_slice(ix.start, ix.stop, ashape[i])
+        start, stop = pycu.norm_slice(ix.start, ix.stop, ashape[i])
         if start < 0 or start >= ashape[i] or stop < 0 or stop > ashape[i]:
           pyu.fatal(f'Slice index {i} of {arg} is out of bounds: {start} ... {stop} ({ashape[i]})')
 
