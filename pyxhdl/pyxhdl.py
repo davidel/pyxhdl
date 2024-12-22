@@ -623,7 +623,7 @@ class CodeGen(_ExecVisitor):
     return make_ro_ref(arg) if isinstance(arg, Value) else arg
 
   def _handle_call(self, func, args, kwargs):
-    if pyu.is_subclass(func, Entity):
+    if pyiu.is_subclass(func, Entity):
       pyu.mlog(lambda: f'Entity instantiation: {pyu.func_name(func)} args={pyu.stri(args)} ' \
                f'kwargs={pyu.stri(kwargs)}')
       # We do not run the Entity init code with run_function() as this is not what
