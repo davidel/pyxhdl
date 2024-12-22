@@ -1,6 +1,7 @@
 import collections
 import logging
 
+import py_misc_utils.core_utils as pycu
 import py_misc_utils.utils as pyu
 
 from .types import *
@@ -38,10 +39,10 @@ class Ref(object):
     return self.name == other.name and self.mode == other.mode and self.vspec == other.vspec
 
   def new_name(self, name):
-    return pyu.new_with(self, name=name)
+    return pycu.new_with(self, name=name)
 
   def new_mode(self, mode):
-    return pyu.new_with(self, mode=mode)
+    return pycu.new_with(self, mode=mode)
 
 
 class Init(object):
@@ -111,15 +112,15 @@ class Value(ValueBase):
     # status (isreg == None means temp value).
     ref = self.ref
 
-    return pyu.new_with(self, _value=ref.name, _isreg=None) if ref is not None else self
+    return pycu.new_with(self, _value=ref.name, _isreg=None) if ref is not None else self
 
   def new_value(self, value, shape=None):
     dtype = self._dtype.new_shape(*shape) if shape is not None else self._dtype
 
-    return pyu.new_with(self, _value=value, _dtype=dtype)
+    return pycu.new_with(self, _value=value, _dtype=dtype)
 
   def new_isreg(self, isreg):
-    return pyu.new_with(self, _isreg=isreg)
+    return pycu.new_with(self, _isreg=isreg)
 
 
 class Wire(Value):

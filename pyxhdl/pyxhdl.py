@@ -126,7 +126,7 @@ class _Frame(object):
     self.retval = None
 
   def new_locals(self, flocals):
-    return pyu.new_with(self, flocals=flocals)
+    return pycu.new_with(self, flocals=flocals)
 
 
 class _ExecVisitor(_AstVisitor):

@@ -4,6 +4,7 @@ import re
 
 import numpy as np
 
+import py_misc_utils.core_utils as pycu
 import py_misc_utils.utils as pyu
 
 
@@ -64,7 +65,7 @@ class Type(object):
     if not self.has_bits and (not shape or shape[-1] is not None):
       shape = shape + (None,)
 
-    return pyu.new_with(self, _shape=shape)
+    return pycu.new_with(self, _shape=shape)
 
   def element_type(self):
     return self.new_shape(*self._shape[-1: ])

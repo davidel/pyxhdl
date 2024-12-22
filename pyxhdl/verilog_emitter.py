@@ -188,7 +188,7 @@ class Verilog_Emitter(Emitter):
   def _fpmod_resolve(self, mod_name, fnname, cargs, argno, exp_param, mant_param,
                      kwargs):
     fspec = self.float_spec(cargs[argno].dtype)
-    margs = pyu.new_with(kwargs, **{exp_param: fspec.exp, mant_param: fspec.mant})
+    margs = pycu.new_with(kwargs, **{exp_param: fspec.exp, mant_param: fspec.mant})
     iid = self._iface_id(mod_name, **margs)
 
     return f'{iid}.{fnname}'
