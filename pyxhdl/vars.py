@@ -140,7 +140,7 @@ def valkind(isreg):
 
 
 def _init_value(name, iargs):
-  vspec = pyu.make_ntuple(VSpec, iargs or dict())
+  vspec = pycu.make_ntuple(VSpec, iargs or dict())
 
   return Ref(name, vspec=vspec) if name is not None else Init(vspec=vspec)
 

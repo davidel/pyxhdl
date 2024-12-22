@@ -1399,12 +1399,12 @@ class CodeGen(_ExecVisitor):
     return self._emitter.emit_call(fname, args, dtype)
 
   def mkvwire(self, dtype, value, **iargs):
-    vspec = pyu.make_ntuple(VSpec, iargs) if iargs else None
+    vspec = pycu.make_ntuple(VSpec, iargs) if iargs else None
 
     return Wire(dtype, value=Init(value=value, vspec=vspec))
 
   def mkvreg(self, dtype, value, **iargs):
-    vspec = pyu.make_ntuple(VSpec, iargs) if iargs else None
+    vspec = pycu.make_ntuple(VSpec, iargs) if iargs else None
 
     return Register(dtype, value=Init(value=value, vspec=vspec))
 
