@@ -6,6 +6,8 @@ import os
 import sys
 import unittest
 
+import py_misc_utils.core_utils as pycu
+
 import pyxhdl as X
 from pyxhdl import xlib as XL
 
@@ -15,7 +17,7 @@ _BACKEND_ARGS = collections.defaultdict(dict)
 
 def add_backend_arg(backend, name, value):
   bdict = _BACKEND_ARGS[backend]
-  X.dict_add(bdict, name, value)
+  pycu.dict_add(bdict, name, value)
 
 
 def test_name(obj, name):

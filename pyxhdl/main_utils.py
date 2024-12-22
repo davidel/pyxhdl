@@ -1,3 +1,4 @@
+import py_misc_utils.core_utils as pycu
 import py_misc_utils.utils as pyu
 
 
@@ -6,7 +7,7 @@ def _add_inputs(inseq, gglobals, ddict):
     names, expr = ein.split('=', 1)
     value = eval(expr, gglobals)
     for name in pyu.comma_split(names):
-      pyu.dict_add(ddict, name, value)
+      pycu.dict_add(ddict, name, value)
 
 
 def parse_kwargs(kwargs, gglobals, ddict=None):
