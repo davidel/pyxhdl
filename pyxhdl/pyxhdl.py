@@ -136,7 +136,7 @@ class _ExecVisitor(_AstVisitor):
     self._frames = [_Frame(vglobals, vlocals or dict(), _SourceLocation('NOFILE', 0))]
     self._variables = []
     self._results = []
-    self._revgen = pyu.RevGen()
+    self._revgen = pycu.RevGen()
 
   @property
   def frame(self):
@@ -773,7 +773,7 @@ class CodeGen(_ExecVisitor):
 
     self._emitter.emit_module_decl(ent_name, ent)
     self._root_vars = dict()
-    self._revgen = pyu.RevGen()
+    self._revgen = pycu.RevGen()
 
     for func in ent.enum_processes():
       hdl_args = get_hdl_args(func) or dict()
