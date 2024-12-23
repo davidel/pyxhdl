@@ -760,7 +760,7 @@ class CodeGen(_ExecVisitor):
       pyu.mlog(lambda: f'Arg: {kwarg_name} = {rarg}')
 
     uw_kwargs = {k: unwrap(v) for k, v in kwargs.items()}
-    ent_args = pyu.dmerge(cargs, uw_kwargs)
+    ent_args = pycu.dmerge(cargs, uw_kwargs)
 
     ent = eclass(**ent_args)
 
@@ -828,7 +828,7 @@ class CodeGen(_ExecVisitor):
       generated = 0
       for erec in used_entities:
         if erec not in self._generated_entities:
-          self.generate_entity(erec.eclass, pyu.dmerge(erec.pargs, erec.kwargs))
+          self.generate_entity(erec.eclass, pycu.dmerge(erec.pargs, erec.kwargs))
           generated += 1
 
       if generated == 0:
