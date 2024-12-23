@@ -1,10 +1,10 @@
 # TestBench data generator for the trivial MatMul unit.
 import argparse
-import logging
 
 import numpy as np
 
 import py_misc_utils.alog as alog
+import py_misc_utils.app_main as app_main
 import py_misc_utils.gfs as gfs
 import py_misc_utils.obj as obj
 import py_misc_utils.rnd_utils as pyr
@@ -106,9 +106,5 @@ if __name__ == '__main__':
   parser.add_argument('--seed', type=int,
                       help='The random number generator seed')
 
-  alog.add_logging_options(parser)
-
-  args = parser.parse_args()
-  alog.setup_logging(args)
-  _main(args)
+  app_main.main(parser, _main)
 

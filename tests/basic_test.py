@@ -1,7 +1,7 @@
 import argparse
-import logging
 
 import py_misc_utils.alog as alog
+import py_misc_utils.app_main as app_main
 import py_misc_utils.utils as pyu
 
 import pyxhdl as X
@@ -47,7 +47,7 @@ def test(a, b, q, d, f):
   if q >= 1:
     q = q + 1
     for i in range(4):
-      logging.debug(i)
+      alog.debug(i)
 
   if a > 0:
     c = a + b
@@ -70,7 +70,7 @@ def test(a, b, q, d, f):
     if i > 2:
       break
     for j in range(a + 1):
-      logging.debug(f'j = {j}')
+      alog.debug(f'j = {j}')
     q = q + 1
 
   i = 0
@@ -78,7 +78,7 @@ def test(a, b, q, d, f):
     q = q + q * b - 3
     if i > 3:
       break
-    logging.debug(f'While i = {i}')
+    alog.debug(f'While i = {i}')
     i += 1
     l = [k + 1 for k in range(5, 20) if k > 10]
     dc = {f'{g}': g + 1 for g in range(2, 15) if g > 6}
@@ -94,9 +94,9 @@ def test(a, b, q, d, f):
     if q == 3:
       q = q - 21
 
-  logging.debug(type(q))
-  logging.debug(isinstance(q, int))
-  logging.debug(sz)
+  alog.debug(type(q))
+  alog.debug(isinstance(q, int))
+  alog.debug(sz)
 
   ww = q[: 4] * 2 + q[4: ] * 7
   q[: 6] = 11
@@ -105,7 +105,7 @@ def test(a, b, q, d, f):
 
   nf = f + 1.0
 
-  logging.debug(locals())
+  alog.debug(locals())
 
 
 def _test_gen(args):
@@ -127,7 +127,7 @@ def _test_gen(args):
         q=X.Sens(),
       ))
 
-    logging.debug(f'CODE:')
+    alog.debug(f'CODE:')
     for ln in codegen.flush():
       print(ln)
 
@@ -241,7 +241,7 @@ class MyEntity(X.Entity):
       for v in range(8):
         dd[str(v)] = v + v / 2
 
-      logging.debug(f'DD = {dd}')
+      alog.debug(f'DD = {dd}')
 
       tt = Test(11)
       tt.qw = b
@@ -250,7 +250,7 @@ class MyEntity(X.Entity):
       ccc = XL.cast(a * b, rr.dtype)
 
     with XL.no_hdl():
-      logging.debug(f'Look! No HDL! {cx}')
+      alog.debug(f'Look! No HDL! {cx}')
 
     after_no_hdl = 2 * ccc
 
@@ -268,7 +268,7 @@ def _test_entity(args):
                                  ))
 
 
-    logging.debug(f'CODE:')
+    alog.debug(f'CODE:')
     for ln in codegen.flush():
       print(ln)
 
@@ -285,9 +285,5 @@ if __name__ == '__main__':
                       choices=set(X.Emitter.available()),
                       help='The backend to generate the code for')
 
-  alog.add_logging_options(parser)
-
-  args = parser.parse_args()
-  log.setup_logging(args)
-  _main(args)
+  app_main.main(parser, _main)
 

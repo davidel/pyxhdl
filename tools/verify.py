@@ -1,6 +1,5 @@
 import argparse
 import collections
-import logging
 import os
 import re
 import shutil
@@ -9,6 +8,7 @@ import subprocess
 import tempfile
 
 import py_misc_utils.alog as alog
+import py_misc_utils.app_main as app_main
 import py_misc_utils.utils as pyu
 
 
@@ -128,9 +128,9 @@ def _load_verifiers(args):
       xpath = shutil.which(tspec.binary)
       if xpath is not None:
         verifiers.append(tspec.tclass(xpath, args))
-        logging.info(f'Found {name} verifier at {xpath}')
+        alog.info(f'Found {name} verifier at {xpath}')
       else:
-        logging.debug(f'Unable to find binary "{tspec.binary}" for {name} verifier')
+        alog.debug(f'Unable to find binary "{tspec.binary}" for {name} verifier')
 
   return verifiers
 
@@ -142,7 +142,7 @@ def _main(args):
     pyu.fatal(f'Unable to find any valid HDL verification tools')
 
   for hver in verifiers:
-    logging.info(f'Running {hver.name} verifier on {args.backend} files {args.inputs}')
+    alog.info(f'Running {hver.name} verifier on {args.backend} files {args.inputs}')
 
     hver.verify(args.inputs, args.backend, args.entity)
 
@@ -161,9 +161,5 @@ if __name__ == '__main__':
                       choices={'GHDL', 'Vivado'},
                       help='The list of verifiers to be excluded')
 
-  alog.add_logging_options(parser)
-
-  args = parser.parse_args()
-  alog.setup_logging(args)
-  _main(args)
+  app_main.main(parser, _main)
 

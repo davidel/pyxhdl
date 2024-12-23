@@ -1,7 +1,7 @@
 import argparse
-import logging
 
 import py_misc_utils.alog as alog
+import py_misc_utils.app_main as app_main
 import py_misc_utils.gfs as gfs
 import py_misc_utils.module_utils as pymu
 import py_misc_utils.utils as pyu
@@ -69,10 +69,7 @@ if __name__ == '__main__':
   parser.add_argument('--testbench', action='store_true',
                       help='Run the entity with a testbench')
 
-  alog.add_logging_options(parser)
   tb.add_arguments(parser)
 
-  args = parser.parse_args()
-  alog.setup_logging(args)
-  _main(args)
+  app_main.main(parser, _main)
 
