@@ -27,7 +27,7 @@ def parse_inputs(inputs, kwargs, gglobals):
 
 
 def parse_args(cfgfile, args):
-  cfg = pyu.load_config(cfg_file=args.cfgfile)
+  cfg = pyu.load_config(args.cfgfile)
   for k, v in cfg.items():
     setattr(args, k, v)
 
