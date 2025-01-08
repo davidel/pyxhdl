@@ -10,7 +10,7 @@ import py_misc_utils.ast_utils as asu
 import py_misc_utils.context_managers as pycm
 import py_misc_utils.core_utils as pycu
 import py_misc_utils.inspect_utils as pyiu
-import py_misc_utils.thread_contest as pytc
+import py_misc_utils.thread_context as pytc
 import py_misc_utils.utils as pyu
 
 from .ast_utils import *
