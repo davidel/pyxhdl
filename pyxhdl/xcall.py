@@ -1,6 +1,7 @@
 import logging
 import re
 
+import py_misc_utils.inspect_utils as pyiu
 import py_misc_utils.utils as pyu
 
 from .pyxhdl import *
@@ -40,7 +41,7 @@ class _Marshal(object):
       if dtype is None:
         if not isinstance(arg.dtype, tclass):
           pyu.fatal(f'Wrong type for argument {self._argno} of {self._fnname}() ' \
-                    f'call: {pyu.cname(tclass)} vs {pyu.cname(arg.dtype)}')
+                    f'call: {pyiu.cname(tclass)} vs {pyiu.cname(arg.dtype)}')
       else:
         arg = ctx.emitter.cast(arg, dtype)
     else:

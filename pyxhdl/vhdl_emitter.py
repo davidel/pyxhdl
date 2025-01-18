@@ -9,6 +9,7 @@ import re
 import numpy as np
 
 import py_misc_utils.core_utils as pycu
+import py_misc_utils.inspect_utils as pyiu
 import py_misc_utils.utils as pyu
 
 from .entity import *
@@ -499,7 +500,7 @@ class VHDL_Emitter(Emitter):
 
   def emit_entity(self, ent, kwargs, ent_name=None):
     if ent_name is None:
-      ent_name = pyu.cname(ent)
+      ent_name = pyiu.cname(ent)
 
     iname = self._get_entity_inst(ent_name)
 
@@ -667,7 +668,7 @@ class VHDL_Emitter(Emitter):
                                            ctype_nocast=_ARITH_CTYPE_NOCAST)
       xleft, xright = self.svalue(left), self.svalue(right)
 
-      pyu.mlog(lambda: f'\tBinOp: {xleft}\t{pyu.cname(op)}\t{xright}')
+      pyu.mlog(lambda: f'\tBinOp: {xleft}\t{pyiu.cname(op)}\t{xright}')
       result = self._build_op(op, xleft, xright)
       # The signed/unsigned multiplication result has a number of bits which is the
       # sum of the ones of the operands, which is not the behaviour we want.
@@ -679,14 +680,14 @@ class VHDL_Emitter(Emitter):
       left, right = self._marshal_shift_op(left, right)
       xleft, xright = self.svalue(left), self.svalue(right)
 
-      pyu.mlog(lambda: f'\tBinOp: {xleft}\t{pyu.cname(op)}\t{xright}')
+      pyu.mlog(lambda: f'\tBinOp: {xleft}\t{pyiu.cname(op)}\t{xright}')
 
       return Value(left.dtype, value=self._build_op(op, xleft, xright))
     elif isinstance(op, (ast.BitOr, ast.BitXor, ast.BitAnd)):
       left, right = self._marshal_bit_op([left, right])
       xleft, xright = self.svalue(left), self.svalue(right)
 
-      pyu.mlog(lambda: f'\tBinOp: {xleft}\t{pyu.cname(op)}\t{xright}')
+      pyu.mlog(lambda: f'\tBinOp: {xleft}\t{pyiu.cname(op)}\t{xright}')
 
       return Value(left.dtype, value=self._build_op(op, xleft, xright))
     elif isinstance(op, ast.MatMult):
@@ -694,7 +695,7 @@ class VHDL_Emitter(Emitter):
       dtype, (left, right) = self._marshal_concat_op([left, right])
       xleft, xright = self.svalue(left), self.svalue(right)
 
-      pyu.mlog(lambda: f'\tBinOp: {xleft}\t{pyu.cname(op)}\t{xright}')
+      pyu.mlog(lambda: f'\tBinOp: {xleft}\t{pyiu.cname(op)}\t{xright}')
 
       return Value(dtype, value=self._build_op(op, xleft, xright))
     else:
@@ -703,7 +704,7 @@ class VHDL_Emitter(Emitter):
   def eval_UnaryOp(self, op, arg):
     xvalue = self.svalue(arg)
 
-    pyu.mlog(lambda: f'\tUnaryOp: {pyu.cname(op)}\t{xvalue}')
+    pyu.mlog(lambda: f'\tUnaryOp: {pyiu.cname(op)}\t{xvalue}')
 
     if isinstance(op, ast.UAdd):
       # Unary addition is a noop for HDL data types.
@@ -720,7 +721,7 @@ class VHDL_Emitter(Emitter):
   def eval_BoolOp(self, op, args):
     xargs = [self._cast(a, BOOL) for a in args]
 
-    pyu.mlog(lambda: f'\tBoolOp: {pyu.cname(op)}\t{pyu.stri(xargs)}')
+    pyu.mlog(lambda: f'\tBoolOp: {pyiu.cname(op)}\t{pyu.stri(xargs)}')
 
     if isinstance(op, ast.And):
       result = self._paren_join(' and ', xargs)
@@ -735,7 +736,7 @@ class VHDL_Emitter(Emitter):
     comps = self._marshal_compare_op([left] + list(comps))
     xcomps = [self.svalue(comp) for comp in comps]
 
-    pyu.mlog(lambda: f'\tCompare: {[pyu.cname(x) for x in ops]}\t{pyu.stri(xcomps)}')
+    pyu.mlog(lambda: f'\tCompare: {[pyiu.cname(x) for x in ops]}\t{pyu.stri(xcomps)}')
 
     results = []
     for i, op in enumerate(ops):

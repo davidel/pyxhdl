@@ -107,7 +107,7 @@ class _AstVisitor(ast.NodeVisitor):
     if self._catchall_visitors:
       visitor = self._catchall_visitors[-1]
     else:
-      method = 'visit_' + pyu.cname(node)
+      method = 'visit_' + pyiu.cname(node)
       visitor = getattr(self, method, self._default_visitor)
 
     return visitor(node)

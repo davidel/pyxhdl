@@ -5,6 +5,7 @@ import re
 import numpy as np
 
 import py_misc_utils.core_utils as pycu
+import py_misc_utils.inspect_utils as pyiu
 import py_misc_utils.utils as pyu
 
 
@@ -212,7 +213,7 @@ class TypeMatcher(object):
     if self.dtype is not None and self.dtype != arg.dtype:
       pyu.fatal(f'Mismatch type{msg}: {arg.dtype} vs. {self.dtype}')
     if self.tclass is not None and not isinstance(arg.dtype, self.tclass):
-      pyu.fatal(f'Mismatch type class{msg}: {arg.dtype} vs. {pyu.cname(self.tclass)}')
+      pyu.fatal(f'Mismatch type class{msg}: {arg.dtype} vs. {pyiu.cname(self.tclass)}')
 
 
 def mkarray(base_type, *shape):

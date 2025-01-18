@@ -2,7 +2,7 @@ import collections
 import logging
 
 import py_misc_utils.core_utils as pycu
-import py_misc_utils.utils as pyu
+import py_misc_utils.inspect_utils as pyiu
 
 from .types import *
 from .value_base import *
@@ -98,7 +98,7 @@ class Value(ValueBase):
     return self._isreg
 
   def __str__(self):
-    return f'{pyu.cname(self)}({self._value}, dtype={self._dtype}, isreg={self.isreg})'
+    return f'{pyiu.cname(self)}({self._value}, dtype={self._dtype}, isreg={self.isreg})'
 
   def __hash__(self):
     return hash((self._dtype, self._value, self._isreg))

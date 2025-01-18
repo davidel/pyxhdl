@@ -5,8 +5,9 @@ import inspect
 import logging
 import os
 
-import py_misc_utils.obj as obj
 import py_misc_utils.context_managers as pycm
+import py_misc_utils.inspect_utils as pyiu
+import py_misc_utils.obj as obj
 import py_misc_utils.template_replace as pytr
 import py_misc_utils.utils as pyu
 
@@ -263,8 +264,8 @@ class Emitter(object):
   def _best_type(self, cur, new, type_prec):
     nprec = type_prec.get(type(new), None)
     if nprec is None:
-      pyu.fatal(f'Unsupported type {pyu.cname(new)} ... should be ' \
-                f'{tuple(pyu.cname(x) for x in type_prec.keys())}')
+      pyu.fatal(f'Unsupported type {pyiu.cname(new)} ... should be ' \
+                f'{tuple(pyiu.cname(x) for x in type_prec.keys())}')
     if cur is not None:
       cprec = type_prec[type(cur)]
       dprec = nprec.prec - cprec.prec
@@ -568,7 +569,7 @@ class Emitter(object):
     elif tclass in (Bool, Integer, Real):
       dtype = tclass()
     else:
-      pyu.fatal(f'Unsupported class "{pyu.cname(tclass)}" while converting "{value}"')
+      pyu.fatal(f'Unsupported class "{pyiu.cname(tclass)}" while converting "{value}"')
 
     return self.cast(value, dtype)
 
