@@ -825,7 +825,7 @@ class Verilog_Emitter(Emitter):
     self._emit_line(f'endcase')
 
   def _build_op(self, op, left, right):
-    sop = _OPSYMS[pyu.classof(op)]
+    sop = _OPSYMS[pyiu.classof(op)]
     if sop.isfn:
       return f'{sop.sym}({paren(left)}, {paren(right)})'
     else:
@@ -834,7 +834,7 @@ class Verilog_Emitter(Emitter):
   def _build_arith_op(self, op, left, right, dtype):
     if isinstance(dtype, Float):
       fspec = self.float_spec(dtype)
-      opfn = _FLOAT_OPFNS[pyu.classof(op)]
+      opfn = _FLOAT_OPFNS[pyiu.classof(op)]
       fpcall = self._get_fpcall(opfn, NX=fspec.exp, NM=fspec.mant)
       return f'{fpcall}({left}, {right})'
     else:

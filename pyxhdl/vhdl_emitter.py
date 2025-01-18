@@ -656,7 +656,7 @@ class VHDL_Emitter(Emitter):
     self._emit_line(f'end case;')
 
   def _build_op(self, op, left, right):
-    sop = _OPSYMS[pyu.classof(op)]
+    sop = _OPSYMS[pyiu.classof(op)]
     if sop.isfn:
       return f'{sop.sym}({paren(left)}, {paren(right)})'
     else:
