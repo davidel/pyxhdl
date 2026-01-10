@@ -25,7 +25,7 @@ def _lazy_import():
 # HDL code, which happens while within an HDL scope.
 # IOW, HDL variables (Value instances) processing should happen within HDL scopes, and
 # the datamodel interface is only provided as fallback.
-class ValueBase(object):
+class ValueBase:
 
   def __init__(self):
     _lazy_import()
