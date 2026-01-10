@@ -8,14 +8,14 @@ interface fp_utils;
   localparam integer N = NX + NM + 1;
 
   localparam integer EXP_MAX = (1 << NX) - 1;
-  localparam integer XOFF = `EXP_OFFSET(NX);
-  localparam integer X64_OFF = `EXP_OFFSET(11);
+  localparam integer XOFF = fp::EXP_OFFSET(NX);
+  localparam integer X64_OFF = fp::EXP_OFFSET(11);
   localparam integer EXP64_MAX = (1 << 11) - 1;
 
   function automatic logic [N - 1: 0] from_real;
     input real       v;
 
-    localparam integer MSIZE = `MAX(NM - 52, 1);
+    localparam integer MSIZE = fp::MAX(NM - 52, 1);
 
     logic            sign;
     logic [10: 0]    i64x;
@@ -47,7 +47,7 @@ interface fp_utils;
   function automatic real to_real;
     input logic [N - 1: 0] v;
 
-    localparam integer     MSIZE = `MIN(52, NM);
+    localparam integer     MSIZE = fp::MIN(52, NM);
     localparam integer     ZFILL = (NM > 52) ? NM - 52 : 0;
 
     `IEEE754(NX, NM) pv = v;
@@ -85,7 +85,7 @@ interface fp_utils;
 
     logic [N - 1: 0]       d = $signed(pv1.mant) - $signed(pv2.mant);
     begin
-      icloseto = (CMP_NULP >= `ABS(d)) && (pv1.exp == pv2.exp) && (pv1.sign == pv2.sign);
+      icloseto = (CMP_NULP >= fp::ABS(d)) && (pv1.exp == pv2.exp) && (pv1.sign == pv2.sign);
     end
   endfunction
 
@@ -95,8 +95,8 @@ interface fp_utils;
     input real             eps;
 
     real                   rv1 = to_real(v1);
-    real                   delta = `FABS(rv1 - v2);
-    real                   toll = `MAX(`FABS(rv1), `FABS(v2)) * eps;
+    real                   delta = fp::FABS(rv1 - v2);
+    real                   toll = fp::MAX(fp::FABS(rv1), fp::FABS(v2)) * eps;
     begin
       rcloseto = (delta <= toll);
     end

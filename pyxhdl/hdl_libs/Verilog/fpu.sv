@@ -61,11 +61,11 @@ interface fpu;
   parameter integer NM = 23;
   localparam integer N = NX + NM + 1;
   parameter integer  NINT = N;
-  localparam integer XOFF = `EXP_OFFSET(NX);
+  localparam integer XOFF = fp::EXP_OFFSET(NX);
   localparam integer ADDSUB_PAD = 3;
 
   clz_mod #(.N (NM)) add_clz();
-  clz_mod #(.N (`MAX(NINT, N))) from_integer_clz();
+  clz_mod #(.N (fp::MAX(NINT, N))) from_integer_clz();
 
   function automatic logic [N - 1: 0] inf;
     input logic      s;
@@ -127,7 +127,7 @@ interface fpu;
   function automatic logic signed [NINT - 1: 0] to_integer;
     input logic [N - 1: 0] v;
 
-    localparam integer     NR = `MAX(NINT, NM + 1);
+    localparam integer     NR = fp::MAX(NINT, NM + 1);
 
     `IEEE754(NX, NM) pv = v;
 
@@ -148,7 +148,7 @@ interface fpu;
   function automatic logic [N - 1: 0] from_integer;
     input logic signed [NINT - 1: 0] v;
 
-    localparam integer               NR = `MAX(NINT, NM + 1);
+    localparam integer               NR = fp::MAX(NINT, NM + 1);
 
     logic                            sign;
     logic [from_integer_clz.NB - 1: 0] nclz;

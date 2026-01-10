@@ -9,13 +9,13 @@ interface fp_conv;
   parameter integer ONM = 23;
 
   localparam integer IN = INX + INM + 1;
-  localparam integer IXOFF = `EXP_OFFSET(INX);
+  localparam integer IXOFF = fp::EXP_OFFSET(INX);
 
   localparam integer ON = ONX + ONM + 1;
-  localparam integer OXOFF = `EXP_OFFSET(ONX);
+  localparam integer OXOFF = fp::EXP_OFFSET(ONX);
 
   localparam integer ZFILL = (ONM > INM) ? ONM - INM : 0;
-  localparam integer MSIZE = `MIN(ONM, INM);
+  localparam integer MSIZE = fp::MIN(ONM, INM);
 
   function automatic logic [ON - 1: 0] convert;
     input logic [IN - 1: 0] v;
