@@ -622,7 +622,7 @@ class Verilog_Emitter(Emitter):
 
   def is_root_variable(self, var):
     # Wires are always root!
-    return var.isreg is False or (var.vspec is not None and var.vspec.const)
+    return var.isreg is False or var.is_const()
 
   def var_remap(self, var, is_store):
     # Do not remap anything which is not Value.
@@ -639,7 +639,7 @@ class Verilog_Emitter(Emitter):
     return wreg.reg
 
   def emit_declare_variable(self, name, var):
-    if var.vspec is not None and var.vspec.const:
+    if var.is_const():
       vprefix, is_const = 'const ', True
     else:
       vprefix, is_const = '' if var.isreg else 'wire ', False

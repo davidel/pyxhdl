@@ -25,12 +25,25 @@ from .wrap import *
 ROOT_PROCESS = '$ROOT'
 INIT_PROCESS = '$INIT'
 
-_Variable = collections.namedtuple('Variable', 'dtype, isreg, init, vspec', defaults=[None, None])
 _Return = collections.namedtuple('Return', 'value, placement')
 _MatchCase = collections.namedtuple('MatchCase', 'pattern, scope')
 
 _CGENCTX = 'pyxhdl.CodeGen'
 _CODEFMT_RX = r'(?<!\{)\{([^{][^}]*(\}\}[^}]+)*)\}'
+
+
+class _Variable:
+
+  __slots__ = ('dtype', 'isreg', 'init', 'vspec')
+
+  def __init__(self, dtype, isreg, init=None, vspec=None):
+    self.dtype = dtype
+    self.isreg = isreg
+    self.init = init
+    self.vspec = vspec
+
+  def is_const(self):
+    return self.vspec is not None and self.vspec.const
 
 
 class _Exception(Exception):

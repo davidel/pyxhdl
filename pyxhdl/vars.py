@@ -21,6 +21,8 @@ def _mode(mode, vspec):
 
 class Ref:
 
+  __slots__ = ('name', 'mode', 'vspec')
+
   RW = 1
   RO = 2
 
@@ -47,6 +49,8 @@ class Ref:
 
 class Init:
 
+  __slots__ = ('value', 'vspec')
+
   def __init__(self, value=None, vspec=None):
     self.value = value
     self.vspec = vspec
@@ -62,6 +66,8 @@ class Init:
 
 
 class Value(ValueBase):
+
+  __slots__ = ('_dtype', '_value', '_isreg')
 
   def __init__(self, dtype, value=None, isreg=None):
     super().__init__()

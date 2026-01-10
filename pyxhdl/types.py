@@ -11,6 +11,8 @@ import py_misc_utils.utils as pyu
 
 class Type:
 
+  __slots__ = ('_name', '_shape', '_ctype')
+
   def __init__(self, name, shape, ctype):
     self._name = name
     self._shape = tuple(shape[:])

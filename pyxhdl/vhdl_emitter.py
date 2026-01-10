@@ -459,7 +459,7 @@ class VHDL_Emitter(Emitter):
 
   def is_root_variable(self, var):
     # Wires are always root!
-    return var.isreg is False or (var.vspec is not None and var.vspec.const)
+    return var.isreg is False or var.is_const()
 
   def var_remap(self, var, is_store):
     return var
@@ -467,7 +467,7 @@ class VHDL_Emitter(Emitter):
   def emit_declare_variable(self, name, var):
     vtype = self._type_of(var.dtype)
 
-    if var.vspec is not None and var.vspec.const:
+    if var.is_const():
       vprefix = 'constant'
     else:
       vprefix = 'variable' if var.isreg else 'signal'
