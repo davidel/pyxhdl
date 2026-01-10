@@ -530,7 +530,7 @@ class CodeGen(_ExecVisitor):
   def load_var(self, name, ctx=ast.Load()):
     var = vload(name, self.globals, self.locals)
     if var is NONE:
-      shvar = self._root_vars.get(name, None)
+      shvar = self._root_vars.get(name)
       if shvar is not None:
         var = Value(shvar.dtype, value=Ref(name, vspec=shvar.vspec), isreg=shvar.isreg)
       elif isinstance(ctx, ast.Load):
@@ -662,7 +662,7 @@ class CodeGen(_ExecVisitor):
 
     with self._emitter.placement(self._emitter.module_vars_place) as emt:
       for name, var in root_vars.items():
-        shv = self._root_vars.get(name, None)
+        shv = self._root_vars.get(name)
         if shv is not None:
           if shv != var:
             pyu.fatal(f'Root variable declaration mismatch: {pyu.stri(var)} vs. {pyu.stri(shv)}')
@@ -780,7 +780,7 @@ class CodeGen(_ExecVisitor):
       pyu.mlog(lambda: f'Process function: {pyiu.func_name(func)}')
 
       sensitivity = self._get_sensitivity(hdl_args, din)
-      process_kind = hdl_args.get('kind', None)
+      process_kind = hdl_args.get('kind')
 
       with self._emitter.indent():
         # Process functions will automatically see port names as locals, so the

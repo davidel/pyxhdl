@@ -30,7 +30,7 @@ struct packed { \
 module WhileEnt(A, B, XOUT);
   input logic [7: 0] A;
   input logic [7: 0] B;
-  output reg [7: 0] XOUT;
+  output logic [7: 0] XOUT;
   always @(A or B)
   run : begin
     static logic [7: 0] temp = unsigned'(8'(1));

@@ -93,7 +93,7 @@ class _WireRegs:
 
   def register(self, var, init=None):
     ref = var.ref
-    wreg = self._wregs.get(ref.name, None)
+    wreg = self._wregs.get(ref.name)
     if wreg is None:
       reg = Register(var.dtype, value=Ref(f'{ref.name}_', vspec=ref.vspec))
       wreg = _WireReg(wire=var, reg=reg, init=init)
@@ -132,7 +132,7 @@ class _Instanciator:
   def getid(self, name, **kwargs):
     params = kwargs.pop(PARAM_KEY, dict())
     inst = _Instance(name, params, kwargs)
-    iid = self._instances.get(inst, None)
+    iid = self._instances.get(inst)
     if iid is None:
       cname = self._cname(name)
       cid = self._iids.get(cname, 0)
@@ -215,7 +215,7 @@ class Verilog_Emitter(Emitter):
 
   def _get_fpcall(self, fnname, **kwargs):
     fn_map = pyu.dict_rget(self._cfg, 'verilog/fpu_fnmap', defval=_FPU_FNMAP)
-    svmod = fn_map.get(fnname, None)
+    svmod = fn_map.get(fnname)
     if svmod is None:
       pyu.fatal(f'Unable to find configuration for FPU function: {fnname}')
 
@@ -223,8 +223,8 @@ class Verilog_Emitter(Emitter):
 
     return f'{iid}.{svmod.fnname}'
 
-  def _type_of(self, dtype, kind=None):
-    kind = kind or 'logic'
+  def _type_of(self, dtype):
+    kind = 'logic'
     nbits, shape = dtype.nbits, dtype.array_shape
 
     adims = ''.join(f'[{x}]' for x in shape)
@@ -706,11 +706,10 @@ class Verilog_Emitter(Emitter):
     with self.indent():
       for name, ap in ent.args.items():
         pin, arg = ap.port, ap.arg
-        if IO_NAME.get(pin.idir, None) is None: pyu.fatal(f'Invalid port direction: {pin.idir}')
+        if IO_NAME.get(pin.idir) is None: pyu.fatal(f'Invalid port direction: {pin.idir}')
 
         pdir = 'input' if pin.idir == IN else 'output' if pin.idir == OUT else 'inout'
-        kind = 'reg' if pin.idir == OUT and arg.isreg else None
-        ntype = self._type_of(arg.dtype, kind=kind).format(pin.name)
+        ntype = self._type_of(arg.dtype).format(pin.name)
 
         self._emit_line(f'{pdir} {ntype};')
 

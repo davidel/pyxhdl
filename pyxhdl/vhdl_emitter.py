@@ -467,10 +467,10 @@ class VHDL_Emitter(Emitter):
   def emit_declare_variable(self, name, var):
     vtype = self._type_of(var.dtype)
 
-    vprefix = 'variable' if var.isreg else 'signal'
-    if var.vspec is not None:
-      if var.vspec.const:
-        vprefix = 'constant'
+    if var.vspec is not None and var.vspec.const:
+      vprefix = 'constant'
+    else:
+      vprefix = 'variable' if var.isreg else 'signal'
 
     if var.init is not None:
       xinit = self._cast(var.init, var.dtype)
@@ -543,7 +543,7 @@ class VHDL_Emitter(Emitter):
           pcount, nports = 0, len(ent.args)
           for name, ap in ent.args.items():
             pin, arg = ap.port, ap.arg
-            if IO_NAME.get(pin.idir, None) is None: pyu.fatal(f'Invalid port direction: {pin.idir}')
+            if IO_NAME.get(pin.idir) is None: pyu.fatal(f'Invalid port direction: {pin.idir}')
 
             pdir = 'in' if pin.idir == IN else 'out' if pin.idir == OUT else 'inout'
             ptype = self._type_of(arg.dtype)

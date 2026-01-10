@@ -34,7 +34,7 @@ module RamTest(CLK, RST_N, RDEN, WREN, ADDR, IN_DATA, OUT_DATA);
   input logic WREN;
   input logic [11: 0] ADDR;
   input logic [15: 0] IN_DATA;
-  output reg [15: 0] OUT_DATA;
+  output logic [15: 0] OUT_DATA;
   always @(posedge CLK)
   run : begin
     logic [15: 0] mem[4096];
