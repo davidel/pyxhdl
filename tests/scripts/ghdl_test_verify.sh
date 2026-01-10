@@ -4,7 +4,9 @@ set -ex
 
 SDIR=$(dirname "$0")
 TDIR=$(dirname "$SDIR")
-WDIR=$(mktemp -d -t $(basename $0))
+TESTDIR="${TESTDIR:-${TDIR}/data}"
+WDIR=$(mktemp -d --suffix $(basename $0))
+GHDL="ghdl"
 
 exit_cleanup() {
     test -d "$WDIR" && rm -fr "$WDIR"
@@ -12,9 +14,9 @@ exit_cleanup() {
 
 trap exit_cleanup EXIT
 
-for VHF in $TDIR/data/*.vhd; do
+for VHF in "$TESTDIR"/*.vhd; do
     echo "Analyzing $VHF ..."
-    ghdl -a --std=08 --workdir=$WDIR $VHF
-    rm -f $WDIR/work*.cf
+    "$GHDL" -a --std=08 --workdir=$WDIR $VHF
+    rm -f "$WDIR"/work*.cf
 done
 
