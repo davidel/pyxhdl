@@ -39,7 +39,7 @@ def _main(args):
     else:
       codegen.generate_entity(ent_class, inputs)
 
-    with gfs.std_open(args.output_file. mode='w') as ofd:
+    with gfs.std_open(args.output_file, mode='w') as ofd:
       for ln in codegen.flush():
         print(ln, file=ofd)
 

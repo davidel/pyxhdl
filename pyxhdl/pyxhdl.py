@@ -408,7 +408,7 @@ class _ExecVisitor(_AstVisitor):
     kwargs = self._populate_args_locals(sig, args, kwargs, func_locals)
     func_locals.update(**kwargs)
 
-    func_body = self._get_function_body(pycu.func_name(func), func_node)
+    func_body = self._get_function_body(pyiu.func_name(func), func_node)
 
     frame = _Frame(get_obj_globals(func),
                    func_locals,
@@ -425,7 +425,7 @@ class _ExecVisitor(_AstVisitor):
       # As all the HDL functions gets inlined, there is not really a "return", so
       # the returned values get stored into a temporary, and a "load" of that temporary
       # returned from this API.
-      result = self._generate_retlist_result(pycu.func_name(func), frame.return_values)
+      result = self._generate_retlist_result(pyiu.func_name(func), frame.return_values)
     else:
       result = frame.yields if frame.yields else frame.retval
 
@@ -434,7 +434,7 @@ class _ExecVisitor(_AstVisitor):
     return result
 
   def _run_class_function(self, func, args, kwargs):
-    pyu.mlog(lambda: f'OBJECT CREATE: class={pycu.func_name(func)} args={pyu.stri(args)} ' \
+    pyu.mlog(lambda: f'OBJECT CREATE: class={pyiu.func_name(func)} args={pyu.stri(args)} ' \
              f'kwargs={pyu.stri(kwargs)}')
     obj = func.__new__(func, *args, **kwargs)
     init = getattr(func, '__init__', None)
@@ -444,7 +444,7 @@ class _ExecVisitor(_AstVisitor):
     return obj
 
   def _call_direct(self, func, args, kwargs):
-    pyu.mlog(lambda: f'DIRECT CALL: function={pycu.func_name(func)} args={pyu.stri(args)} ' \
+    pyu.mlog(lambda: f'DIRECT CALL: function={pyiu.func_name(func)} args={pyu.stri(args)} ' \
              f'kwargs={pyu.stri(kwargs)}')
 
     # Do not call func(*args, **kwargs) directly as we need to insert the current
@@ -624,7 +624,7 @@ class CodeGen(_ExecVisitor):
 
   def _handle_call(self, func, args, kwargs):
     if pyiu.is_subclass(func, Entity):
-      pyu.mlog(lambda: f'Entity instantiation: {pycu.func_name(func)} args={pyu.stri(args)} ' \
+      pyu.mlog(lambda: f'Entity instantiation: {pyiu.func_name(func)} args={pyu.stri(args)} ' \
                f'kwargs={pyu.stri(kwargs)}')
       # We do not run the Entity init code with run_function() as this is not what
       # we want. Doing so will end up emitting HDL code.
@@ -778,7 +778,7 @@ class CodeGen(_ExecVisitor):
     for func in ent.enum_processes():
       hdl_args = get_hdl_args(func) or dict()
 
-      pyu.mlog(lambda: f'Process function: {pycu.func_name(func)}')
+      pyu.mlog(lambda: f'Process function: {pyiu.func_name(func)}')
 
       sensitivity = self._get_sensitivity(hdl_args, din)
       process_kind = hdl_args.get('kind', None)
@@ -805,7 +805,7 @@ class CodeGen(_ExecVisitor):
       finally:
         self._process_scope_exit()
     else:
-      self._emitter.emit_process_decl(pycu.func_name(func),
+      self._emitter.emit_process_decl(pyiu.func_name(func),
                                       sensitivity=sensitivity,
                                       process_kind=process_kind,
                                       process_args=process_args)

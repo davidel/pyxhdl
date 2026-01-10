@@ -83,7 +83,7 @@ _FLOAT_OPFNS = {
 
 _WireReg = collections.namedtuple('WireReg', 'wire, reg, init', defaults=[None])
 
-class _WireRegs(object):
+class _WireRegs:
 
   def __init__(self):
     self._wregs = dict()
@@ -102,7 +102,7 @@ class _WireRegs(object):
     return wreg
 
 
-class _Instance(object):
+class _Instance:
 
   def __init__(self, name, params, args):
     self.name = name
@@ -118,7 +118,7 @@ class _Instance(object):
             self.args == other.args)
 
 
-class _Instanciator(object):
+class _Instanciator:
 
   def __init__(self):
     self._instances = dict()
