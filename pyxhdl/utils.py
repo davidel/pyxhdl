@@ -15,7 +15,7 @@ import py_misc_utils.utils as pyu
 
 _FuncInfo = collections.namedtuple('FuncInfo', 'filename, lineno, source')
 
-_NONE = object()
+NONE = object()
 
 
 def get_obj_globals(obj, defval=None):
@@ -42,14 +42,14 @@ def create_globals(obj, source_globals=None):
 
 
 def fetch_attr(obj, name):
-  return obj.get(name, _NONE) if isinstance(obj, dict) else getattr(obj, name, _NONE)
+  return obj.get(name, NONE) if isinstance(obj, dict) else getattr(obj, name, NONE)
 
 
 def vload(name, globs, locs):
   v = fetch_attr(locs, name)
-  if v is _NONE:
+  if v is NONE:
     v = fetch_attr(globs, name)
-    if v is _NONE:
+    if v is NONE:
       bins = globs.get('__builtins__', None)
       if bins is not None:
         v = fetch_attr(bins, name)
@@ -164,14 +164,14 @@ def temp_attributes(obj, **attrs):
 
   def infn():
     for k, v in attrs.items():
-      saved[k] = getattr(obj, k, _NONE)
+      saved[k] = getattr(obj, k, NONE)
       setattr(obj, k, v)
 
     return obj
 
   def outfn(*exc):
     for k, v in saved.items():
-      if v is _NONE:
+      if v is NONE:
         delattr(obj, k)
       else:
         setattr(obj, k, v)

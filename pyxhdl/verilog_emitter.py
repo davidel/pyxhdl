@@ -649,8 +649,8 @@ class Verilog_Emitter(Emitter):
       if var.isreg or is_const:
         vinit = f' = {self._cast(var.init, var.dtype)}'
       else:
-        wreg = self._wireregs.register(Wire(var.dtype, value=Ref(name, vspec=var.vspec)),
-                                       init=var.init)
+        self._wireregs.register(Wire(var.dtype, value=Ref(name, vspec=var.vspec)),
+                                init=var.init)
 
     ntype = self._type_of(var.dtype).format(name)
 

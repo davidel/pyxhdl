@@ -199,7 +199,7 @@ use work.all;
 
 -- Entity "IfEnt" is "IfEnt" with:
 -- 	args={'A': 'uint(8)', 'B': 'uint(16)', 'XOUT': 'uint(16)'}
--- 	kwargs={kwarg: 3}
+-- 	kwargs={kwarg=3}
 entity IfEnt is
   port (
     A : in unsigned(7 downto 0);
@@ -218,7 +218,7 @@ use work.all;
 
 -- Entity "IfEnt" is "IfEnt" with:
 -- 	args={'A': 'uint(8)', 'B': 'uint(16)', 'XOUT': 'uint(16)'}
--- 	kwargs={kwarg: 3}
+-- 	kwargs={kwarg=3}
 architecture behavior of IfEnt is
 begin
   run : process (A, B)

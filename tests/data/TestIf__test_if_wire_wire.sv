@@ -1,13 +1,16 @@
 /* verilator lint_off WIDTH */
 
-`timescale 1 ns / 1 ps
+`timescale 1 ns / 100 ps
 
-`define MAX(A, B) ((A > B) ? A : B)
-`define MIN(A, B) ((A > B) ? B : A)
-`define ABS(A) (($signed(A) >= 0) ? A : -$signed(A))
-`define FABS(A) ((A >= 0.0) ? A : -A)
 
-`define EXP_OFFSET(NX) (2**(NX - 1) - 1)
+package fp;
+  let MAX(A, B) = ((A > B) ? A : B);
+  let MIN(A, B) = ((A > B) ? B : A);
+  let ABS(A) = (($signed(A) >= 0) ? A : -$signed(A));
+  let FABS(A) = ((A >= 0.0) ? A : -A);
+
+  let EXP_OFFSET(NX) = (2**(NX - 1) - 1);
+endpackage
 
 // This in theory should be a typedef within the FPU interface, but then
 // many HDL tools do not support hierarchical type dereferencing.
@@ -23,7 +26,7 @@ struct packed { \
 
 // Entity "IfEnt" is "IfEnt" with:
 // 	args={'A': 'uint(8)', 'B': 'uint(8)', 'XOUT': 'uint(8)'}
-// 	kwargs={kwarg: 17}
+// 	kwargs={kwarg=17}
 module IfEnt(A, B, XOUT);
   input logic [7: 0] A;
   input logic [7: 0] B;

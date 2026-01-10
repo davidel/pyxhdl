@@ -28,7 +28,7 @@ def test_name(obj, name):
 
 
 def is_regen_mode():
-  mode = os.environ.get('REGEN_TESTS', None)
+  mode = os.environ.get('REGEN_TESTS')
 
   return mode is not None and int(mode) != 0
 
@@ -42,10 +42,10 @@ _BACKEND_EXTS = {
   X.VERILOG: '.sv',
 }
 
-def reference_path(name, backend):
+def reference_path(name, backend, path=None):
   ext = _BACKEND_EXTS.get(backend, f'.{backend}')
 
-  return os.path.join(data_folder(), f'{name}{ext}')
+  return os.path.join(path or data_folder(), f'{name}{ext}')
 
 
 def load_reference(name, backend):
@@ -56,7 +56,7 @@ def load_reference(name, backend):
 
 
 def store_reference(name, backend, code):
-  path = reference_path(name, backend)
+  path = reference_path(name, backend, path=os.environ.get('DEST_PATH'))
   logging.info(f'Storing reference code: name={name} banckend={backend} path={path}')
   with open(path, mode='w') as rfd:
     for cln in code:

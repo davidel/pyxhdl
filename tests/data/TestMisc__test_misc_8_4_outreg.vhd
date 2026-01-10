@@ -198,14 +198,15 @@ library work;
 use work.all;
 
 -- Entity "Misc" is "Misc" with:
--- 	args={'A': 'uint(8)', 'B': 'uint(4)', 'C': 'bits(8)', 'XOUT': 'uint(8)'}
+-- 	args={'A': 'uint(8)', 'B': 'uint(4)', 'C': 'bits(8)', 'XOUT1': 'uint(8)', 'XOUT2': 'uint(8)'}
 -- 	kwargs={}
 entity Misc is
   port (
     A : in unsigned(7 downto 0);
     B : in unsigned(3 downto 0);
     C : in std_logic_vector(7 downto 0);
-    XOUT : inout unsigned(7 downto 0)
+    XOUT1 : inout unsigned(7 downto 0);
+    XOUT2 : inout unsigned(7 downto 0)
   );
 end entity;
 library ieee;
@@ -218,7 +219,7 @@ library work;
 use work.all;
 
 -- Entity "Misc" is "Misc" with:
--- 	args={'A': 'uint(8)', 'B': 'uint(4)', 'C': 'bits(8)', 'XOUT': 'uint(8)'}
+-- 	args={'A': 'uint(8)', 'B': 'uint(4)', 'C': 'bits(8)', 'XOUT1': 'uint(8)', 'XOUT2': 'uint(8)'}
 -- 	kwargs={}
 architecture behavior of Misc is
 begin
@@ -296,10 +297,10 @@ begin
     twd1 := (A - resize(B, 8)) + resize(twdecl, 8);
     twdecl_1 := resize(A + resize(B, 8), 4);
     twd2 := (A - resize(B, 8)) + resize(twdecl_1, 8);
-    XOUT <= ((A - resize(B, 8)) - ((resize(na * nb, 8) - 1) - (na + resize(nb * 3, 8)))) + zz;
+    XOUT1 <= ((A - resize(B, 8)) - ((resize(na * nb, 8) - 1) - (na + resize(nb * 3, 8)))) + zz;
   end process;
   use_self : process (A, B, C)
   begin
-    XOUT <= ((A - resize(B, 8)) + pyxhdl.cvt_unsigned(C, 8)) + 4;
+    XOUT2 <= ((A - resize(B, 8)) + pyxhdl.cvt_unsigned(C, 8)) + 5;
   end process;
 end architecture;

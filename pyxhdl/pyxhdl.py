@@ -31,7 +31,6 @@ _MatchCase = collections.namedtuple('MatchCase', 'pattern, scope')
 
 _CGENCTX = 'pyxhdl.CodeGen'
 _CODEFMT_RX = r'(?<!\{)\{([^{][^}]*(\}\}[^}]+)*)\}'
-_NONE = object()
 
 
 class _Exception(Exception):
@@ -201,7 +200,7 @@ class _ExecVisitor(_AstVisitor):
     def infn():
       ref_dict = self.locals
       for k, v in tmp_values.items():
-        save_dict[k] = ref_dict.get(k, _NONE)
+        save_dict[k] = ref_dict.get(k, NONE)
         ref_dict[k] = v
 
       return self
@@ -209,7 +208,7 @@ class _ExecVisitor(_AstVisitor):
     def outfn(*exc):
       ref_dict = self.locals
       for k, v in save_dict.items():
-        if v is _NONE:
+        if v is NONE:
           ref_dict.pop(k)
         else:
           ref_dict[k] = v
@@ -324,15 +323,15 @@ class _ExecVisitor(_AstVisitor):
         func_locals[param.name] = args[n: ]
         n = len(args)
       elif param.kind == inspect.Parameter.POSITIONAL_OR_KEYWORD:
-        pvalue = xkwargs.pop(param.name, _NONE)
-        if pvalue is not _NONE:
+        pvalue = xkwargs.pop(param.name, NONE)
+        if pvalue is not NONE:
           func_locals[param.name] = pvalue
         else:
           func_locals[param.name] = args[n]
           n += 1
       elif param.kind == inspect.Parameter.KEYWORD_ONLY:
-        pvalue = xkwargs.pop(param.name, _NONE)
-        if pvalue is _NONE and param.default != inspect.Parameter.empty:
+        pvalue = xkwargs.pop(param.name, NONE)
+        if pvalue is NONE and param.default != inspect.Parameter.empty:
           pvalue = param.default
         func_locals[param.name] = pvalue
       elif param.kind == inspect.Parameter.VAR_KEYWORD:
@@ -366,7 +365,7 @@ class _ExecVisitor(_AstVisitor):
       pyu.fatal(f'Value index out of range: {vindex} vs {len(tmp_names)}')
 
     var = self.load_var(rvname, ctx=ast.Store())
-    if var is _NONE and isinstance(value, Value):
+    if var is NONE and isinstance(value, Value):
       var = self._new_variable(rvname, value)
     self._assign_value(var, value, rvname)
 
@@ -530,7 +529,7 @@ class CodeGen(_ExecVisitor):
 
   def load_var(self, name, ctx=ast.Load()):
     var = vload(name, self.globals, self.locals)
-    if var is _NONE:
+    if var is NONE:
       shvar = self._root_vars.get(name, None)
       if shvar is not None:
         var = Value(shvar.dtype, value=Ref(name, vspec=shvar.vspec), isreg=shvar.isreg)

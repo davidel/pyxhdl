@@ -1,13 +1,16 @@
 /* verilator lint_off WIDTH */
 
-`timescale 1 ns / 1 ps
+`timescale 1 ns / 100 ps
 
-`define MAX(A, B) ((A > B) ? A : B)
-`define MIN(A, B) ((A > B) ? B : A)
-`define ABS(A) (($signed(A) >= 0) ? A : -$signed(A))
-`define FABS(A) ((A >= 0.0) ? A : -A)
 
-`define EXP_OFFSET(NX) (2**(NX - 1) - 1)
+package fp;
+  let MAX(A, B) = ((A > B) ? A : B);
+  let MIN(A, B) = ((A > B) ? B : A);
+  let ABS(A) = (($signed(A) >= 0) ? A : -$signed(A));
+  let FABS(A) = ((A >= 0.0) ? A : -A);
+
+  let EXP_OFFSET(NX) = (2**(NX - 1) - 1);
+endpackage
 
 // This in theory should be a typedef within the FPU interface, but then
 // many HDL tools do not support hierarchical type dereferencing.
@@ -32,13 +35,13 @@ interface fp_conv;
   parameter integer ONM = 23;
 
   localparam integer IN = INX + INM + 1;
-  localparam integer IXOFF = `EXP_OFFSET(INX);
+  localparam integer IXOFF = fp::EXP_OFFSET(INX);
 
   localparam integer ON = ONX + ONM + 1;
-  localparam integer OXOFF = `EXP_OFFSET(ONX);
+  localparam integer OXOFF = fp::EXP_OFFSET(ONX);
 
   localparam integer ZFILL = (ONM > INM) ? ONM - INM : 0;
-  localparam integer MSIZE = `MIN(ONM, INM);
+  localparam integer MSIZE = fp::MIN(ONM, INM);
 
   function automatic logic [ON - 1: 0] convert;
     input logic [IN - 1: 0] v;
@@ -121,11 +124,11 @@ interface fpu;
   parameter integer NM = 23;
   localparam integer N = NX + NM + 1;
   parameter integer  NINT = N;
-  localparam integer XOFF = `EXP_OFFSET(NX);
+  localparam integer XOFF = fp::EXP_OFFSET(NX);
   localparam integer ADDSUB_PAD = 3;
 
   clz_mod #(.N (NM)) add_clz();
-  clz_mod #(.N (`MAX(NINT, N))) from_integer_clz();
+  clz_mod #(.N (fp::MAX(NINT, N))) from_integer_clz();
 
   function automatic logic [N - 1: 0] inf;
     input logic      s;
@@ -187,7 +190,7 @@ interface fpu;
   function automatic logic signed [NINT - 1: 0] to_integer;
     input logic [N - 1: 0] v;
 
-    localparam integer     NR = `MAX(NINT, NM + 1);
+    localparam integer     NR = fp::MAX(NINT, NM + 1);
 
     `IEEE754(NX, NM) pv = v;
 
@@ -208,7 +211,7 @@ interface fpu;
   function automatic logic [N - 1: 0] from_integer;
     input logic signed [NINT - 1: 0] v;
 
-    localparam integer               NR = `MAX(NINT, NM + 1);
+    localparam integer               NR = fp::MAX(NINT, NM + 1);
 
     logic                            sign;
     logic [from_integer_clz.NB - 1: 0] nclz;

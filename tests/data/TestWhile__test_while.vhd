@@ -199,7 +199,7 @@ use work.all;
 
 -- Entity "WhileEnt" is "WhileEnt" with:
 -- 	args={'A': 'uint(8)', 'B': 'uint(8)', 'XOUT': 'uint(8)'}
--- 	kwargs={count: 4}
+-- 	kwargs={count=4}
 entity WhileEnt is
   port (
     A : in unsigned(7 downto 0);
@@ -218,7 +218,7 @@ use work.all;
 
 -- Entity "WhileEnt" is "WhileEnt" with:
 -- 	args={'A': 'uint(8)', 'B': 'uint(8)', 'XOUT': 'uint(8)'}
--- 	kwargs={count: 4}
+-- 	kwargs={count=4}
 architecture behavior of WhileEnt is
 begin
   run : process (A, B)

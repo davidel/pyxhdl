@@ -1,13 +1,16 @@
 /* verilator lint_off WIDTH */
 
-`timescale 1 ns / 1 ps
+`timescale 1 ns / 100 ps
 
-`define MAX(A, B) ((A > B) ? A : B)
-`define MIN(A, B) ((A > B) ? B : A)
-`define ABS(A) (($signed(A) >= 0) ? A : -$signed(A))
-`define FABS(A) ((A >= 0.0) ? A : -A)
 
-`define EXP_OFFSET(NX) (2**(NX - 1) - 1)
+package fp;
+  let MAX(A, B) = ((A > B) ? A : B);
+  let MIN(A, B) = ((A > B) ? B : A);
+  let ABS(A) = (($signed(A) >= 0) ? A : -$signed(A));
+  let FABS(A) = ((A >= 0.0) ? A : -A);
+
+  let EXP_OFFSET(NX) = (2**(NX - 1) - 1);
+endpackage
 
 // This in theory should be a typedef within the FPU interface, but then
 // many HDL tools do not support hierarchical type dereferencing.
@@ -22,14 +25,16 @@ struct packed { \
 // PyXHDL support functions.
 
 // Entity "Misc" is "Misc" with:
-// 	args={'A': 'uint(8)', 'B': 'uint(8)', 'C': 'bits(8)', 'XOUT': 'uint(8)'}
+// 	args={'A': 'uint(8)', 'B': 'uint(8)', 'C': 'bits(8)', 'XOUT1': 'uint(8)', 'XOUT2': 'uint(8)'}
 // 	kwargs={}
-module Misc(A, B, C, XOUT);
+module Misc(A, B, C, XOUT1, XOUT2);
   input logic [7: 0] A;
   input logic [7: 0] B;
   input logic [7: 0] C;
-  inout logic [7: 0] XOUT;
-  logic [7: 0] XOUT_;
+  inout logic [7: 0] XOUT1;
+  inout logic [7: 0] XOUT2;
+  logic [7: 0] XOUT1_;
+  logic [7: 0] XOUT2_;
   always @(A or B or C)
   run : begin
     logic [7: 0] na;
@@ -104,11 +109,12 @@ module Misc(A, B, C, XOUT);
     twd1 = (A - B) + twdecl;
     twdecl_1 = A + B;
     twd2 = (A - B) + twdecl_1;
-    XOUT_ = ((A - B) - ((8'(na * nb) - 1) - (na + 8'(nb * 3)))) + zz;
+    XOUT1_ = ((A - B) - ((8'(na * nb) - 1) - (na + 8'(nb * 3)))) + zz;
   end
   always @(A or B or C)
   use_self : begin
-    XOUT_ = ((A - B) + C) + 4;
+    XOUT2_ = ((A - B) + C) + 5;
   end
-  assign XOUT = XOUT_;
+  assign XOUT1 = XOUT1_;
+  assign XOUT2 = XOUT2_;
 endmodule

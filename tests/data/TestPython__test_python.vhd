@@ -199,7 +199,7 @@ use work.all;
 
 -- Entity "PythonEnt" is "PythonEnt" with:
 -- 	args={'DUMMY_A': 'uint(8)', 'DUMMY_OUT': 'uint(8)'}
--- 	kwargs={i: 17, j: 21, f: 3.14, s: "ABC", l: [1, 2, 3], d: {a: 3, b: 11, c: 65}}
+-- 	kwargs={i=17, j=21, f=3.140e+00, s="ABC", l=[1, 2, 3], d={a=3, b=11, c=65}}
 entity PythonEnt is
   port (
     DUMMY_A : in unsigned(7 downto 0);
@@ -217,7 +217,7 @@ use work.all;
 
 -- Entity "PythonEnt" is "PythonEnt" with:
 -- 	args={'DUMMY_A': 'uint(8)', 'DUMMY_OUT': 'uint(8)'}
--- 	kwargs={i: 17, j: 21, f: 3.14, s: "ABC", l: [1, 2, 3], d: {a: 3, b: 11, c: 65}}
+-- 	kwargs={i=17, j=21, f=3.140e+00, s="ABC", l=[1, 2, 3], d={a=3, b=11, c=65}}
 architecture behavior of PythonEnt is
 begin
   -- i = 17

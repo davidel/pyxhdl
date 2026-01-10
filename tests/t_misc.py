@@ -74,7 +74,7 @@ def twice_decl(a, b):
 
 class Misc(X.Entity):
 
-  PORTS = 'A, B, C, +XOUT'
+  PORTS = 'A, B, C, +XOUT1, +XOUT2'
 
   @X.hdl_process(sens='A, B, C')
   def run():
@@ -119,11 +119,11 @@ class Misc(X.Entity):
     twd1 = twice_decl(A, B)
     twd2 = twice_decl(A, B)
 
-    XOUT = A - B - dr + zz
+    XOUT1 = A - B - dr + zz
 
   @X.hdl_process(sens='A, B, C')
   def use_self(self):
-    XOUT = A - B + XL.cast(C, XOUT.dtype) + len(self.args)
+    XOUT2 = A - B + XL.cast(C, XOUT2.dtype) + len(self.args)
 
 
 class TestMisc(unittest.TestCase):
@@ -133,7 +133,8 @@ class TestMisc(unittest.TestCase):
       A=X.mkwire(X.UINT8),
       B=X.mkwire(X.UINT8),
       C=X.mkwire(X.Bits(8)),
-      XOUT=X.mkwire(X.UINT8),
+      XOUT1=X.mkwire(X.UINT8),
+      XOUT2=X.mkwire(X.UINT8),
     )
 
     tu.run(self, tu.test_name(self, pyu.fname()), Misc, inputs)
@@ -143,7 +144,8 @@ class TestMisc(unittest.TestCase):
       A=X.mkwire(X.UINT8),
       B=X.mkwire(X.Uint(4)),
       C=X.mkwire(X.Bits(8)),
-      XOUT=X.mkwire(X.UINT8),
+      XOUT1=X.mkwire(X.UINT8),
+      XOUT2=X.mkwire(X.UINT8),
     )
 
     tu.run(self, tu.test_name(self, pyu.fname()), Misc, inputs)
@@ -153,7 +155,8 @@ class TestMisc(unittest.TestCase):
       A=X.mkwire(X.UINT8),
       B=X.mkwire(X.Uint(4)),
       C=X.mkwire(X.Bits(8)),
-      XOUT=X.mkreg(X.UINT8),
+      XOUT1=X.mkreg(X.UINT8),
+      XOUT2=X.mkreg(X.UINT8),
     )
 
     tu.run(self, tu.test_name(self, pyu.fname()), Misc, inputs)

@@ -223,7 +223,7 @@ use work.all;
 
 -- Entity "XLib" is "XLib" with:
 -- 	args={'CLK': 'bits(1)', 'A': 'uint(8)', 'B': 'uint(8)', 'XOUT': 'uint(8)'}
--- 	kwargs={arg1: 17, arg2: "PyXHDL"}
+-- 	kwargs={arg1=17, arg2="PyXHDL"}
 entity XLib is
   port (
     CLK : in std_logic;
@@ -243,7 +243,7 @@ use work.all;
 
 -- Entity "XLib" is "XLib" with:
 -- 	args={'CLK': 'bits(1)', 'A': 'uint(8)', 'B': 'uint(8)', 'XOUT': 'uint(8)'}
--- 	kwargs={arg1: 17, arg2: "PyXHDL"}
+-- 	kwargs={arg1=17, arg2="PyXHDL"}
 architecture behavior of XLib is
 begin
   run : process (CLK, A, B)

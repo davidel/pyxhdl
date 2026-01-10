@@ -1,13 +1,16 @@
 /* verilator lint_off WIDTH */
 
-`timescale 1 ns / 1 ps
+`timescale 1 ns / 100 ps
 
-`define MAX(A, B) ((A > B) ? A : B)
-`define MIN(A, B) ((A > B) ? B : A)
-`define ABS(A) (($signed(A) >= 0) ? A : -$signed(A))
-`define FABS(A) ((A >= 0.0) ? A : -A)
 
-`define EXP_OFFSET(NX) (2**(NX - 1) - 1)
+package fp;
+  let MAX(A, B) = ((A > B) ? A : B);
+  let MIN(A, B) = ((A > B) ? B : A);
+  let ABS(A) = (($signed(A) >= 0) ? A : -$signed(A));
+  let FABS(A) = ((A >= 0.0) ? A : -A);
+
+  let EXP_OFFSET(NX) = (2**(NX - 1) - 1);
+endpackage
 
 // This in theory should be a typedef within the FPU interface, but then
 // many HDL tools do not support hierarchical type dereferencing.
@@ -23,7 +26,7 @@ struct packed { \
 
 // Entity "PythonEnt" is "PythonEnt" with:
 // 	args={'DUMMY_A': 'uint(8)', 'DUMMY_OUT': 'uint(8)'}
-// 	kwargs={i: 17, j: 21, f: 3.14, s: "ABC", l: [1, 2, 3], d: {a: 3, b: 11, c: 65}}
+// 	kwargs={i=17, j=21, f=3.140e+00, s="ABC", l=[1, 2, 3], d={a=3, b=11, c=65}}
 module PythonEnt(DUMMY_A, DUMMY_OUT);
   input logic [7: 0] DUMMY_A;
   output logic [7: 0] DUMMY_OUT;

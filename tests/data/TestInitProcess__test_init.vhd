@@ -199,7 +199,7 @@ use work.all;
 
 -- Entity "InitProcess" is "InitProcess" with:
 -- 	args={'A': 'uint(8)', 'B': 'uint(8)', 'XOUT': 'uint(8)'}
--- 	kwargs={init: [[ 0  1  2  3]
+-- 	kwargs={init=[[ 0  1  2  3]
 --  [ 4  5  6  7]
 --  [ 8  9 10 11]
 --  [12 13 14 15]]}
@@ -221,7 +221,7 @@ use work.all;
 
 -- Entity "InitProcess" is "InitProcess" with:
 -- 	args={'A': 'uint(8)', 'B': 'uint(8)', 'XOUT': 'uint(8)'}
--- 	kwargs={init: [[ 0  1  2  3]
+-- 	kwargs={init=[[ 0  1  2  3]
 --  [ 4  5  6  7]
 --  [ 8  9 10 11]
 --  [12 13 14 15]]}

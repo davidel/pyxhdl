@@ -199,7 +199,7 @@ use work.all;
 
 -- Entity "ExtraArgs" is "ExtraArgs" with:
 -- 	args={'A': 'uint(8)', 'B': 'uint(8)', 'XOUT': 'uint(8)'}
--- 	kwargs={myarg1: 17, myarg2: 21}
+-- 	kwargs={myarg1=17, myarg2=21}
 entity ExtraArgs is
   port (
     A : in unsigned(7 downto 0);
@@ -218,7 +218,7 @@ use work.all;
 
 -- Entity "ExtraArgs" is "ExtraArgs" with:
 -- 	args={'A': 'uint(8)', 'B': 'uint(8)', 'XOUT': 'uint(8)'}
--- 	kwargs={myarg1: 17, myarg2: 21}
+-- 	kwargs={myarg1=17, myarg2=21}
 architecture behavior of ExtraArgs is
 begin
   run : process (A, B)
