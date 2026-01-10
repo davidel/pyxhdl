@@ -189,7 +189,9 @@ end package body;
 
 
 
-context work.xlibs;
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
 
 package dummy is
   function func(a : in unsigned; b : in unsigned) return unsigned;
@@ -217,6 +219,7 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use ieee.math_real.all;
 use ieee.float_pkg.all;
+use std.textio.all;
 
 library work;
 use work.all;
@@ -237,6 +240,7 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use ieee.math_real.all;
 use ieee.float_pkg.all;
+use std.textio.all;
 
 library work;
 use work.all;
@@ -256,10 +260,13 @@ begin
     write(output, "TIME=" & to_string(now) & " A=" & to_hstring(A) & " B=" & to_hstring(B) & " arg1=" & "17" & " arg2=" & "PyXHDL" & " $$vanilla" & LF);
     dummy.proc((A + B) + B, A - resize((A + B) * 2, 8));
     e := dummy.func(A + 1, resize(B * 3, 8));
-    wait until (A = to_unsigned(1, 8));
     ctx := resize(A * B, 8);
     z := ((A + B) - A) + B;
     z := resize(A * B, 8);
     assigned := z - B;
+  end process;
+  waiter : process
+  begin
+    wait until (A = to_unsigned(1, 8));
   end process;
 end architecture;

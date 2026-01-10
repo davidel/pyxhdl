@@ -26,6 +26,7 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use ieee.math_real.all;
 use ieee.float_pkg.all;
+use std.textio.all;
 
 library work;
 use work.all;

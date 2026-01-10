@@ -59,10 +59,13 @@ module XLib(CLK, A, B, XOUT);
     $display("%s%s%s%s%s%s%s%s%s%s%s", "TIME=", $sformatf("%t", $time), " A=", $sformatf("%d", A), " B=", $sformatf("%d", B), " arg1=", "17", " arg2=", "PyXHDL", " $$vanilla");
     dummy::proc((A + B) + B, A - 8'((A + B) * 2));
     e = dummy::func(A + 1, 8'(B * 3));
-    @((A == unsigned'(8'(1))));
     #10 ctx = 8'(A * B);
     z = ((A + B) - A) + B;
     z = 8'(A * B);
     assigned = z - B;
+  end
+  always
+  waiter : begin
+    @((A == unsigned'(8'(1))));
   end
 endmodule

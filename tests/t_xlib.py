@@ -10,7 +10,9 @@ import test_utils as tu
 
 
 _DUMMY_VHDL = """
-context work.xlibs;
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
 
 package dummy is
   function func(a : in unsigned; b : in unsigned) return unsigned;
@@ -95,8 +97,6 @@ class XLib(X.Entity):
     e = X.mkreg(A.dtype)
     e = _dummy_func(A + 1, B * 3)
 
-    XL.wait_until(A == 1)
-
     ctx = X.mkreg(A.dtype)
     with XL.context(delay=10):
       ctx = A * B
@@ -111,6 +111,10 @@ class XLib(X.Entity):
     z = A * B
     assigned = X.mkreg(z.dtype)
     XL.assign('assigned', z - B)
+
+  @X.hdl_process()
+  def waiter():
+    XL.wait_until(A == 1)
 
 
 class TestXLib(unittest.TestCase):
