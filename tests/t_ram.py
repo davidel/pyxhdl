@@ -13,9 +13,11 @@ class RamTest(X.Entity):
 
   PORTS = 'CLK, RST_N, RDEN, WREN, ADDR, IN_DATA, =OUT_DATA'
 
+  ARGS = dict(RAM_SIZE=None)
+
   @X.hdl_process(sens='+CLK')
   def run():
-    mem = X.mkreg(X.mkarray(X.UINT16, 2**ADDR.dtype.nbits))
+    mem = X.mkreg(X.mkarray(X.UINT16, RAM_SIZE))
 
     if not RST_N:
       OUT_DATA = 0
@@ -37,6 +39,8 @@ class TestRam(unittest.TestCase):
       ADDR=X.mkwire(X.Bits(12)),
       IN_DATA=X.mkwire(X.Bits(16)),
       OUT_DATA=X.mkreg(X.Bits(16)),
+
+      RAM_SIZE=3 * 1024,
     )
 
     tu.run(self, tu.test_name(self, pyu.fname()), RamTest, inputs)

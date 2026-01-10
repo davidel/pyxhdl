@@ -200,7 +200,7 @@ use work.all;
 
 -- Entity "RamTest" is "RamTest" with:
 -- 	args={'CLK': 'bits(1)', 'RST_N': 'bits(1)', 'RDEN': 'bits(1)', 'WREN': 'bits(1)', 'ADDR': 'bits(12)', 'IN_DATA': 'bits(16)', 'OUT_DATA': 'bits(16)'}
--- 	kwargs={}
+-- 	kwargs={RAM_SIZE=3072}
 entity RamTest is
   port (
     CLK : in std_logic;
@@ -224,11 +224,11 @@ use work.all;
 
 -- Entity "RamTest" is "RamTest" with:
 -- 	args={'CLK': 'bits(1)', 'RST_N': 'bits(1)', 'RDEN': 'bits(1)', 'WREN': 'bits(1)', 'ADDR': 'bits(12)', 'IN_DATA': 'bits(16)', 'OUT_DATA': 'bits(16)'}
--- 	kwargs={}
+-- 	kwargs={RAM_SIZE=3072}
 architecture behavior of RamTest is
 begin
   run : process (CLK)
-    variable mem : pyxhdl.uint_array1d(0 to 4095)(15 downto 0);
+    variable mem : pyxhdl.uint_array1d(0 to 3071)(15 downto 0);
   begin
     if rising_edge(CLK) then
       if (not RST_N) /= '0' then

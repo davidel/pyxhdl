@@ -26,7 +26,7 @@ struct packed { \
 
 // Entity "RamTest" is "RamTest" with:
 // 	args={'CLK': 'bits(1)', 'RST_N': 'bits(1)', 'RDEN': 'bits(1)', 'WREN': 'bits(1)', 'ADDR': 'bits(12)', 'IN_DATA': 'bits(16)', 'OUT_DATA': 'bits(16)'}
-// 	kwargs={}
+// 	kwargs={RAM_SIZE=3072}
 module RamTest(CLK, RST_N, RDEN, WREN, ADDR, IN_DATA, OUT_DATA);
   input logic CLK;
   input logic RST_N;
@@ -37,7 +37,7 @@ module RamTest(CLK, RST_N, RDEN, WREN, ADDR, IN_DATA, OUT_DATA);
   output logic [15: 0] OUT_DATA;
   always @(posedge CLK)
   run : begin
-    logic [15: 0] mem[4096];
+    logic [15: 0] mem[3072];
     if (&(!RST_N)) begin
       OUT_DATA <= unsigned'(16'(0));
     end else if (&RDEN) begin
