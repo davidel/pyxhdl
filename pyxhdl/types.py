@@ -166,8 +166,9 @@ def has_bits(tclass):
 
 
 def tclass_from_string(tcls):
-  tclass = _TYPE_CLASS.get(tcls, None)
-  if tclass is None: pyu.fatal(f'Unknown type class: {tcls}')
+  tclass = _TYPE_CLASS.get(tcls)
+  if tclass is None:
+    pyu.fatal(f'Unknown type class: {tcls}')
 
   return tclass
 
@@ -186,7 +187,7 @@ def dtype_from_string(s):
   if m:
     dtype = _TYPE_CLASS[m.group(1)](int(m.group(2)))
   else:
-    dtype = _TYPE_NMAP.get(ls, None)
+    dtype = _TYPE_NMAP.get(ls)
     if dtype is None:
       pyu.fatal(f'Unknown type string: {ls}')
 
