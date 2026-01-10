@@ -228,15 +228,15 @@ use work.all;
 architecture behavior of RamTest is
 begin
   run : process (CLK)
-    variable mem : pyxhdl.uint_array1d(0 to 3071)(15 downto 0);
+    variable mem : pyxhdl.bits_array1d(0 to 3071)(15 downto 0);
   begin
     if rising_edge(CLK) then
       if (not RST_N) /= '0' then
         OUT_DATA <= std_logic_vector(to_unsigned(0, 16));
       elsif RDEN /= '0' then
-        OUT_DATA <= std_logic_vector(mem(to_integer(unsigned(ADDR))));
+        OUT_DATA <= mem(to_integer(unsigned(ADDR)));
       elsif WREN /= '0' then
-        mem(to_integer(unsigned(ADDR))) := pyxhdl.cvt_unsigned(IN_DATA, 16);
+        mem(to_integer(unsigned(ADDR))) := IN_DATA;
       end if;
     end if;
   end process;

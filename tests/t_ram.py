@@ -17,7 +17,7 @@ class RamTest(X.Entity):
 
   @X.hdl_process(sens='+CLK')
   def run():
-    mem = X.mkreg(X.mkarray(X.UINT16, RAM_SIZE))
+    mem = X.mkreg(X.mkarray(IN_DATA.dtype, RAM_SIZE))
 
     if not RST_N:
       OUT_DATA = 0
