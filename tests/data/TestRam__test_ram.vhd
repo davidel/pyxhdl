@@ -233,10 +233,10 @@ begin
     if rising_edge(CLK) then
       if (not RST_N) /= '0' then
         OUT_DATA <= std_logic_vector(to_unsigned(0, 16));
-      elsif RDEN /= '0' then
-        OUT_DATA <= mem(to_integer(unsigned(ADDR)));
       elsif WREN /= '0' then
         mem(to_integer(unsigned(ADDR))) := IN_DATA;
+      elsif RDEN /= '0' then
+        OUT_DATA <= mem(to_integer(unsigned(ADDR)));
       end if;
     end if;
   end process;

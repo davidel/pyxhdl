@@ -22,10 +22,10 @@ class RamTest(X.Entity):
     if not RST_N:
       OUT_DATA = 0
     else:
-      if RDEN:
-        OUT_DATA = mem[ADDR]
-      elif WREN:
+      if WREN:
         mem[ADDR] = IN_DATA
+      elif RDEN:
+        OUT_DATA = mem[ADDR]
 
 
 class TestRam(unittest.TestCase):

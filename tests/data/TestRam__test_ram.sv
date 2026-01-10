@@ -40,10 +40,10 @@ module RamTest(CLK, RST_N, RDEN, WREN, ADDR, IN_DATA, OUT_DATA);
     logic [15: 0] mem[3072];
     if (&(!RST_N)) begin
       OUT_DATA <= unsigned'(16'(0));
-    end else if (&RDEN) begin
-      OUT_DATA <= mem[int'(ADDR)];
     end else if (&WREN) begin
       mem[int'(ADDR)] <= IN_DATA;
+    end else if (&RDEN) begin
+      OUT_DATA <= mem[int'(ADDR)];
     end
   end
 endmodule
