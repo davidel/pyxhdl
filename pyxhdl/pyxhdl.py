@@ -259,7 +259,7 @@ class _ExecVisitor(_AstVisitor):
   def _add_variable(self, name, dtype, isreg, init=None, vspec=None):
     pyu.mlog(lambda: f'NEW VAR: {valkind(isreg)} {dtype}\t{name}')
 
-    self.variables[name] = _Variable(dtype=dtype, isreg=isreg, init=init, vspec=vspec)
+    self.variables[name] = _Variable(dtype, isreg, init=init, vspec=vspec)
 
   def _static_eval(self, node):
     self.location.set_lineno(node.lineno)
