@@ -19,7 +19,7 @@ def _mode(mode, vspec):
   return mode
 
 
-class Ref(object):
+class Ref:
 
   RW = 1
   RO = 2
@@ -45,7 +45,7 @@ class Ref(object):
     return pycu.new_with(self, mode=mode)
 
 
-class Init(object):
+class Init:
 
   def __init__(self, value=None, vspec=None):
     self.value = value

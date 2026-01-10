@@ -9,7 +9,7 @@ import py_misc_utils.inspect_utils as pyiu
 import py_misc_utils.utils as pyu
 
 
-class Type(object):
+class Type:
 
   def __init__(self, name, shape, ctype):
     self._name = name
@@ -191,7 +191,7 @@ def dtype_from_string(s):
   return mkarray(dtype, *shape) if shape is not None else dtype
 
 
-class TypeMatcher(object):
+class TypeMatcher:
 
   def __init__(self, dtype=None, tclass=None):
     self.dtype = dtype

@@ -89,7 +89,7 @@ _FLOAT_SPECS = {
   128: FSpec(15, 112),
 }
 
-class _Placement(object):
+class _Placement:
 
   def __init__(self, indent=None):
     self.code = []
@@ -106,7 +106,7 @@ class _Placement(object):
     return count
 
 
-class Emitter(object):
+class Emitter:
 
   _BACKEND_REGISTRY = dict()
   _MODULE_REGISTRY = collections.defaultdict(dict)

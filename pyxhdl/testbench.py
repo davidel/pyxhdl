@@ -25,7 +25,7 @@ from . import xlib as XL
 _TbData = collections.namedtuple('_TbData', 'inputs, outputs, wait, wait_expr')
 
 
-class _TestData(object):
+class _TestData:
 
   def __init__(self, path, eclass):
     with open(path, mode='r') as efd:

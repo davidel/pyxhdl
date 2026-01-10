@@ -53,7 +53,7 @@ class _ContinueException(_Exception):
   pass
 
 
-class _SourceLocation(object):
+class _SourceLocation:
 
   def __init__(self, filename, base_lineno):
     self.filename = filename
@@ -64,7 +64,7 @@ class _SourceLocation(object):
     self.lineno = self.base_lineno + lineno - 1
 
 
-class _Storer(object):
+class _Storer:
   pass
 
 
@@ -113,7 +113,7 @@ class _AstVisitor(ast.NodeVisitor):
     return visitor(node)
 
 
-class _Frame(object):
+class _Frame:
 
   def __init__(self, fglobals, flocals, location):
     self.fglobals = fglobals

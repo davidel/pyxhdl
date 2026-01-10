@@ -20,7 +20,7 @@ def create_function(fnname, fnmap, fnsig=None, dtype=None):
   return _ExternalFunction(fnname, fnmap, fnsig=fnsig, dtype=dtype)
 
 
-class _Marshal(object):
+class _Marshal:
 
   BITS_CLASSES = {Uint, Sint, Bits}
 
@@ -58,7 +58,7 @@ class _Marshal(object):
     return arg
 
 
-class _ExternalFunction(object):
+class _ExternalFunction:
 
   def __init__(self, fnname, fnmap, fnsig=None, dtype=None):
     marshals = []

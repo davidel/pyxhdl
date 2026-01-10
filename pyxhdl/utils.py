@@ -125,7 +125,7 @@ def flat2shape(parts, shape, opar, cpar):
   return sparts[0]
 
 
-class _EntityRecord(object):
+class _EntityRecord:
 
   def __init__(self, eclass, pargs, kwargs):
     self.eclass = eclass
@@ -141,7 +141,7 @@ class _EntityRecord(object):
             self.pargs == other.pargs)
 
 
-class EntityVersions(object):
+class EntityVersions:
 
   def __init__(self):
     self._versions = collections.defaultdict(dict)

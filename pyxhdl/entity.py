@@ -35,7 +35,7 @@ TRIG_NAME = {
 Sens = collections.namedtuple('Sens', 'trigger', defaults=[LEVEL])
 
 
-class _CoreEntity(object):
+class _CoreEntity:
 
   def __init_subclass__(cls):
     cls.PORTS = cls._get_ports(cls.PORTS)

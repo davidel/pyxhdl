@@ -4,7 +4,7 @@ import logging
 import py_misc_utils.utils as pyu
 
 
-class _Phi(object):
+class _Phi:
 
   def __init__(self, parent):
     self._parent = parent
@@ -48,7 +48,7 @@ class _Phi(object):
     return iter(self._phid.items())
 
 
-class Phis(object):
+class Phis:
 
   def __init__(self):
     self._phis = [_Phi(None)]

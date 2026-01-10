@@ -4,7 +4,7 @@ import logging
 import numpy as np
 
 
-class Wrapper(object):
+class Wrapper:
   pass
 
 
