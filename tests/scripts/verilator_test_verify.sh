@@ -6,7 +6,7 @@ SDIR=$(dirname "$0")
 TDIR=$(dirname "$SDIR")
 TESTDIR="${TESTDIR:-${TDIR}/data}"
 WDIR=$(mktemp -d --suffix $(basename $0))
-GHDL="ghdl"
+VERILATOR="verilator"
 
 exit_cleanup() {
     test -d "$WDIR" && rm -fr "$WDIR"
@@ -14,9 +14,9 @@ exit_cleanup() {
 
 trap exit_cleanup EXIT
 
-for VHF in "$TESTDIR"/*.vhd; do
-    echo "Analyzing $VHF ..."
-    "$GHDL" -a --std=08 --workdir="$WDIR" "$VHF"
+for SVF in "$TESTDIR"/*.sv; do
+    echo "Analyzing $SVF ..."
+    "$VERILATOR" --quiet -sv --lint-only --timing -Mdir "$WDIR" "$SVF"
     rm -f "$WDIR"/work*.cf
 done
 
