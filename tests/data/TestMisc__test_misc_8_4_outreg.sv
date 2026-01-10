@@ -47,7 +47,7 @@ module Misc(A, B, C, XOUT1, XOUT2);
     logic [7: 0] zz;
     logic [7: 0] branchy_dict_0;
     logic [7: 0] branchy_dict_1;
-    logic [7: 0] rbits = 8'b1101x0x0;
+    static logic [7: 0] rbits = 8'b1101x0x0;
     logic [7: 0] tw1;
     logic [7: 0] tw2;
     logic [7: 0] twd1;

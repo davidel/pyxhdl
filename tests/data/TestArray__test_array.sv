@@ -31,8 +31,9 @@ module ArrayTestEnt(A, B, XOUT);
   input logic [15: 0] A[2][2];
   input logic [15: 0] B[2][2];
   output logic [15: 0] XOUT;
-  const logic [15: 0] ar_const[3][2][4] = {{{unsigned'(16'(0)), unsigned'(16'(1)), unsigned'(16'(2)), unsigned'(16'(3))}, {unsigned'(16'(4)), unsigned'(16'(5)), unsigned'(16'(6)), unsigned'(16'(7))}}, {{unsigned'(16'(8)), unsigned'(16'(9)), unsigned'(16'(10)), unsigned'(16'(11))}, {unsigned'(16'(12)), unsigned'(16'(13)), unsigned'(16'(14)), unsigned'(16'(15))}}, {{unsigned'(16'(16)), unsigned'(16'(17)), unsigned'(16'(18)), unsigned'(16'(19))}, {unsigned'(16'(20)), unsigned'(16'(21)), unsigned'(16'(22)), unsigned'(16'(23))}}};
+  const logic [15: 0] ar_const[3][2][4];
   logic [15: 0] XOUT_;
+  logic [15: 0] ar_const_[3][2][4] = {{{unsigned'(16'(0)), unsigned'(16'(1)), unsigned'(16'(2)), unsigned'(16'(3))}, {unsigned'(16'(4)), unsigned'(16'(5)), unsigned'(16'(6)), unsigned'(16'(7))}}, {{unsigned'(16'(8)), unsigned'(16'(9)), unsigned'(16'(10)), unsigned'(16'(11))}, {unsigned'(16'(12)), unsigned'(16'(13)), unsigned'(16'(14)), unsigned'(16'(15))}}, {{unsigned'(16'(16)), unsigned'(16'(17)), unsigned'(16'(18)), unsigned'(16'(19))}, {unsigned'(16'(20)), unsigned'(16'(21)), unsigned'(16'(22)), unsigned'(16'(23))}}};
   always @(A or B)
   slicing : begin
     XOUT_ = 16'(A[1][0][7: 4] + B[0][1][3: 0]);
@@ -48,8 +49,9 @@ module ArrayTestEnt(A, B, XOUT);
   end
   always @(A or B)
   np_init : begin
-    logic [15: 0] ar[3][2][4] = {{{unsigned'(16'(0)), unsigned'(16'(1)), unsigned'(16'(2)), unsigned'(16'(3))}, {unsigned'(16'(4)), unsigned'(16'(5)), unsigned'(16'(6)), unsigned'(16'(7))}}, {{unsigned'(16'(8)), unsigned'(16'(9)), unsigned'(16'(10)), unsigned'(16'(11))}, {unsigned'(16'(12)), unsigned'(16'(13)), unsigned'(16'(14)), unsigned'(16'(15))}}, {{unsigned'(16'(16)), unsigned'(16'(17)), unsigned'(16'(18)), unsigned'(16'(19))}, {unsigned'(16'(20)), unsigned'(16'(21)), unsigned'(16'(22)), unsigned'(16'(23))}}};
+    static logic [15: 0] ar[3][2][4] = {{{unsigned'(16'(0)), unsigned'(16'(1)), unsigned'(16'(2)), unsigned'(16'(3))}, {unsigned'(16'(4)), unsigned'(16'(5)), unsigned'(16'(6)), unsigned'(16'(7))}}, {{unsigned'(16'(8)), unsigned'(16'(9)), unsigned'(16'(10)), unsigned'(16'(11))}, {unsigned'(16'(12)), unsigned'(16'(13)), unsigned'(16'(14)), unsigned'(16'(15))}}, {{unsigned'(16'(16)), unsigned'(16'(17)), unsigned'(16'(18)), unsigned'(16'(19))}, {unsigned'(16'(20)), unsigned'(16'(21)), unsigned'(16'(22)), unsigned'(16'(23))}}};
     XOUT_ = (B[0][1] - ar[1][0][1]) + ar_const[2][1][2];
   end
   assign XOUT = XOUT_;
+  assign ar_const = ar_const_;
 endmodule

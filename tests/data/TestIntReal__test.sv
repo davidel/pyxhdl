@@ -33,7 +33,7 @@ module IntReal(A, B, XOUT);
   output real XOUT[4];
   always @(A)
   test : begin
-    integer idx = 3;
+    static integer idx = 3;
     XOUT[idx] = ((real'(A) + B) * 17.0) - 3.14;
     idx = idx - 1;
     XOUT[idx] = ((real'(A) + B) / 21.0) + 2.718281828459045;

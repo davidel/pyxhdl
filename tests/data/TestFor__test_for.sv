@@ -34,7 +34,7 @@ module ForEnt(A, B, XOUT);
   logic [7: 0] XOUT_;
   always @(A or B)
   run : begin
-    logic [7: 0] temp = unsigned'(8'(1));
+    static logic [7: 0] temp = unsigned'(8'(1));
     temp = temp + 1;
     temp = temp + 1;
     temp = temp + 1;

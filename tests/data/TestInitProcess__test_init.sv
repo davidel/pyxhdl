@@ -60,7 +60,7 @@ module InitProcess(A, B, XOUT);
   end
   always @(A or B)
   run : begin
-    logic [7: 0] temp = unsigned'(8'(21));
+    static logic [7: 0] temp = unsigned'(8'(21));
     XOUT_ = ((A - 8'(3 * B)) - 8'(temp * arr[1][2])) + 8'(11 * zarr[2][3]);
   end
   assign arr = arr_;

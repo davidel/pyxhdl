@@ -646,8 +646,8 @@ class Verilog_Emitter(Emitter):
 
     vinit = ''
     if var.init is not None:
-      if var.isreg or is_const:
-        vinit = f' = {self._cast(var.init, var.dtype)}'
+      if not self.is_root_variable(var):
+        vinit, vprefix = f' = {self._cast(var.init, var.dtype)}', f'static {vprefix}'
       else:
         self._wireregs.register(Wire(var.dtype, value=Ref(name, vspec=var.vspec)),
                                 init=var.init)
