@@ -10,67 +10,55 @@ import py_misc_utils.utils as pyu
 
 class Type:
 
-  __slots__ = ('_name', '_shape', '_ctype')
+  __slots__ = ('name', 'full_shape', 'ctype')
 
   def __init__(self, name, shape, ctype):
-    self._name = name
-    self._shape = tuple(shape[:])
-    self._ctype = ctype
+    self.name = name
+    self.full_shape = tuple(shape[:])
+    self.ctype = ctype
 
   @property
   def has_bits(self):
-    return self._shape[-1] is not None
-
-  @property
-  def name(self):
-    return self._name
+    return self.full_shape[-1] is not None
 
   @property
   def shape(self):
-    return self._shape if self.has_bits else self._shape[: -1]
+    return self.full_shape if self.has_bits else self.full_shape[: -1]
 
   @property
   def array_shape(self):
-    return self._shape[: -1]
-
-  @property
-  def full_shape(self):
-    return self._shape
+    return self.full_shape[: -1]
 
   @property
   def ndim(self):
-    return len(self._shape) - (0 if self.has_bits else 1)
+    return len(self.full_shape) - (0 if self.has_bits else 1)
 
   @property
   def nbits(self):
-    return self._shape[-1] if self.has_bits else 0
+    return self.full_shape[-1] if self.has_bits else 0
 
   @property
   def size(self):
-    return np.prod(self._shape[: -1])
-
-  @property
-  def ctype(self):
-    return self._ctype
+    return np.prod(self.full_shape[: -1])
 
   def __eq__(self, other):
-    return (self._name == other._name and self._shape == other._shape and
-            self._ctype == other._ctype)
+    return (self.name == other.name and self.full_shape == other.full_shape and
+            self.ctype == other.ctype)
 
   def __str__(self):
-    return f'{self._name}(' + ', '.join(str(x) for x in self.shape) + ')'
+    return f'{self.name}(' + ', '.join(str(x) for x in self.shape) + ')'
 
   def __hash__(self):
-    return hash((self._name, self._shape, self._ctype))
+    return hash((self.name, self.full_shape, self.ctype))
 
   def new_shape(self, *shape):
     if not self.has_bits and (not shape or shape[-1] is not None):
       shape = shape + (None,)
 
-    return pycu.new_with(self, _shape=shape)
+    return pycu.new_with(self, full_shape=shape)
 
   def element_type(self):
-    return self.new_shape(*self._shape[-1: ])
+    return self.new_shape(*self.full_shape[-1: ])
 
 
 class Sint(Type):

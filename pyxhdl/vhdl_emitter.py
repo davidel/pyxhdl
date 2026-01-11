@@ -63,31 +63,14 @@ class VHDL_Emitter(Emitter):
 
   def __init__(self, cfg_file=None, **kwargs):
     super().__init__(cfg_file=cfg_file, **kwargs)
+    self.kind = VHDL
+    self.file_ext = '.vhd'
+    self.eol = ';'
     self._arch = self._cfg.get('entity_arch', 'behavior')
     self._mod_comment = None
     self._proc_indent = 0
-    self._module_vars_place = self.emit_placement()
+    self.module_vars_place = self.emit_placement()
     self._entity_place = self.emit_placement()
-
-  @property
-  def kind(self):
-    return VHDL
-
-  @property
-  def file_ext(self):
-    return '.vhd'
-
-  @property
-  def eol(self):
-    return ';'
-
-  @property
-  def module_vars_place(self):
-    return self._module_vars_place
-
-  @property
-  def process_vars_place(self):
-    return self._process_vars_place
 
   def _emit_header(self):
     hdr = self._cfg.get('header', _STD_HEADER)
@@ -561,7 +544,7 @@ class VHDL_Emitter(Emitter):
     if self._mod_comment:
       self.emit_comment(self._mod_comment)
     self._emit_line(f'architecture {self._arch} of {name} is')
-    self._module_vars_place = self.emit_placement(extra_indent=1)
+    self.module_vars_place = self.emit_placement(extra_indent=1)
 
     self._emit_line(f'begin')
 
@@ -581,7 +564,7 @@ class VHDL_Emitter(Emitter):
       proc_decl += ' (' + ', '.join(name for name in sensitivity.keys()) + ')'
 
     self._emit_line(proc_decl)
-    self._process_vars_place = self.emit_placement(extra_indent=1)
+    self.process_vars_place = self.emit_placement(extra_indent=1)
 
   def emit_process_begin(self):
     self._emit_line(f'begin')

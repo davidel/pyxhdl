@@ -66,17 +66,13 @@ class Init:
 
 class Value(ValueBase):
 
-  __slots__ = ('_dtype', '_value', '_isreg')
+  __slots__ = ('dtype', '_value', 'isreg')
 
   def __init__(self, dtype, value=None, isreg=None):
     super().__init__()
-    self._dtype = dtype
+    self.dtype = dtype
     self._value = value
-    self._isreg = isreg
-
-  @property
-  def dtype(self):
-    return self._dtype
+    self.isreg = isreg
 
   @property
   def value(self):
@@ -98,15 +94,11 @@ class Value(ValueBase):
     v = self._value
     return v.name if isinstance(v, Ref) else None
 
-  @property
-  def isreg(self):
-    return self._isreg
-
   def __str__(self):
-    return f'{pyiu.cname(self)}({self._value}, dtype={self._dtype}, isreg={self.isreg})'
+    return f'{pyiu.cname(self)}({self._value}, dtype={self.dtype}, isreg={self.isreg})'
 
   def __hash__(self):
-    return hash((self._dtype, self._value, self._isreg))
+    return hash((self.dtype, self._value, self.isreg))
 
   def __eq__(self, other):
     return (self.dtype == other.dtype and self.value == other.value and
@@ -117,15 +109,15 @@ class Value(ValueBase):
     # status (isreg == None means temp value).
     ref = self.ref
 
-    return pycu.new_with(self, _value=ref.name, _isreg=None) if ref is not None else self
+    return pycu.new_with(self, _value=ref.name, isreg=None) if ref is not None else self
 
   def new_value(self, value, shape=None):
-    dtype = self._dtype.new_shape(*shape) if shape is not None else self._dtype
+    dtype = self.dtype.new_shape(*shape) if shape is not None else self.dtype
 
-    return pycu.new_with(self, _value=value, _dtype=dtype)
+    return pycu.new_with(self, _value=value, dtype=dtype)
 
   def new_isreg(self, isreg):
-    return pycu.new_with(self, _isreg=isreg)
+    return pycu.new_with(self, isreg=isreg)
 
 
 class Wire(Value):

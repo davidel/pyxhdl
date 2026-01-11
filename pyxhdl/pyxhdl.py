@@ -387,7 +387,7 @@ class _ExecVisitor(_AstVisitor):
   def _generate_retlist_result(self, fname, return_values):
     tmp_names, results, sig = [], [], None
     for i, retval in enumerate(return_values):
-      with self._emitter.placement(retval.placement):
+      with self.emitter.placement(retval.placement):
         vsig = pycu.signature(retval.value)
         if sig is not None and not pycu.equal_signature(sig, vsig):
           pyu.fatal(f'Return values signature mismatch: {vsig} vs. {sig}')
@@ -492,7 +492,7 @@ class CodeGen(_ExecVisitor):
 
   def __init__(self, emitter, globs):
     super().__init__(globs)
-    self._emitter = emitter
+    self.emitter = emitter
     self._module_decls_place = emitter.emit_placement()
     self._used_entities = set()
     self._generated_entities = set()
@@ -505,29 +505,29 @@ class CodeGen(_ExecVisitor):
   def _get_format_parts(self, fmt, kwargs):
 
     def mapfn(tok):
-      arg = self._emitter.eval_token(tok)
+      arg = self.emitter.eval_token(tok)
       if arg is None:
         varg = self.run_code(tok, kwargs, 'eval',
                              filename=self.location.filename,
                              lineno=self.location.lineno)
-        return self._emitter.eval_tostring(varg)
+        return self.emitter.eval_tostring(varg)
 
       return arg
 
     def nmapfn(tok):
-      return self._emitter.quote_string(tok)
+      return self.emitter.quote_string(tok)
 
     return pyu.sreplace(_CODEFMT_RX, fmt, mapfn, nmapfn=nmapfn, join=False)
 
   def _resolve_code(self, code, kwargs):
 
     def mapfn(tok):
-      arg = self._emitter.eval_token(tok)
+      arg = self.emitter.eval_token(tok)
       if arg is None:
         varg = self.run_code(tok, kwargs, 'eval',
                              filename=self.location.filename,
                              lineno=self.location.lineno)
-        return self._emitter.svalue(varg)
+        return self.emitter.svalue(varg)
 
       return arg
 
@@ -549,7 +549,7 @@ class CodeGen(_ExecVisitor):
       elif isinstance(ctx, ast.Load):
         pyu.fatal(f'Undefined variable: {name}')
 
-    return self._emitter.var_remap(var, isinstance(ctx, ast.Store))
+    return self.emitter.var_remap(var, isinstance(ctx, ast.Store))
 
   def _new_variable(self, name, value):
     vinit = value.init
@@ -588,7 +588,7 @@ class CodeGen(_ExecVisitor):
         if is_ro_ref(var):
           pyu.fatal(f'{var.name} is read-only')
 
-        self._emitter.emit_assign(var, name, value)
+        self.emitter.emit_assign(var, name, value)
     elif name is not None:
       stg_value = value.deref() if isinstance(value, Value) else value
       self._store_value(name, stg_value)
@@ -646,7 +646,7 @@ class CodeGen(_ExecVisitor):
 
       ent_name = self._register_entity(func, kwargs)
 
-      self._emitter.emit_entity(result, kwargs, ent_name=ent_name)
+      self.emitter.emit_entity(result, kwargs, ent_name=ent_name)
     else:
       result = self.run_function(func, args, kwargs=kwargs)
 
@@ -665,7 +665,7 @@ class CodeGen(_ExecVisitor):
     place = self._vars_places.pop()
 
     root_vars = dict()
-    with self._emitter.placement(place) as emt:
+    with self.emitter.placement(place) as emt:
       for name, var in vars.items():
         if emt.is_root_variable(var):
           root_vars[name] = var
@@ -673,7 +673,7 @@ class CodeGen(_ExecVisitor):
           pyu.mlog(lambda: f'VARIABLE: {valkind(var.isreg)} {var.dtype} {name}')
           emt.emit_declare_variable(name, var)
 
-    with self._emitter.placement(self._emitter.module_vars_place) as emt:
+    with self.emitter.placement(self.emitter.module_vars_place) as emt:
       for name, var in root_vars.items():
         shv = self._root_vars.get(name)
         if shv is not None:
@@ -760,7 +760,7 @@ class CodeGen(_ExecVisitor):
         if not isinstance(arg, Type): pyu.fatal(f'Argument must be Type at this point: {arg}')
         port_arg = mkwire(arg, name=ref)
 
-      args.append(self._emitter.make_port_arg(port_arg))
+      args.append(self.emitter.make_port_arg(port_arg))
 
       din[pin.name] = pin
       cargs[pin.name] = args[-1]
@@ -780,10 +780,10 @@ class CodeGen(_ExecVisitor):
       f'\targs={({k: pyu.stri(v.dtype if isinstance(v, Value) else v) for k, v in cargs.items()})}\n' \
       f'\tkwargs={pyu.stri(ent.kwargs)}'
 
-    with self._emitter.placement(self._module_decls_place) as emt:
+    with self.emitter.placement(self._module_decls_place) as emt:
       emt.emit_module_def(ent_name, ent, comment=ecomm)
 
-    self._emitter.emit_module_decl(ent_name, ent)
+    self.emitter.emit_module_decl(ent_name, ent)
     self._root_vars = dict()
     self._revgen = pycu.RevGen()
 
@@ -795,7 +795,7 @@ class CodeGen(_ExecVisitor):
       sensitivity = self._get_sensitivity(hdl_args, din)
       process_kind = hdl_args.get('kind')
 
-      with self._emitter.indent():
+      with self.emitter.indent():
         # Process functions will automatically see port names as locals, so the
         # position arguments list is empty. Process functions can still have keyword
         # arguments, which will be correctly populated.
@@ -805,32 +805,32 @@ class CodeGen(_ExecVisitor):
                               process_kind=process_kind,
                               process_args=hdl_args)
 
-    self._emitter.emit_module_end()
+    self.emitter.emit_module_end()
 
   def generate_process(self, func, args, kwargs=None, sensitivity=None,
                        process_kind=None, process_args=None):
     if process_kind == ROOT_PROCESS:
-      self._process_scope_enter(self._emitter.module_vars_place, process_kind,
+      self._process_scope_enter(self.emitter.module_vars_place, process_kind,
                                 process_args)
       try:
         result = self.run_function(func, args, kwargs=kwargs)
       finally:
         self._process_scope_exit()
     else:
-      self._emitter.emit_process_decl(pyiu.func_name(func),
-                                      sensitivity=sensitivity,
-                                      process_kind=process_kind,
-                                      process_args=process_args)
+      self.emitter.emit_process_decl(pyiu.func_name(func),
+                                     sensitivity=sensitivity,
+                                     process_kind=process_kind,
+                                     process_args=process_args)
 
-      self._emitter.emit_process_begin()
-      self._process_scope_enter(self._emitter.process_vars_place, process_kind,
+      self.emitter.emit_process_begin()
+      self._process_scope_enter(self.emitter.process_vars_place, process_kind,
                                 process_args)
       try:
-        with self._emitter.indent():
+        with self.emitter.indent():
           result = self.run_function(func, args, kwargs=kwargs)
       finally:
         self._process_scope_exit()
-      self._emitter.emit_process_end()
+      self.emitter.emit_process_end()
 
     return result
 
@@ -895,7 +895,7 @@ class CodeGen(_ExecVisitor):
   def visit_UnaryOp(self, node):
     operand = self.eval_node(node.operand)
     if has_hdl_vars(operand):
-      result = self._emitter.eval_UnaryOp(node.op, operand)
+      result = self.emitter.eval_UnaryOp(node.op, operand)
     else:
       result = self._static_eval(node)
 
@@ -911,7 +911,7 @@ class CodeGen(_ExecVisitor):
     left = self.eval_node(node.left)
     right = self.eval_node(node.right)
     if has_hdl_vars((left, right)):
-      result = self._emitter.eval_BinOp(node.op, left, right)
+      result = self.emitter.eval_BinOp(node.op, left, right)
     else:
       result = self._static_eval(node)
 
@@ -924,7 +924,7 @@ class CodeGen(_ExecVisitor):
       values.append(xval)
 
     if has_hdl_vars(values):
-      result = self._emitter.eval_BoolOp(node.op, values)
+      result = self.emitter.eval_BoolOp(node.op, values)
     else:
       result = self._static_eval(node)
 
@@ -938,7 +938,7 @@ class CodeGen(_ExecVisitor):
       comparators.append(xcomp)
 
     if has_hdl_vars((left, comparators)):
-      result = self._emitter.eval_Compare(left, node.ops, comparators)
+      result = self.emitter.eval_Compare(left, node.ops, comparators)
     else:
       result = self._static_eval(node)
 
@@ -1027,7 +1027,7 @@ class CodeGen(_ExecVisitor):
 
     sv = self.eval_node(node.slice)
     if isinstance(value, Value):
-      result = self._emitter.eval_Subscript(value, sv)
+      result = self.emitter.eval_Subscript(value, sv)
     elif isinstance(node.ctx, ast.Load):
       result = value[sv]
     elif isinstance(node.ctx, ast.Store):
@@ -1106,7 +1106,7 @@ class CodeGen(_ExecVisitor):
     value = self.eval_node(node.value)
 
     if has_hdl_vars((ref_value, value)):
-      result = self._emitter.eval_BinOp(node.op, ref_value, value)
+      result = self.emitter.eval_BinOp(node.op, ref_value, value)
     else:
       result = self._neval(node, ast.BinOp, op=node.op, left=ltarget, right=node.value)
 
@@ -1122,7 +1122,7 @@ class CodeGen(_ExecVisitor):
 
     if has_hdl_vars(test):
       parts = self._get_format_parts(msg, dict()) if msg else None
-      self._emitter.emit_Assert(test, parts)
+      self.emitter.emit_Assert(test, parts)
     elif not test:
       pyu.fatal(msg, exc=AssertionError)
 
@@ -1137,7 +1137,7 @@ class CodeGen(_ExecVisitor):
     if has_hdl_vars(test):
       body = self.eval_node(node.body)
       orelse = self.eval_node(node.orelse)
-      result = self._emitter.eval_IfExp(test, body, orelse)
+      result = self.emitter.eval_IfExp(test, body, orelse)
     else:
       if test:
         result = self.eval_node(node.body)
@@ -1151,8 +1151,8 @@ class CodeGen(_ExecVisitor):
 
     if has_hdl_vars(test):
       with self._hdl_branch():
-        self._emitter.emit_If(test)
-        with self._emitter.indent():
+        self.emitter.emit_If(test)
+        with self.emitter.indent():
           for insn in node.body:
             self.eval_node(insn)
 
@@ -1160,18 +1160,18 @@ class CodeGen(_ExecVisitor):
         while len(enode.orelse) == 1 and isinstance(enode.orelse[0], ast.If):
           enode = enode.orelse[0]
           etest = self.eval_node(enode.test)
-          self._emitter.emit_Elif(etest)
-          with self._emitter.indent():
+          self.emitter.emit_Elif(etest)
+          with self.emitter.indent():
             for insn in enode.body:
               self.eval_node(insn)
 
         if enode.orelse:
-          self._emitter.emit_Else()
-          with self._emitter.indent():
+          self.emitter.emit_Else()
+          with self.emitter.indent():
             for insn in enode.orelse:
               self.eval_node(insn)
 
-        self._emitter.emit_EndIf()
+        self.emitter.emit_EndIf()
     else:
       pyu.mlog(lambda: f'Resolving static If test: {asu.dump(node.test)}')
       if test:
@@ -1297,7 +1297,7 @@ class CodeGen(_ExecVisitor):
     pyu.mlog(lambda: asu.dump(node))
     value = self.eval_node(node.value) if node.value is not None else None
     if self.frame.in_hdl_branch:
-      retval = _Return(value=value, placement=self._emitter.emit_placement())
+      retval = _Return(value=value, placement=self.emitter.emit_placement())
       self.frame.return_values.append(retval)
     else:
       raise _ReturnException(value)
@@ -1319,15 +1319,15 @@ class CodeGen(_ExecVisitor):
     cases = []
     for mc in node.cases:
       pattern = self.eval_node(mc.pattern)
-      scope = self._emitter.create_placement(extra_indent=2)
-      with self._emitter.placement(scope):
+      scope = self.emitter.create_placement(extra_indent=2)
+      with self.emitter.placement(scope):
         for insn in mc.body:
           self.eval_node(insn)
 
       for ptrn in pyu.as_sequence(pattern, t=(tuple, list)):
         cases.append(_MatchCase(pattern=ptrn, scope=scope))
 
-    self._emitter.emit_match_cases(subject, cases)
+    self.emitter.emit_match_cases(subject, cases)
 
   def visit_MatchAs(self, node):
     pyu.mlog(lambda: asu.dump(node))
@@ -1355,10 +1355,6 @@ class CodeGen(_ExecVisitor):
       patterns.append(value)
 
     self.push_result(patterns)
-
-  @property
-  def emitter(self):
-    return self._emitter
 
   @staticmethod
   def current():
@@ -1388,27 +1384,27 @@ class CodeGen(_ExecVisitor):
 
   def flush(self):
     self._flush_generation()
-    return self._emitter.flush()
+    return self.emitter.flush()
 
   def emit_code(self, code, **kwargs):
     dcode = textwrap.dedent(code)
     pyu.mlog(lambda: f'INLINE CODE:\n{dcode}')
 
     hcode = self._resolve_code(dcode, kwargs)
-    self._emitter.emit_code(hcode)
+    self.emitter.emit_code(hcode)
 
   def emit_report(self, fmt, **kwargs):
     parts = self._get_format_parts(fmt, kwargs)
 
-    self._emitter.emit_report(parts, **kwargs)
+    self.emitter.emit_report(parts, **kwargs)
 
   def emit_write(self, fmt, **kwargs):
     parts = self._get_format_parts(fmt, kwargs)
 
-    self._emitter.emit_write(parts, **kwargs)
+    self.emitter.emit_write(parts, **kwargs)
 
   def emit_call(self, fname, args, dtype):
-    return self._emitter.emit_call(fname, args, dtype)
+    return self.emitter.emit_call(fname, args, dtype)
 
   def mkvwire(self, dtype, value, **iargs):
     vspec = pycu.make_ntuple(VSpec, iargs) if iargs else None
@@ -1421,7 +1417,7 @@ class CodeGen(_ExecVisitor):
     return Register(dtype, value=Init(value=value, vspec=vspec))
 
   def emitter_context(self, **kwargs):
-    return self._emitter.context(kwargs)
+    return self.emitter.context(kwargs)
 
   def no_hdl(self):
     def infn():

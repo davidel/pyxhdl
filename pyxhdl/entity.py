@@ -73,26 +73,18 @@ class Entity(_CoreEntity):
 
   def __init__(self, **kwargs):
     super().__init__()
-    self._args = dict()
-    self._kwargs = dict()
+    self.args = dict()
+    self.kwargs = dict()
 
     for pin in self.PORTS:
       arg = kwargs.get(pin.name, None)
       if arg is None:
         pyu.fatal(f'Missing argument "{pin.name}" for Entity "{cname(self)}"')
 
-      self._args[pin.name] = ArgPort(arg, pin)
+      self.args[pin.name] = ArgPort(arg, pin)
 
     for arg_name, arg in self.ARGS.items():
-      self._kwargs[arg_name] = kwargs.get(arg_name, arg)
-
-  @property
-  def args(self):
-    return self._args
-
-  @property
-  def kwargs(self):
-    return self._kwargs
+      self.kwargs[arg_name] = kwargs.get(arg_name, arg)
 
   def enum_processes(self):
     for name, func in self.__class__.__dict__.items():

@@ -151,30 +151,13 @@ class Verilog_Emitter(Emitter):
 
   def __init__(self, cfg_file=None, **kwargs):
     super().__init__(cfg_file=cfg_file, **kwargs)
+    self.kind = VERILOG
+    self.file_ext = '.sv'
+    self.eol = ';'
     self._mod_comment = None
     self._init_module_places()
     self._module_reset()
     self._extra_libs = set()
-
-  @property
-  def kind(self):
-    return VERILOG
-
-  @property
-  def file_ext(self):
-    return '.sv'
-
-  @property
-  def eol(self):
-    return ';'
-
-  @property
-  def module_vars_place(self):
-    return self._module_vars_place
-
-  @property
-  def process_vars_place(self):
-    return self._process_vars_place
 
   @staticmethod
   def fpmod_resolve(mod_name, fnname, argno, exp_param='NX', mant_param='NM',
@@ -194,7 +177,7 @@ class Verilog_Emitter(Emitter):
     return f'{iid}.{fnname}'
 
   def _init_module_places(self):
-    self._module_vars_place = self.emit_placement()
+    self.module_vars_place = self.emit_placement()
     self._modules_place = self.emit_placement()
     self._entity_place = self.emit_placement()
 
@@ -715,7 +698,7 @@ class Verilog_Emitter(Emitter):
       self._init_module_places()
 
   def emit_module_end(self):
-    with self.placement(self._module_vars_place):
+    with self.placement(self.module_vars_place):
       for wname, wreg in self._wireregs.reg_items():
         reg = wreg.reg
         vinit = f' = {self._cast(wreg.init, reg.dtype)}' if wreg.init is not None else ''
@@ -765,7 +748,7 @@ class Verilog_Emitter(Emitter):
       self._emit_line(f'{self._proc.name} : begin')
     else:
       self._emit_line(f'begin')
-    self._process_vars_place = self.emit_placement(extra_indent=1)
+    self.process_vars_place = self.emit_placement(extra_indent=1)
 
   def _process_reset(self):
     super()._process_reset()
