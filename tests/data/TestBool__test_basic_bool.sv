@@ -32,19 +32,15 @@ module BasicBool(A, B, C, XOUT);
   input logic B;
   input logic [7: 0] C;
   output logic XOUT;
-  wire logic [3: 0] xx;
-  logic XOUT_;
-  logic [3: 0] xx_ = 4'b1001;
+  logic [7: 0] cc;
   always @(A or B or C)
   run : begin
-    logic [7: 0] cc;
+    static logic [3: 0] xx = 4'b1001;
     if (xx == 4'(A)) begin
       cc = C - 3;
     end else begin
       cc = C + 17;
     end
-    XOUT_ = (A && B) || (cc > unsigned'(8'(10)));
+    XOUT = (A && B) || (cc > unsigned'(8'(10)));
   end
-  assign XOUT = XOUT_;
-  assign xx = xx_;
 endmodule

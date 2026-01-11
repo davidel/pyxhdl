@@ -409,15 +409,14 @@ module FloatEnt(A, B, XOUT);
   input logic [31: 0] A;
   input logic [31: 0] B;
   output logic [15: 0] XOUT;
-  logic [15: 0] XOUT_;
+  logic [31: 0] add;
+  logic [31: 0] mul;
+  logic [31: 0] div;
+  logic [31: 0] sub;
   fpu #(.NX(8), .NM(23)) fpu_1();
   fp_conv #(.INX(8), .INM(23), .ONX(5), .ONM(10)) fp_conv_1();
   always @(A or B)
   run : begin
-    logic [31: 0] add;
-    logic [31: 0] mul;
-    logic [31: 0] div;
-    logic [31: 0] sub;
     add = fpu_1.add(A, B);
     mul = fpu_1.mul(A, B);
     div = fpu_1.div(A, B);
@@ -425,7 +424,6 @@ module FloatEnt(A, B, XOUT);
     if (fpu_1.is_nan(A) || fpu_1.is_inf(A)) begin
       add = fpu_1.add(add, 32'b00111111100000000000000000000000);
     end
-    XOUT_ = fp_conv_1.convert(fpu_1.add(fpu_1.sub(fpu_1.add(add, mul), div), fpu_1.mul(sub, fpu_1.sub(fpu_1.add(A, 32'b01000000110000000000000000000000), fpu_1.add(A, 32'b01000000110001111010111000010100)))));
+    XOUT = fp_conv_1.convert(fpu_1.add(fpu_1.sub(fpu_1.add(add, mul), div), fpu_1.mul(sub, fpu_1.sub(fpu_1.add(A, 32'b01000000110000000000000000000000), fpu_1.add(A, 32'b01000000110001111010111000010100)))));
   end
-  assign XOUT = XOUT_;
 endmodule

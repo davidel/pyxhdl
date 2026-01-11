@@ -31,18 +31,12 @@ module ContextEnt(A, B, XOUT);
   input logic [7: 0] A;
   input logic [7: 0] B;
   output logic [7: 0] XOUT;
-  wire logic [7: 0] c;
-  wire logic [7: 0] d;
-  logic [7: 0] c_;
-  logic [7: 0] d_;
-  logic [7: 0] XOUT_;
+  logic [7: 0] c;
+  logic [7: 0] d;
   always @(A or B)
   tester : begin
-    #10 c_ = A - B;
-    #17 d_ = d + (A / B);
-    XOUT_ = c + 8'(A * B);
+    #10 c = A - B;
+    #17 d = d + (A / B);
+    XOUT = c + 8'(A * B);
   end
-  assign c = c_;
-  assign d = d_;
-  assign XOUT = XOUT_;
 endmodule

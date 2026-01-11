@@ -31,10 +31,9 @@ module IfEnt(A, B, XOUT);
   input logic [7: 0] A;
   input logic [7: 0] B;
   output logic [7: 0] XOUT;
-  logic [7: 0] XOUT_;
+  logic [7: 0] temp;
   always @(A or B)
   run : begin
-    logic [7: 0] temp;
     temp = A;
     if (A > B) begin
       temp = temp + A;
@@ -55,7 +54,6 @@ module IfEnt(A, B, XOUT);
       end
       temp = temp + 1;
     end
-    XOUT_ = temp;
+    XOUT = temp;
   end
-  assign XOUT = XOUT_;
 endmodule

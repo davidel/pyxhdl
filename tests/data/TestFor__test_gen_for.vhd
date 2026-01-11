@@ -222,14 +222,14 @@ use work.all;
 -- 	args={'A': 'uint(8)', 'B': 'uint(8)', 'XOUT': 'uint(8)'}
 -- 	kwargs={count=4}
 architecture behavior of GenForEnt is
+  signal temp : unsigned(7 downto 0) := to_unsigned(1, 8);
 begin
   run : process (A, B)
-    variable temp : unsigned(7 downto 0) := to_unsigned(1, 8);
   begin
-    temp := temp + (A + B);
-    temp := temp + (A - B);
-    temp := temp + (A + B);
-    temp := temp + (A - B);
+    temp <= temp + (A + B);
+    temp <= temp + (A - B);
+    temp <= temp + (A + B);
+    temp <= temp + (A - B);
     XOUT <= temp - 17;
   end process;
 end architecture;

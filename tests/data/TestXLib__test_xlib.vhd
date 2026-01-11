@@ -249,21 +249,21 @@ use work.all;
 -- 	args={'CLK': 'bits(1)', 'A': 'uint(8)', 'B': 'uint(8)', 'XOUT': 'uint(8)'}
 -- 	kwargs={arg1=17, arg2="PyXHDL"}
 architecture behavior of XLib is
+  signal e : unsigned(7 downto 0);
+  signal ctx : unsigned(7 downto 0);
+  signal z : unsigned(7 downto 0);
+  signal assigned : unsigned(7 downto 0);
 begin
   run : process (CLK, A, B)
-    variable e : unsigned(7 downto 0);
-    variable ctx : unsigned(7 downto 0);
-    variable z : unsigned(7 downto 0);
-    variable assigned : unsigned(7 downto 0);
   begin
     report "TIME=" & to_string(now) & " A=" & to_hstring(A - B) & " B=" & to_hstring(A + B) & " arg1=" & "17" & " arg2=" & "PyXHDL" & " $$vanilla";
     write(output, "TIME=" & to_string(now) & " A=" & to_hstring(A) & " B=" & to_hstring(B) & " arg1=" & "17" & " arg2=" & "PyXHDL" & " $$vanilla" & LF);
     dummy.proc((A + B) + B, A - resize((A + B) * 2, 8));
-    e := dummy.func(A + 1, resize(B * 3, 8));
-    ctx := resize(A * B, 8);
-    z := ((A + B) - A) + B;
-    z := resize(A * B, 8);
-    assigned := z - B;
+    e <= dummy.func(A + 1, resize(B * 3, 8));
+    ctx <= resize(A * B, 8) after 10 ns;
+    z <= ((A + B) - A) + B;
+    z <= resize(A * B, 8);
+    assigned <= z - B;
   end process;
   waiter : process
   begin

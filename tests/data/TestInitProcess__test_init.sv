@@ -34,36 +34,30 @@ module InitProcess(A, B, XOUT);
   input logic [7: 0] A;
   input logic [7: 0] B;
   output logic [7: 0] XOUT;
-  wire logic [7: 0] arr[4][4];
-  wire logic [7: 0] zarr[4][4];
-  logic [7: 0] arr_[4][4];
-  logic [7: 0] zarr_[4][4] = '{4{'{4{unsigned'(8'(1))}}}};
-  logic [7: 0] XOUT_;
+  logic [7: 0] arr[4][4];
+  logic [7: 0] zarr[4][4] = '{4{'{4{unsigned'(8'(1))}}}};
+  logic [7: 0] temp = unsigned'(8'(21));
   initial
   init : begin
-    arr_[0][0] = unsigned'(8'(0));
-    arr_[0][1] = unsigned'(8'(1));
-    arr_[0][2] = unsigned'(8'(2));
-    arr_[0][3] = unsigned'(8'(3));
-    arr_[1][0] = unsigned'(8'(4));
-    arr_[1][1] = unsigned'(8'(5));
-    arr_[1][2] = unsigned'(8'(6));
-    arr_[1][3] = unsigned'(8'(7));
-    arr_[2][0] = unsigned'(8'(8));
-    arr_[2][1] = unsigned'(8'(9));
-    arr_[2][2] = unsigned'(8'(10));
-    arr_[2][3] = unsigned'(8'(11));
-    arr_[3][0] = unsigned'(8'(12));
-    arr_[3][1] = unsigned'(8'(13));
-    arr_[3][2] = unsigned'(8'(14));
-    arr_[3][3] = unsigned'(8'(15));
+    arr[0][0] = unsigned'(8'(0));
+    arr[0][1] = unsigned'(8'(1));
+    arr[0][2] = unsigned'(8'(2));
+    arr[0][3] = unsigned'(8'(3));
+    arr[1][0] = unsigned'(8'(4));
+    arr[1][1] = unsigned'(8'(5));
+    arr[1][2] = unsigned'(8'(6));
+    arr[1][3] = unsigned'(8'(7));
+    arr[2][0] = unsigned'(8'(8));
+    arr[2][1] = unsigned'(8'(9));
+    arr[2][2] = unsigned'(8'(10));
+    arr[2][3] = unsigned'(8'(11));
+    arr[3][0] = unsigned'(8'(12));
+    arr[3][1] = unsigned'(8'(13));
+    arr[3][2] = unsigned'(8'(14));
+    arr[3][3] = unsigned'(8'(15));
   end
   always @(A or B)
   run : begin
-    static logic [7: 0] temp = unsigned'(8'(21));
-    XOUT_ = ((A - 8'(3 * B)) - 8'(temp * arr[1][2])) + 8'(11 * zarr[2][3]);
+    XOUT = ((A - 8'(3 * B)) - 8'(temp * arr[1][2])) + 8'(11 * zarr[2][3]);
   end
-  assign arr = arr_;
-  assign zarr = zarr_;
-  assign XOUT = XOUT_;
 endmodule

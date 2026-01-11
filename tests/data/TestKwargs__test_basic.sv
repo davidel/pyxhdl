@@ -31,10 +31,8 @@ module ExtraArgs(A, B, XOUT);
   input logic [7: 0] A;
   input logic [7: 0] B;
   output logic [7: 0] XOUT;
-  logic [7: 0] XOUT_;
   always @(A or B)
   run : begin
-    XOUT_ = (8'(A * B) + 17) - 21;
+    XOUT = (8'(A * B) + 17) - 21;
   end
-  assign XOUT = XOUT_;
 endmodule

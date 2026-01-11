@@ -222,13 +222,13 @@ use work.all;
 -- 	args={'A': 'bits(1)', 'B': 'bits(1)', 'XOUT': 'bits(4)'}
 -- 	kwargs={}
 architecture behavior of BasicBits is
-  signal w : unsigned(3 downto 0);
+  signal z : unsigned(3 downto 0);
 begin
   run : process (A, B)
-    variable z : unsigned(3 downto 0);
+    variable w : unsigned(3 downto 0);
   begin
-    z := resize((pyxhdl.cvt_unsigned(A, 2) + resize(pyxhdl.cvt_unsigned(B, 1), 2)) + 3, 4);
-    w <= z;
+    z <= resize((pyxhdl.cvt_unsigned(A, 2) + resize(pyxhdl.cvt_unsigned(B, 1), 2)) + 3, 4);
+    w := z;
     XOUT <= std_logic_vector(resize(z * 17, 4) - w);
   end process;
 end architecture;

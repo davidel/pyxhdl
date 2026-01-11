@@ -222,12 +222,12 @@ use work.all;
 -- 	args={'A': 'uint(8)', 'B': 'uint(8)', 'XOUT': 'uint(4)'}
 -- 	kwargs={}
 architecture behavior of Recast is
+  signal auto : unsigned(7 downto 0);
 begin
   run : process (A, B)
-    variable auto : unsigned(7 downto 0);
   begin
-    auto := A + B;
-    auto := resize(A * B, 8);
+    auto <= A + B;
+    auto <= resize(A * B, 8);
     XOUT <= resize(auto / 4, 4);
   end process;
 end architecture;

@@ -31,15 +31,13 @@ module ForEnt(A, B, XOUT);
   input logic [7: 0] A;
   input logic [7: 0] B;
   output logic [7: 0] XOUT;
-  logic [7: 0] XOUT_;
+  logic [7: 0] temp = unsigned'(8'(1));
   always @(A or B)
   run : begin
-    static logic [7: 0] temp = unsigned'(8'(1));
     temp = temp + 1;
     temp = temp + 1;
     temp = temp + 1;
     temp = temp + 1;
-    XOUT_ = 8'(temp * A) - B;
+    XOUT = 8'(temp * A) - B;
   end
-  assign XOUT = XOUT_;
 endmodule

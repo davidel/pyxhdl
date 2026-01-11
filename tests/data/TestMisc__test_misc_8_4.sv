@@ -33,8 +33,6 @@ module Misc(A, B, C, XOUT1, XOUT2);
   input logic [7: 0] C;
   inout logic [7: 0] XOUT1;
   inout logic [7: 0] XOUT2;
-  logic [7: 0] XOUT1_;
-  logic [7: 0] XOUT2_;
   always @(A or B or C)
   run : begin
     logic [7: 0] na;
@@ -109,12 +107,10 @@ module Misc(A, B, C, XOUT1, XOUT2);
     twd1 = (A - 8'(B)) + 8'(twdecl);
     twdecl_1 = 4'(A + 8'(B));
     twd2 = (A - 8'(B)) + 8'(twdecl_1);
-    XOUT1_ = ((A - 8'(B)) - ((8'(na * nb) - 1) - (na + 8'(nb * 3)))) + zz;
+    XOUT1 = ((A - 8'(B)) - ((8'(na * nb) - 1) - (na + 8'(nb * 3)))) + zz;
   end
   always @(A or B or C)
   use_self : begin
-    XOUT2_ = ((A - 8'(B)) + C) + 5;
+    XOUT2 = ((A - 8'(B)) + C) + 5;
   end
-  assign XOUT1 = XOUT1_;
-  assign XOUT2 = XOUT2_;
 endmodule

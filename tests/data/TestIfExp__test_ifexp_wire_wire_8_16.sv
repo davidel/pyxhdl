@@ -31,10 +31,8 @@ module IfExp(A, B, XOUT);
   input logic [7: 0] A;
   input logic [15: 0] B;
   output logic [15: 0] XOUT;
-  logic [15: 0] XOUT_;
   always @(A or B)
   run : begin
-    XOUT_ = (16'(A) > B) ? 16'(A) : B + 1;
+    XOUT = (16'(A) > B) ? 16'(A) : B + 1;
   end
-  assign XOUT = XOUT_;
 endmodule

@@ -31,13 +31,11 @@ module Recast(A, B, XOUT);
   input logic [7: 0] A;
   input logic [7: 0] B;
   output logic [3: 0] XOUT;
-  logic [3: 0] XOUT_;
+  logic [7: 0] auto;
   always @(A or B)
   run : begin
-    logic [7: 0] auto;
     auto = A + B;
     auto = 8'(A * B);
-    XOUT_ = 4'(auto / 4);
+    XOUT = 4'(auto / 4);
   end
-  assign XOUT = XOUT_;
 endmodule

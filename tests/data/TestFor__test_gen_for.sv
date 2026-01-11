@@ -31,15 +31,13 @@ module GenForEnt(A, B, XOUT);
   input logic [7: 0] A;
   input logic [7: 0] B;
   output logic [7: 0] XOUT;
-  logic [7: 0] XOUT_;
+  logic [7: 0] temp = unsigned'(8'(1));
   always @(A or B)
   run : begin
-    static logic [7: 0] temp = unsigned'(8'(1));
     temp = temp + (A + B);
     temp = temp + (A - B);
     temp = temp + (A + B);
     temp = temp + (A - B);
-    XOUT_ = temp - 17;
+    XOUT = temp - 17;
   end
-  assign XOUT = XOUT_;
 endmodule

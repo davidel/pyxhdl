@@ -31,12 +31,10 @@ module PosEdge(CLK, RESET, XOUT);
   input logic CLK;
   input logic RESET;
   output logic [7: 0] XOUT;
-  logic [7: 0] XOUT_;
   always @(posedge CLK or RESET)
   run : begin
     if (RESET != unsigned'(1'(0))) begin
-      XOUT_ <= unsigned'(8'(0));
+      XOUT = unsigned'(8'(0));
     end
   end
-  assign XOUT = XOUT_;
 endmodule

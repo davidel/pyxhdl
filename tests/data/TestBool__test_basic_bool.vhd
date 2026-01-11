@@ -223,15 +223,15 @@ use work.all;
 -- 	args={'A': 'bool()', 'B': 'bool()', 'C': 'uint(8)', 'XOUT': 'bool()'}
 -- 	kwargs={}
 architecture behavior of BasicBool is
-  signal xx : std_logic_vector(3 downto 0) := "1001";
+  signal cc : unsigned(7 downto 0);
 begin
   run : process (A, B, C)
-    variable cc : unsigned(7 downto 0);
+    variable xx : std_logic_vector(3 downto 0) := "1001";
   begin
     if xx = ("000" & pyxhdl.bits_ifexp(A, '1', '0')) then
-      cc := C - 3;
+      cc <= C - 3;
     else
-      cc := C + 17;
+      cc <= C + 17;
     end if;
     XOUT <= (A and B) or (cc > to_unsigned(10, 8));
   end process;

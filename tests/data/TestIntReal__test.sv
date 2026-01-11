@@ -31,9 +31,9 @@ module IntReal(A, B, XOUT);
   input integer A;
   input real B;
   output real XOUT[4];
+  integer idx = 3;
   always @(A)
   test : begin
-    static integer idx = 3;
     XOUT[idx] = ((real'(A) + B) * 17.0) - 3.14;
     idx = idx - 1;
     XOUT[idx] = ((real'(A) + B) / 21.0) + 2.718281828459045;

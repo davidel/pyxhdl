@@ -222,17 +222,17 @@ use work.all;
 -- 	args={'A': 'real()', 'B': 'real()', 'XOUT': 'real()'}
 -- 	kwargs={}
 architecture behavior of RealEnt is
+  signal add : real;
+  signal mul : real;
+  signal div : real;
+  signal sub : real;
 begin
   run : process (A, B)
-    variable add : real;
-    variable mul : real;
-    variable div : real;
-    variable sub : real;
   begin
-    add := A + B;
-    mul := A * B;
-    div := A / B;
-    sub := A - B;
+    add <= A + B;
+    mul <= A * B;
+    div <= A / B;
+    sub <= A - B;
     XOUT <= ((add + mul) - div) + (sub * ((A + 3.0) - (A + 3.12)));
   end process;
 end architecture;

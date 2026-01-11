@@ -31,16 +31,12 @@ module BasicBits(A, B, XOUT);
   input logic A;
   input logic B;
   output logic [3: 0] XOUT;
-  wire logic [3: 0] w;
-  logic [3: 0] w_;
-  logic [3: 0] XOUT_;
+  logic [3: 0] z;
   always @(A or B)
   run : begin
-    logic [3: 0] z;
+    logic [3: 0] w;
     z = 4'((2'(A) + 2'(B)) + 3);
-    w_ = z;
-    XOUT_ = 4'(z * 17) - w;
+    w = z;
+    XOUT = 4'(z * 17) - w;
   end
-  assign w = w_;
-  assign XOUT = XOUT_;
 endmodule

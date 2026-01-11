@@ -222,14 +222,14 @@ use work.all;
 -- 	args={'A': 'integer()', 'B': 'real()', 'XOUT': 'real(4)'}
 -- 	kwargs={}
 architecture behavior of IntReal is
+  signal idx : integer := 3;
 begin
   test : process (A)
-    variable idx : integer := 3;
   begin
     XOUT(idx) <= ((real(A) + B) * 17.0) - 3.14;
-    idx := idx - 1;
+    idx <= idx - 1;
     XOUT(idx) <= ((real(A) + B) / 21.0) + 2.718281828459045;
-    idx := idx - 1;
+    idx <= idx - 1;
     XOUT(idx) <= (real(A) + B) + real(idx);
   end process;
 end architecture;

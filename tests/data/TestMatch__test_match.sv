@@ -31,19 +31,17 @@ module MatchEnt(A, B, XOUT);
   input logic [7: 0] A;
   input logic [7: 0] B;
   output logic [7: 0] XOUT;
-  logic [7: 0] XOUT_;
   always @(A or B)
   tester : begin
     case (A)
       unsigned'(8'(17)):
-        XOUT_ = A + 1;
+        XOUT = A + 1;
       unsigned'(8'(21)):
-        XOUT_ = A + B;
+        XOUT = A + B;
       unsigned'(8'(34)):
-        XOUT_ = A - B;
+        XOUT = A - B;
       default:
-        XOUT_ = 8'(A * B);
+        XOUT = 8'(A * B);
     endcase
   end
-  assign XOUT = XOUT_;
 endmodule

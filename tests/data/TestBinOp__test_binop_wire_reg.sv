@@ -31,18 +31,16 @@ module BinOp(A, B, XOUT);
   input logic [7: 0] A;
   input logic [7: 0] B;
   output logic [7: 0] XOUT;
-  logic [7: 0] XOUT_;
+  logic [7: 0] add;
+  logic [7: 0] mul;
+  logic [7: 0] div;
+  logic [7: 0] sub;
   always @(A or B)
   run : begin
-    logic [7: 0] add;
-    logic [7: 0] mul;
-    logic [7: 0] div;
-    logic [7: 0] sub;
     add = A + B;
     mul = 8'(A * B);
     div = A / B;
     sub = A - B;
-    XOUT_ = 8'((16'((((add + mul) - div) + sub) - (A % B)) + {A, B}) - (({A, B} << 6) ^ ({A, B} >> 6)));
+    XOUT = 8'((16'((((add + mul) - div) + sub) - (A % B)) + {A, B}) - (({A, B} << 6) ^ ({A, B} >> 6)));
   end
-  assign XOUT = XOUT_;
 endmodule

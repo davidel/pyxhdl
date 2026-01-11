@@ -31,12 +31,12 @@ module RealEnt(A, B, XOUT);
   input real A;
   input real B;
   output real XOUT;
+  real add;
+  real mul;
+  real div;
+  real sub;
   always @(A or B)
   run : begin
-    real add;
-    real mul;
-    real div;
-    real sub;
     add = A + B;
     mul = A * B;
     div = A / B;

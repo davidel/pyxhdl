@@ -222,19 +222,19 @@ use work.all;
 -- 	args={'A': 'float(32)', 'B': 'float(32)', 'XOUT': 'float(16)'}
 -- 	kwargs={}
 architecture behavior of FloatEnt is
+  signal add : float(8 downto -23);
+  signal mul : float(8 downto -23);
+  signal div : float(8 downto -23);
+  signal sub : float(8 downto -23);
 begin
   run : process (A, B)
-    variable add : float(8 downto -23);
-    variable mul : float(8 downto -23);
-    variable div : float(8 downto -23);
-    variable sub : float(8 downto -23);
   begin
-    add := A + B;
-    mul := A * B;
-    div := A / B;
-    sub := A - B;
+    add <= A + B;
+    mul <= A * B;
+    div <= A / B;
+    sub <= A - B;
     if Isnan(A) or (not Finite(A)) then
-      add := add + 1.0;
+      add <= add + 1.0;
     end if;
     XOUT <= resize(((add + mul) - div) + (sub * ((A + 3.0) - (A + 3.12))), 5, 10);
   end process;

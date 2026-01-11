@@ -31,10 +31,8 @@ module ArrayAssignTestEnt(A, B, XOUT);
   input logic [15: 0] A[2][2];
   input logic signed [15: 0] B[2][2];
   output logic signed [15: 0] XOUT[2][2];
-  logic signed [15: 0] XOUT_[2][2];
   always @(A or B)
   assign_element : begin
-    XOUT_[1] = B[0];
+    XOUT[1] = B[0];
   end
-  assign XOUT = XOUT_;
 endmodule

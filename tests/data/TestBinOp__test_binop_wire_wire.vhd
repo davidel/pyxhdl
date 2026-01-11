@@ -222,17 +222,17 @@ use work.all;
 -- 	args={'A': 'uint(8)', 'B': 'uint(8)', 'XOUT': 'uint(8)'}
 -- 	kwargs={}
 architecture behavior of BinOp is
+  signal add : unsigned(7 downto 0);
+  signal mul : unsigned(7 downto 0);
+  signal div : unsigned(7 downto 0);
+  signal sub : unsigned(7 downto 0);
 begin
   run : process (A, B)
-    variable add : unsigned(7 downto 0);
-    variable mul : unsigned(7 downto 0);
-    variable div : unsigned(7 downto 0);
-    variable sub : unsigned(7 downto 0);
   begin
-    add := A + B;
-    mul := resize(A * B, 8);
-    div := A / B;
-    sub := A - B;
+    add <= A + B;
+    mul <= resize(A * B, 8);
+    div <= A / B;
+    sub <= A - B;
     XOUT <= resize((resize((((add + mul) - div) + sub) - (A mod B), 16) + (A & B)) - (shift_left((A & B), 6) xor shift_right((A & B), 6)), 8);
   end process;
 end architecture;
