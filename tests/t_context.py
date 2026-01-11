@@ -18,8 +18,8 @@ class ContextEnt(X.Entity):
 
   @X.hdl_process(sens='A, B')
   def tester():
-    c = X.mkwire(A.dtype)
-    d = X.mkwire(A.dtype)
+    c = X.mkreg(A.dtype)
+    d = X.mkreg(A.dtype)
 
     with XL.context(delay=10):
       c = A - B
