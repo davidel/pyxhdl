@@ -66,7 +66,7 @@ def twice_locals(a, b):
 
 @X.hdl
 def twice_decl(a, b):
-  twdecl = X.mkreg(b.dtype)
+  twdecl = X.mkwire(b.dtype)
   twdecl = a + b
 
   return a - b + twdecl
@@ -78,7 +78,7 @@ class Misc(X.Entity):
 
   @X.hdl_process(sens='A, B, C')
   def run():
-    na = nb = br = X.mkreg(A.dtype)
+    na = nb = br = X.mkwire(A.dtype)
     nb, na = tuple_fn(A, B)
 
     dv = dict_fn(na, nb)
@@ -98,24 +98,24 @@ class Misc(X.Entity):
     tbr0, tbr1 = branchy_tuple(A, B)
     comp0, comp1 = compose_tuple(A, B)
 
-    zz = X.mkreg(A.dtype)
+    zz = X.mkwire(A.dtype)
     brd = branchy_dict(tbr0, tbr1)
     zz = brd['X'] * brd['Y']
 
     if C == '0b0110X110':
       bits = C @ '0b11001'
 
-    rbits = XL.mkvreg(C.dtype, '0b1101X0X0')
+    rbits = XL.mkvwire(C.dtype, '0b1101X0X0')
     if C != rbits:
       sbits = '0b1XX0' @ C
     if A == 'u8`127':
       zz = A * B
 
-    tw1 = tw2 = X.mkreg(A.dtype)
+    tw1 = tw2 = X.mkwire(A.dtype)
     tw1 = twice_locals(A, B)
     tw2 = twice_locals(A, B)
 
-    twd1 = twd2 = X.mkreg(A.dtype)
+    twd1 = twd2 = X.mkwire(A.dtype)
     twd1 = twice_decl(A, B)
     twd2 = twice_decl(A, B)
 
