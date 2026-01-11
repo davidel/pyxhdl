@@ -24,7 +24,7 @@ class TestRootProcess(unittest.TestCase):
     inputs = dict(
       A=X.mkwire(X.UINT8),
       B=X.mkwire(X.UINT8),
-      XOUT=X.mkwire(X.UINT8),
+      XOUT=X.mkreg(X.UINT8),
     )
 
     tu.run(self, tu.test_name(self, pyu.fname()), RootProcess, inputs)
