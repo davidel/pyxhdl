@@ -133,24 +133,13 @@ class TestMisc(unittest.TestCase):
       A=X.mkwire(X.UINT8),
       B=X.mkwire(X.UINT8),
       C=X.mkwire(X.Bits(8)),
-      XOUT1=X.mkwire(X.UINT8),
-      XOUT2=X.mkwire(X.UINT8),
+      XOUT1=X.mkreg(X.UINT8),
+      XOUT2=X.mkreg(X.UINT8),
     )
 
     tu.run(self, tu.test_name(self, pyu.fname()), Misc, inputs)
 
   def test_misc_8_4(self):
-    inputs = dict(
-      A=X.mkwire(X.UINT8),
-      B=X.mkwire(X.Uint(4)),
-      C=X.mkwire(X.Bits(8)),
-      XOUT1=X.mkwire(X.UINT8),
-      XOUT2=X.mkwire(X.UINT8),
-    )
-
-    tu.run(self, tu.test_name(self, pyu.fname()), Misc, inputs)
-
-  def test_misc_8_4_outreg(self):
     inputs = dict(
       A=X.mkwire(X.UINT8),
       B=X.mkwire(X.Uint(4)),
