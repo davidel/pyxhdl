@@ -661,12 +661,12 @@ class CodeGen(_ExecVisitor):
   def _process_scope_exit(self):
     pyu.mlog(lambda: f'Variables stack is {len(self._variables)} deep')
 
-    vars = self._variables.pop()
+    svars = self._variables.pop()
     place = self._vars_places.pop()
 
     root_vars = dict()
     with self.emitter.placement(place) as emt:
-      for name, var in vars.items():
+      for name, var in svars.items():
         if emt.is_root_variable(var):
           root_vars[name] = var
         else:
