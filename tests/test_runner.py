@@ -18,7 +18,7 @@ def _main(args):
                  os.environ.get('TESTS_FOLDER') or
                  os.path.dirname(os.path.abspath(__file__)))
 
-  alog.info(f'TestFolder: {test_folder}')
+  alog.debug(f'TestFolder: {test_folder}')
 
   for arg in args.backed_arg or ():
     m = re.match(r'([^\s]+)\s*:\s*([^\s]+)(\s*=\s*([^\s]+))?', arg)
