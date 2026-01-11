@@ -23,8 +23,8 @@ class InitProcess(X.Entity):
 
   @X.hdl_process(kind=X.INIT_PROCESS)
   def init():
-    arr = X.mkwire(X.mkarray(A.dtype, 4, 4))
-    zarr = XL.mkvwire(X.mkarray(A.dtype, 4, 4), 1)
+    arr = X.mkreg(X.mkarray(A.dtype, 4, 4))
+    zarr = XL.mkvreg(X.mkarray(A.dtype, 4, 4), 1)
     for i in range(init.shape[0]):
       for j in range(init.shape[1]):
         arr[i, j] = init[i, j]
