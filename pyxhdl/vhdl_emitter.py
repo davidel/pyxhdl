@@ -440,8 +440,7 @@ class VHDL_Emitter(Emitter):
     return self._load_libs() + self._expand()
 
   def is_root_variable(self, var):
-    # Wires are always root!
-    return var.isreg is False or var.is_const()
+    return var.isreg or var.is_const()
 
   def var_remap(self, var, is_store):
     return var
@@ -451,8 +450,10 @@ class VHDL_Emitter(Emitter):
 
     if var.is_const():
       vprefix = 'constant'
+    elif self._proc.kind == ROOT_PROCESS:
+      vprefix = 'signal'
     else:
-      vprefix = 'variable' if var.isreg else 'signal'
+      vprefix = 'variable' if var.isreg is False else 'signal'
 
     if var.init is not None:
       xinit = self._cast(var.init, var.dtype)
@@ -466,15 +467,27 @@ class VHDL_Emitter(Emitter):
     xvalue = self._cast(value, var.dtype)
 
     xdelay, xtrans = '', ''
-    if not var.isreg:
+
+    delay = self.get_context('delay')
+    trans = self.get_context('trans')
+    if delay is not None or trans is True:
       # Delays apply only to signals, not registers ...
-      delay = self.get_context('delay')
+      if var.isreg is False:
+        pyu.fatal(f'Cannot use delay/trans on wires: {var}')
+      if self._proc.kind == ROOT_PROCESS:
+        pyu.fatal(f'Cannot use delay/trans within a root process: {var}')
+
       if delay is not None:
         xdelay = f' after {self.svalue(delay)} {self.time_unit()}'
+      if trans is True:
+        xtrans = 'transport '
 
-      xtrans = 'transport ' if self.get_context('trans', False) else ''
-
-    asop = ':=' if var.isreg else '<='
+    vspec = var.vspec
+    if (vspec is not None and vspec.port is not None and
+        vspec.port.idir in (OUT, INOUT)):
+      asop = '<='
+    else:
+      asop = ':=' if var.isreg is False else '<='
 
     self._emit_line(f'{var.value} {asop} {xtrans}{xvalue}{xdelay};')
 
@@ -733,7 +746,7 @@ class VHDL_Emitter(Emitter):
   def eval_Subscript(self, arg, idx):
     result, shape = self._gen_array_access(arg, idx)
 
-    return arg.new_value(result, shape=shape)
+    return arg.new_value(result, shape=shape, keepref=True)
 
   def eval_IfExp(self, test, body, orelse):
     xtest = self.svalue(test)

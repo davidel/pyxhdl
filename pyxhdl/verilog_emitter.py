@@ -80,27 +80,6 @@ _FLOAT_OPFNS = {
 }
 
 
-_WireReg = collections.namedtuple('WireReg', 'wire, reg, init', defaults=[None])
-
-class _WireRegs:
-
-  def __init__(self):
-    self._wregs = dict()
-
-  def reg_items(self):
-    return self._wregs.items()
-
-  def register(self, var, init=None):
-    ref = var.ref
-    wreg = self._wregs.get(ref.name)
-    if wreg is None:
-      reg = Register(var.dtype, value=Ref(f'{ref.name}_', vspec=ref.vspec))
-      wreg = _WireReg(wire=var, reg=reg, init=init)
-      self._wregs[ref.name] = wreg
-
-    return wreg
-
-
 class _Instance:
 
   def __init__(self, name, params, args):
@@ -184,7 +163,6 @@ class Verilog_Emitter(Emitter):
   def _module_reset(self):
     self._mod_comment = None
     self._itor = _Instanciator()
-    self._wireregs = _WireRegs()
 
     self._process_reset()
 
@@ -603,36 +581,22 @@ class Verilog_Emitter(Emitter):
     return self._load_libs(extra_libs=xlibs) + self._expand()
 
   def is_root_variable(self, var):
-    # Wires are always root!
-    return var.isreg is False or var.is_const()
+    return var.isreg or var.is_const()
 
   def var_remap(self, var, is_store):
-    # Do not remap anything which is not Value.
-    # Do not remap registers (isreg == True), temporaries (isreg == None) or
-    # not references.
-    if not isinstance(var, Value) or var.isreg != False or var.ref is None:
-      return var
-    # Do not remap writes from the root process or simple reads.
-    if self._proc.kind == ROOT_PROCESS or not is_store:
-      return var
-
-    wreg = self._wireregs.register(var)
-
-    return wreg.reg
+    return var
 
   def emit_declare_variable(self, name, var):
     if var.is_const():
       vprefix, is_const = 'const ', True
     else:
-      vprefix, is_const = '' if var.isreg else 'wire ', False
+      vprefix, is_const = '', False
 
     vinit = ''
     if var.init is not None:
+      vinit = f' = {self._cast(var.init, var.dtype)}'
       if not self.is_root_variable(var):
-        vinit, vprefix = f' = {self._cast(var.init, var.dtype)}', f'static {vprefix}'
-      else:
-        self._wireregs.register(Wire(var.dtype, value=Ref(name, vspec=var.vspec)),
-                                init=var.init)
+        vprefix = f'static {vprefix}'
 
     ntype = self._type_of(var.dtype).format(name)
 
@@ -644,10 +608,10 @@ class Verilog_Emitter(Emitter):
     delay = self.get_context('delay')
     xdelay = f'#{paren(self.svalue(delay))} ' if delay is not None else ''
 
-    cont_assign = 'assign ' if self._proc.kind == ROOT_PROCESS and not var.isreg else ''
+    cont_assign = 'assign ' if self._proc.kind == ROOT_PROCESS else ''
     # Sequential designs (processes having posedge/negedge sensitivity) should use non
     # blocking assignments.
-    asop = '=' if cont_assign or not self._edge_inputs else '<='
+    asop = '=' if cont_assign or not self._edge_inputs or not var.isreg else '<='
 
     self._emit_line(f'{xdelay}{cont_assign}{var.value} {asop} {xvalue};')
 
@@ -698,24 +662,12 @@ class Verilog_Emitter(Emitter):
       self._init_module_places()
 
   def emit_module_end(self):
-    with self.placement(self.module_vars_place):
-      for wname, wreg in self._wireregs.reg_items():
-        reg = wreg.reg
-        vinit = f' = {self._cast(wreg.init, reg.dtype)}' if wreg.init is not None else ''
-        ntype = self._type_of(reg.dtype).format(reg.value)
-        self._emit_line(f'{ntype}{vinit};')
-
     with self.placement(self._modules_place):
       for iid, inst in self._itor:
         params = [f'.{k}({v})' for k, v in inst.params.items()]
         args = [f'.{k}({self.svalue(v)})' for k, v in inst.args.items()]
 
         self._emit_line(f'{inst.name} #(' + ', '.join(params) + f') {iid}(' + ', '.join(args) + ');')
-
-    with self.indent():
-      for wname, wreg in self._wireregs.reg_items():
-        reg = wreg.reg
-        self._emit_line(f'assign {wreg.wire.value} = {wreg.reg.value};')
 
     self._emit_line(f'endmodule')
     self._module_reset()
@@ -920,7 +872,7 @@ class Verilog_Emitter(Emitter):
   def eval_Subscript(self, arg, idx):
     result, shape = self._gen_array_access(arg, idx)
 
-    return arg.new_value(result, shape=shape)
+    return arg.new_value(result, shape=shape, keepref=True)
 
   def eval_IfExp(self, test, body, orelse):
     xtest = self.svalue(test)

@@ -32,7 +32,7 @@ _CGENCTX = 'pyxhdl.CodeGen'
 _CODEFMT_RX = r'(?<!\{)\{([^{][^}]*(\}\}[^}]+)*)\}'
 
 
-class _Variable:
+class Variable:
 
   __slots__ = ('dtype', 'isreg', 'init', 'vspec')
 
@@ -259,7 +259,7 @@ class _ExecVisitor(_AstVisitor):
   def _add_variable(self, name, dtype, isreg, init=None, vspec=None):
     pyu.mlog(lambda: f'NEW VAR: {valkind(isreg)} {dtype}\t{name}')
 
-    self.variables[name] = _Variable(dtype, isreg, init=init, vspec=vspec)
+    self.variables[name] = Variable(dtype, isreg, init=init, vspec=vspec)
 
   def _static_eval(self, node):
     self.location.set_lineno(node.lineno)
@@ -556,7 +556,7 @@ class CodeGen(_ExecVisitor):
     if vinit is not None:
       init, vspec, isreg = vinit.value, vinit.vspec, value.isreg
     else:
-      init, vspec, isreg = None, None, True
+      init, vspec, isreg = None, None, False
 
     vname = self._revgen.newname(name, shortzero=True)
 

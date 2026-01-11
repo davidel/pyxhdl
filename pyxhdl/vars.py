@@ -85,6 +85,11 @@ class Value(ValueBase):
     return v if isinstance(v, Ref) else None
 
   @property
+  def vspec(self):
+    v = self._value
+    return v.vspec if isinstance(v, Ref) else None
+
+  @property
   def init(self):
     v = self._value
     return v if isinstance(v, Init) else None
@@ -111,8 +116,13 @@ class Value(ValueBase):
 
     return pycu.new_with(self, _value=ref.name, isreg=None) if ref is not None else self
 
-  def new_value(self, value, shape=None):
+  def new_value(self, value, shape=None, keepref=False):
     dtype = self.dtype.new_shape(*shape) if shape is not None else self.dtype
+
+    if keepref and not isinstance(value, Ref):
+      ref = self.ref
+      if ref is not None:
+        value = ref.new_name(value)
 
     return pycu.new_with(self, _value=value, dtype=dtype)
 
