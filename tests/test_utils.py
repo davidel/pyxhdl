@@ -1,11 +1,11 @@
 import collections
 import difflib
 import inspect
-import logging
 import os
 import sys
 import unittest
 
+import py_misc_utils.alog as alog
 import py_misc_utils.core_utils as pycu
 
 import pyxhdl as X
@@ -57,7 +57,7 @@ def load_reference(name, backend):
 
 def store_reference(name, backend, code):
   path = reference_path(name, backend, path=os.environ.get('DEST_PATH'))
-  logging.info(f'Storing reference code: name={name} banckend={backend} path={path}')
+  alog.info(f'Storing reference code: name={name} banckend={backend} path={path}')
   with open(path, mode='w') as rfd:
     for cln in code:
       rfd.write(cln + '\n')

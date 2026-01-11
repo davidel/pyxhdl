@@ -1,9 +1,9 @@
-import logging
 import math
 import unittest
 
 import numpy as np
 
+import py_misc_utils.alog as alog
 import py_misc_utils.utils as pyu
 
 import pyxhdl as X
@@ -21,7 +21,7 @@ class _FakeCtx(object):
     return self
 
   def __exit__(self, xtype, ex, tb):
-    logging.debug(f'FAKE CTX: {xtype}\t{ex}\t{tb}')
+    alog.debug(f'FAKE CTX: {xtype}\t{ex}\t{tb}')
     return True
 
 

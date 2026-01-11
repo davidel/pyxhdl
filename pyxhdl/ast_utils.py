@@ -1,6 +1,5 @@
 import ast
 import copy
-import logging
 import os
 
 import py_misc_utils.ast_utils as asu

@@ -2,7 +2,6 @@
 import collections
 import copy
 import inspect
-import logging
 import os
 import re
 import sys

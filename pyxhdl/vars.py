@@ -1,5 +1,4 @@
 import collections
-import logging
 
 import py_misc_utils.core_utils as pycu
 import py_misc_utils.inspect_utils as pyiu

@@ -1,5 +1,4 @@
 import collections
-import logging
 import re
 
 import py_misc_utils.utils as pyu

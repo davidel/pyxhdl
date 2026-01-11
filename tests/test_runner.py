@@ -2,7 +2,6 @@ import argparse
 import os
 import unittest
 
-import py_misc_utils.alog as alog
 import py_misc_utils.app_main as app_main
 import py_misc_utils.utils as pyu
 

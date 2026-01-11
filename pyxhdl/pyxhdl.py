@@ -2,10 +2,10 @@ import ast
 import collections
 import copy
 import inspect
-import logging
 import re
 import textwrap
 
+import py_misc_utils.alog as alog
 import py_misc_utils.ast_utils as asu
 import py_misc_utils.context_managers as pycm
 import py_misc_utils.core_utils as pycu
@@ -321,7 +321,7 @@ class _ExecVisitor(_AstVisitor):
         if isinstance(mnode, ast.FunctionDef) and mnode.name == name:
           return mnode.body
 
-    logging.warning(f'Function "{name}" body not found in node: {asu.dump(node)}')
+    alog.warning(f'Function "{name}" body not found in node: {asu.dump(node)}')
 
     return [node]
 
@@ -578,8 +578,8 @@ class CodeGen(_ExecVisitor):
     if isinstance(var, Value):
       if isinstance(value, Value) and (value.value is None or isinstance(value.value, Init)):
         if value.isreg != var.isreg:
-          logging.warning(f'Cannot create "{var.name}" as {valkind(value.isreg)}, ' \
-                          f'will be {valkind(var.isreg)}')
+          alog.warning(f'Cannot create "{var.name}" as {valkind(value.isreg)}, ' \
+                       f'will be {valkind(var.isreg)}')
         if isinstance(value.value, Init):
           pyu.mlog(lambda: f'ASSIGN CREATE: {name} is {value.dtype} = {value.value}')
         else:

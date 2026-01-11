@@ -2,9 +2,9 @@ import ast
 import collections
 import functools
 import inspect
-import logging
 import os
 
+import py_misc_utils.alog as alog
 import py_misc_utils.context_managers as pycm
 import py_misc_utils.inspect_utils as pyiu
 import py_misc_utils.obj as obj
@@ -146,7 +146,7 @@ class Emitter:
         if replace is False:
           pyu.fatal(f'Module "{mid}" already registered')
         else:
-          logging.info(f'Module "{mid}" already registered, overriding!')
+          alog.info(f'Module "{mid}" already registered, overriding!')
 
       mdict[mid] = kcode.split('\n')
 
@@ -456,7 +456,7 @@ class Emitter:
           break
 
       if llsize == len(loaded):
-        logging.info(f'Library "{libname}" not found, assuming internal')
+        alog.info(f'Library "{libname}" not found, assuming internal')
 
     # Load user injected external libraries.
     cpath = os.path.dirname(self._cfg_file or __file__)

@@ -1,6 +1,4 @@
 # Cannot depend of local modules!
-import logging
-
 import numpy as np
 
 

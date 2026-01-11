@@ -1,5 +1,4 @@
 import collections
-import logging
 import os
 import re
 import string
@@ -8,6 +7,7 @@ import yaml
 
 import numpy as np
 
+import py_misc_utils.alog as alog
 import py_misc_utils.template_replace as pytr
 import py_misc_utils.utils as pyu
 
@@ -54,7 +54,7 @@ class _TestData:
         dtype = loader.get('dtype', None)
         return np.array(value, dtype=dtype)
       else:
-        logging.warning(f'Unknown loader kind: {kind}')
+        alog.warning(f'Unknown loader kind: {kind}')
 
     return value
 
@@ -280,7 +280,7 @@ class TestBench(Entity):
 
     env = globals().copy()
     for name, period in _enum_clocks(self.kwargs['args']):
-      logging.debug(f'Generating clock "{name}" with period {period}')
+      alog.debug(f'Generating clock "{name}" with period {period}')
 
       clock_fn, clk_name = f'clock_{name}', name
       scode = pytr.template_replace(textwrap.dedent(self._CLOCK_FN),
