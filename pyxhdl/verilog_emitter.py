@@ -527,14 +527,16 @@ class Verilog_Emitter(Emitter):
     idx = pyu.as_sequence(idx)
 
     ashape = arg.dtype.shape
-    if len(idx) > len(ashape): pyu.fatal(f'Wrong indexing for shape: {idx} vs. {ashape}')
+    if len(idx) > len(ashape):
+      pyu.fatal(f'Wrong indexing for shape: {idx} vs. {ashape}')
 
     shape, coords = [], []
     for i, ix in enumerate(idx):
       if isinstance(ix, slice):
         step = ix.step if ix.step is not None else 1
 
-        if abs(step) != 1: pyu.fatal(f'Slice step must be 1: {step}')
+        if abs(step) != 1:
+          pyu.fatal(f'Slice step must be 1: {step}')
 
         start, stop = pycu.norm_slice(ix.start, ix.stop, ashape[i])
         if start < 0 or start >= ashape[i] or stop < 0 or stop > ashape[i]:
@@ -633,7 +635,8 @@ class Verilog_Emitter(Emitter):
       with self.indent():
         for i, pin in enumerate(ent.PORTS):
           arg = kwargs[pin.name]
-          if not isinstance(arg, Value): pyu.fatal(f'Argument must be a Value subclass: {arg}')
+          if not isinstance(arg, Value):
+            pyu.fatal(f'Argument must be a Value subclass: {arg}')
 
           xarg = self.svalue(arg)
           port_bind = f'.{pin.name}({xarg})' + ('' if i == len(ent.PORTS) - 1 else ',')
@@ -652,7 +655,8 @@ class Verilog_Emitter(Emitter):
     with self.indent():
       for name, ap in ent.args.items():
         pin, arg = ap.port, ap.arg
-        if IO_NAME.get(pin.idir) is None: pyu.fatal(f'Invalid port direction: {pin.idir}')
+        if IO_NAME.get(pin.idir) is None:
+          pyu.fatal(f'Invalid port direction: {pin.idir}')
 
         pdir = 'input' if pin.idir == IN else 'output' if pin.idir == OUT else 'inout'
         ntype = self._type_of(arg.dtype).format(pin.name)
@@ -677,7 +681,8 @@ class Verilog_Emitter(Emitter):
     self._process_init(name, process_kind, process_args, sensitivity)
 
     if process_kind == INIT_PROCESS:
-      if sensitivity: pyu.fatal(f'Sensitivity list not allowed in init process')
+      if sensitivity:
+        pyu.fatal(f'Sensitivity list not allowed in init process')
       self._emit_line('initial')
     elif sensitivity:
       conds = []
