@@ -64,7 +64,7 @@ module XLib(CLK, A, B, XOUT);
     z = 8'(A * B);
     assigned = z - B;
   end
-  always
+  always @(*)
   waiter : begin
     @((A == unsigned'(8'(1))));
   end

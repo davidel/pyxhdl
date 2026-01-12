@@ -698,7 +698,7 @@ class Verilog_Emitter(Emitter):
 
       self._emit_line(f'always @(' + ' or '.join(conds) + ')')
     else:
-      self._emit_line('always')
+      self._emit_line('always @(*)')
 
   def emit_process_begin(self):
     if self._proc.name:
