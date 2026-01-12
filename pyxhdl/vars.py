@@ -102,6 +102,9 @@ class Value(ValueBase):
   def __str__(self):
     return f'{pyiu.cname(self)}({self._value}, dtype={self.dtype}, isreg={self.isreg})'
 
+  def __repr__(self):
+    return str(self)
+
   def __hash__(self):
     return hash((self.dtype, self._value, self.isreg))
 
