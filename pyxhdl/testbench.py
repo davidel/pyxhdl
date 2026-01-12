@@ -226,7 +226,7 @@ class TestBench(Entity):
   @hdl_process(kind=INIT_PROCESS)
   def init(self, eclass, inputs, args):
     for pin in eclass.PORTS:
-      XL.assign(pin.name, mkwire(inputs[pin.name].dtype))
+      XL.assign(pin.name, mkreg(inputs[pin.name].dtype))
 
   @hdl_process(kind=ROOT_PROCESS)
   def root(eclass, inputs, args):
@@ -266,7 +266,7 @@ class TestBench(Entity):
     XL.finish()
 
   _CLOCK_FN = """
-    @hdl_process()
+    @hdl_process(proc_mode='comb')
     def $clock_fn($sig):
       $clk_name = "0b0"
       XL.wait_for($period // 2)

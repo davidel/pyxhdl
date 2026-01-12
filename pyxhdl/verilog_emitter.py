@@ -683,6 +683,7 @@ class Verilog_Emitter(Emitter):
     if process_kind == INIT_PROCESS:
       if sensitivity:
         pyu.fatal(f'Sensitivity list not allowed in init process')
+
       self._emit_line('initial')
     elif sensitivity:
       conds = []
@@ -698,7 +699,13 @@ class Verilog_Emitter(Emitter):
 
       self._emit_line(f'always @(' + ' or '.join(conds) + ')')
     else:
-      self._emit_line('always @(*)')
+      proc_mode = process_args.get('proc_mode') if process_args else None
+      if proc_mode == 'comb':
+        self._emit_line('always_comb')
+      elif proc_mode == 'latch':
+        self._emit_line('always_latch')
+      else:
+        self._emit_line('always @(*)')
 
   def emit_process_begin(self):
     if self._proc.name:
