@@ -77,7 +77,7 @@ class Entity(_CoreEntity):
     self.kwargs = dict()
 
     for pin in self.PORTS:
-      arg = kwargs.get(pin.name, None)
+      arg = kwargs.get(pin.name)
       if arg is None:
         pyu.fatal(f'Missing argument "{pin.name}" for Entity "{cname(self)}"')
 

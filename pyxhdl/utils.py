@@ -20,7 +20,7 @@ NONE = object()
 def get_obj_globals(obj, defval=None):
   mod = getattr(obj, '__module__', None)
   if mod is not None:
-    imod = sys.modules.get(mod, None)
+    imod = sys.modules.get(mod)
     if imod is not None:
       return imod.__dict__
 
@@ -49,7 +49,7 @@ def vload(name, globs, locs):
   if v is NONE:
     v = fetch_attr(globs, name)
     if v is NONE:
-      bins = globs.get('__builtins__', None)
+      bins = globs.get('__builtins__')
       if bins is not None:
         v = fetch_attr(bins, name)
 
@@ -150,7 +150,7 @@ class EntityVersions:
 
     ent_name = eclass.__name__
     eldict = self._versions[ent_name]
-    ver = eldict.get(erec, None)
+    ver = eldict.get(erec)
     if ver is None:
       ver = len(eldict)
       eldict[erec] = ver

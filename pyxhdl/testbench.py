@@ -49,9 +49,9 @@ class _TestData:
   def _load(self, name, value):
     loader = self.conf(('loaders', name))
     if loader is not None:
-      kind = loader.get('kind', None)
+      kind = loader.get('kind')
       if kind == 'numpy':
-        dtype = loader.get('dtype', None)
+        dtype = loader.get('dtype')
         return np.array(value, dtype=dtype)
       else:
         alog.warning(f'Unknown loader kind: {kind}')
@@ -67,8 +67,8 @@ class _TestData:
         if k in self._outp:
           outputs[k] = self._load(k, v)
 
-      wait = data.get('_wait', None)
-      wait_expr = data.get('_wait_expr', None)
+      wait = data.get('_wait')
+      wait_expr = data.get('_wait_expr')
 
       yield _TbData(inputs=inputs, outputs=outputs, wait=wait, wait_expr=wait_expr)
 

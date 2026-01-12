@@ -133,7 +133,7 @@ class Emitter:
 
   @classmethod
   def create(cls, name, **kwargs):
-    eclass = cls._BACKEND_REGISTRY.get(name, None)
+    eclass = cls._BACKEND_REGISTRY.get(name)
     if eclass is None:
       pyu.fatal(f'Unknown emitter: {name}')
 
@@ -164,7 +164,7 @@ class Emitter:
       return FSpec(int(x.strip()) for x in fsenv.split(','))
 
     fspecs = self._cfg.get('float_specs', _FLOAT_SPECS)
-    fspec = fspecs.get(dtype.nbits, None)
+    fspec = fspecs.get(dtype.nbits)
     if fspec is None:
       pyu.fatal(f'Unknown floating point spec: {dtype.nbits} bits',
                 exc=TypeError)
@@ -174,7 +174,7 @@ class Emitter:
   def get_contexts(self, kind):
     all_contexts = []
     for ctx in self._contexts:
-      kctx = ctx.get(kind, None)
+      kctx = ctx.get(kind)
       if kctx is not None:
         all_contexts.append(kctx)
 
@@ -263,7 +263,7 @@ class Emitter:
     return Value(tclass(value.bit_length()), value=str(value))
 
   def _best_type(self, cur, new, type_prec):
-    nprec = type_prec.get(type(new), None)
+    nprec = type_prec.get(type(new))
     if nprec is None:
       pyu.fatal(f'Unsupported type {pyiu.cname(new)} ... should be ' \
                 f'{tuple(pyiu.cname(x) for x in type_prec.keys())}')
@@ -285,7 +285,7 @@ class Emitter:
 
   def _result_type(self, dtype, type_prec):
     if dtype is not None:
-      prec = type_prec.get(type(dtype), None)
+      prec = type_prec.get(type(dtype))
       if prec is not None and prec.rtype is not None:
         dtype = prec.rtype
 
