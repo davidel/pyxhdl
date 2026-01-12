@@ -1384,7 +1384,7 @@ class CodeGen(_ExecVisitor):
       with self._eval_locals(args):
         return self.eval_node(cnode)
     else:
-      raise RuntimeError(f'Invalid mode: {mode}')
+      pyu.fatal(f'Invalid mode: {mode}')
 
   def flush(self):
     self._flush_generation()
