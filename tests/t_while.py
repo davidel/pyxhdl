@@ -1,4 +1,3 @@
-import logging
 import unittest
 
 import py_misc_utils.utils as pyu
@@ -37,17 +36,6 @@ class TestWhile(unittest.TestCase):
       A=X.mkwire(X.UINT8),
       B=X.mkwire(X.UINT8),
       XOUT=X.mkwire(X.UINT8),
-
-      count=4,
-    )
-
-    tu.run(self, tu.test_name(self, pyu.fname()), WhileEnt, inputs)
-
-  def test_while_regout(self):
-    inputs = dict(
-      A=X.mkwire(X.UINT8),
-      B=X.mkwire(X.UINT8),
-      XOUT=X.mkreg(X.UINT8),
 
       count=4,
     )

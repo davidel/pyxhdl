@@ -1,4 +1,3 @@
-import logging
 import unittest
 
 import py_misc_utils.utils as pyu
