@@ -10,26 +10,23 @@ class _NumpyWrapper(Wrapper):
 
   def __init__(self, value):
     super().__init__()
-    self._value = value
-
-  @property
-  def value(self):
-    return self._value
+    self.value = value
 
   def __eq__(self, other):
-    return self._value == other._value
+    return self.value == other.value
 
   def __str__(self):
-    return str(self._value.tolist())
+    return str(self.value.tolist())
 
   def __hash__(self):
-    return hash((str(self._value.dtype), tuple(self._value.shape), self._value.tobytes()))
+    return hash((str(self.value.dtype), tuple(self.value.shape), self.value.tobytes()))
 
 
 
 def unwrap(value):
   if isinstance(value, Wrapper):
     return value.value
+
   # Numpy scalars expose themselves as Python 'float, int' but are rejected by compile()
   # as they show up as 'np.float*, np.int*'.
   if isinstance(value, np.number):

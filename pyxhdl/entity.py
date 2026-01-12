@@ -98,7 +98,8 @@ class Entity(_CoreEntity):
 def make_port_ref(pin):
   vspec = VSpec(const=pin.idir == IN, port=pin)
 
-  return Ref(pin.name, mode=Ref.RO, vspec=vspec) if pin.idir == IN else Ref(pin.name, vspec=vspec)
+  return (Ref(pin.name, mode=Ref.RO, vspec=vspec) if pin.idir == IN else
+          Ref(pin.name, vspec=vspec))
 
 
 def verify_port_arg(pin, arg):

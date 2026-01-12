@@ -757,7 +757,9 @@ class CodeGen(_ExecVisitor):
       if isinstance(arg, Value):
         port_arg = arg.new_value(ref)
       else:
-        if not isinstance(arg, Type): pyu.fatal(f'Argument must be Type at this point: {arg}')
+        if not isinstance(arg, Type):
+          pyu.fatal(f'Argument must be Type at this point: {arg}')
+
         port_arg = mkwire(arg, name=ref)
 
       args.append(self.emitter.make_port_arg(port_arg))
@@ -985,7 +987,9 @@ class CodeGen(_ExecVisitor):
       if kwarg.arg:
         kwargs[kwarg.arg] = self._prepare_call_arg(kwval)
       else:
-        if not isinstance(kwval, dict): pyu.fatal(f'Wrong type: {type(kwval)}')
+        if not isinstance(kwval, dict):
+          pyu.fatal(f'Wrong type: {type(kwval)}')
+
         for name, value in kwval.items():
           kwargs[name] = self._prepare_call_arg(value)
 

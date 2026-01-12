@@ -1,6 +1,4 @@
-import ast
 import functools
-import inspect
 
 
 _IS_HDL = '_is_hdl'

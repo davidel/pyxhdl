@@ -248,7 +248,9 @@ class Emitter:
     if m:
       nbits = int(m.group(2))
       ivalue = ast.literal_eval(m.group(3))
-      if not isinstance(ivalue, int): pyu.fatal(f'Invalid literal value: {value}')
+      if not isinstance(ivalue, int):
+        pyu.fatal(f'Invalid literal value: {value}')
+
       if m.group(1) == 'u':
         dtype = Uint(nbits)
       else:
