@@ -43,23 +43,22 @@ class _TestData:
 
     self._inp, self._outp = inp, outp
 
-  def conf(self, cpath, defval=None):
-    return pyu.dict_rget(self._data, ('conf',) + tuple(cpath), defval=defval)
+  def conf(self, *cpath, defval=None):
+    return pyu.dict_rget(self._data, ('conf',) + cpath, defval=defval)
 
   def _load(self, name, value):
-    loader = self.conf(('loaders', name))
+    loader = self.conf('loaders', name)
     if loader is not None:
       kind = loader.get('kind')
       if kind == 'numpy':
-        dtype = loader.get('dtype')
-        return np.array(value, dtype=dtype)
+        return np.array(value, dtype=loader.get('dtype'))
       else:
         alog.warning(f'Unknown loader kind: {kind}')
 
     return value
 
   def __iter__(self):
-    for data in self._data.get('data', []):
+    for data in self._data.get('data', ()):
       inputs, outputs = dict(), dict()
       for k, v in data.items():
         if k in self._inp:
@@ -73,7 +72,7 @@ class _TestData:
       yield _TbData(inputs=inputs, outputs=outputs, wait=wait, wait_expr=wait_expr)
 
 
-class _Required(object):
+class _Required:
   pass
 
 
@@ -145,8 +144,10 @@ def _gen_wait(data, wait, clock, clock_sync, eclass):
   rwait = data.wait or wait
   if rwait:
     XL.wait_for(rwait)
+
   if clock_sync == 'rising':
     XL.wait_rising(XL.load(clock))
+
   elif clock_sync == 'falling':
     XL.wait_falling(XL.load(clock))
 
@@ -158,9 +159,11 @@ def _gen_wait(data, wait, clock, clock_sync, eclass):
 def _repr(v, dtype):
   if isinstance(dtype, Bool):
     return 'true' if v else 'false'
+
   if isinstance(dtype, Bits):
     fmt = f'{{v:0{dtype.nbits}b}}'
     return fmt.format(v=v)
+
   if isinstance(dtype, (Sint, Uint)):
     nibbles = (dtype.nbits + 1) // 4
     fmt = f'{{v:0{nibbles}X}}'
