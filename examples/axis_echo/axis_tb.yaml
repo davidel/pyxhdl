@@ -1,0 +1,22 @@
+data:
+  - RST_N: 0
+    _wait_expr: XL.wait_rising(CLK)
+  - RST_N: 0
+    _wait_expr: XL.wait_rising(CLK)
+  - RST_N: 1
+    _wait_expr: XL.wait_rising(CLK)
+  - WDATA: 17
+    WREN: 1
+    _wait_expr: XL.wait_rising(CLK)
+  - _wait_expr: XL.wait_rising(CLK)
+  - RDATA: 17
+    RDEN: 1
+    _wait_expr: XL.wait_rising(CLK)
+  - WDATA: 21
+    WREN: 1
+    _wait_expr: XL.wait_rising(CLK)
+  - _wait_expr: XL.wait_rising(CLK)
+  - RDATA: 21
+    RDEN: 1
+    _wait_expr: XL.wait_rising(CLK)
+
