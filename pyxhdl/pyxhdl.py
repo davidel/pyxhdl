@@ -474,8 +474,7 @@ class _ExecVisitor(_AstVisitor):
     elif not inspect.isclass(func):
       return False
 
-    init = getattr(func, '__init__', None)
-    return init is not None and is_hdl_function(init)
+    return is_hdl_function(getattr(func, '__init__', None))
 
   def run_function(self, func, args, kwargs=None):
     kwargs = kwargs or dict()
