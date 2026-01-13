@@ -346,6 +346,7 @@ class _ExecVisitor(_AstVisitor):
         pvalue = xkwargs.pop(param.name, NONE)
         if pvalue is NONE and param.default != inspect.Parameter.empty:
           pvalue = param.default
+
         func_locals[param.name] = pvalue
       elif param.kind == inspect.Parameter.VAR_KEYWORD:
         func_locals[param.name] = xkwargs
@@ -380,6 +381,7 @@ class _ExecVisitor(_AstVisitor):
     var = self.load_var(rvname, ctx=ast.Store())
     if var is NONE and isinstance(value, Value):
       var = self._new_variable(rvname, value)
+
     self._assign_value(var, value, rvname)
 
     return self.load_var(rvname, ctx=ast.Load()), vindex + 1
@@ -391,6 +393,7 @@ class _ExecVisitor(_AstVisitor):
         vsig = pycu.signature(retval.value)
         if sig is not None and not pycu.equal_signature(sig, vsig):
           pyu.fatal(f'Return values signature mismatch: {vsig} vs. {sig}')
+
         sig = vsig
 
         rvalue, _ = self._generate_retval_result(fname, retval.value, 0, tmp_names)

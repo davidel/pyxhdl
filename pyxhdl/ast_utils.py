@@ -20,10 +20,14 @@ def elements(c):
 
 
 def as_loading(node, inplace=False):
+
+  class Transformer(ast.NodeTransformer):
+
+    def visit_Store(self, node):
+      return ast.Load()
+
+
   cnode = node if inplace else copy.deepcopy(node)
 
-  def trans_fn(node):
-    return ast.Load() if isinstance(node, ast.Store) else node
-
-  return asu.Tranformer(trans_fn).visit(cnode)
+  return Transformer().visit(cnode)
 
