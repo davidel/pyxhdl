@@ -290,21 +290,21 @@ class Verilog_Emitter(Emitter):
     # are better off directly going to the cast operators, resulting in less bits
     # resize operations.
     if value is True or value is False:
-      return Value(BOOL, value='1' if value else '0')
+      return Value(BOOL, '1' if value else '0')
     if value is None:
       return Value(VOID)
     if isinstance(value, str):
       bstr = self._match_bitstring(value, remap=lambda x: _LOGIC_REMAP[x])
       if bstr is not None:
         nbits = len(bstr)
-        return Value(Bits(nbits), value=f'{nbits}\'b{bstr}')
+        return Value(Bits(nbits), f'{nbits}\'b{bstr}')
 
       dtype, ivalue = self._match_intstring(value)
       if dtype is not None:
         if isinstance(dtype, Uint):
-          return Value(dtype, value=f'{dtype.nbits}\'({ivalue})')
+          return Value(dtype, f'{dtype.nbits}\'({ivalue})')
         else:
-          return Value(dtype, value=f'signed\'({dtype.nbits}\'({ivalue}))')
+          return Value(dtype, f'signed\'({dtype.nbits}\'({ivalue}))')
 
     return value
 
@@ -443,7 +443,7 @@ class Verilog_Emitter(Emitter):
       parts = []
       for idx in np.ndindex(shape):
         substr = ''.join(f'[{x}]' for x in idx)
-        svalue = Value(velement_type, value=f'{avalue}{substr}')
+        svalue = Value(velement_type, f'{avalue}{substr}')
         parts.append(self._scalar_cast(svalue, element_type))
 
       xvalue = flat2shape(parts, shape, '{', '}')
@@ -468,7 +468,7 @@ class Verilog_Emitter(Emitter):
     if isreg is None and isinstance(value, Value):
       isreg = value.isreg
 
-    return Value(dtype, value=xvalue, isreg=isreg)
+    return Value(dtype, xvalue, isreg=isreg)
 
   def eval_tostring(self, value):
     xvalue = self.svalue(value)
@@ -798,21 +798,21 @@ class Verilog_Emitter(Emitter):
       if isinstance(op, ast.Mult) and isinstance(left.dtype, (Sint, Uint)):
         result = f'{left.dtype.nbits}\'({result})'
 
-      return Value(left.dtype, value=result)
+      return Value(left.dtype, result)
     elif isinstance(op, (ast.LShift, ast.RShift)):
       left, right = self._marshal_shift_op(left, right)
       xleft, xright = self.svalue(left), self.svalue(right)
 
       pyu.mlog(lambda: f'\tBinOp: {xleft}\t{pyiu.cname(op)}\t{xright}')
 
-      return Value(left.dtype, value=self._build_op(op, xleft, xright))
+      return Value(left.dtype, self._build_op(op, xleft, xright))
     elif isinstance(op, (ast.BitOr, ast.BitXor, ast.BitAnd)):
       left, right = self._marshal_bit_op([left, right])
       xleft, xright = self.svalue(left), self.svalue(right)
 
       pyu.mlog(lambda: f'\tBinOp: {xleft}\t{pyiu.cname(op)}\t{xright}')
 
-      return Value(left.dtype, value=self._build_op(op, xleft, xright))
+      return Value(left.dtype, self._build_op(op, xleft, xright))
     elif isinstance(op, ast.MatMult):
       # Steal MatMult ('@') for concatenation!
       dtype, (left, right) = self._marshal_concat_op([left, right])
@@ -820,7 +820,7 @@ class Verilog_Emitter(Emitter):
 
       pyu.mlog(lambda: f'\tBinOp: {xleft}\t{pyiu.cname(op)}\t{xright}')
 
-      return Value(dtype, value=f'{{{xleft}, {xright}}}')
+      return Value(dtype, f'{{{xleft}, {xright}}}')
     else:
       pyu.fatal(f'Unsupported operation: {op}')
 
@@ -850,7 +850,7 @@ class Verilog_Emitter(Emitter):
         else:
           pyu.fatal(f'Unsupported operation for type {arg.dtype}: {op}')
 
-    return Value(arg.dtype, value=result)
+    return Value(arg.dtype, result)
 
   def eval_BoolOp(self, op, args):
     xargs = [self._cast(a, BOOL) for a in args]
@@ -864,7 +864,7 @@ class Verilog_Emitter(Emitter):
     else:
       pyu.fatal(f'Unsupported operation: {op}')
 
-    return Value(BOOL, value=result)
+    return Value(BOOL, result)
 
   def eval_Compare(self, left, ops, comps):
     comps = self._marshal_compare_op([left] + list(comps))
@@ -879,7 +879,7 @@ class Verilog_Emitter(Emitter):
 
     result = self._paren_join(' && ', results)
 
-    return Value(BOOL, value=result)
+    return Value(BOOL, result)
 
   def eval_Subscript(self, arg, idx):
     result, shape = self._gen_array_access(arg, idx)
@@ -904,7 +904,7 @@ class Verilog_Emitter(Emitter):
     fpcall = self._get_fpcall('is_nan', NX=fspec.exp, NM=fspec.mant)
     result = f'{fpcall}({self.svalue(value)})'
 
-    return Value(BOOL, value=result)
+    return Value(BOOL, result)
 
   def eval_is_inf(self, value):
     if not isinstance(value.dtype, Float):
@@ -914,7 +914,7 @@ class Verilog_Emitter(Emitter):
     fpcall = self._get_fpcall('is_inf', NX=fspec.exp, NM=fspec.mant)
     result = f'{fpcall}({self.svalue(value)})'
 
-    return Value(BOOL, value=result)
+    return Value(BOOL, result)
 
 
 # Register Verilog emitter class.

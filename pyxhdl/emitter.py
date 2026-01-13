@@ -262,7 +262,7 @@ class Emitter:
     if tclass is None:
       tclass = Uint if value >= 0 else Sint
 
-    return Value(tclass(value.bit_length()), value=str(value))
+    return Value(tclass(value.bit_length()), str(value))
 
   def _best_type(self, cur, new, type_prec):
     nprec = type_prec.get(type(new))
@@ -316,7 +316,7 @@ class Emitter:
     for i, arg in enumerate(margs):
       if type(arg.dtype) != tclass:
         atype = tclass(arg.dtype.nbits)
-        margs[i] = Value(atype, value=self._cast(arg, atype))
+        margs[i] = Value(atype, self._cast(arg, atype))
 
     return tclass(nbits), margs
 
@@ -336,13 +336,13 @@ class Emitter:
       nbits = max(arg.bit_length() for arg in args)
       dtype = Uint(nbits)
 
-    return [Value(dtype, value=self._cast(arg, dtype)) for arg in margs]
+    return [Value(dtype, self._cast(arg, dtype)) for arg in margs]
 
   def _marshal_shift_op(self, left, right):
     if isinstance(right, Value):
       if not isinstance(right.dtype, Integer):
         rdtype = Integer()
-        right = Value(rdtype, value=self._cast(right, rdtype))
+        right = Value(rdtype, self._cast(right, rdtype))
     elif type(right) != int:
       pyu.fatal(f'Shift amount should be an integer: {right}')
     if not isinstance(left, Value):
@@ -350,7 +350,7 @@ class Emitter:
       if not isinstance(left, Value):
         pyu.assert_instance('Shift operand should be an integer', left, int)
         dtype = Uint(left.bit_length())
-        left = Value(dtype, value=self._cast(left, dtype))
+        left = Value(dtype, self._cast(left, dtype))
       else:
         pyu.assert_instance('Unexpected type', left.dtype, (Bits, Sint, Uint, Integer))
 
@@ -392,11 +392,11 @@ class Emitter:
     for i, arg in enumerate(cargs):
       if isinstance(arg, Value):
         if dtype != arg.dtype:
-          cargs[i] = Value(dtype, value=self._cast(arg, dtype))
+          cargs[i] = Value(dtype, self._cast(arg, dtype))
       elif self._is_nocast(arg, dtype, ctype_nocast):
-        cargs[i] = Value(dtype, value=dtype.ctype(arg))
+        cargs[i] = Value(dtype, dtype.ctype(arg))
       else:
-        cargs[i] = Value(dtype, value=self._cast(arg, dtype))
+        cargs[i] = Value(dtype, self._cast(arg, dtype))
 
     return cargs
 
@@ -554,7 +554,7 @@ class Emitter:
     if dtype is None:
       self.emit_code(f'{call}{self.eol}')
     else:
-      return Value(dtype, value=call)
+      return Value(dtype, call)
 
   def tclass_cast(self, tclass, value):
     # The input `value` here is a Python literal, not a Value.

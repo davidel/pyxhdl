@@ -68,7 +68,7 @@ class Value(ValueBase):
 
   __slots__ = ('dtype', '_value', 'isreg')
 
-  def __init__(self, dtype, value=None, isreg=None):
+  def __init__(self, dtype, value, isreg=None):
     super().__init__()
     self.dtype = dtype
     self._value = value
@@ -135,14 +135,14 @@ class Value(ValueBase):
 
 class Wire(Value):
 
-  def __init__(self, dtype, value=None):
-    super().__init__(dtype, value=value, isreg=False)
+  def __init__(self, dtype, value):
+    super().__init__(dtype, value, isreg=False)
 
 
 class Register(Value):
 
-  def __init__(self, dtype, value=None):
-    super().__init__(dtype, value=value, isreg=True)
+  def __init__(self, dtype, value):
+    super().__init__(dtype, value, isreg=True)
 
 
 def valkind(isreg):
@@ -156,11 +156,11 @@ def _init_value(name, iargs):
 
 
 def mkwire(dtype, name=None, **iargs):
-  return Wire(dtype, value=_init_value(name, iargs))
+  return Wire(dtype, _init_value(name, iargs))
 
 
 def mkreg(dtype, name=None, **iargs):
-  return Register(dtype, value=_init_value(name, iargs))
+  return Register(dtype, _init_value(name, iargs))
 
 
 def make_ro_ref(v):

@@ -548,7 +548,7 @@ class CodeGen(_ExecVisitor):
     if var is NONE:
       shvar = self._root_vars.get(name)
       if shvar is not None:
-        var = Value(shvar.dtype, value=Ref(name, vspec=shvar.vspec), isreg=shvar.isreg)
+        var = Value(shvar.dtype, Ref(name, vspec=shvar.vspec), isreg=shvar.isreg)
       elif isinstance(ctx, ast.Load):
         pyu.fatal(f'Undefined variable: {name}')
 
@@ -563,7 +563,7 @@ class CodeGen(_ExecVisitor):
 
     vname = self._revgen.newname(name, shortzero=True)
 
-    var = Value(value.dtype, value=Ref(vname, vspec=vspec), isreg=isreg)
+    var = Value(value.dtype, Ref(vname, vspec=vspec), isreg=isreg)
     self._add_variable(vname, var.dtype, var.isreg, init=init, vspec=vspec)
     self._store_value(name, var)
 
@@ -579,7 +579,7 @@ class CodeGen(_ExecVisitor):
       var = None
 
     if isinstance(var, Value):
-      if isinstance(value, Value) and (value.value is None or isinstance(value.value, Init)):
+      if isinstance(value, Value) and isinstance(value.value, Init):
         if value.isreg != var.isreg:
           alog.warning(f'Cannot create "{var.name}" as {valkind(value.isreg)}, ' \
                        f'will be {valkind(var.isreg)}')
@@ -1416,12 +1416,12 @@ class CodeGen(_ExecVisitor):
   def mkvwire(self, dtype, value, **iargs):
     vspec = pycu.make_ntuple(VSpec, iargs) if iargs else None
 
-    return Wire(dtype, value=Init(value=value, vspec=vspec))
+    return Wire(dtype, Init(value=value, vspec=vspec))
 
   def mkvreg(self, dtype, value, **iargs):
     vspec = pycu.make_ntuple(VSpec, iargs) if iargs else None
 
-    return Register(dtype, value=Init(value=value, vspec=vspec))
+    return Register(dtype, Init(value=value, vspec=vspec))
 
   def emitter_context(self, **kwargs):
     return self.emitter.context(kwargs)
