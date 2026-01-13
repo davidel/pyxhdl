@@ -626,10 +626,7 @@ class CodeGen(_ExecVisitor):
 
   def _handle_array(self, node, atype):
     pyu.mlog(lambda: asu.dump(node))
-    values = []
-    for n in node.elts:
-      xn = self.eval_node(n)
-      values.append(xn)
+    values = [self.eval_node(n) for n in node.elts]
 
     self.push_result(atype(values))
 
@@ -643,7 +640,8 @@ class CodeGen(_ExecVisitor):
       # We do not run the Entity init code with run_function() as this is not what
       # we want. Doing so will end up emitting HDL code.
       # Entities constructors cannot perform operations which lead to HDL code emission.
-      # Note that HDL type manipulation is OK, as this will not emit HDL code.
+      # Note that HDL data type manipulation (like adding values to containers and such)
+      # is OK, as this will not emit HDL code.
       result = func(*args, **kwargs)
 
       ent_name = self._register_entity(func, kwargs)
@@ -737,6 +735,7 @@ class CodeGen(_ExecVisitor):
     for name, sens in sensitivity.items():
       if name not in din:
         pyu.fatal(f'Sensitivity source is not a port: {name}')
+
       pyu.mlog(lambda: f'Sensitivity: {name} {TRIG_NAME[sens.trigger]}')
 
     return sensitivity
