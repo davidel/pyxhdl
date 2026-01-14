@@ -36,7 +36,7 @@ module InitProcess(A, B, XOUT);
   output logic [7: 0] XOUT;
   logic [7: 0] arr[4][4];
   logic [7: 0] zarr[4][4] = '{4{'{4{unsigned'(8'(1))}}}};
-  logic [7: 0] temp = unsigned'(8'(21));
+  logic [7: 0] rtemp = unsigned'(8'(21));
   initial
   init : begin
     arr[0][0] = unsigned'(8'(0));
@@ -57,7 +57,14 @@ module InitProcess(A, B, XOUT);
     arr[3][3] = unsigned'(8'(15));
   end
   always @(A or B)
-  run : begin
-    XOUT = ((A - 8'(3 * B)) - 8'(temp * arr[1][2])) + 8'(11 * zarr[2][3]);
+  run_initreg : begin
+    rtemp = rtemp + (A + B);
+    XOUT = ((A - 8'(3 * B)) - 8'(rtemp * arr[1][2])) + 8'(11 * zarr[2][3]);
+  end
+  always @(A or B)
+  run_initwire : begin
+    static logic [7: 0] wtemp = unsigned'(8'(21));
+    wtemp = wtemp - (A - B);
+    XOUT = ((A - 8'(7 * B)) - 8'(wtemp * arr[2][1])) + 8'(17 * zarr[2][3]);
   end
 endmodule

@@ -29,9 +29,18 @@ class InitProcess(X.Entity):
         arr[i, j] = init[i, j]
 
   @X.hdl_process(sens='A, B')
-  def run():
-    temp = XL.mkvreg(A.dtype, 21)
-    XOUT = A - 3 * B - temp * arr[1, 2] + 11 * zarr[2, 3]
+  def run_initreg():
+    rtemp = XL.mkvreg(A.dtype, 21)
+
+    rtemp += A + B
+    XOUT = A - 3 * B - rtemp * arr[1, 2] + 11 * zarr[2, 3]
+
+  @X.hdl_process(sens='A, B')
+  def run_initwire():
+    wtemp = XL.mkvwire(A.dtype, 21)
+
+    wtemp -= A - B
+    XOUT = A - 7 * B - wtemp * arr[2, 1] + 17 * zarr[2, 3]
 
 
 class TestInitProcess(unittest.TestCase):

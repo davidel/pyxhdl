@@ -230,7 +230,7 @@ use work.all;
 architecture behavior of InitProcess is
   signal arr : pyxhdl.uint_array2d(0 to 3)(0 to 3)(7 downto 0);
   signal zarr : pyxhdl.uint_array2d(0 to 3)(0 to 3)(7 downto 0) := (others => (others => to_unsigned(1, 8)));
-  signal temp : unsigned(7 downto 0) := to_unsigned(21, 8);
+  signal rtemp : unsigned(7 downto 0) := to_unsigned(21, 8);
 begin
   init : process
   begin
@@ -252,8 +252,15 @@ begin
     arr(3)(3) <= to_unsigned(15, 8);
     wait;
   end process;
-  run : process (A, B)
+  run_initreg : process (A, B)
   begin
-    XOUT <= ((A - resize(3 * B, 8)) - resize(temp * arr(1)(2), 8)) + resize(11 * zarr(2)(3), 8);
+    rtemp <= rtemp + (A + B);
+    XOUT <= ((A - resize(3 * B, 8)) - resize(rtemp * arr(1)(2), 8)) + resize(11 * zarr(2)(3), 8);
+  end process;
+  run_initwire : process (A, B)
+    variable wtemp : unsigned(7 downto 0) := to_unsigned(21, 8);
+  begin
+    wtemp := wtemp - (A - B);
+    XOUT <= ((A - resize(7 * B, 8)) - resize(wtemp * arr(2)(1), 8)) + resize(17 * zarr(2)(3), 8);
   end process;
 end architecture;
