@@ -264,7 +264,8 @@ class _ExecVisitor(_AstVisitor):
   def _static_eval(self, node):
     self.location.set_lineno(node.lineno)
 
-    return asu.static_eval(node, self.globals, self.locals, filename=self.location.filename)
+    return asu.static_eval(node, self.globals, self.locals,
+                           filename=self.location.filename)
 
   def _eval_node(self, node, visit_node=True):
     self.location.set_lineno(node.lineno)
@@ -326,8 +327,7 @@ class _ExecVisitor(_AstVisitor):
     return [node]
 
   def _populate_args_locals(self, sig, args, kwargs, func_locals):
-    xkwargs = kwargs.copy()
-    n = 0
+    n, xkwargs = 0, kwargs.copy()
     for param in sig.parameters.values():
       if param.kind == inspect.Parameter.POSITIONAL_ONLY:
         func_locals[param.name] = args[n]
@@ -362,7 +362,7 @@ class _ExecVisitor(_AstVisitor):
         results.append(rvalue)
 
       return type(value)(results), vindex
-    elif isinstance(value, dict):
+    elif pycu.isdict(value):
       rdict = dict()
       for k, dvalue in value.items():
         rvalue, vindex = self._generate_retval_result(fname, dvalue, vindex, tmp_names)
@@ -711,7 +711,7 @@ class CodeGen(_ExecVisitor):
 
   def _get_sensitivity(self, hdl_args, din):
     def expand(v, dest):
-      if isinstance(v, dict):
+      if pycu.isdict(v):
         dest.update(v)
       elif isinstance(v, str):
         for port in pyu.resplit(v, ','):
@@ -988,7 +988,7 @@ class CodeGen(_ExecVisitor):
       if kwarg.arg:
         kwargs[kwarg.arg] = self._prepare_call_arg(kwval)
       else:
-        if not isinstance(kwval, dict):
+        if not pycu.isdict(kwval):
           pyu.fatal(f'Wrong type: {type(kwval)}')
 
         for name, value in kwval.items():
