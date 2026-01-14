@@ -31,6 +31,6 @@ module RootProcess(A, B, XOUT);
   input logic [7: 0] A;
   input logic [7: 0] B;
   output logic [7: 0] XOUT;
-  static logic [7: 0] temp = unsigned'(8'(21));
+  logic [7: 0] temp = unsigned'(8'(21));
   assign XOUT = (A - 8'(3 * B)) - temp;
 endmodule
