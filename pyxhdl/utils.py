@@ -56,30 +56,27 @@ def vload(name, globs, locs):
   return v
 
 
-_NEEDSPAR_RX = re.compile(r'[ +\-*/%!~&|^]')
-_PARENS = {
+# Do not add "'" as this needs not to be parenthesized in SystemVerilog.
+_BOUNDS = {
   '{': '}',
   '(': ')',
   '[': ']',
+  '"': '"',
 }
+_NEEDSPAR_RX = re.compile(r'[ +\-*/%!~&|^]')
 
 def paren(sx):
-  level, levch, waitch, skip = 0, [None], None, False
+  level, levch, skip = 0, [None], False
   for c in sx:
     if skip:
       skip = False
-    elif waitch is not None:
-      if c == waitch:
-        waitch = None
     elif c == '\\':
       skip = True
-    elif c in '"':
-      waitch = c
     elif c == levch[-1]:
       levch.pop()
       level -= 1
-    elif c in _PARENS:
-      levch.append(_PARENS[c])
+    elif c in _BOUNDS:
+      levch.append(_BOUNDS[c])
       level += 1
     elif level == 0 and _NEEDSPAR_RX.match(c):
       return f'({sx})'

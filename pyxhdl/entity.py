@@ -41,9 +41,7 @@ class _CoreEntity:
 
   @classmethod
   def _get_ports(cls, cports):
-    if isinstance(cports, tuple):
-      return cports
-    elif isinstance(cports, list):
+    if isinstance(cports, (list, tuple)):
       return tuple(cports)
     elif isinstance(cports, str):
       ports = []

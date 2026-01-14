@@ -187,7 +187,7 @@ def has_hdl_vars(v):
     for e in v:
       if has_hdl_vars(e):
         return True
-  elif isinstance(v, dict):
+  elif pycu.isdict(v):
     for k, u in v.items():
       if has_hdl_vars(k) or has_hdl_vars(u):
         return True

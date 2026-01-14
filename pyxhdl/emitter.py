@@ -159,7 +159,7 @@ class Emitter:
     self._register_module(mid, code, self._user_modules, replace=replace)
 
   def float_spec(self, dtype):
-    fsenv = os.getenv(f'F{dtype.nbits}_SPEC', None)
+    fsenv = os.getenv(f'F{dtype.nbits}_SPEC')
     if fsenv is not None:
       return FSpec(int(x.strip()) for x in fsenv.split(','))
 
@@ -406,7 +406,7 @@ class Emitter:
   def _cfg_lookup(self, k, defval=None):
     v = pyu.dict_rget(self._cfg, f'env/{k}')
     if v is None:
-      v = os.getenv(f'PYXHDL_{k}', None)
+      v = os.getenv(f'PYXHDL_{k}')
       if v is None:
         if defval is None:
           pyu.fatal(f'Missing configuration: {k}')
@@ -444,7 +444,7 @@ class Emitter:
     # Loading on-demand ones (always loading certain libraries can cause synthesis
     # failure even when such code is not used).
     lib_paths = [libdir]
-    lpaths = os.getenv(f'PYXHDL_{self.kind}_LIBPATH', None)
+    lpaths = os.getenv(f'PYXHDL_{self.kind}_LIBPATH')
     if lpaths is not None:
       lib_paths.extend(lpaths.split(';'))
 
@@ -463,7 +463,7 @@ class Emitter:
 
     # Load user injected external libraries.
     cpath = os.path.dirname(self._cfg_file or __file__)
-    ulibs = os.getenv(f'PYXHDL_{self.kind}_LIBS', None)
+    ulibs = os.getenv(f'PYXHDL_{self.kind}_LIBS')
     if ulibs:
       for lpath in ulibs.split(';'):
         if not os.path.isabs(lpath):
