@@ -15,12 +15,17 @@ $ pip install git+https://github.com/davidel/pyxhdl.git
 
 ## Description
 
-*PyXHDL* allows to write HDL code in Python, generating VHDL (2008) and Verilog
-(SystemVerilog) code to be used for synthesis and simulation.
+*PyXHDL* allows to write HDL code in Python, generating VHDL (>= 2008) and Verilog
+(SystemVerilog >= 2012) code to be used for synthesis and simulation.
 
 *PyXHDL* does not try to create an IR to be lowered, but instead interprets Python AST
 code and maps that directly into the selected HDL backend code. The optimizations are
 left to the OEM HDL compiler used to syntesize the design.
+
+The main advantage of *PyXHDL* is that you can write functions and modules/entities
+wihtout explicit parametrization.
+The function calls, and the modules/entities instantiations automatically capture the
+call/instantiation site types, similarly to what C++ template programming allows.
 
 Even though user HDL code in Python can use loops and functions, everything will be unrolled
 in the final VHDL/Verilog code (this is what the synthesis will do anyway, since there are
@@ -115,60 +120,21 @@ The data access model of VHDL and Verilog differs quite a bit from a user level
 POV (though it converges at the end at lower level).
 
 In VHDL it is not possible (modulo declaring them *shared* which is usually a bad
-idea) to have global registers (entity level variables), while it is possible to
-assign wires (signals) from within processes.
+idea) to have global variables, while it is possible to assign wires signals from
+within processes, and the assignment will be immediate or delayed (at the next
+clock cycle) depending on the process type (combinatorial vs sequantial).
 
 On the contrary in Verilog it is possible to declare registers at module level
 (though only one process can write them), but it is not possible to assign wires
 from within processes (*always* blocks of kind).
 
-In *PyXHDL* wires are emitted as declared at module level, and it is allowed to
-write them from within HDL processes (the *X.hdl_process()* Python methods of
-the user *X.Entity* instantiations). This follows the VHDL pattern, which is resolved
-in Verilog by creating a global (module level) register collecting the write
-operations, and then continuosly assigned to the wire at global level.
+In *PyXHDL* registers (by the means of *X.mkreg()* or *XL.mkvreg()*) should be used
+for sequential logic, and wires (*X.mkwire()* and *XL.mkvwire()*) should be the glue
+for combinatorial logic.
 
-For example, the following *PyXHDL* code:
+*PyXHDL* registers map to *signal* in VHDL and to *logic* in SystemVerilog.
 
-```Python
-class Ex1(X.Entity):
-
-  PORTS = 'CLK, A, B, =XOUT'
-
-  @X.hdl_process(sens='+CLK')
-  def run():
-    XOUT = A + B
-```
-
-Will generate the following VHDL and Verilog outputs (which in turn generate the
-same RTL when fed to OEM synthesis tools):
-
-```VHDL
-architecture behavior of Ex1 is
-begin
-  run : process (CLK)
-  begin
-    if rising_edge(CLK) then
-      XOUT <= A + B;
-    end if;
-  end process;
-end architecture;
-```
-
-```Verilog
-module Ex1(CLK, A, B, XOUT);
-  input logic CLK;
-  input logic [7: 0] A;
-  input logic [7: 0] B;
-  output logic [7: 0] XOUT;
-  logic [7: 0] XOUT_;
-  always @(posedge CLK)
-  begin
-    XOUT_ <= A + B;
-  end
-  assign XOUT = XOUT_;
-endmodule
-```
+*PyXHDL* wires map to *variable* in VHDL and to *logic* in SystemVerilog.
 
 HDL variables should be declared before being assigned. An assignment to a bare Python
 variable with the result of an HDL operation, will simply create the *X.Value* result
@@ -185,7 +151,7 @@ wtemp = hdl_var1 - hdl_var2
 
 In the above code, an HDL assignment to the *wtemp* HDL variable will be generated,
 while the *temp* assignment won't generate one (it can be seen as temporary value to
-be used in following computations).
+be used in following computations, but without explicit instantiation at HDL level).
 
 When an HDL variable is declared of a given type, assignments to it will cast the RHS
 to the type of the variable.
@@ -296,7 +262,7 @@ Arrays are created using the *X.mkarray()* API.
 
 ```Python
 # Creates a (4, 4) array of UINT8 initialized with 0.
-ARR = XL.mkvwire(X.mkarray(X.UINT8, 4, 4), 0)
+ARR = XL.mkvreg(X.mkarray(X.UINT8, 4, 4), 0)
 ```
 
 Arrays are indexed in the standard Python way.
@@ -550,7 +516,7 @@ class UseArgsEntity(X.Entity):
 
   @X.hdl_process(kind=X.ROOT_PROCESS)
   def use_proc():
-    OOUT = X.mkwire(A.dtype)
+    OOUT = X.mkreg(A.dtype)
     ArgsEntity(CLK=CLK,
                XIN=A,
 	       XOUT=OOUT,
