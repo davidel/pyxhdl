@@ -33,6 +33,9 @@ class Ref:
   def __str__(self):
     return f'${self.name}' if self.mode == Ref.RW else f'#{self.name}'
 
+  def __repr__(self):
+    return f'{pyiu.cname(self)}({self.name}, {self.mode}, {self.vspec})'
+
   def __hash__(self):
     return hash((self.name, self.mode, self.vspec))
 
@@ -62,6 +65,9 @@ class Init:
 
   def __str__(self):
     return f'{self.value}' if self.vspec is None else f'({self.value}, {self.vspec})'
+
+  def __repr__(self):
+    return f'{pyiu.cname(self)}({self.value}, {self.vspec})'
 
 
 class Value(ValueBase):
@@ -99,11 +105,8 @@ class Value(ValueBase):
     v = self._value
     return v.name if isinstance(v, Ref) else None
 
-  def __str__(self):
-    return f'{pyiu.cname(self)}({self._value}, dtype={self.dtype}, isreg={self.isreg})'
-
   def __repr__(self):
-    return str(self)
+    return f'{pyiu.cname(self)}({self._value}, dtype={self.dtype}, isreg={self.isreg})'
 
   def __hash__(self):
     return hash((self.dtype, self._value, self.isreg))

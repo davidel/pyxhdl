@@ -48,6 +48,9 @@ class Type:
   def __str__(self):
     return f'{self.name}(' + ', '.join(str(x) for x in self.shape) + ')'
 
+  def __repr__(self):
+    return f'{pyiu.cname(self)}({self.name}, {self.full_shape}, {self.ctype})'
+
   def __hash__(self):
     return hash((self.name, self.full_shape, self.ctype))
 
