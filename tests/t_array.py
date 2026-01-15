@@ -63,6 +63,17 @@ class ArrayAssignTestEnt(X.Entity):
     XOUT[1] = B[0]
 
 
+class ArrayVarSliceEnt(X.Entity):
+
+  PORTS = 'A, B, =XOUT'
+
+  @X.hdl_process(sens='A, B')
+  def var_slice():
+    tmp = A >> B
+    XOUT = tmp[: 4]
+
+
+
 class TestArray(unittest.TestCase):
 
   def test_matmul(self):
@@ -91,4 +102,13 @@ class TestArray(unittest.TestCase):
     )
 
     tu.run(self, tu.test_name(self, pyu.fname()), ArrayAssignTestEnt, inputs)
+
+  def test_var_slice(self):
+    inputs = dict(
+      A=X.mkwire(X.Uint(32)),
+      B=X.mkwire(X.Uint(4)),
+      XOUT=X.mkwire(X.Bits(4)),
+    )
+
+    tu.run(self, tu.test_name(self, pyu.fname()), ArrayVarSliceEnt, inputs)
 

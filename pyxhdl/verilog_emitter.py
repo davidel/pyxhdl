@@ -563,7 +563,7 @@ class Verilog_Emitter(Emitter):
 
     shape = pyu.squeeze(shape + list(arg.dtype.full_shape[len(idx): ]), keep_dims=1,
                         sdir=pyu.MAJOR)
-    avalue = self.svalue(arg) + ''.join(f'[{x}]' for x in coords)
+    avalue = paren(self.svalue(arg), kind='{}') + ''.join(f'[{x}]' for x in coords)
 
     return avalue, shape
 
