@@ -34,9 +34,14 @@ def _args_call(*args):
 
 
 @X.hdl
-def yieldy(l):
+def yield_fn(l):
   for x in l:
     yield x
+
+
+@X.hdl
+def yield_from_fn(l):
+  yield from l
 
 
 @X.hdl
@@ -133,8 +138,11 @@ class PythonEnt(X.Entity):
 
     XL.comment(f'nret = {none_return()}')
 
-    for x in yieldy((4, 5, 6)):
-      XL.comment(f'yieldy = {x}')
+    for x in yield_fn((4, 5, 6)):
+      XL.comment(f'yield_fn = {x}')
+
+    for x in yield_from_fn((17, 21, 33)):
+      XL.comment(f'yield_from_fn = {x}')
 
     cargs = (1, 3.14, 'XYZ')
     XL.comment(f'cargs = {_args_call(*cargs)}')

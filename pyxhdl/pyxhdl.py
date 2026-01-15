@@ -141,6 +141,10 @@ class _Frame:
     return pycu.new_with(self, flocals=flocals)
 
 
+class _VoidResult:
+  pass
+
+
 class _ExecVisitor(_AstVisitor):
 
   def __init__(self, vglobals, vlocals=None):
@@ -281,7 +285,7 @@ class _ExecVisitor(_AstVisitor):
     finally:
       self._results.pop()
 
-    return results[0] if len(results) == 1 else results if results else None
+    return results[0] if len(results) == 1 else results if results else _VoidResult()
 
   def _annotated_exception(self, ex):
     noted = getattr(ex, '_noted', False)
@@ -893,7 +897,8 @@ class CodeGen(_ExecVisitor):
 
   def visit_Expr(self, node):
     value = self.eval_node(node.value)
-    self.push_result(value)
+    if not isinstance(value, _VoidResult):
+      self.push_result(value)
 
   def visit_UnaryOp(self, node):
     operand = self.eval_node(node.operand)
@@ -1314,6 +1319,15 @@ class CodeGen(_ExecVisitor):
     pyu.mlog(lambda: asu.dump(node))
     value = self.eval_node(node.value)
     self.push_yield(value)
+
+  def visit_YieldFrom(self, node):
+    # Yielded values are accumulated into yields list setup by the function call
+    # processing. This is different from how they are implemented in CPython but
+    # they are much easier to implement.
+    pyu.mlog(lambda: asu.dump(node))
+    yiter = self.eval_node(node.value)
+    for value in yiter:
+      self.push_yield(value)
 
   def visit_Global(self, node):
     for name in node.names:

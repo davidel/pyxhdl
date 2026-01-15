@@ -68,8 +68,11 @@ module PythonEnt(DUMMY_A, DUMMY_OUT);
   // xdd = {1: 101, 'A': -1.2, 3.11: True}
   // fctx = 21
   // nret = None
-  // yieldy = 4
-  // yieldy = 5
-  // yieldy = 6
+  // yield_fn = 4
+  // yield_fn = 5
+  // yield_fn = 6
+  // yield_from_fn = 17
+  // yield_from_fn = 21
+  // yield_from_fn = 33
   // cargs = (1, 3.14, 'XYZ')
 endmodule
