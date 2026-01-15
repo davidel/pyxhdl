@@ -312,7 +312,7 @@ class _ExecVisitor(_AstVisitor):
 
   def push_result(self, result):
     results = self.results
-    if results is not None:
+    if results is not None and not isinstance(result, _VoidResult):
       results.append(result)
 
   def push_yield(self, value):
@@ -897,8 +897,7 @@ class CodeGen(_ExecVisitor):
 
   def visit_Expr(self, node):
     value = self.eval_node(node.value)
-    if not isinstance(value, _VoidResult):
-      self.push_result(value)
+    self.push_result(value)
 
   def visit_UnaryOp(self, node):
     operand = self.eval_node(node.operand)
