@@ -13,6 +13,7 @@ class _Phi:
     cver = self._phid.get(name, 0)
     if cver >= ver:
       pyu.fatal(f'New version must be greater: {cver} >= {ver}')
+
     self._phid[name] = ver
 
   def get_version(self, name):
@@ -24,6 +25,7 @@ class _Phi:
         ver = pphi._phid.get(name, 0)
         if ver > 0:
           break
+
         pphi = pphi._parent
 
       ver += 1
@@ -37,6 +39,7 @@ class _Phi:
       ver = pphi._phid.get(name, 0)
       if ver > 0:
         return ver
+
       pphi = pphi._parent
 
     return 0
