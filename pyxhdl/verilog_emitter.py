@@ -373,7 +373,9 @@ class Verilog_Emitter(Emitter):
 
   def _to_integer(self, value, dtype):
     if isinstance(value, Value):
-      if isinstance(value.dtype, (Bool, Sint, Uint, Bits)):
+      if value.dtype == dtype:
+        return self.svalue(value)
+      elif isinstance(value.dtype, (Bool, Sint, Uint, Bits)):
         return f'int\'({self.svalue(value)})'
       elif isinstance(value.dtype, Float):
         fspec = self.float_spec(value.dtype)
@@ -388,7 +390,9 @@ class Verilog_Emitter(Emitter):
 
   def _to_real(self, value, dtype):
     if isinstance(value, Value):
-      if isinstance(value.dtype, (Bool, Sint, Uint, Bits, Integer)):
+      if value.dtype == dtype:
+        return self.svalue(value)
+      elif isinstance(value.dtype, (Bool, Sint, Uint, Bits, Integer)):
         return f'real\'({self.svalue(value)})'
       elif isinstance(value.dtype, Float):
         fspec = self.float_spec(value.dtype)

@@ -242,7 +242,9 @@ class VHDL_Emitter(Emitter):
 
   def _to_integer(self, value, dtype):
     if isinstance(value, Value):
-      if isinstance(value.dtype, (Bool, Sint, Uint, Float)):
+      if value.dtype == dtype:
+        return self.svalue(value)
+      elif isinstance(value.dtype, (Bool, Sint, Uint, Float)):
         return f'to_integer({self.svalue(value)})'
       elif isinstance(value.dtype, Bits):
         return f'to_integer(unsigned({self.svalue(value)}))'
@@ -255,7 +257,9 @@ class VHDL_Emitter(Emitter):
 
   def _to_real(self, value, dtype):
     if isinstance(value, Value):
-      if isinstance(value.dtype, (Bool, Sint, Uint, Float)):
+      if value.dtype == dtype:
+        return self.svalue(value)
+      elif isinstance(value.dtype, (Bool, Sint, Uint, Float)):
         return f'to_real({self.svalue(value)})'
       elif isinstance(value.dtype, Bits):
         return f'to_real(unsigned({self.svalue(value)}))'
