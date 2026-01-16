@@ -41,7 +41,7 @@ def create_globals(obj, source_globals=None):
 
 
 def fetch_attr(obj, name):
-  return obj.get(name, NONE) if isinstance(obj, dict) else getattr(obj, name, NONE)
+  return obj.get(name, NONE) if pycu.isdict(obj) else getattr(obj, name, NONE)
 
 
 def vload(name, globs, locs):
