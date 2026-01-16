@@ -178,10 +178,10 @@ class VHDL_Emitter(Emitter):
     if value is None:
       return Value(VOID)
     if isinstance(value, str):
-      bstr = self._match_bitstring(value)
-      if bstr is not None:
-        nbits = len(bstr)
-        return Value(Bits(nbits), f'"{bstr}"' if nbits > 1 else f'\'{bstr}\'')
+      bvalue = bitstring(value)
+      if bvalue is not None:
+        return bvalue.new_value(f'"{bvalue.value}"' if bvalue.dtype.nbits > 1
+                                else f'\'{bvalue.value}\'')
 
       dtype, ivalue = self._match_intstring(value)
       if dtype is not None:

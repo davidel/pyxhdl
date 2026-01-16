@@ -1,4 +1,5 @@
 import collections
+import re
 
 import py_misc_utils.core_utils as pycu
 import py_misc_utils.inspect_utils as pyiu
@@ -193,4 +194,17 @@ def has_hdl_vars(v):
         return True
 
   return False
+
+
+def bitstring(value, remap=None):
+  # 0b0010 -> dtype=Bits(4), value="0010"
+  m = re.match(r'0b([01XUZWHL]+)$', value)
+  if m:
+    bstr = ''.join(remap(x) for x in m.group(1)) if remap is not None else m.group(1)
+
+    return Value(Bits(len(bstr)), bstr)
+
+
+def bitfill(bitval, n):
+  return '0b' + bitval * n
 

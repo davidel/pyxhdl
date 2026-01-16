@@ -294,10 +294,9 @@ class Verilog_Emitter(Emitter):
     if value is None:
       return Value(VOID)
     if isinstance(value, str):
-      bstr = self._match_bitstring(value, remap=lambda x: _LOGIC_REMAP[x])
-      if bstr is not None:
-        nbits = len(bstr)
-        return Value(Bits(nbits), f'{nbits}\'b{bstr}')
+      bvalue = bitstring(value, remap=lambda x: _LOGIC_REMAP[x])
+      if bvalue is not None:
+        return bvalue.new_value(f'{bvalue.dtype.nbits}\'b{bvalue.value}')
 
       dtype, ivalue = self._match_intstring(value)
       if dtype is not None:
