@@ -27,7 +27,7 @@ class Switcher(X.Entity):
 
 class TestSwitcher(unittest.TestCase):
 
-  def test_basic_bits(self):
+  def test_switcher(self):
     inputs = dict(
       SEL=X.mkwire(X.Bits(3)),
       DIN=X.mkwire(X.Bits(16)),
