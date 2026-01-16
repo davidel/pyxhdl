@@ -398,39 +398,42 @@ class VHDL_Emitter(Emitter):
     shape, coords = [], []
     for i, ix in enumerate(idx):
       if isinstance(ix, slice):
-        step = ix.step if ix.step is not None else 1
+        if isinstance(ix.start, Value):
+          if ix.stop is not None:
+            pyu.fatal(f'Variable part select ({arg} [{i}]) slice stop must be empty: {ix.stop}')
+          if ix.step > ashape[i]:
+            pyu.fatal(f'Variable part select ({arg} [{i}]) is too big: {ix.step} ({ashape[i]})')
 
-        if abs(step) != 1:
-          pyu.fatal(f'Slice step must be 1: {step}')
+          base = self._to_integer(ix.start, Integer())
 
-        start, stop = pycu.norm_slice(ix.start, ix.stop, ashape[i])
-        if start < 0 or start >= ashape[i] or stop < 0 or stop > ashape[i]:
-          pyu.fatal(f'Slice index {i} of {arg} is out of bounds: {start} ... {stop} ({ashape[i]})')
-
-        if step == 1:
           if i == len(ashape) - 1:
-            coords.append(f'{stop - 1} downto {start}')
+            coords.append(f'({paren(base)} - {ix.step - 1}) downto {paren(base)}')
           else:
-            coords.append(f'{start} to {stop - 1}')
+            coords.append(f'{paren(base)} to ({paren(base)} + {ix.step - 1})')
+
+          shape.append(ix.step)
         else:
-          if i == len(ashape) - 1:
-            coords.append(f'{stop + 1} to {start}')
+          step = ix.step if ix.step is not None else 1
+
+          if abs(step) != 1:
+            pyu.fatal(f'Slice step must be 1: {step}')
+
+          start, stop = pycu.norm_slice(ix.start, ix.stop, ashape[i])
+          if start < 0 or start >= ashape[i] or stop < 0 or stop > ashape[i]:
+            pyu.fatal(f'Slice ({arg} [{i}]) is out of bounds: {start} ... {stop} ({ashape[i]})')
+
+          if step == 1:
+            if i == len(ashape) - 1:
+              coords.append(f'{stop - 1} downto {start}')
+            else:
+              coords.append(f'{start} to {stop - 1}')
           else:
-            coords.append(f'{start} downto {stop + 1}')
+            if i == len(ashape) - 1:
+              coords.append(f'{stop + 1} to {start}')
+            else:
+              coords.append(f'{start} downto {stop + 1}')
 
-        shape.append(abs(stop - start))
-      elif isinstance(ix, PSel):
-        if ix.size > ashape[i]:
-          pyu.fatal(f'Slice index {i} of {arg} is too big: {ix.size} ({ashape[i]})')
-
-        base = self._to_integer(ix.base, Integer())
-
-        if i == len(ashape) - 1:
-          coords.append(f'({paren(base)} - {ix.size - 1}) downto {paren(base)}')
-        else:
-          coords.append(f'{paren(base)} to ({paren(base)} + {ix.size - 1})')
-
-        shape.append(ix.size)
+          shape.append(abs(stop - start))
       else:
         if isinstance(ix, Value) and not isinstance(ix.dtype, Integer):
           ix = self._to_integer(ix, Integer())

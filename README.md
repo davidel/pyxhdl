@@ -182,6 +182,43 @@ def hdl_handler(hdl_v1, hdl_v2):
 The Python matrix multiplication operator "@" has been repurposed to mean concatenation
 of bits sequences.
 
+The Python slice works with a base that is an HDL variable. The slice *stop* must be left
+empty, and the *step* must be constant.
+
+```Python
+class VarSlice(X.Entity):
+
+  PORTS = 'A, B, =XOUT'
+
+  @X.hdl_process(sens='A, B')
+  def var_slice():
+    XOUT = A[B + 1::4]
+```
+
+Produces:
+
+```VHDL
+architecture behavior of VarSlice is
+begin
+  var_slice : process (A, B)
+  begin
+    XOUT <= std_logic_vector(A((to_integer(B + 1) - 3) downto to_integer(B + 1)));
+  end process;
+end architecture;
+```
+
+```Verilog
+module VarSlice(A, B, XOUT);
+  input logic [31: 0] A;
+  input logic [3: 0] B;
+  output logic [3: 0] XOUT;
+  always @(A or B)
+  var_slice : begin
+    XOUT = A[int'(B + 1) -: 4];
+  end
+endmodule
+```
+
 
 ## Data Types
 

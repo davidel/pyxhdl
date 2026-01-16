@@ -32,18 +32,6 @@ _CGENCTX = 'pyxhdl.CodeGen'
 _CODEFMT_RX = r'(?<!\{)\{([^{][^}]*(\}\}[^}]+)*)\}'
 
 
-class PSel:
-
-  __slots__ = ('base', 'size')
-
-  def __init__(self, base, size):
-    if has_hdl_vars(size):
-      pyu.fatal(f'Part selection type must be a constant: {size}')
-
-    self.base = base
-    self.size = size
-
-
 class Variable:
 
   __slots__ = ('dtype', 'isreg', 'init', 'vspec')
@@ -1062,7 +1050,7 @@ class CodeGen(_ExecVisitor):
     lower = self.eval_node(node.lower) if node.lower is not None else None
     upper = self.eval_node(node.upper) if node.upper is not None else None
     step = self.eval_node(node.step) if node.step is not None else None
-    if has_hdl_vars((lower, upper, step)):
+    if has_hdl_vars((upper, step)):
       pyu.fatal(f'Slice cannot have HDL arguments: {asu.dump(node)}')
 
     self.push_result(slice(lower, upper, step))
