@@ -554,6 +554,18 @@ class Verilog_Emitter(Emitter):
             coords.append(f'{start}: {stop + 1}')
 
         shape.append(abs(stop - start))
+      elif isinstance(ix, PSel):
+        if ix.size > ashape[i]:
+          pyu.fatal(f'Slice index {i} of {arg} is too big: {ix.size} ({ashape[i]})')
+
+        base = self._to_integer(ix.base, Integer())
+
+        if i == len(ashape) - 1:
+          coords.append(f'{paren(base)} -: {ix.size}')
+        else:
+          coords.append(f'{paren(base)} +: {ix.size}')
+
+        shape.append(ix.size)
       else:
         if isinstance(ix, Value) and not isinstance(ix.dtype, Integer):
           ix = self._to_integer(ix, Integer())

@@ -24,20 +24,15 @@ struct packed { \
 
 // PyXHDL support functions.
 
-// Entity "WhileEnt" is "WhileEnt" with:
-// 	args={'A': 'uint(8)', 'B': 'uint(8)', 'XOUT': 'uint(8)'}
-// 	kwargs={count=4}
-module WhileEnt(A, B, XOUT);
-  input logic [7: 0] A;
-  input logic [7: 0] B;
-  output logic [7: 0] XOUT;
+// Entity "ArrayShiftSliceEnt" is "ArrayShiftSliceEnt" with:
+// 	args={'A': 'uint(32)', 'B': 'uint(4)', 'XOUT': 'bits(4)'}
+// 	kwargs={}
+module ArrayShiftSliceEnt(A, B, XOUT);
+  input logic [31: 0] A;
+  input logic [3: 0] B;
+  output logic [3: 0] XOUT;
   always @(A or B)
-  run : begin
-    static logic [7: 0] temp = unsigned'(8'(1));
-    temp = temp + 1;
-    temp = temp + 1;
-    temp = temp + 1;
-    temp = temp + 1;
-    XOUT = 8'(temp * A) - B;
+  var_slice : begin
+    XOUT = {A >> int'(B)}[3: 0];
   end
 endmodule

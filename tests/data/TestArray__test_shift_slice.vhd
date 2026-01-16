@@ -198,14 +198,14 @@ use std.textio.all;
 library work;
 use work.all;
 
--- Entity "WhileEnt" is "WhileEnt" with:
--- 	args={'A': 'uint(8)', 'B': 'uint(8)', 'XOUT': 'uint(8)'}
--- 	kwargs={count=4}
-entity WhileEnt is
+-- Entity "ArrayShiftSliceEnt" is "ArrayShiftSliceEnt" with:
+-- 	args={'A': 'uint(32)', 'B': 'uint(4)', 'XOUT': 'bits(4)'}
+-- 	kwargs={}
+entity ArrayShiftSliceEnt is
   port (
-    A : in unsigned(7 downto 0);
-    B : in unsigned(7 downto 0);
-    XOUT : out unsigned(7 downto 0)
+    A : in unsigned(31 downto 0);
+    B : in unsigned(3 downto 0);
+    XOUT : out std_logic_vector(3 downto 0)
   );
 end entity;
 library ieee;
@@ -218,18 +218,13 @@ use std.textio.all;
 library work;
 use work.all;
 
--- Entity "WhileEnt" is "WhileEnt" with:
--- 	args={'A': 'uint(8)', 'B': 'uint(8)', 'XOUT': 'uint(8)'}
--- 	kwargs={count=4}
-architecture behavior of WhileEnt is
+-- Entity "ArrayShiftSliceEnt" is "ArrayShiftSliceEnt" with:
+-- 	args={'A': 'uint(32)', 'B': 'uint(4)', 'XOUT': 'bits(4)'}
+-- 	kwargs={}
+architecture behavior of ArrayShiftSliceEnt is
 begin
-  run : process (A, B)
-    variable temp : unsigned(7 downto 0) := to_unsigned(1, 8);
+  var_slice : process (A, B)
   begin
-    temp := temp + 1;
-    temp := temp + 1;
-    temp := temp + 1;
-    temp := temp + 1;
-    XOUT <= resize(temp * A, 8) - B;
+    XOUT <= std_logic_vector(shift_right(A, to_integer(B))(3 downto 0));
   end process;
 end architecture;

@@ -63,7 +63,7 @@ class ArrayAssignTestEnt(X.Entity):
     XOUT[1] = B[0]
 
 
-class ArrayVarSliceEnt(X.Entity):
+class ArrayShiftSliceEnt(X.Entity):
 
   PORTS = 'A, B, =XOUT'
 
@@ -72,6 +72,14 @@ class ArrayVarSliceEnt(X.Entity):
     tmp = A >> B
     XOUT = tmp[: 4]
 
+
+class ArrayVarSliceEnt(X.Entity):
+
+  PORTS = 'A, B, =XOUT'
+
+  @X.hdl_process(sens='A, B')
+  def var_slice():
+    XOUT = A[X.PSel(B + 1, 4)]
 
 
 class TestArray(unittest.TestCase):
@@ -102,6 +110,15 @@ class TestArray(unittest.TestCase):
     )
 
     tu.run(self, tu.test_name(self, pyu.fname()), ArrayAssignTestEnt, inputs)
+
+  def test_shift_slice(self):
+    inputs = dict(
+      A=X.mkwire(X.Uint(32)),
+      B=X.mkwire(X.Uint(4)),
+      XOUT=X.mkwire(X.Bits(4)),
+    )
+
+    tu.run(self, tu.test_name(self, pyu.fname()), ArrayShiftSliceEnt, inputs)
 
   def test_var_slice(self):
     inputs = dict(

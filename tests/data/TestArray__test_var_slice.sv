@@ -33,6 +33,6 @@ module ArrayVarSliceEnt(A, B, XOUT);
   output logic [3: 0] XOUT;
   always @(A or B)
   var_slice : begin
-    XOUT = {A >> int'(B)}[3: 0];
+    XOUT = A[int'(B + 1) -: 4];
   end
 endmodule

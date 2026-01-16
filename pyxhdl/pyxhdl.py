@@ -32,6 +32,15 @@ _CGENCTX = 'pyxhdl.CodeGen'
 _CODEFMT_RX = r'(?<!\{)\{([^{][^}]*(\}\}[^}]+)*)\}'
 
 
+class PSel:
+
+  __slots__ = ('base', 'size')
+
+  def __init__(self, base, size):
+    self.base = base
+    self.size = size
+
+
 class Variable:
 
   __slots__ = ('dtype', 'isreg', 'init', 'vspec')
