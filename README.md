@@ -195,17 +195,7 @@ class VarSlice(X.Entity):
     XOUT = A[B + 1::4]
 ```
 
-Produces:
-
-```VHDL
-architecture behavior of VarSlice is
-begin
-  var_slice : process (A, B)
-  begin
-    XOUT <= std_logic_vector(A((to_integer(B + 1) - 3) downto to_integer(B + 1)));
-  end process;
-end architecture;
-```
+Produces the following Verilog code:
 
 ```Verilog
 module VarSlice(A, B, XOUT);
@@ -217,6 +207,18 @@ module VarSlice(A, B, XOUT);
     XOUT = A[int'(B + 1) -: 4];
   end
 endmodule
+```
+
+And VHDL code:
+
+```VHDL
+architecture behavior of VarSlice is
+begin
+  var_slice : process (A, B)
+  begin
+    XOUT <= std_logic_vector(A((to_integer(B + 1) - 3) downto to_integer(B + 1)));
+  end process;
+end architecture;
 ```
 
 
