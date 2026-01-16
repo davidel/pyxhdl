@@ -37,6 +37,9 @@ class PSel:
   __slots__ = ('base', 'size')
 
   def __init__(self, base, size):
+    if has_hdl_vars(size):
+      pyu.fatal(f'Part selection type must be a constant: {size}')
+
     self.base = base
     self.size = size
 
