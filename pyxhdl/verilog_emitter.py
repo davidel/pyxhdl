@@ -774,19 +774,15 @@ class Verilog_Emitter(Emitter):
 
     with self.indent():
       for mc in cases:
-        sblock = ' begin' if len(mc.scope) > 1 else ''
         if mc.pattern is not None:
           xpattern = self._cast(mc.pattern, subject.dtype)
-          self._emit_line(f'{paren(xpattern)}:{sblock}')
+          self._emit_line(f'{paren(xpattern)}: begin')
         else:
-          self._emit_line(f'default:{sblock}')
+          self._emit_line(f'default: begin')
 
-        if sblock:
-          with self.indent():
-            self._emit(mc.scope)
-          self._emit_line(f'end')
-        else:
+        with self.indent():
           self._emit(mc.scope)
+        self._emit_line(f'end')
 
     self._emit_line(f'endcase')
 

@@ -1332,6 +1332,9 @@ class CodeGen(_ExecVisitor):
     for name in node.names:
       self.global_names.add(name)
 
+  def visit_Pass(self, node):
+    pass
+
   def visit_Match(self, node):
     subject = self.eval_node(node.subject)
     cases = []

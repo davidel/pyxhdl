@@ -674,6 +674,10 @@ class VHDL_Emitter(Emitter):
         else:
           self._emit_line(f'when others =>')
 
+        if len(mc.scope) == 0:
+          with self.placement(mc.scope):
+            self._emit_line(f'null;')
+
         self._emit(mc.scope)
 
     self._emit_line(f'end case;')
