@@ -44,18 +44,6 @@ def assign(name, value):
   ctx.assign_value(name, value)
 
 
-def mkvwire(dtype, value, **iargs):
-  ctx = CodeGen.current()
-
-  return ctx.mkvwire(dtype, value, **iargs)
-
-
-def mkvreg(dtype, value, **iargs):
-  ctx = CodeGen.current()
-
-  return ctx.mkvreg(dtype, value, **iargs)
-
-
 def context(**kwargs):
   ctx = CodeGen.current()
 

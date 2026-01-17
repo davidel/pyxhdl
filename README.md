@@ -128,8 +128,8 @@ On the contrary in Verilog it is possible to declare registers at module level
 (though only one process can write them), but it is not possible to assign wires
 from within processes (*always* blocks of kind).
 
-In *PyXHDL* registers (by the means of *X.mkreg()* or *XL.mkvreg()*) should be used
-for sequential logic, and wires (*X.mkwire()* and *XL.mkvwire()*) should be the glue
+In *PyXHDL* registers (by the means of *X.mkreg()* or *X.mkvreg()*) should be used
+for sequential logic, and wires (*X.mkwire()* and *X.mkvwire()*) should be the glue
 for combinatorial logic.
 
 *PyXHDL* registers map to *signal* in VHDL and to *logic* in SystemVerilog.
@@ -301,7 +301,7 @@ Arrays are created using the *X.mkarray()* API.
 
 ```Python
 # Creates a (4, 4) array of UINT8 initialized with 0.
-ARR = XL.mkvreg(X.mkarray(X.UINT8, 4, 4), 0)
+ARR = X.mkvreg(X.mkarray(X.UINT8, 4, 4), 0)
 ```
 
 Arrays are indexed in the standard Python way.
@@ -872,8 +872,8 @@ $ python -m pyxhdl.generator \
     --input_file src/my_entity.py \
     --entity MyEntity \
     --backend VHDL \
-    --inputs 'CLK,RESET,READY=mkwire(BIT)' \
-    --inputs 'A,B,XOUT=mkwire(UINT8)' \
+    --inputs 'CLK,RESET,READY=mkvreg(BIT, 0)' \
+    --inputs 'A,B,XOUT=mkvreg(UINT8, 0)' \
     --kwargs 'mode="simple"' \
     --kwargs 'steps=8' \
     --output_file my_entity_tb.vhd \
@@ -950,8 +950,8 @@ $ python -m pyxhdl.generator \
     --input_file src/my_entity.py \
     --entity MyEntity \
     --backend VHDL \
-    --inputs 'CLK,RESET,READY=mkwire(BIT)' \
-    --inputs 'A,B,XOUT=mkwire(UINT8)' \
+    --inputs 'CLK,RESET,READY=mkvreg(BIT, 0)' \
+    --inputs 'A,B,XOUT=mkvreg(UINT8, 0)' \
     --kwargs 'mode="simple"' \
     --kwargs 'steps=8' \
     --output_file my_entity_tb.vhd \

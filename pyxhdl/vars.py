@@ -167,6 +167,17 @@ def mkreg(dtype, name=None, **iargs):
   return Register(dtype, _init_value(name, iargs))
 
 
+def mkvwire(dtype, value, **iargs):
+  vspec = pycu.make_ntuple(VSpec, iargs or dict())
+
+  return Wire(dtype, Init(value=value, vspec=vspec))
+
+def mkvreg(dtype, value, **iargs):
+  vspec = pycu.make_ntuple(VSpec, iargs or dict())
+
+  return Register(dtype, Init(value=value, vspec=vspec))
+
+
 def make_ro_ref(v):
   ref = v.ref
   if ref is not None and ref.mode == Ref.RW:

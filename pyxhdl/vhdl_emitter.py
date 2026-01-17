@@ -598,6 +598,10 @@ class VHDL_Emitter(Emitter):
     proc_decl = f'{name} : process'
     if sensitivity:
       proc_decl += ' (' + ', '.join(name for name in sensitivity.keys()) + ')'
+    else:
+      proc_mode = process_args.get('proc_mode') if process_args else None
+      if proc_mode == 'comb':
+        proc_decl += ' (all)'
 
     self._emit_line(proc_decl)
     self.process_vars_place = self.emit_placement(extra_indent=1)

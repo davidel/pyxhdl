@@ -14,7 +14,7 @@ class RootProcess(X.Entity):
 
   @X.hdl_process(sens='A, B', kind=X.ROOT_PROCESS)
   def run():
-    temp = XL.mkvwire(A.dtype, 21)
+    temp = X.mkvwire(A.dtype, 21)
     XOUT = A - 3 * B - temp
 
 

@@ -104,7 +104,7 @@ class Misc(X.Entity):
     if C == '0b0110X110':
       bits = C @ '0b11001'
 
-    rbits = XL.mkvwire(C.dtype, '0b1101X0X0')
+    rbits = X.mkvwire(C.dtype, '0b1101X0X0')
     if C != rbits:
       sbits = '0b1XX0' @ C
     if A == 'u8`127':

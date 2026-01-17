@@ -11,8 +11,8 @@ axis_tb.vhd: ${SOURCES}
 		--input_file axis_echo.py \
 		--entity AxisEcho \
 		--backend VHDL \
-		--inputs "CLK,RST_N,WREN,RDEN=mkwire(BIT)" \
-		--inputs "WDATA,RDATA=mkreg(Bits(32))" \
+		--inputs "CLK,RST_N,WREN,RDEN=mkvreg(BIT, 0)" \
+		--inputs "WDATA,RDATA=mkvreg(Bits(32), 0)" \
 		--testbench \
 		--tb_clock "CLK,10" \
 		--tb_input_file axis_tb.yaml \
@@ -24,8 +24,8 @@ axis_tb.sv: ${SOURCES}
 		--input_file axis_echo.py \
 		--entity AxisEcho \
 		--backend Verilog \
-		--inputs "CLK,RST_N,WREN,RDEN=mkwire(BIT)" \
-		--inputs "WDATA,RDATA=mkreg(Bits(32))" \
+		--inputs "CLK,RST_N,WREN,RDEN=mkvreg(BIT, 0)" \
+		--inputs "WDATA,RDATA=mkvreg(Bits(32), 0)" \
 		--testbench \
 		--tb_clock "CLK,10" \
 		--tb_input_file axis_tb.yaml \

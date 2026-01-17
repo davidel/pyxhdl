@@ -15,9 +15,9 @@ class MatMult(X.Entity):
 
   @X.hdl_process(sens='+CLK')
   def mat_mult():
-    i_mmiter = XL.mkvreg(X.INT, 0)
-    iarow = XL.mkvreg(X.INT, 0)
-    ibcol = XL.mkvreg(X.INT, 0)
+    i_mmiter = X.mkvreg(X.INT, 0)
+    iarow = X.mkvreg(X.INT, 0)
+    ibcol = X.mkvreg(X.INT, 0)
 
     if RESET == 1:
       XOUT = 0
@@ -47,11 +47,11 @@ class MMUnit(X.Entity):
 
     amat = X.mkwire(AROW.dtype.new_shape(N, N, AROW.dtype.nbits))
     bmat = X.mkwire(BROW.dtype.new_shape(N, N, BROW.dtype.nbits))
-    a_row = XL.mkvwire(X.UINT8, 0)
-    mmiter = XL.mkvwire(X.UINT8, 0)
-    b_col = XL.mkvwire(X.UINT8, 0)
+    a_row = X.mkvwire(X.UINT8, 0)
+    mmiter = X.mkvwire(X.UINT8, 0)
+    b_col = X.mkvwire(X.UINT8, 0)
     cmat = X.mkwire(CROW.dtype.new_shape(N, N, CROW.dtype.nbits))
-    mmcompute = XL.mkvwire(COMPUTE.dtype, 0)
+    mmcompute = X.mkvwire(COMPUTE.dtype, 0)
 
     MatMult(
       CLK=CLK,

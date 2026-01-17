@@ -15,7 +15,7 @@ class BasicBool(X.Entity):
   @X.hdl_process(sens='A, B, C')
   def run():
     cc = X.mkreg(C.dtype)
-    xx = XL.mkvwire(X.Bits(4), '0b1001')
+    xx = X.mkvwire(X.Bits(4), '0b1001')
     if xx == XL.cast(A, xx.dtype):
       cc = C - 3
     else:

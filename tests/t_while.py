@@ -20,7 +20,7 @@ class WhileEnt(X.Entity):
 
   @X.hdl_process(sens='A, B')
   def run():
-    temp = XL.mkvwire(A.dtype, 1)
+    temp = X.mkvwire(A.dtype, 1)
     i = 0
     while i < count:
       temp += 1
