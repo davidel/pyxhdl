@@ -12,7 +12,7 @@ class Switcher(X.Entity):
 
   PORTS = 'SEL, DIN, =SEL_DOUT, SEL_DIN, =DOUT'
 
-  @X.hdl_process(sens='SEL, DIN, SEL_DIN')
+  @X.hdl_process(proc_mode='comb')
   def switch():
     N = SEL_DIN.dtype.array_shape[0]
 

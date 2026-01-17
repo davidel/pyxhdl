@@ -33,7 +33,7 @@ module Switcher(SEL, DIN, SEL_DOUT, SEL_DIN, DOUT);
   output logic [15: 0] SEL_DOUT[8];
   input logic [15: 0] SEL_DIN[8];
   output logic [15: 0] DOUT;
-  always @(SEL or DIN or SEL_DIN)
+  always_comb
   switch : begin
     SEL_DOUT = '{8{16'bxxxxxxxxxxxxxxxx}};
     DOUT = 16'bxxxxxxxxxxxxxxxx;

@@ -225,7 +225,7 @@ use work.all;
 -- 	kwargs={}
 architecture behavior of Switcher is
 begin
-  switch : process (SEL, DIN, SEL_DIN)
+  switch : process (all)
   begin
     SEL_DOUT <= (others => "XXXXXXXXXXXXXXXX");
     DOUT <= "XXXXXXXXXXXXXXXX";
