@@ -32,7 +32,7 @@ module EdgeTrig(CLK, A, B, XOUT);
   input logic [7: 0] A;
   input logic [7: 0] B;
   output logic [7: 0] XOUT;
-  always @(posedge CLK)
+  always_ff @(posedge CLK)
   run : begin
     if (A > B) begin
       XOUT = A + B;

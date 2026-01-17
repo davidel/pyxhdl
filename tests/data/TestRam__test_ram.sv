@@ -36,7 +36,7 @@ module RamTest(CLK, RST_N, RDEN, WREN, ADDR, IN_DATA, OUT_DATA);
   input logic [15: 0] IN_DATA;
   output logic [15: 0] OUT_DATA;
   logic [15: 0] mem[3072];
-  always @(posedge CLK)
+  always_ff @(posedge CLK)
   run : begin
     if (&(!RST_N)) begin
       OUT_DATA <= unsigned'(16'(0));

@@ -715,7 +715,10 @@ class Verilog_Emitter(Emitter):
         else:
           conds.append(paren(sname))
 
-      self._emit_line(f'always @(' + ' or '.join(conds) + ')')
+      if len(conds) > len(self._edge_inputs):
+        self._emit_line(f'always @(' + ' or '.join(conds) + ')')
+      else:
+        self._emit_line(f'always_ff @(' + ' or '.join(conds) + ')')
     else:
       proc_mode = process_args.get('proc_mode') if process_args else None
       if proc_mode == 'comb':
