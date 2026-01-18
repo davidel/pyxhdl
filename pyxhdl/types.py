@@ -164,22 +164,33 @@ def tclass_from_string(tcls):
 
 
 def dtype_from_string(s):
+  # Accepted formats:
+  #
+  #   u32
+  #   real
+  #   u16(4, 4)
+  #   f32(12)
   ls = s.lower()
 
-  m = re.match(r'\((\d+(,\d+)*)\)', ls)
-  if m:
-    shape = tuple(int(x) for x in m.group(1).split(','))
-    ls = ls[m.end(): ]
-  else:
-    shape = None
-
-  m = re.match(r'(' + '|'.join(_TYPE_CLASS.keys()) + r')(\d+)$', ls)
+  m = re.match(r'(' + '|'.join(_TYPE_CLASS.keys()) + r')(\d+)', ls)
   if m:
     dtype = _TYPE_CLASS[m.group(1)](int(m.group(2)))
+    ls = ls[m.end(): ]
   else:
-    dtype = _TYPE_NMAP.get(ls)
-    if dtype is None:
-      pyu.fatal(f'Unknown type string: {ls}')
+    m = re.match(r'(' + '|'.join(_TYPE_NMAP.keys()) + r')', ls)
+    if m:
+      dtype = _TYPE_NMAP[m.group(1)]
+      ls = ls[m.end(): ]
+    else:
+      pyu.fatal(f'Unknown type string: {s}')
+
+  m = re.match(r'\((\d+(,\d+)*)\)$', ls)
+  if m:
+    shape = tuple(int(x) for x in m.group(1).split(','))
+  elif not ls:
+    shape = None
+  else:
+    pyu.fatal(f'Unknown type string: {s}')
 
   return mkarray(dtype, *shape) if shape is not None else dtype
 
