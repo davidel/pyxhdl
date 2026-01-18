@@ -38,8 +38,8 @@ def data_folder():
 
 
 _BACKEND_EXTS = {
-  X.VHDL: '.vhd',
-  X.VERILOG: '.sv',
+  'vhdl': '.vhd',
+  'verilog': '.sv',
 }
 
 def reference_path(name, backend, path=None):

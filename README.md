@@ -840,7 +840,7 @@ like in the following example:
 $ python -m pyxhdl.generator \
     --input_file src/my_entity.py \
     --entity MyEntity \
-    --backend VHDL \
+    --backend vhdl \
     --inputs 'CLK,RESET,READY=mkwire(BIT)' \
     --inputs 'A,B,XOUT=mkwire(UINT8)' \
     --kwargs 'mode="simple"' \
@@ -871,7 +871,7 @@ for the test.
 $ python -m pyxhdl.generator \
     --input_file src/my_entity.py \
     --entity MyEntity \
-    --backend VHDL \
+    --backend vhdl \
     --inputs 'CLK,RESET,READY=mkvreg(BIT, 0)' \
     --inputs 'A,B,XOUT=mkvreg(UINT8, 0)' \
     --kwargs 'mode="simple"' \
@@ -949,7 +949,7 @@ could be:
 $ python -m pyxhdl.generator \
     --input_file src/my_entity.py \
     --entity MyEntity \
-    --backend VHDL \
+    --backend vhdl \
     --inputs 'CLK,RESET,READY=mkvreg(BIT, 0)' \
     --inputs 'A,B,XOUT=mkvreg(UINT8, 0)' \
     --kwargs 'mode="simple"' \

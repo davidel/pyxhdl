@@ -17,11 +17,6 @@ from .vars import *
 from .utils import *
 
 
-# For VHDL we mean VHDL >= 2008.
-VHDL = 'VHDL'
-# For Verilog we mean SystemVerilog >= 2012.
-VERILOG = 'Verilog'
-
 PARAM_KEY = '_P'
 
 OpSym = collections.namedtuple('OpSym', 'sym, isfn', defaults=[False])

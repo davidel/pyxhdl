@@ -27,7 +27,9 @@ def _main(args):
   gglobals = create_globals(mod, source_globals=globals())
 
   ekwargs = parse_kwargs(args.ekwargs, gglobals)
-  emitter = Emitter.create(args.backend, cfg_file=args.emitter_cfgfile, **ekwargs)
+  emitter = Emitter.create(args.backend.lower(),
+                           cfg_file=args.emitter_cfgfile,
+                           **ekwargs)
 
   codegen = CodeGen(emitter, gglobals)
 
@@ -51,7 +53,7 @@ if __name__ == '__main__':
                       help='The path to the Python source file containing the root entity')
   parser.add_argument('--entity', type=str, required=True,
                       help='The root entity name')
-  parser.add_argument('--backend', type=str, default='VHDL',
+  parser.add_argument('--backend', type=str, default='verilog',
                       choices=set(Emitter.available()),
                       help='The backend to generate the code for')
   parser.add_argument('--inputs', action='append',

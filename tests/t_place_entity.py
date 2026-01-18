@@ -68,7 +68,7 @@ class PlaceEntity(X.Entity):
 
   def __init__(self, *args, **kwargs):
     super().__init__(*args, **kwargs)
-    XL.register_module('ExEntity', {X.VHDL: _EXTERN_VHDL, X.VERILOG: _EXTERN_VERILOG})
+    XL.register_module('ExEntity', {'vhdl': _EXTERN_VHDL, 'verilog': _EXTERN_VERILOG})
 
   @X.hdl_process(sens='A, B', kind=X.ROOT_PROCESS)
   def run():

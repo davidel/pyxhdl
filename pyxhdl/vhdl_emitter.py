@@ -63,7 +63,7 @@ class VHDL_Emitter(Emitter):
 
   def __init__(self, cfg_file=None, **kwargs):
     super().__init__(cfg_file=cfg_file, **kwargs)
-    self.kind = VHDL
+    self.kind = 'vhdl'
     self.file_ext = '.vhd'
     self.eol = ';'
     self._arch = self._cfg.get('entity_arch', 'behavior')
@@ -808,6 +808,6 @@ class VHDL_Emitter(Emitter):
     return Value(BOOL, result)
 
 
-# Register VHDL emitter class.
-Emitter.register(VHDL, VHDL_Emitter)
+# Register VHDL (VHDL >= 2008) emitter class.
+Emitter.register('vhdl', VHDL_Emitter)
 

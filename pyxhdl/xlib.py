@@ -109,8 +109,8 @@ def xexec(code, **args):
 float_equal = create_function(
   'float_equal',
   {
-    VHDL: 'pyxhdl.float_equal',
-    VERILOG: Verilog_Emitter.fpmod_resolve('fp_utils', 'rcloseto', 0),
+    'vhdl': 'pyxhdl.float_equal',
+    'verilog': Verilog_Emitter.fpmod_resolve('fp_utils', 'rcloseto', 0),
   },
   fnsig='f*, real, real',
   dtype=BOOL)

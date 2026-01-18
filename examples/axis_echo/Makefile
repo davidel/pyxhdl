@@ -10,7 +10,7 @@ axis_tb.vhd: ${SOURCES}
 	python -m pyxhdl.generator \
 		--input_file axis_echo.py \
 		--entity AxisEcho \
-		--backend VHDL \
+		--backend vhdl \
 		--inputs "CLK,RST_N,WREN,RDEN=mkvreg(BIT, 0)" \
 		--inputs "WDATA,RDATA=mkvreg(Bits(32), 0)" \
 		--testbench \
@@ -23,7 +23,7 @@ axis_tb.sv: ${SOURCES}
 	python -m pyxhdl.generator \
 		--input_file axis_echo.py \
 		--entity AxisEcho \
-		--backend Verilog \
+		--backend verilog \
 		--inputs "CLK,RST_N,WREN,RDEN=mkvreg(BIT, 0)" \
 		--inputs "WDATA,RDATA=mkvreg(Bits(32), 0)" \
 		--testbench \

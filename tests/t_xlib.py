@@ -56,18 +56,18 @@ endpackage
 def _lazy_setup():
   global _dummy_proc, _dummy_func
 
-  XL.register_module('dummy', {X.VHDL: _DUMMY_VHDL, X.VERILOG: _DUMMY_VERILOG})
+  XL.register_module('dummy', {'vhdl': _DUMMY_VHDL, 'verilog': _DUMMY_VERILOG})
 
   _dummy_proc = XL.create_function('dummy_proc',
                                    {
-                                     X.VHDL: 'dummy.proc',
-                                     X.VERILOG: 'dummy::proc',
+                                     'vhdl': 'dummy.proc',
+                                     'verilog': 'dummy::proc',
                                    },
                                    fnsig='u*, u*')
   _dummy_func = XL.create_function('dummy_func',
                                    {
-                                     X.VHDL: 'dummy.func',
-                                     X.VERILOG: 'dummy::func',
+                                     'vhdl': 'dummy.func',
+                                     'verilog': 'dummy::func',
                                    },
                                    fnsig='*, u8',
                                    dtype=XL.argn_dtype(0))

@@ -26,7 +26,7 @@ def _main(args):
       pyu.fatal(f'Invalid backend argument: {arg}')
 
     value = pycu.infer_value(m.group(4)) if m.group(4) else None
-    tu.add_backend_arg(m.group(1), m.group(2), value)
+    tu.add_backend_arg(m.group(1).lower(), m.group(2), value)
 
   loader = unittest.TestLoader()
   tests = loader.discover(test_folder, pattern=args.files)
@@ -44,7 +44,7 @@ if __name__ == '__main__':
   parser.add_argument('--test_folder',
                       help='The folder where the test files are stored')
   parser.add_argument('--backed_arg', nargs='*',
-                      help='An argument for the backend (ie, "VHDL:VAR=VALUE")')
+                      help='An argument for the backend (ie, "vhdl:var=value")')
 
   app_main.main(parser, _main)
 

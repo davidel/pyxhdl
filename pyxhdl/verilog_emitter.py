@@ -130,7 +130,7 @@ class Verilog_Emitter(Emitter):
 
   def __init__(self, cfg_file=None, **kwargs):
     super().__init__(cfg_file=cfg_file, **kwargs)
-    self.kind = VERILOG
+    self.kind = 'verilog'
     self.file_ext = '.sv'
     self.eol = ';'
     self._mod_comment = None
@@ -934,6 +934,6 @@ class Verilog_Emitter(Emitter):
     return Value(BOOL, result)
 
 
-# Register Verilog emitter class.
-Emitter.register(VERILOG, Verilog_Emitter)
+# Register Verilog (SystemVerilog >= 2012) emitter class.
+Emitter.register('verilog', Verilog_Emitter)
 
