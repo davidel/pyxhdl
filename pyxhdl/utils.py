@@ -40,18 +40,14 @@ def create_globals(obj, source_globals=None):
   return gglobals
 
 
-def fetch_attr(obj, name):
-  return obj.get(name, NONE) if pycu.isdict(obj) else getattr(obj, name, NONE)
-
-
 def vload(name, globs, locs):
-  v = fetch_attr(locs, name)
+  v = pyu.getvar(locs, name, NONE)
   if v is NONE:
-    v = fetch_attr(globs, name)
+    v = pyu.getvar(globs, name, NONE)
     if v is NONE:
       bins = globs.get('__builtins__')
       if bins is not None:
-        v = fetch_attr(bins, name)
+        v = pyu.getvar(bins, name, NONE)
 
   return v
 
