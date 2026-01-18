@@ -395,7 +395,7 @@ class Emitter:
   def _cfg_lookup(self, k, defval=None):
     v = pyu.dict_rget(self._cfg, f'env/{k}')
     if v is None:
-      v = os.getenv(f'PYXHDL_{k}')
+      v = os.getenv(f'PYXHDL_{k.upper()}')
       if v is None:
         if defval is None:
           pyu.fatal(f'Missing configuration: {k}')
