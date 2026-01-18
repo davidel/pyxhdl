@@ -433,7 +433,7 @@ class Emitter:
     # Loading on-demand ones (always loading certain libraries can cause synthesis
     # failure even when such code is not used).
     lib_paths = [libdir]
-    lpaths = os.getenv(f'PYXHDL_{self.kind}_LIBPATH')
+    lpaths = os.getenv(f'PYXHDL_{self.kind.upper()}_LIBPATH')
     if lpaths is not None:
       lib_paths.extend(lpaths.split(';'))
 
@@ -452,7 +452,7 @@ class Emitter:
 
     # Load user injected external libraries.
     cpath = os.path.dirname(self._cfg_file or __file__)
-    ulibs = os.getenv(f'PYXHDL_{self.kind}_LIBS')
+    ulibs = os.getenv(f'PYXHDL_{self.kind.upper()}_LIBS')
     if ulibs:
       for lpath in ulibs.split(';'):
         if not os.path.isabs(lpath):
