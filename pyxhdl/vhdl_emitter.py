@@ -173,7 +173,7 @@ class VHDL_Emitter(Emitter):
     # This API should not try to convert Python `int` or `float` literals, as those
     # are better off directly going to the cast operators, resulting in less bits
     # resize operations.
-    if value is True or value is False:
+    if value in (True, False):
       return Value(BOOL, 'true' if value else 'false')
     if value is None:
       return Value(VOID)

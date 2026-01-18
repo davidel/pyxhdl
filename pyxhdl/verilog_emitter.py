@@ -289,7 +289,7 @@ class Verilog_Emitter(Emitter):
     # This API should not try to convert Python `int` or `float` literals, as those
     # are better off directly going to the cast operators, resulting in less bits
     # resize operations.
-    if value is True or value is False:
+    if value in (True, False):
       return Value(BOOL, '1' if value else '0')
     if value is None:
       return Value(VOID)
