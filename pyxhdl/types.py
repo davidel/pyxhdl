@@ -192,7 +192,7 @@ def dtype_from_string(s):
   else:
     pyu.fatal(f'Unknown type string: {s}')
 
-  return mkarray(dtype, *shape) if shape is not None else dtype
+  return mkarray(dtype, *shape) if shape else dtype
 
 
 class TypeMatcher:
@@ -216,6 +216,7 @@ class TypeMatcher:
   def check_value(self, arg, msg=''):
     if self.dtype is not None and self.dtype != arg.dtype:
       pyu.fatal(f'Mismatch type{msg}: {arg.dtype} vs. {self.dtype}')
+
     if self.tclass is not None and not isinstance(arg.dtype, self.tclass):
       pyu.fatal(f'Mismatch type class{msg}: {arg.dtype} vs. {pyiu.cname(self.tclass)}')
 

@@ -214,9 +214,7 @@ class Emitter:
     return lines
 
   def _expand(self):
-    lines = []
-
-    return self._expand_helper(self._code, lines)
+    return self._expand_helper(self._code, [])
 
   def _process_init(self, name, kind, args, sens):
     self._proc = _ProcessInfo(name=name, kind=kind, args=args, sens=sens)
@@ -258,6 +256,7 @@ class Emitter:
     if nprec is None:
       pyu.fatal(f'Unsupported type {pyiu.cname(new)} ... should be ' \
                 f'{tuple(pyiu.cname(x) for x in type_prec.keys())}')
+
     if cur is not None:
       cprec = type_prec[type(cur)]
       dprec = nprec.prec - cprec.prec
@@ -395,7 +394,7 @@ class Emitter:
   def _cfg_lookup(self, k, defval=None):
     v = pyu.dict_rget(self._cfg, f'env/{k}')
     if v is None:
-      v = os.getenv(f'PYXHDL_{k.upper()}')
+      v = os.getenv(f'PYXHDL_{k}')
       if v is None:
         if defval is None:
           pyu.fatal(f'Missing configuration: {k}')
@@ -546,7 +545,7 @@ class Emitter:
       return Value(dtype, call)
 
   def tclass_cast(self, tclass, value):
-    # The input `value` here is a Python literal, not a Value.
+    # The input `value` here is a Python string literal, not a Value.
     if tclass in (Sint, Uint):
       value = int(value)
       dtype = tclass(value.bit_length())
