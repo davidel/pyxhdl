@@ -174,7 +174,7 @@ def _repr(v, dtype):
 
 def _enum_clocks(args):
   for clk in args['tb_clock']:
-    yield clk.split(',')
+    yield pyu.resplit(clk, ',')
 
 
 @hdl
@@ -247,7 +247,7 @@ class TestBench(Entity):
     wait = args['tb_wait']
     clock_sync = args['tb_clock_sync']
     if clock_sync:
-      clock, clock_sync = clock_sync.split(',')
+      clock, clock_sync = pyu.resplit(clock_sync, ',')
     else:
       clock = None
 

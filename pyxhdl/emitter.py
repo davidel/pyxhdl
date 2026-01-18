@@ -156,7 +156,7 @@ class Emitter:
   def float_spec(self, dtype):
     fsenv = os.getenv(f'F{dtype.nbits}_SPEC')
     if fsenv is not None:
-      return FSpec(int(x.strip()) for x in fsenv.split(','))
+      return FSpec(int(x) for x in pyu.resplit(fsenv, ','))
 
     fspecs = self._cfg.get('float_specs', _FLOAT_SPECS)
     fspec = fspecs.get(dtype.nbits)
@@ -435,7 +435,7 @@ class Emitter:
     lib_paths = [libdir]
     lpaths = os.getenv(f'PYXHDL_{self.kind.upper()}_LIBPATH')
     if lpaths is not None:
-      lib_paths.extend(lpaths.split(';'))
+      lib_paths.extend(pyu.resplit(lpaths, ';'))
 
     for libname in pyu.enum_set(extra_libs, loaded, False):
       libfname, llsize = libname + self.file_ext, len(loaded)
@@ -454,7 +454,7 @@ class Emitter:
     cpath = os.path.dirname(self._cfg_file or __file__)
     ulibs = os.getenv(f'PYXHDL_{self.kind.upper()}_LIBS')
     if ulibs:
-      for lpath in ulibs.split(';'):
+      for lpath in pyu.resplit(ulibs, ';'):
         if not os.path.isabs(lpath):
           lpath = os.path.abspath(os.path.join(cpath, lpath))
 
