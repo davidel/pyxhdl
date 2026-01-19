@@ -303,16 +303,16 @@ def _main(args):
   if not verifiers:
     pyu.fatal(f'Unable to find any valid HDL verification tools')
 
-  for hver in verifiers:
-    alog.info(f'Running {hver.name} verifier on {args.backend} files {args.inputs}')
+  for verifier in verifiers:
+    alog.info(f'Running {verifier.name} verifier on {args.backend} files {args.inputs}')
 
-    hver.verify(args.inputs, args.backend.lower(), args.entity)
+    verifier.verify(args.inputs, args.backend.lower(), args.entity)
 
 
 if __name__ == '__main__':
   parser = argparse.ArgumentParser(description='VHDL/Verilog Code Verifier',
                                    formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-  parser.add_argument('--inputs', action='append', required=True,
+  parser.add_argument('--inputs', nargs='+', required=True,
                       help='The input files to be analyzed')
   parser.add_argument('--entity', type=str, required=True,
                       help='The root entity name')
