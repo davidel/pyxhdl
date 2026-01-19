@@ -1,1 +1,3 @@
-- Handle condition() in VHL emitter for ROOT processes.
+- Handle interfaces to allow to pass groups of signals in/out a module/entity.
+- Check if we can cover Verilog "generate" functionality with bare Python.
+
