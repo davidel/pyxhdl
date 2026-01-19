@@ -690,7 +690,7 @@ means:
     configuration file path folder.
     ```
     libs:
-      VHDL:
+      vhdl:
         - /PATH/TO/LIB
         - ...
     ```
