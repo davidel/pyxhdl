@@ -1026,6 +1026,20 @@ wait until (A = to_unsigned(1, 8));
 ctx <= resize(A * B, 8) after 10 ns;
 ```
 
+It is possible, within an HDL function, to disable to Python to HDL rewrite by
+using the *XL.no_hdl()* Python context manager:
+
+```Python
+@X.hdl
+def my_hdl_function(a, b):
+  c = a + b
+  with XL.no_hdl():
+    # Some code with HDL remapping disabled...
+    ...
+
+  return c * b
+```
+
 *PyXHDL* uses the new Python *MATCH*/*CASE* statement to map that to the appropriate
 HDL case select construct. The *CASE* values need to be constants.
 
@@ -1077,6 +1091,6 @@ and **Verilator**).
 Example use to verify a generated VHDL file *generate_output.vhd* with a *RootEntity* top:
 
 ```Shell
-$ python3 -m pyxhdl.tools.verify --input generate_output.vhd --backend vhdl --entity RootEntity
+$ python3 -m pyxhdl.tools.verify --inputs generate_output.vhd --backend vhdl --entity RootEntity
 ```
 
