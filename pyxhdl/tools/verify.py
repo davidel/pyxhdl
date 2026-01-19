@@ -212,7 +212,7 @@ class YosysVerifier(Verifier):
     if ppath := self._check_plugin('ghdl', search_paths):
       self._plugins.append(ppath)
       self._backends.append('vhdl')
-      self._backend_read['vhdl'] = ['ghdl --std=08  $SFILES -e $TOP']
+      self._backend_read['vhdl'] = ['ghdl --std=08 $SFILES -e $TOP']
 
     if ppath := self._check_plugin('slang', search_paths):
       self._plugins.append(ppath)
