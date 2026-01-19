@@ -1,5 +1,4 @@
 import argparse
-import collections
 import os
 import re
 import shutil
@@ -25,6 +24,17 @@ class Verifier(object):
     self._binary = binary
     self._xpath = xpath
     self._args = cmdline_args
+
+  def _make_subs_ctx(self, files, backend, top_entity, **kwargs):
+    sctx = {
+      'CSFILES': ', '.join(files),
+      'SFILES': ' '.join(files),
+      'TOP': top_entity,
+      'BACKEND': backend,
+    }
+    sctx.update(kwargs)
+
+    return sctx
 
 
 class VivadoVerifier(Verifier):
@@ -58,13 +68,9 @@ class VivadoVerifier(Verifier):
     with tempfile.TemporaryDirectory() as tmp_path:
       script = self._create_script(files, backend)
 
-      csfiles = ', '.join(files)
-      sfiles = ' '.join(files)
-      script = string.Template(script).substitute(
-        CSFILES=csfiles,
-        SFILES=sfiles,
-        TOP=top_entity,
-      )
+      sctx = self._make_subs_ctx(files, backend, top_entity)
+
+      script = string.Template(script).substitute(**sctx)
 
       alog.debug(f'Vivado Script:\n{script}')
 
@@ -72,7 +78,7 @@ class VivadoVerifier(Verifier):
       with os.fdopen(fd, mode='wt') as tfd:
         tfd.write(script)
 
-      cmdline = re.split(r'\s+', string.Template(self.CMDLINE).substitute())
+      cmdline = re.split(r'\s+', string.Template(self.CMDLINE).substitute(**sctx))
 
       try:
         output = subprocess.check_output([self._xpath] + cmdline + [path],
@@ -102,7 +108,10 @@ class GhdlVerifier(Verifier):
 
   def verify(self, files, backend, top_entity):
     with tempfile.TemporaryDirectory() as tmp_path:
-      cmdline = re.split(r'\s+', string.Template(self.CMDLINE).substitute(WORKDIR=tmp_path))
+      sctx = self._make_subs_ctx(files, backend, top_entity,
+                                 WORKDIR=tmp_path)
+
+      cmdline = re.split(r'\s+', string.Template(self.CMDLINE).substitute(**sctx))
 
       try:
         output = subprocess.check_output([self._xpath] + cmdline + list(files),
@@ -132,9 +141,9 @@ class VerilatorVerifier(Verifier):
 
   def verify(self, files, backend, top_entity):
     with tempfile.TemporaryDirectory() as tmp_path:
-      cmdline = re.split(r'\s+', string.Template(self.CMDLINE).substitute(
-        TOP=top_entity,
-      ))
+      sctx = self._make_subs_ctx(files, backend, top_entity)
+
+      cmdline = re.split(r'\s+', string.Template(self.CMDLINE).substitute(**sctx))
 
       try:
         output = subprocess.check_output([self._xpath] + cmdline + list(files),
@@ -164,9 +173,9 @@ class SlangVerifier(Verifier):
 
   def verify(self, files, backend, top_entity):
     with tempfile.TemporaryDirectory() as tmp_path:
-      cmdline = re.split(r'\s+', string.Template(self.CMDLINE).substitute(
-        TOP=top_entity,
-      ))
+      sctx = self._make_subs_ctx(files, backend, top_entity)
+
+      cmdline = re.split(r'\s+', string.Template(self.CMDLINE).substitute(**sctx))
 
       try:
         output = subprocess.check_output([self._xpath] + cmdline + list(files),
@@ -240,13 +249,9 @@ class YosysVerifier(Verifier):
     with tempfile.TemporaryDirectory() as tmp_path:
       script = self._create_script(files, backend)
 
-      csfiles = ', '.join(files)
-      sfiles = ' '.join(files)
-      script = string.Template(script).substitute(
-        CSFILES=csfiles,
-        SFILES=sfiles,
-        TOP=top_entity,
-      )
+      sctx = self._make_subs_ctx(files, backend, top_entity)
+
+      script = string.Template(script).substitute(**sctx)
 
       alog.debug(f'Yosys Script:\n{script}')
 
@@ -254,7 +259,7 @@ class YosysVerifier(Verifier):
       with os.fdopen(fd, mode='wt') as tfd:
         tfd.write(script)
 
-      cmdline = re.split(r'\s+', string.Template(self.CMDLINE).substitute())
+      cmdline = re.split(r'\s+', string.Template(self.CMDLINE).substitute(**sctx))
 
       plugins = []
       for mpath in self._plugins:
