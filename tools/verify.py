@@ -97,7 +97,36 @@ class VerilatorVerifier(Verifier):
 
   def verify(self, files, backend, top_entity):
     with tempfile.TemporaryDirectory() as tmp_path:
-      cmdline = re.split(r'\s+', string.Template(self.CMDLINE).substitute(TOP=top_entity))
+      cmdline = re.split(r'\s+', string.Template(self.CMDLINE).substitute(
+        TOP=top_entity,
+      ))
+
+      try:
+        output = subprocess.check_output([self._xpath] + cmdline + list(files),
+                                         stderr=subprocess.STDOUT)
+      except subprocess.CalledProcessError as ex:
+        pyu.fatal(f'Verification process exited with {ex.returncode} code. ' \
+                  f'Error output:\n' + ex.output.decode())
+
+      return output
+
+
+class SlangVerifier(Verifier):
+
+  CMDLINE = '-q --std 1800-2017 --top $TOP'
+
+  def __init__(self, xpath, cmdline_args):
+    super().__init__(xpath, cmdline_args)
+
+  @property
+  def name(self):
+    return 'Slang'
+
+  def verify(self, files, backend, top_entity):
+    with tempfile.TemporaryDirectory() as tmp_path:
+      cmdline = re.split(r'\s+', string.Template(self.CMDLINE).substitute(
+        TOP=top_entity,
+      ))
 
       try:
         output = subprocess.check_output([self._xpath] + cmdline + list(files),
@@ -117,6 +146,7 @@ VERIFY_TOOLS = {
   'Vivado': ToolSpec(name='Vivado', binary='vivado', tclass=VivadoVerifier, backends='vhdl,verilog'),
   'GHDL': ToolSpec(name='GHDL', binary='ghdl', tclass=GhdlVerifier, backends='vhdl'),
   'Verilator': ToolSpec(name='Verilator', binary='verilator', tclass=VerilatorVerifier, backends='verilog'),
+  'Slang': ToolSpec(name='Slang', binary='slang', tclass=SlangVerifier, backends='verilog'),
 }
 
 def _load_verifiers(args):
