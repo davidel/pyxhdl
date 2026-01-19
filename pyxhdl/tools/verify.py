@@ -51,7 +51,7 @@ class VivadoVerifier(Verifier):
 
   @property
   def backends(self):
-    return ('vhdl', 'verilog')
+    return ('verilog', 'vhdl')
 
   def verify(self, files, backend, top_entity):
     with tempfile.TemporaryDirectory() as tmp_path:
