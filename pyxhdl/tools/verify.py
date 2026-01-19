@@ -34,16 +34,17 @@ class VivadoVerifier(Verifier):
 
   def __init__(self, cmdline_args):
     super().__init__(self.BINARY, cmdline_args)
+    self._backend_read = {
+      'verilog': ['read_verilog -sv {{ $CSFILES }}'],
+      'vhdl': ['read_vhdl -vhdl2008 {{ $CSFILES }}'],
+    }
 
-  def _create_script(self, fd, files, backend, top_entity):
-    if backend == 'vhdl':
-      fd.write(f'read_vhdl -vhdl2008 {{' + ', '.join(files) + f'}}\n')
-    elif backend == 'verilog':
-      fd.write(f'read_verilog -sv {{' + ', '.join(files) + f'}}\n')
-    else:
-      pyu.fatal(f'Unknown backend: {backend}')
+  def _create_script(self, files, backend):
+    script = list(self._backend_read[backend])
 
-    fd.write(f'synth_design -top {top_entity}\n')
+    script.append('synth_design -top $TOP')
+
+    return '\n'.join(script)
 
   @property
   def name(self):
@@ -55,9 +56,21 @@ class VivadoVerifier(Verifier):
 
   def verify(self, files, backend, top_entity):
     with tempfile.TemporaryDirectory() as tmp_path:
+      script = self._create_script(files, backend)
+
+      csfiles = ', '.join(files)
+      sfiles = ' '.join(files)
+      script = string.Template(script).substitute(
+        CSFILES=csfiles,
+        SFILES=sfiles,
+        TOP=top_entity,
+      )
+
+      alog.debug(f'Vivado Script:\n{script}')
+
       fd, path = tempfile.mkstemp(dir=tmp_path, suffix='.tcl', text=True)
       with os.fdopen(fd, mode='wt') as tfd:
-        self._create_script(tfd, files, backend, top_entity)
+        tfd.write(script)
 
       cmdline = re.split(r'\s+', string.Template(self.CMDLINE).substitute())
 
@@ -210,8 +223,8 @@ class YosysVerifier(Verifier):
     script = list(self._backend_read[backend])
 
     script.append('hierarchy -check -top $TOP')
-    script.append(f'check')
-    script.append(f'synth')
+    script.append('check')
+    script.append('synth')
 
     return '\n'.join(script)
 
@@ -237,7 +250,7 @@ class YosysVerifier(Verifier):
 
       alog.debug(f'Yosys Script:\n{script}')
 
-      fd, path = tempfile.mkstemp(dir=tmp_path, suffix='.tcl', text=True)
+      fd, path = tempfile.mkstemp(dir=tmp_path, suffix='.ys', text=True)
       with os.fdopen(fd, mode='wt') as tfd:
         tfd.write(script)
 
