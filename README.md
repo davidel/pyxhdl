@@ -528,6 +528,10 @@ class NandGate(X.Entity):
             XOUT=XOUT)
 ```
 
+Note that the modules above do not need any parametrization to be specified,
+and automatically work with any bit vector type. Types are bound at instantiation
+site, and propagate down without any explicit parametrization.
+
 It is also possible to have *Entity* other configuration as Python typical *kwargs*
 during entity instantiation. This requires the inherited *Entity* to declare the
 *ARGS* class variable defining the valid *kwargs* and their default values.
