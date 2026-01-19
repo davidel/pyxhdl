@@ -1077,6 +1077,6 @@ and **Verilator**).
 Example use to verify a generated VHDL file *generate_output.vhd* with a *RootEntity* top:
 
 ```Shell
-$ python3 tools/verify.py --input generate_output.vhd --backend VHDL --entity RootEntity
+$ python3 tools/verify.py --input generate_output.vhd --backend vhdl --entity RootEntity
 ```
 

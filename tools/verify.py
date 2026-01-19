@@ -27,10 +27,10 @@ class VivadoVerifier(Verifier):
     super().__init__(xpath, cmdline_args)
 
   def _create_tcl_script(self, fd, files, backend, top_entity):
-    if backend == 'VHDL':
+    if backend == 'vhdl':
       fd.write(f'read_vhdl -vhdl2008 {{' + ', '.join(files) + f'}}\n')
-    elif backend == 'Verilog':
-      fd.write(f'read_verilog {{' + ', '.join(files) + f'}}\n')
+    elif backend == 'verilog':
+      fd.write(f'read_verilog -sv {{' + ', '.join(files) + f'}}\n')
     else:
       pyu.fatal(f'Unknown backend: {backend}')
 
@@ -114,9 +114,9 @@ ToolSpec = collections.namedtuple('ToolSpec', 'name, binary, tclass, backends')
 VERIFY_TOOLS = {
   # Ensure you have sourced the Vivado settings shell script which sets up the
   # proper environment variables (usually named settings64.sh).
-  'Vivado': ToolSpec(name='Vivado', binary='vivado', tclass=VivadoVerifier, backends='VHDL,Verilog'),
-  'GHDL': ToolSpec(name='GHDL', binary='ghdl', tclass=GhdlVerifier, backends='VHDL'),
-  'Verilator': ToolSpec(name='Verilator', binary='verilator', tclass=VerilatorVerifier, backends='Verilog'),
+  'Vivado': ToolSpec(name='Vivado', binary='vivado', tclass=VivadoVerifier, backends='vhdl,verilog'),
+  'GHDL': ToolSpec(name='GHDL', binary='ghdl', tclass=GhdlVerifier, backends='vhdl'),
+  'Verilator': ToolSpec(name='Verilator', binary='verilator', tclass=VerilatorVerifier, backends='verilog'),
 }
 
 def _load_verifiers(args):
@@ -124,7 +124,7 @@ def _load_verifiers(args):
 
   exclude = set(args.exclude or [])
   for name, tspec in VERIFY_TOOLS.items():
-    if name not in exclude and args.backend in re.split(r'\s*,\s*', tspec.backends):
+    if name.lower() not in exclude and args.backend in re.split(r'\s*,\s*', tspec.backends):
       xpath = shutil.which(tspec.binary)
       if xpath is not None:
         verifiers.append(tspec.tclass(xpath, args))
@@ -144,7 +144,7 @@ def _main(args):
   for hver in verifiers:
     alog.info(f'Running {hver.name} verifier on {args.backend} files {args.inputs}')
 
-    hver.verify(args.inputs, args.backend, args.entity)
+    hver.verify(args.inputs, args.backend.lower(), args.entity)
 
 
 if __name__ == '__main__':
@@ -154,11 +154,11 @@ if __name__ == '__main__':
                       help='The input files to be analyzed')
   parser.add_argument('--entity', type=str, required=True,
                       help='The root entity name')
-  parser.add_argument('--backend', type=str, default='VHDL',
-                      choices={'VHDL', 'Verilog'},
+  parser.add_argument('--backend', type=str, default='vhdl',
+                      choices={'vhdl', 'verilog'},
                       help='The backend to generate the code for')
   parser.add_argument('--exclude', action='append',
-                      choices={'GHDL', 'Vivado'},
+                      choices=set(t.lower() for t in VERIFY_TOOLS.keys()),
                       help='The list of verifiers to be excluded')
 
   app_main.main(parser, _main)
