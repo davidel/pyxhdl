@@ -14,17 +14,26 @@ import py_misc_utils.utils as pyu
 
 class Verifier(object):
 
-  def __init__(self, xpath, cmdline_args):
+  def __init__(self, binary, cmdline_args):
+    xpath = shutil.which(binary)
+    if not xpath:
+      alog.debug(f'Unable to find binary "{binary}" for {self.name} verifier')
+      raise NotImplementedError(f'Unable to find binary "{binary}" for {self.name} verifier')
+
+    alog.info(f'Found {self.name} verifier at {xpath}')
+
+    self._binary = binary
     self._xpath = xpath
     self._args = cmdline_args
 
 
 class VivadoVerifier(Verifier):
 
+  BINARY = 'vivado'
   CMDLINE = '-mode batch -nolog -nojournal -source'
 
-  def __init__(self, xpath, cmdline_args):
-    super().__init__(xpath, cmdline_args)
+  def __init__(self, cmdline_args):
+    super().__init__(self.BINARY, cmdline_args)
 
   def _create_tcl_script(self, fd, files, backend, top_entity):
     if backend == 'vhdl':
@@ -39,6 +48,10 @@ class VivadoVerifier(Verifier):
   @property
   def name(self):
     return 'Vivado'
+
+  @property
+  def backends(self):
+    return ('vhdl', 'verilog')
 
   def verify(self, files, backend, top_entity):
     with tempfile.TemporaryDirectory() as tmp_path:
@@ -61,14 +74,19 @@ class VivadoVerifier(Verifier):
 
 class GhdlVerifier(Verifier):
 
+  BINARY = 'ghdl'
   CMDLINE = '-a --std=08 --workdir=$WORKDIR -frelaxed -Wno-shared'
 
-  def __init__(self, xpath, cmdline_args):
-    super().__init__(xpath, cmdline_args)
+  def __init__(self, cmdline_args):
+    super().__init__(self.BINARY, cmdline_args)
 
   @property
   def name(self):
     return 'GHDL'
+
+  @property
+  def backends(self):
+    return ('vhdl',)
 
   def verify(self, files, backend, top_entity):
     with tempfile.TemporaryDirectory() as tmp_path:
@@ -86,14 +104,19 @@ class GhdlVerifier(Verifier):
 
 class VerilatorVerifier(Verifier):
 
-  CMDLINE = '--lint-only -Wall --timing --top $TOP'
+  BINARY = 'verilator'
+  CMDLINE = '--lint-only -Wall --timing -Wno-DECLFILENAME -sv --top $TOP'
 
-  def __init__(self, xpath, cmdline_args):
-    super().__init__(xpath, cmdline_args)
+  def __init__(self, cmdline_args):
+    super().__init__(self.BINARY, cmdline_args)
 
   @property
   def name(self):
     return 'Verilator'
+
+  @property
+  def backends(self):
+    return ('verilog',)
 
   def verify(self, files, backend, top_entity):
     with tempfile.TemporaryDirectory() as tmp_path:
@@ -113,14 +136,19 @@ class VerilatorVerifier(Verifier):
 
 class SlangVerifier(Verifier):
 
+  BINARY = 'slang'
   CMDLINE = '-q --std 1800-2017 --top $TOP'
 
-  def __init__(self, xpath, cmdline_args):
-    super().__init__(xpath, cmdline_args)
+  def __init__(self, cmdline_args):
+    super().__init__(self.BINARY, cmdline_args)
 
   @property
   def name(self):
     return 'Slang'
+
+  @property
+  def backends(self):
+    return ('verilog',)
 
   def verify(self, files, backend, top_entity):
     with tempfile.TemporaryDirectory() as tmp_path:
@@ -138,29 +166,28 @@ class SlangVerifier(Verifier):
       return output
 
 
-ToolSpec = collections.namedtuple('ToolSpec', 'name, binary, tclass, backends')
-
 VERIFY_TOOLS = {
   # Ensure you have sourced the Vivado settings shell script which sets up the
   # proper environment variables (usually named settings64.sh).
-  'Vivado': ToolSpec(name='Vivado', binary='vivado', tclass=VivadoVerifier, backends='vhdl,verilog'),
-  'GHDL': ToolSpec(name='GHDL', binary='ghdl', tclass=GhdlVerifier, backends='vhdl'),
-  'Verilator': ToolSpec(name='Verilator', binary='verilator', tclass=VerilatorVerifier, backends='verilog'),
-  'Slang': ToolSpec(name='Slang', binary='slang', tclass=SlangVerifier, backends='verilog'),
+  'Vivado': VivadoVerifier,
+  'GHDL': GhdlVerifier,
+  'Verilator': VerilatorVerifier,
+  'Slang': SlangVerifier,
 }
 
 def _load_verifiers(args):
-  verifiers = []
+  verifiers, exclude = [], set(args.exclude or [])
 
-  exclude = set(args.exclude or [])
-  for name, tspec in VERIFY_TOOLS.items():
-    if name.lower() not in exclude and args.backend in re.split(r'\s*,\s*', tspec.backends):
-      xpath = shutil.which(tspec.binary)
-      if xpath is not None:
-        verifiers.append(tspec.tclass(xpath, args))
-        alog.info(f'Found {name} verifier at {xpath}')
-      else:
-        alog.debug(f'Unable to find binary "{tspec.binary}" for {name} verifier')
+  for name, vclass in VERIFY_TOOLS.items():
+    if name.lower() not in exclude:
+      try:
+        verifier = vclass(args)
+
+        if args.backend in verifier.backends:
+          alog.info(f'Adding {verifier.name} verifier')
+          verifiers.append(verifier)
+      except NotImplementedError:
+        pass
 
   return verifiers
 
