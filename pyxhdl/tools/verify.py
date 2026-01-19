@@ -35,7 +35,7 @@ class VivadoVerifier(Verifier):
   def __init__(self, cmdline_args):
     super().__init__(self.BINARY, cmdline_args)
 
-  def _create_tcl_script(self, fd, files, backend, top_entity):
+  def _create_script(self, fd, files, backend, top_entity):
     if backend == 'vhdl':
       fd.write(f'read_vhdl -vhdl2008 {{' + ', '.join(files) + f'}}\n')
     elif backend == 'verilog':
@@ -56,9 +56,8 @@ class VivadoVerifier(Verifier):
   def verify(self, files, backend, top_entity):
     with tempfile.TemporaryDirectory() as tmp_path:
       fd, path = tempfile.mkstemp(dir=tmp_path, suffix='.tcl', text=True)
-      tfd = os.fdopen(fd, mode='wt')
-      self._create_tcl_script(tfd, files, backend, top_entity)
-      tfd.close()
+      with os.fdopen(fd, mode='wt') as tfd:
+        self._create_script(tfd, files, backend, top_entity)
 
       cmdline = re.split(r'\s+', string.Template(self.CMDLINE).substitute())
 
@@ -166,6 +165,98 @@ class SlangVerifier(Verifier):
       return output
 
 
+class YosysVerifier(Verifier):
+
+  BINARY = 'yosys'
+  CMDLINE = '-q -s'
+
+  def __init__(self, cmdline_args):
+    super().__init__(self.BINARY, cmdline_args)
+    self._backends = ['verilog']
+    self._plugins = []
+    self._backend_read = {
+      'verilog': ['read_verilog -sv $SFILES'],
+    }
+    self._find_plugins()
+
+  def _check_plugin(self, name, search_paths):
+    for path in search_paths:
+      ppath = os.path.join(path, f'{name}.so')
+      if os.path.exists(ppath):
+        return ppath
+
+  def _find_plugins(self):
+    bin_path = os.path.dirname(self._xpath)
+    search_paths = [
+      bin_path,
+      os.path.join(os.path.dirname(bin_path), 'lib'),
+    ]
+    if path := os.getenv('YOSYS_PLUGINS_PATH'):
+      search_paths.append(os.path.abspath(path))
+
+    alog.debug(f'Yosys Search Path: {search_paths}')
+
+    if ppath := self._check_plugin('ghdl', search_paths):
+      self._plugins.append(ppath)
+      self._backends.append('vhdl')
+      self._backend_read['vhdl'] = ['ghdl --std=08  $SFILES -e $TOP']
+
+    if ppath := self._check_plugin('slang', search_paths):
+      self._plugins.append(ppath)
+      self._backend_read['verilog'] = [('read_slang --single-unit --allow-use-before-declare '
+                                        '--allow-hierarchical-const --top $TOP $SFILES')]
+
+  def _create_script(self, files, backend):
+    script = list(self._backend_read[backend])
+
+    script.append('hierarchy -check -top $TOP')
+    script.append(f'check')
+    script.append(f'synth')
+
+    return '\n'.join(script)
+
+  @property
+  def name(self):
+    return 'Yosys'
+
+  @property
+  def backends(self):
+    return tuple(sorted(self._backends))
+
+  def verify(self, files, backend, top_entity):
+    with tempfile.TemporaryDirectory() as tmp_path:
+      script = self._create_script(files, backend)
+
+      csfiles = ', '.join(files)
+      sfiles = ' '.join(files)
+      script = string.Template(script).substitute(
+        CSFILES=csfiles,
+        SFILES=sfiles,
+        TOP=top_entity,
+      )
+
+      alog.debug(f'Yosys Script:\n{script}')
+
+      fd, path = tempfile.mkstemp(dir=tmp_path, suffix='.tcl', text=True)
+      with os.fdopen(fd, mode='wt') as tfd:
+        tfd.write(script)
+
+      cmdline = re.split(r'\s+', string.Template(self.CMDLINE).substitute())
+
+      plugins = []
+      for mpath in self._plugins:
+        plugins.extend(['-m', mpath])
+
+      try:
+        output = subprocess.check_output([self._xpath] + plugins + cmdline + [path],
+                                         stderr=subprocess.STDOUT)
+      except subprocess.CalledProcessError as ex:
+        pyu.fatal(f'Verification process exited with {ex.returncode} code. ' \
+                  f'Error output:\n' + ex.output.decode())
+
+      return output
+
+
 VERIFY_TOOLS = {
   # Ensure you have sourced the Vivado settings shell script which sets up the
   # proper environment variables (usually named settings64.sh).
@@ -173,6 +264,7 @@ VERIFY_TOOLS = {
   'GHDL': GhdlVerifier,
   'Verilator': VerilatorVerifier,
   'Slang': SlangVerifier,
+  'Yosys': YosysVerifier,
 }
 
 def _load_verifiers(args):
