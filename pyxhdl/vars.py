@@ -116,13 +116,6 @@ class Value(ValueBase):
     return (self.dtype == other.dtype and self.value == other.value and
             self.isreg == other.isreg)
 
-  def deref(self):
-    # Dereferencing a Value which is a reference, drops the reference and the reg/wire
-    # status (isreg == None means temp value).
-    ref = self.ref
-
-    return pycu.new_with(self, _value=ref.name, isreg=None) if ref is not None else self
-
   def new_value(self, value, shape=None, keepref=False):
     dtype = self.dtype.new_shape(*shape) if shape is not None else self.dtype
 

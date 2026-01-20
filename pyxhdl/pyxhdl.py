@@ -599,8 +599,7 @@ class CodeGen(_ExecVisitor):
 
         self.emitter.emit_assign(var, name, value)
     elif name is not None:
-      stg_value = value.deref() if isinstance(value, Value) else value
-      self._store_value(name, stg_value)
+      self._store_value(name, value)
 
   def _multi_assign_inner(self, target, value):
     elts = elements(target)
