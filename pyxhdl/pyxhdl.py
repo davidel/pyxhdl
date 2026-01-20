@@ -1,7 +1,6 @@
 import ast
 import collections
 import copy
-import functools
 import inspect
 import re
 import textwrap
@@ -997,6 +996,17 @@ class CodeGen(_ExecVisitor):
 
     return self.eval_node(node)
 
+  def _attr_storefn(self, target, name):
+
+    def setfn(value):
+      var = getattr(target, name, None)
+      if isinstance(var, Value) and var.ref is not None:
+        self._assign_value(var, value, name)
+      else:
+        setattr(target, name, value)
+
+    return setfn
+
   def visit_Attribute(self, node):
     value = self._load_subs_attr(node.value, node.ctx)
     if isinstance(node.ctx, ast.Load):
@@ -1005,7 +1015,7 @@ class CodeGen(_ExecVisitor):
       if isinstance(value, Value) and is_ro_ref(value):
         pyu.fatal(f'{value.name} is read-only')
 
-      result = _Storer(functools.partial(setattr, value, node.attr))
+      result = _Storer(self._attr_storefn(value, node.attr))
     else:
       pyu.fatal(f'Unknown subscript context type: {asu.dump(node.ctx)}')
 
