@@ -1,6 +1,7 @@
 import ast
 import collections
 import copy
+import functools
 import inspect
 import re
 import textwrap
@@ -80,29 +81,12 @@ class _SourceLocation:
 
 
 class _Storer:
-  pass
 
-
-class _StoreAttribute(_Storer):
-
-  def __init__(self, target, attr):
-    super().__init__()
-    self.target = target
-    self.attr = attr
+  def __init__(self, fn):
+    self.fn = fn
 
   def store(self, value):
-    setattr(self.target, self.attr, value)
-
-
-class _StoreSubscript(_Storer):
-
-  def __init__(self, target, index):
-    super().__init__()
-    self.target = target
-    self.index = index
-
-  def store(self, value):
-    self.target[self.index] = value
+    self.fn(value)
 
 
 class _AstVisitor(ast.NodeVisitor):
@@ -1021,7 +1005,7 @@ class CodeGen(_ExecVisitor):
       if isinstance(value, Value) and is_ro_ref(value):
         pyu.fatal(f'{value.name} is read-only')
 
-      result = _StoreAttribute(value, node.attr)
+      result = _Storer(functools.partial(setattr, value, node.attr))
     else:
       pyu.fatal(f'Unknown subscript context type: {asu.dump(node.ctx)}')
 
@@ -1043,7 +1027,7 @@ class CodeGen(_ExecVisitor):
     elif isinstance(node.ctx, ast.Load):
       result = value[sv]
     elif isinstance(node.ctx, ast.Store):
-      result = _StoreSubscript(value, sv)
+      result = _Storer(subscript_setter(value, sv))
     else:
       pyu.fatal(f'Unknown subscript context type: {asu.dump(node.ctx)}')
 

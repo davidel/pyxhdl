@@ -157,6 +157,14 @@ class EntityVersions:
     return ent_name if ver == 0 else f'{ent_name}_{ver}', erec
 
 
+def subscript_setter(arr, idx):
+
+  def setfn(value):
+    arr[idx] = value
+
+  return setfn
+
+
 def temp_attributes(obj, **attrs):
   saved = dict()
 
