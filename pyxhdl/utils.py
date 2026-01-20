@@ -14,7 +14,13 @@ import py_misc_utils.utils as pyu
 
 _FuncInfo = collections.namedtuple('FuncInfo', 'filename, lineno, source')
 
-NONE = object()
+class _None:
+
+  def __repr__(self):
+    return 'NONE'
+
+
+NONE = _None()
 
 
 def get_obj_globals(obj, defval=None):
