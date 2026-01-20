@@ -706,8 +706,9 @@ class CodeGen(_ExecVisitor):
 
     ename = eclass.NAME
     if ename is None:
-      # External entities do not need to be regsitered, as no generation needs to happen for them.
-      # Their name also, is always the one specified within the Entity subclass declaration.
+      # External entities (for which the NAME field is provided within the Entity
+      # subclass declaration) do not need to be regsitered, as no generation needs
+      # to happen for them.
       ename, erec = self._ent_versions.getname(eclass, pargs, {k: wrap(v) for k, v in rkwargs.items()})
       self._used_entities.add(erec)
       if generated:
