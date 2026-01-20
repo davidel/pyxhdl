@@ -21,15 +21,16 @@ def _mode(mode, vspec):
 
 class Ref:
 
-  __slots__ = ('name', 'mode', 'vspec')
+  __slots__ = ('name', 'mode', 'vspec', 'cname')
 
   RW = 1
   RO = 2
 
-  def __init__(self, name, mode=None, vspec=None):
+  def __init__(self, name, mode=None, vspec=None, cname=None):
     self.name = name
     self.mode = _mode(mode, vspec)
     self.vspec = vspec
+    self.cname = cname
 
   def __str__(self):
     return f'${self.name}' if self.mode == Ref.RW else f'#{self.name}'
@@ -149,7 +150,7 @@ def valkind(isreg):
 def _init_value(name, iargs):
   vspec = pycu.make_ntuple(VSpec, iargs or dict())
 
-  return Ref(name, vspec=vspec) if name is not None else Init(vspec=vspec)
+  return Ref(name, vspec=vspec, cname=name) if name is not None else Init(vspec=vspec)
 
 
 def mkwire(dtype, name=None, **iargs):

@@ -544,11 +544,13 @@ class CodeGen(_ExecVisitor):
     return self.emitter.var_remap(var, isinstance(ctx, ast.Store))
 
   def _new_variable(self, name, value):
+    isreg = value.isreg if value.isreg is not None else False
+
     vinit = value.init
     if vinit is not None:
-      init, vspec, isreg = vinit.value, vinit.vspec, value.isreg
+      init, vspec = vinit.value, vinit.vspec
     else:
-      init, vspec, isreg = None, None, False
+      init, vspec = None, None
 
     vname = self._revgen.newname(name, shortzero=True)
 
@@ -558,29 +560,41 @@ class CodeGen(_ExecVisitor):
 
     return var
 
+  def _assign_variable(self, var, value, name):
+    if isinstance(value, Value) and isinstance(value.value, Init):
+      if value.isreg != var.isreg:
+        alog.warning(f'Cannot create "{var.name}" as {valkind(value.isreg)}, ' \
+                     f'will be {valkind(var.isreg)}')
+      if isinstance(value.value, Init):
+        pyu.mlog(lambda: f'ASSIGN CREATE: {name} is {value.dtype} = {value.value}')
+      else:
+        pyu.mlog(lambda: f'ASSIGN CREATE: {name} is {value.dtype}')
+    else:
+      if is_ro_ref(var):
+        pyu.fatal(f'{var.name} is read-only')
+
+      self.emitter.emit_assign(var, name, value)
+
   def _assign_value(self, var, value, name):
     pyu.mlog(lambda: f'ASSIGN: {var} ({name}) = {value}')
 
     if not isinstance(var, Value):
-      if isinstance(value, Value) and value.init is not None:
-        var = self._new_variable(name, value)
+      if isinstance(value, Value):
+        # Two cases of creating new variables.
+        if value.init is not None:
+          # The mkwire(name=None), mkreg(name=None), mkvwire() and mkvreg() APIs
+          # have the "init" member populated.
+          var = self._new_variable(name, value)
+        elif (ref := value.ref) and ref.cname is not None:
+          # The mkwire(name=XYZ) and mkreg(name=XYZ) APIs have the "ref" populated,
+          # with ref.cname not None.
+          var = self._new_variable(name, value)
+          return
     elif name is not None and var.ref is None:
       var = None
 
     if isinstance(var, Value):
-      if isinstance(value, Value) and isinstance(value.value, Init):
-        if value.isreg != var.isreg:
-          alog.warning(f'Cannot create "{var.name}" as {valkind(value.isreg)}, ' \
-                       f'will be {valkind(var.isreg)}')
-        if isinstance(value.value, Init):
-          pyu.mlog(lambda: f'ASSIGN CREATE: {name} is {value.dtype} = {value.value}')
-        else:
-          pyu.mlog(lambda: f'ASSIGN CREATE: {name} is {value.dtype}')
-      else:
-        if is_ro_ref(var):
-          pyu.fatal(f'{var.name} is read-only')
-
-        self.emitter.emit_assign(var, name, value)
+      self._assign_variable(var, value, name)
     elif name is not None:
       self._store_value(name, value)
 
