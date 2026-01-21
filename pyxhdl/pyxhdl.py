@@ -46,7 +46,7 @@ class Variable:
     return self.vspec is not None and self.vspec.const
 
   def __repr__(self):
-    return f'{pyu.cname(self)}({self.dtype}, {self.isreg}, {self.init}, {self.vspec})'
+    return f'{pyiu.cname(self)}({self.dtype}, {self.isreg}, {self.init}, {self.vspec})'
 
 
 class _Exception(Exception):

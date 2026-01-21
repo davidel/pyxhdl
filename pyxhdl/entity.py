@@ -1,5 +1,6 @@
 import collections
 
+import py_misc_utils.inspect_utils as pyiu
 import py_misc_utils.utils as pyu
 
 from .decorators import *
@@ -47,7 +48,7 @@ class Entity(_CoreEntity):
     for pin in self.PORTS:
       arg = kwargs.get(pin.name)
       if arg is None:
-        pyu.fatal(f'Missing argument "{pin.name}" for Entity "{cname(self)}"')
+        pyu.fatal(f'Missing argument "{pin.name}" for Entity "{pyiu.cname(self)}"')
 
       self.args[pin.name] = ArgPort(arg, pin)
 
