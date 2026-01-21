@@ -756,7 +756,7 @@ class CodeGen(_ExecVisitor):
     kwargs = eargs.copy()
     args, din, cargs = [], dict(), dict()
     for pin in eclass.PORTS:
-      pyu.mlog(lambda: f'Port: {pin.name} {IO_NAME[pin.idir]}')
+      pyu.mlog(lambda: f'Port: {pin.name} {pin.ioname()}')
 
       arg = kwargs.pop(pin.name, None)
       if arg is None:

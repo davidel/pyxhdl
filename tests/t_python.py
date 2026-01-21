@@ -52,8 +52,8 @@ def none_return():
 class PythonEnt(X.Entity):
 
   PORTS = (
-    X.Port('DUMMY_A', X.IN),
-    X.Port('DUMMY_OUT', X.OUT),
+    X.Port('DUMMY_A', X.Port.IN),
+    X.Port('DUMMY_OUT', X.Port.OUT),
   )
 
   ARGS = dict(i=0, j=0, f=0.0, s='', l=[], d=dict())

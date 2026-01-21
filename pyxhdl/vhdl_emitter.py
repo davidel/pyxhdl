@@ -504,8 +504,7 @@ class VHDL_Emitter(Emitter):
         xtrans = 'transport '
 
     vspec = var.vspec
-    if (vspec is not None and vspec.port is not None and
-        vspec.port.idir in (OUT, INOUT)):
+    if (vspec is not None and vspec.port is not None and vspec.port.is_wr()):
       asop = '<='
     else:
       asop = ':=' if var.isreg is False else '<='
@@ -560,10 +559,8 @@ class VHDL_Emitter(Emitter):
           pcount, nports = 0, len(ent.args)
           for name, ap in ent.args.items():
             pin, arg = ap.port, ap.arg
-            if IO_NAME.get(pin.idir) is None:
-              pyu.fatal(f'Invalid port direction: {pin.idir}')
 
-            pdir = 'in' if pin.idir == IN else 'out' if pin.idir == OUT else 'inout'
+            pdir = 'in' if pin.is_ro() else 'out' if pin.is_wo() else 'inout'
             ptype = self._type_of(arg.dtype)
             port_decl = f'{pin.name} : {pdir} {ptype}'
 

@@ -26,9 +26,9 @@ class BasicBits(X.Entity):
 class Recast(X.Entity):
 
   PORTS = (
-    X.Port('A', X.IN),
-    X.Port('B', X.IN),
-    X.Port('XOUT', X.OUT),
+    X.Port('A', X.Port.IN),
+    X.Port('B', X.Port.IN),
+    X.Port('XOUT', X.Port.OUT),
   )
 
   @X.hdl_process(sens='A, B')

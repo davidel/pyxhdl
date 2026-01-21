@@ -11,9 +11,9 @@ import test_utils as tu
 class PosEdge(X.Entity):
 
   PORTS = (
-    X.Port('CLK', X.IN),
-    X.Port('RESET', X.IN),
-    X.Port('XOUT', X.OUT),
+    X.Port('CLK', X.Port.IN),
+    X.Port('RESET', X.Port.IN),
+    X.Port('XOUT', X.Port.OUT),
   )
 
   @X.hdl_process(
@@ -30,9 +30,9 @@ class PosEdge(X.Entity):
 class NegEdge(X.Entity):
 
   PORTS = (
-    X.Port('CLK', X.IN),
-    X.Port('RESET', X.IN),
-    X.Port('XOUT', X.OUT),
+    X.Port('CLK', X.Port.IN),
+    X.Port('RESET', X.Port.IN),
+    X.Port('XOUT', X.Port.OUT),
   )
 
   @X.hdl_process(
@@ -49,9 +49,9 @@ class NegEdge(X.Entity):
 class EdgeString(X.Entity):
 
   PORTS = (
-    X.Port('CLK', X.IN),
-    X.Port('RESET', X.IN),
-    X.Port('XOUT', X.OUT),
+    X.Port('CLK', X.Port.IN),
+    X.Port('RESET', X.Port.IN),
+    X.Port('XOUT', X.Port.OUT),
   )
 
   @X.hdl_process(sens='+CLK, RESET')

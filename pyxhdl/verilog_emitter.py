@@ -673,10 +673,8 @@ class Verilog_Emitter(Emitter):
     with self.indent():
       for name, ap in ent.args.items():
         pin, arg = ap.port, ap.arg
-        if IO_NAME.get(pin.idir) is None:
-          pyu.fatal(f'Invalid port direction: {pin.idir}')
 
-        pdir = 'input' if pin.idir == IN else 'output' if pin.idir == OUT else 'inout'
+        pdir = 'input' if pin.is_ro() else 'output' if pin.is_wo() else 'inout'
         ntype = self._type_of(arg.dtype).format(pin.name)
 
         self._emit_line(f'{pdir} {ntype};')

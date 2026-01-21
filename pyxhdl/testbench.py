@@ -36,9 +36,9 @@ class _TestData:
 
     inp, outp = dict(), dict()
     for pin in eclass.PORTS:
-      if pin.idir in (IN, INOUT):
+      if pin.is_rd():
         inp[pin.name] = pin
-      if pin.idir in (OUT, INOUT):
+      if pin.is_wr():
         outp[pin.name] = pin
 
     self._inp, self._outp = inp, outp

@@ -9,16 +9,61 @@ from .vars import *
 from .utils import *
 
 
-IN = 1
-OUT = 2
-INOUT = 3
-IO_NAME = {
-  IN: 'IN',
-  OUT: 'OUT',
-  INOUT: 'INOUT',
-}
+class Port:
 
-Port = collections.namedtuple('Port', 'name, idir, type', defaults=[None])
+  __slots__ = ('name', 'idir', 'type')
+
+  IN = 1
+  OUT = 2
+  INOUT = 3
+  IO_NAME = {
+    IN: 'IN',
+    OUT: 'OUT',
+    INOUT: 'INOUT',
+  }
+
+  def __init__(self, name, idir, type=None):
+    self.name = name
+    self.idir = idir
+    self.type = type
+
+  def ioname(self):
+    name = self.IO_NAME.get(self.idir)
+    if name is None:
+      pyu.fatal(f'Invalid port direction: {self.idir}')
+
+    return name
+
+  def is_ro(self):
+    return self.idir == self.IN
+
+  def is_wo(self):
+    return self.idir == self.OUT
+
+  def is_rd(self):
+    return self.idir in (self.IN, self.INOUT)
+
+  def is_wr(self):
+    return self.idir in (self.OUT, self.INOUT)
+
+  def is_rw(self):
+    return self.idir == self.INOUT
+
+  @classmethod
+  def parse(cls, pdecl):
+    sport, *pargs = pyu.resplit(pdecl, ':')
+
+    m = re.match(r'(=|\+)?(\w+)$', sport)
+    if not m:
+      pyu.fatal(f'Unrecognized port format: {sport}')
+
+    idir = cls.OUT if m.group(1) == '=' else cls.INOUT if m.group(1) == '+' else cls.IN
+
+    ptype = pargs[0] if len(pargs) > 0 else None
+
+    return cls(m.group(2), idir, type=ptype)
+
+
 
 ArgPort = collections.namedtuple('ArgPort', 'arg, port')
 
@@ -46,17 +91,7 @@ class _CoreEntity:
     elif isinstance(cports, str):
       ports = []
       for pdecl in pyu.resplit(cports, ','):
-        sport, *pargs = pyu.resplit(pdecl, ':')
-
-        m = re.match(r'(=|\+)?(\w+)$', sport)
-        if not m:
-          pyu.fatal(f'Unrecognized port format: {sport}')
-
-        idir = OUT if m.group(1) == '=' else INOUT if m.group(1) == '+' else IN
-
-        ptype = pargs[0] if len(pargs) > 0 else None
-
-        ports.append(Port(name=m.group(2), idir=idir, type=ptype))
+        ports.append(Port.parse(pdecl))
 
       return tuple(ports)
     else:
@@ -96,7 +131,7 @@ class Entity(_CoreEntity):
 def make_port_ref(pin):
   # The Ref constructor will assign the proper RO/RW mode according to the
   # vspec.const attribute.
-  return Ref(pin.name, vspec=VSpec(const=pin.idir == IN, port=pin))
+  return Ref(pin.name, vspec=VSpec(const=pin.is_ro(), port=pin))
 
 
 def verify_port_arg(pin, arg):

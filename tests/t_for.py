@@ -11,9 +11,9 @@ import test_utils as tu
 class ForEnt(X.Entity):
 
   PORTS = (
-    X.Port('A', X.IN),
-    X.Port('B', X.IN),
-    X.Port('XOUT', X.OUT),
+    X.Port('A', X.Port.IN),
+    X.Port('B', X.Port.IN),
+    X.Port('XOUT', X.Port.OUT),
   )
 
   ARGS = dict(count=1)
@@ -39,9 +39,9 @@ def _xgen(a, b, n):
 class GenForEnt(X.Entity):
 
   PORTS = (
-    X.Port('A', X.IN),
-    X.Port('B', X.IN),
-    X.Port('XOUT', X.OUT),
+    X.Port('A', X.Port.IN),
+    X.Port('B', X.Port.IN),
+    X.Port('XOUT', X.Port.OUT),
   )
 
   ARGS = dict(count=1)
