@@ -63,6 +63,22 @@ class Port:
 
     return cls(m.group(2), idir, type=ptype)
 
+  @classmethod
+  def parse_list(cls, cports):
+    if isinstance(cports, (list, tuple)):
+      if not all(isinstance(p, cls) for p in cports):
+        pyu.fatal(f'Unrecognized port value: {p}')
+
+      return tuple(cports)
+    elif isinstance(cports, str):
+      ports = []
+      for pdecl in pyu.resplit(cports, ','):
+        ports.append(cls.parse(pdecl))
+
+      return tuple(ports)
+    else:
+      pyu.fatal(f'Unrecognized ports value: {cports}')
+
 
 
 ArgPort = collections.namedtuple('ArgPort', 'arg, port')
@@ -86,16 +102,7 @@ class _CoreEntity:
 
   @classmethod
   def _get_ports(cls, cports):
-    if isinstance(cports, (list, tuple)):
-      return tuple(cports)
-    elif isinstance(cports, str):
-      ports = []
-      for pdecl in pyu.resplit(cports, ','):
-        ports.append(Port.parse(pdecl))
-
-      return tuple(ports)
-    else:
-      pyu.fatal(f'Unrecognized PORTS value: {cports}')
+    return Port.parse_list(cports)
 
 
 class Entity(_CoreEntity):
