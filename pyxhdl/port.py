@@ -78,3 +78,14 @@ class Port:
       pyu.fatal(f'Unrecognized ports value: {cports}')
 
 
+def make_port_ref(pin):
+  # The Ref constructor will assign the proper RO/RW mode according to the
+  # vspec.const attribute.
+  return Ref(pin.name, vspec=VSpec(const=pin.is_ro(), port=pin))
+
+
+def verify_port_arg(pin, arg):
+  if pin.type is not None:
+    tmatch = TypeMatcher.parse(pin.type)
+    tmatch.check_value(arg, msg=f' for entity port "{pin.name}"')
+
