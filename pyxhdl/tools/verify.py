@@ -5,6 +5,7 @@ import shutil
 import string
 import subprocess
 import tempfile
+import textwrap
 
 import py_misc_utils.alog as alog
 import py_misc_utils.app_main as app_main
@@ -72,7 +73,7 @@ class VivadoVerifier(Verifier):
 
       script = string.Template(script).substitute(**sctx)
 
-      alog.debug(f'Vivado Script:\n{script}')
+      alog.debug(f'Vivado Script:\n{textwrap.indent(script, "  ")}')
 
       fd, path = tempfile.mkstemp(dir=tmp_path, suffix='.tcl', text=True)
       with os.fdopen(fd, mode='wt') as tfd:
@@ -253,7 +254,7 @@ class YosysVerifier(Verifier):
 
       script = string.Template(script).substitute(**sctx)
 
-      alog.debug(f'Yosys Script:\n{script}')
+      alog.debug(f'Yosys Script:\n{textwrap.indent(script, "  ")}')
 
       fd, path = tempfile.mkstemp(dir=tmp_path, suffix='.ys', text=True)
       with os.fdopen(fd, mode='wt') as tfd:
