@@ -701,7 +701,15 @@ class CodeGen(_ExecVisitor):
         pyu.fatal(f'Missing entity port "{pin.name}" binding for entity {eclass.__name__}')
 
       verify_port_arg(pin, arg)
-      pargs[pin.name] = arg.new_value(make_port_ref(pin))
+      if pin.is_ifc():
+        xargs = pin.expand_ifc(pin.name, arg)
+        pargs[pin.name] = arg
+      else:
+        xargs = ((pin, arg),)
+
+      for xpin, xarg in xargs:
+        pargs[xpin.name] = xarg.new_value(make_port_ref(xpin))
+        rkwargs.pop(xpin.name, None)
 
     for kwarg_name, arg in eclass.ARGS.items():
       rkwargs[kwarg_name] = rkwargs.get(kwarg_name, arg)
@@ -755,7 +763,7 @@ class CodeGen(_ExecVisitor):
     ent_name = self._register_entity(eclass, eargs, generated=True)
 
     kwargs = eargs.copy()
-    args, din, cargs = [], dict(), dict()
+    din, cargs = dict(), dict()
     for pin in eclass.PORTS:
       pyu.mlog(lambda: f'Port: {pin.name} {pin.idir}')
 
@@ -763,19 +771,24 @@ class CodeGen(_ExecVisitor):
       if arg is None:
         pyu.fatal(f'Missing argument "{pin.name}" for Entity "{eclass.__name__}"')
 
-      ref = make_port_ref(pin)
-      if isinstance(arg, Value):
-        port_arg = arg.new_value(ref)
+      if pin.is_ifc():
+        xargs = pin.expand_ifc(pin.name, arg)
+        cargs[pin.name] = arg
       else:
-        if not isinstance(arg, Type):
-          pyu.fatal(f'Argument must be Type at this point: {arg}')
+        xargs = ((pin, arg),)
 
-        port_arg = mkwire(arg, name=ref)
+      for xpin, xarg in xargs:
+        ref = make_port_ref(xpin)
+        if isinstance(xarg, Value):
+          port_arg = xarg.new_value(ref)
+        else:
+          if not isinstance(xarg, Type):
+            pyu.fatal(f'Argument must be Type at this point: {xarg}')
 
-      args.append(self.emitter.make_port_arg(port_arg))
+          port_arg = mkwire(xarg, name=ref)
 
-      din[pin.name] = pin
-      cargs[pin.name] = args[-1]
+        din[xpin.name] = xpin
+        cargs[xpin.name] = self.emitter.make_port_arg(port_arg)
 
     for kwarg_name, arg in eclass.ARGS.items():
       rarg = kwargs.get(kwarg_name, arg)

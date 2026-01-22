@@ -133,7 +133,7 @@ class Value(ValueBase):
     return hash((self.dtype, self._value, self.isreg))
 
   def __eq__(self, other):
-    return (self.dtype == other.dtype and self.value == other.value and
+    return (self.dtype == other.dtype and self._value == other._value and
             self.isreg == other.isreg)
 
   def new_value(self, value, shape=None, keepref=False):

@@ -651,14 +651,24 @@ class Verilog_Emitter(Emitter):
     with self.placement(self._entity_place):
       self._emit_line(f'{ent_name} {params}{iname}(')
       with self.indent():
+        binds = []
         for i, pin in enumerate(ent.PORTS):
           arg = kwargs[pin.name]
-          if not isinstance(arg, Value):
-            pyu.fatal(f'Argument must be a Value subclass: {arg}')
 
-          xarg = self.svalue(arg)
-          port_bind = f'.{pin.name}({xarg})' + ('' if i == len(ent.PORTS) - 1 else ',')
-          self._emit_line(port_bind)
+          if pin.is_ifc():
+            xargs = pin.expand_ifc(pin.name, arg)
+          else:
+            xargs = ((pin, arg),)
+
+          for xpin, xarg in xargs:
+            if not isinstance(xarg, Value):
+              pyu.fatal(f'Argument must be a Value subclass: {xarg}')
+
+            earg = self.svalue(xarg)
+            binds.append(f'.{xpin.name}({earg})')
+
+        for i, port_bind in enumerate(binds):
+          self._emit_line(port_bind + ('' if i == len(binds) - 1 else ','))
 
       self._emit_line(f');')
 
@@ -674,10 +684,11 @@ class Verilog_Emitter(Emitter):
       for name, ap in ent.args.items():
         pin, arg = ap.port, ap.arg
 
-        pdir = 'input' if pin.is_ro() else 'output' if pin.is_wo() else 'inout'
-        ntype = self._type_of(arg.dtype).format(pin.name)
+        if not pin.is_ifc():
+          pdir = 'input' if pin.is_ro() else 'output' if pin.is_wo() else 'inout'
+          ntype = self._type_of(arg.dtype).format(pin.name)
 
-        self._emit_line(f'{pdir} {ntype};')
+          self._emit_line(f'{pdir} {ntype};')
 
       self._init_module_places()
 
