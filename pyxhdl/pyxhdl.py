@@ -745,7 +745,7 @@ class CodeGen(_ExecVisitor):
       if name not in din:
         pyu.fatal(f'Sensitivity source is not a port: {name}')
 
-      pyu.mlog(lambda: f'Sensitivity: {name} {TRIG_NAME[sens.trigger]}')
+      pyu.mlog(lambda: f'Sensitivity: {name} {sens.trigger}')
 
     return sensitivity
 

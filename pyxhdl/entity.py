@@ -12,14 +12,9 @@ from .utils import *
 
 ArgPort = collections.namedtuple('ArgPort', 'arg, port')
 
-POSEDGE = 1
-NEGEDGE = 2
-LEVEL = 3
-TRIG_NAME = {
-  POSEDGE: 'POSEDGE',
-  NEGEDGE: 'NEGEDGE',
-  LEVEL: 'LEVEL',
-}
+POSEDGE = 'POSEDGE'
+NEGEDGE = 'NEGEDGE'
+LEVEL = 'LEVEL'
 
 Sens = collections.namedtuple('Sens', 'trigger', defaults=[LEVEL])
 

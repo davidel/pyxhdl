@@ -20,6 +20,18 @@ class Port:
     self.idir = idir
     self.type = type
 
+  def __repr__(self):
+    rfmt = pyu.repr_fmt(self, 'name=,idir=,type')
+
+    return f'{pyiu.cname(self)}({rfmt})'
+
+  def __hash__(self):
+    return hash((self.name, self.idir, self.type))
+
+  def __eq__(self, other):
+    return (self.name == other.name and self.idir == other.idir and
+            self.type == other.type)
+
   def is_ro(self):
     return self.idir == self.IN
 
