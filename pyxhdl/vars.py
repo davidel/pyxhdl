@@ -48,11 +48,8 @@ class Ref:
 
     return mode
 
-  def __str__(self):
-    return f'${self.name}' if self.mode == Ref.RW else f'#{self.name}'
-
   def __repr__(self):
-    rfmt = pyu.repr_fmt(self, 'name,mode,vspec,cname')
+    rfmt = pyu.repr_fmt(self, 'name=,mode,vspec,cname')
 
     return f'{pyiu.cname(self)}({rfmt})'
 
@@ -85,9 +82,6 @@ class Init:
   def __eq__(self, other):
     return (self.value == other.value and self.name == other.name and
             self.vspec == other.vspec)
-
-  def __str__(self):
-    return f'{self.value}' if self.vspec is None else f'({self.value}, {self.vspec})'
 
   def __repr__(self):
     rfmt = pyu.repr_fmt(self, 'value=,name,vspec')
