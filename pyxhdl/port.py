@@ -65,7 +65,7 @@ class Port:
   def parse_list(cls, cports):
     if isinstance(cports, (list, tuple)):
       if not all(isinstance(p, cls) for p in cports):
-        pyu.fatal(f'Unrecognized port value: {p}')
+        pyu.fatal(f'Unrecognized port value: {cports}')
 
       return tuple(cports)
     elif isinstance(cports, str):
