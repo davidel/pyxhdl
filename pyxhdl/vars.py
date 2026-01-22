@@ -1,4 +1,3 @@
-import collections
 import re
 
 import py_misc_utils.core_utils as pycu
@@ -9,15 +8,24 @@ from .types import *
 from .value_base import *
 
 
-# Must have defaults for all fields!
-VSpec = collections.namedtuple('VSpec', 'const, port', defaults=[False, None])
+class VSpec:
 
+  __slots__ = ('const', 'port')
 
-def _mode(mode, vspec):
-  if mode is None:
-    mode = Ref.RW if vspec is None or not vspec.const else Ref.RO
+  def __init__(self, const=False, port=None):
+    self.const = const
+    self.port = port
 
-  return mode
+  def __repr__(self):
+    rfmt = pyu.repr_fmt(self, 'const,port')
+
+    return f'{pyiu.cname(self)}({rfmt})'
+
+  def __hash__(self):
+    return hash((self.const, self.port))
+
+  def __eq__(self, other):
+    return self.const == other.const and self.port == other.port
 
 
 class Ref:
@@ -29,9 +37,16 @@ class Ref:
 
   def __init__(self, name, mode=None, vspec=None, cname=None):
     self.name = name
-    self.mode = _mode(mode, vspec)
+    self.mode = self._mode(mode, vspec)
     self.vspec = vspec
     self.cname = cname
+
+  @classmethod
+  def _mode(cls, mode, vspec):
+    if mode is None:
+      mode = cls.RW if vspec is None or not vspec.const else cls.RO
+
+    return mode
 
   def __str__(self):
     return f'${self.name}' if self.mode == Ref.RW else f'#{self.name}'
@@ -158,7 +173,7 @@ def valkind(isreg):
 
 
 def _init_value(name, iargs):
-  vspec = pycu.make_ntuple(VSpec, iargs or dict())
+  vspec = VSpec(**(iargs or dict()))
 
   return Ref(name, vspec=vspec, cname=name) if name is not None else Init(vspec=vspec)
 
@@ -172,14 +187,14 @@ def mkreg(dtype, name=None, **iargs):
 
 
 def mkvwire(dtype, value, name=None, **iargs):
-  vspec = pycu.make_ntuple(VSpec, iargs or dict())
+  vspec = VSpec(**(iargs or dict()))
 
   return Wire(dtype, Init(value=value, vspec=vspec, name=name))
 
 def mkvreg(dtype, value, name=None, **iargs):
-  vspec = pycu.make_ntuple(VSpec, iargs or dict())
+  vspec = VSpec(**(iargs or dict()))
 
-  return Register(dtype, Init(value=value, vspec=vspec, name=None))
+  return Register(dtype, Init(value=value, vspec=vspec, name=name))
 
 
 def make_ro_ref(v):
