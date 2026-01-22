@@ -3,6 +3,7 @@ import re
 
 import py_misc_utils.core_utils as pycu
 import py_misc_utils.inspect_utils as pyiu
+import py_misc_utils.utils as pyu
 
 from .types import *
 from .value_base import *
@@ -23,8 +24,8 @@ class Ref:
 
   __slots__ = ('name', 'mode', 'vspec', 'cname')
 
-  RW = 1
-  RO = 2
+  RW = 'RW'
+  RO = 'RO'
 
   def __init__(self, name, mode=None, vspec=None, cname=None):
     self.name = name
@@ -36,13 +37,16 @@ class Ref:
     return f'${self.name}' if self.mode == Ref.RW else f'#{self.name}'
 
   def __repr__(self):
-    return f'{pyiu.cname(self)}({self.name}, {self.mode}, {self.vspec})'
+    rfmt = pyu.repr_fmt(self, 'name,mode,vspec,cname')
+
+    return f'{pyiu.cname(self)}({rfmt})'
 
   def __hash__(self):
-    return hash((self.name, self.mode, self.vspec))
+    return hash((self.name, self.mode, self.vspec, self.cname))
 
   def __eq__(self, other):
-    return self.name == other.name and self.mode == other.mode and self.vspec == other.vspec
+    return (self.name == other.name and self.mode == other.mode and
+            self.vspec == other.vspec and self.cname == other.cname)
 
   def new_name(self, name):
     return pycu.new_with(self, name=name)
@@ -53,23 +57,27 @@ class Ref:
 
 class Init:
 
-  __slots__ = ('value', 'vspec')
+  __slots__ = ('value', 'name', 'vspec')
 
-  def __init__(self, value=None, vspec=None):
+  def __init__(self, value=None, name=None, vspec=None):
     self.value = value
+    self.name = name
     self.vspec = vspec
 
   def __hash__(self):
-    return hash((self.value, self.vspec))
+    return hash((self.value, self.name, self.vspec))
 
   def __eq__(self, other):
-    return self.value == other.value and self.vspec == other.vspec
+    return (self.value == other.value and self.name == other.name and
+            self.vspec == other.vspec)
 
   def __str__(self):
     return f'{self.value}' if self.vspec is None else f'({self.value}, {self.vspec})'
 
   def __repr__(self):
-    return f'{pyiu.cname(self)}({self.value}, {self.vspec})'
+    rfmt = pyu.repr_fmt(self, 'value=,name,vspec')
+
+    return f'{pyiu.cname(self)}({rfmt})'
 
 
 class Value(ValueBase):
@@ -108,7 +116,9 @@ class Value(ValueBase):
     return v.name if isinstance(v, Ref) else None
 
   def __repr__(self):
-    return f'{pyiu.cname(self)}({self._value}, dtype={self.dtype}, isreg={self.isreg})'
+    rfmt = pyu.repr_fmt(self, '_value=,dtype,isreg')
+
+    return f'{pyiu.cname(self)}({rfmt})'
 
   def __hash__(self):
     return hash((self.dtype, self._value, self.isreg))
@@ -161,15 +171,15 @@ def mkreg(dtype, name=None, **iargs):
   return Register(dtype, _init_value(name, iargs))
 
 
-def mkvwire(dtype, value, **iargs):
+def mkvwire(dtype, value, name=None, **iargs):
   vspec = pycu.make_ntuple(VSpec, iargs or dict())
 
-  return Wire(dtype, Init(value=value, vspec=vspec))
+  return Wire(dtype, Init(value=value, vspec=vspec, name=name))
 
-def mkvreg(dtype, value, **iargs):
+def mkvreg(dtype, value, name=None, **iargs):
   vspec = pycu.make_ntuple(VSpec, iargs or dict())
 
-  return Register(dtype, Init(value=value, vspec=vspec))
+  return Register(dtype, Init(value=value, vspec=vspec, name=None))
 
 
 def make_ro_ref(v):

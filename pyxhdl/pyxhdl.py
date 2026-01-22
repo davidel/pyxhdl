@@ -545,18 +545,19 @@ class CodeGen(_ExecVisitor):
 
   def _new_variable(self, name, value):
     isreg = value.isreg if value.isreg is not None else False
+    base_name = None
 
     vinit = value.init
     if vinit is not None:
-      init, vspec = vinit.value, vinit.vspec
+      init, vspec, base_name = vinit.value, vinit.vspec, vinit.name
     else:
       init, vspec = None, None
 
     vref = value.ref
     if vref is not None and vref.cname is not None:
-      vname = self._revgen.newname(vref.cname, shortzero=True)
-    else:
-      vname = self._revgen.newname(name, shortzero=True)
+      base_name = vref.cname
+
+    vname = self._revgen.newname(base_name or name, shortzero=True)
 
     var = Value(value.dtype, Ref(vname, vspec=vspec), isreg=isreg)
     self._add_variable(vname, var.dtype, var.isreg, init=init, vspec=vspec)
@@ -756,7 +757,7 @@ class CodeGen(_ExecVisitor):
     kwargs = eargs.copy()
     args, din, cargs = [], dict(), dict()
     for pin in eclass.PORTS:
-      pyu.mlog(lambda: f'Port: {pin.name} {pin.ioname()}')
+      pyu.mlog(lambda: f'Port: {pin.name} {pin.idir}')
 
       arg = kwargs.pop(pin.name, None)
       if arg is None:

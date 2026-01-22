@@ -11,26 +11,14 @@ class Port:
 
   __slots__ = ('name', 'idir', 'type')
 
-  IN = 1
-  OUT = 2
-  INOUT = 3
-  IO_NAME = {
-    IN: 'IN',
-    OUT: 'OUT',
-    INOUT: 'INOUT',
-  }
+  IN = 'IN'
+  OUT = 'OUT'
+  INOUT = 'INOUT'
 
   def __init__(self, name, idir, type=None):
     self.name = name
     self.idir = idir
     self.type = type
-
-  def ioname(self):
-    name = self.IO_NAME.get(self.idir)
-    if name is None:
-      pyu.fatal(f'Invalid port direction: {self.idir}')
-
-    return name
 
   def is_ro(self):
     return self.idir == self.IN
