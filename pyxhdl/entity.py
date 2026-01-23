@@ -45,10 +45,24 @@ class Entity(_CoreEntity):
       if arg is None:
         pyu.fatal(f'Missing argument "{pin.name}" for Entity "{pyiu.cname(self)}"')
 
+      if pin.is_ifc():
+        arg = pin.ifc_view(arg)
+
       self.args[pin.name] = ArgPort(arg, pin)
 
     for arg_name, arg in self.ARGS.items():
       self.kwargs[arg_name] = kwargs.get(arg_name, arg)
+
+  def expanded_ports(self):
+    xports = []
+    for name, aport in self.args.items():
+      if aport.port.is_ifc():
+        for pin, arg in aport.port.ifc_expand(aport.arg):
+          xports.append(ArgPort(arg, pin))
+      else:
+        xports.append(aport)
+
+    return tuple(xports)
 
   def enum_processes(self):
     for name, func in self.__class__.__dict__.items():

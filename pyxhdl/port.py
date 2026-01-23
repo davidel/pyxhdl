@@ -1,5 +1,8 @@
 import re
 
+import py_misc_utils.core_utils as pycu
+import py_misc_utils.inspect_utils as pyiu
+import py_misc_utils.module_utils as pymu
 import py_misc_utils.utils as pyu
 
 from .types import *
@@ -14,6 +17,7 @@ class Port:
   IN = 'IN'
   OUT = 'OUT'
   INOUT = 'INOUT'
+  IFC = 'IFC'
 
   def __init__(self, name, idir, type=None):
     self.name = name
@@ -47,17 +51,44 @@ class Port:
   def is_rw(self):
     return self.idir == self.INOUT
 
+  def is_ifc(self):
+    return self.idir == self.IFC
+
+  def ifc_split(self):
+    ifc_class, ifc_port = pycu.separate(self.type, '.', reverse=True)
+
+    return ifc_class, ifc_port
+
+  def ifc_view(self, value):
+    ifc_class, ifc_port = self.ifc_split()
+
+    return value.origin.create_port_view(self.name, ifc_port)
+
+  def ifc_expand(self, value):
+    ifc_class, ifc_port = self.ifc_split()
+
+    return value.origin.expand_port(self.name, ifc_port)
+
+  def ifc_field_name(self, fname):
+    return f'{self.name}_{fname}'
+
   @classmethod
   def parse(cls, pdecl):
-    sport, *pargs = pyu.resplit(pdecl, ':')
-
-    m = re.match(r'(=|\+)?(\w+)$', sport)
+    m = re.match(r'(=|\+|\*)?(\w+)(:([^\s]*))?$', pdecl)
     if not m:
-      pyu.fatal(f'Unrecognized port format: {sport}')
+      pyu.fatal(f'Unrecognized port format: {pdecl}')
 
-    idir = cls.OUT if m.group(1) == '=' else cls.INOUT if m.group(1) == '+' else cls.IN
+    match m.group(1):
+      case '=':
+        idir = cls.OUT
+      case '+':
+        idir = cls.INOUT
+      case '*':
+        idir = cls.IFC
+      case _:
+        idir = cls.IN
 
-    ptype = pargs[0] if len(pargs) > 0 else None
+    ptype = m.group(4)
 
     return cls(m.group(2), idir, type=ptype)
 
@@ -86,6 +117,14 @@ def make_port_ref(pin):
 
 def verify_port_arg(pin, arg):
   if pin.type is not None:
-    tmatch = TypeMatcher.parse(pin.type)
-    tmatch.check_value(arg, msg=f' for entity port "{pin.name}"')
+    if pin.is_ifc():
+      ifc_class, ifc_port = pin.ifc_split()
+
+      pcls, = pymu.import_module_names(ifc_class)
+
+      if not isinstance(arg.origin, pcls):
+        pyu.fatal(f'Invalid argument of type {pyiu.cname(arg.origin)} when {ifc_class} is required')
+    else:
+      tmatch = TypeMatcher.parse(pin.type)
+      tmatch.check_value(arg, msg=f' for entity port "{pin.name}"')
 

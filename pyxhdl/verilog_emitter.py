@@ -651,14 +651,24 @@ class Verilog_Emitter(Emitter):
     with self.placement(self._entity_place):
       self._emit_line(f'{ent_name} {params}{iname}(')
       with self.indent():
+        binds = []
         for i, pin in enumerate(ent.PORTS):
           arg = kwargs[pin.name]
-          if not isinstance(arg, Value):
-            pyu.fatal(f'Argument must be a Value subclass: {arg}')
 
-          xarg = self.svalue(arg)
-          port_bind = f'.{pin.name}({xarg})' + ('' if i == len(ent.PORTS) - 1 else ',')
-          self._emit_line(port_bind)
+          if pin.is_ifc():
+            xargs = pin.ifc_expand(arg)
+          else:
+            xargs = ((pin, arg),)
+
+          for xpin, xarg in xargs:
+            if not isinstance(xarg, Value):
+              pyu.fatal(f'Argument must be a Value subclass: {xarg}')
+
+            earg = self.svalue(xarg)
+            binds.append(f'.{xpin.name}({earg})')
+
+        for i, port_bind in enumerate(binds):
+          self._emit_line(port_bind + ('' if i == len(binds) - 1 else ','))
 
       self._emit_line(f');')
 
@@ -669,9 +679,11 @@ class Verilog_Emitter(Emitter):
     if self._mod_comment:
       self.emit_comment(self._mod_comment)
 
-    self._emit_line(f'module {name}(' + ', '.join(ent.args.keys()) + ');')
+    xports = ent.expanded_ports()
+
+    self._emit_line(f'module {name}(' + ', '.join(ap.port.name for ap in xports) + ');')
     with self.indent():
-      for name, ap in ent.args.items():
+      for ap in xports:
         pin, arg = ap.port, ap.arg
 
         pdir = 'input' if pin.is_ro() else 'output' if pin.is_wo() else 'inout'

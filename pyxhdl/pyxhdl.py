@@ -701,7 +701,10 @@ class CodeGen(_ExecVisitor):
         pyu.fatal(f'Missing entity port "{pin.name}" binding for entity {eclass.__name__}')
 
       verify_port_arg(pin, arg)
-      pargs[pin.name] = arg.new_value(make_port_ref(pin))
+      if pin.is_ifc():
+        pargs[pin.name] = pin.ifc_view(arg)
+      else:
+        pargs[pin.name] = arg.new_value(make_port_ref(pin))
 
     for kwarg_name, arg in eclass.ARGS.items():
       rkwargs[kwarg_name] = rkwargs.get(kwarg_name, arg)
@@ -739,13 +742,31 @@ class CodeGen(_ExecVisitor):
 
       return dest
 
-    sensitivity = expand(hdl_args.get('sens', dict()), dict())
+    sstmp = expand(hdl_args.get('sens', dict()), dict())
 
-    for name, sens in sensitivity.items():
-      if name not in din:
-        pyu.fatal(f'Sensitivity source is not a port: {name}')
+    sensitivity = dict()
+    for name, sens in sstmp.items():
+      m = re.match(r'(\w+)(\.(\w+))?', name)
+      if not m:
+        pyu.fatal(f'Invalid sensitivity port name: {name}')
 
-      pyu.mlog(lambda: f'Sensitivity: {name} {sens.trigger}')
+      pname, fname = m.group(1), m.group(3)
+
+      if fname:
+        pin = din.get(pname)
+        if pin is None:
+          pyu.fatal(f'Sensitivity source interface is not a port: {pname}')
+        if not pin.is_ifc():
+          pyu.fatal(f'Sensitivity source interface is not an interface: {pin}')
+
+        pname = pin.ifc_field_name(fname)
+      else:
+        if pname not in din:
+          pyu.fatal(f'Sensitivity source is not a port: {pname}')
+
+      sensitivity[pname] = sens
+
+      pyu.mlog(lambda: f'Sensitivity: {pname} {sens.trigger}')
 
     return sensitivity
 
@@ -755,7 +776,7 @@ class CodeGen(_ExecVisitor):
     ent_name = self._register_entity(eclass, eargs, generated=True)
 
     kwargs = eargs.copy()
-    args, din, cargs = [], dict(), dict()
+    din, cargs = dict(), dict()
     for pin in eclass.PORTS:
       pyu.mlog(lambda: f'Port: {pin.name} {pin.idir}')
 
@@ -763,19 +784,20 @@ class CodeGen(_ExecVisitor):
       if arg is None:
         pyu.fatal(f'Missing argument "{pin.name}" for Entity "{eclass.__name__}"')
 
-      ref = make_port_ref(pin)
-      if isinstance(arg, Value):
-        port_arg = arg.new_value(ref)
-      else:
-        if not isinstance(arg, Type):
-          pyu.fatal(f'Argument must be Type at this point: {arg}')
-
-        port_arg = mkwire(arg, name=ref)
-
-      args.append(self.emitter.make_port_arg(port_arg))
-
       din[pin.name] = pin
-      cargs[pin.name] = args[-1]
+      if pin.is_ifc():
+        cargs[pin.name] = pin.ifc_view(arg)
+      else:
+        ref = make_port_ref(pin)
+        if isinstance(arg, Value):
+          port_arg = arg.new_value(ref)
+        else:
+          if not isinstance(arg, Type):
+            pyu.fatal(f'Argument must be Type at this point: {arg}')
+
+          port_arg = mkwire(arg, name=ref)
+
+        cargs[pin.name] = self.emitter.make_port_arg(port_arg)
 
     for kwarg_name, arg in eclass.ARGS.items():
       rarg = kwargs.get(kwarg_name, arg)

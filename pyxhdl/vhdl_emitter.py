@@ -534,14 +534,24 @@ class VHDL_Emitter(Emitter):
 
       self._emit_line(f'port map (')
       with self.indent():
+        binds = []
         for i, pin in enumerate(ent.PORTS):
           arg = kwargs[pin.name]
-          if not isinstance(arg, Value):
-            pyu.fatal(f'Argument must be a Value subclass: {arg}')
 
-          xarg = self.svalue(arg)
-          port_bind = f'{pin.name} => {xarg}' + ('' if i == len(ent.PORTS) - 1 else ',')
-          self._emit_line(port_bind)
+          if pin.is_ifc():
+            xargs = pin.ifc_expand(arg)
+          else:
+            xargs = ((pin, arg),)
+
+          for xpin, xarg in xargs:
+            if not isinstance(xarg, Value):
+              pyu.fatal(f'Argument must be a Value subclass: {xarg}')
+
+            earg = self.svalue(xarg)
+            binds.append(f'{xpin.name} => {earg}')
+
+        for i, port_bind in enumerate(binds):
+          self._emit_line(port_bind + ('' if i == len(binds) - 1 else ','))
 
       self._emit_line(f');')
 
@@ -556,16 +566,15 @@ class VHDL_Emitter(Emitter):
       with self.indent():
         self._emit_line(f'port (')
         with self.indent():
-          pcount, nports = 0, len(ent.args)
-          for name, ap in ent.args.items():
+          xports = ent.expanded_ports()
+          for i, ap in enumerate(xports):
             pin, arg = ap.port, ap.arg
 
             pdir = 'in' if pin.is_ro() else 'out' if pin.is_wo() else 'inout'
             ptype = self._type_of(arg.dtype)
             port_decl = f'{pin.name} : {pdir} {ptype}'
 
-            self._emit_line(port_decl if pcount == nports - 1 else port_decl + ';')
-            pcount += 1
+            self._emit_line(port_decl + (';' if i + 1 < len(xports) else ''))
 
         self._emit_line(f');')
 

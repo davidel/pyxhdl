@@ -1,6 +1,7 @@
 # Cannot depend of local modules!
 import collections
 import copy
+import importlib
 import inspect
 import os
 import re
@@ -185,4 +186,8 @@ def temp_attributes(obj, **attrs):
     return False
 
   return pycm.CtxManager(infn, outfn)
+
+
+def lazy_import(modname):
+  return importlib.import_module(f'..{modname}', package=__name__)
 

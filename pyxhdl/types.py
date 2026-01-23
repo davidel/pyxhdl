@@ -41,6 +41,9 @@ class Type:
   def size(self):
     return np.prod(self.full_shape[: -1])
 
+  def __hash__(self):
+    return hash((self.name, self.full_shape, self.ctype))
+
   def __eq__(self, other):
     return (self.name == other.name and self.full_shape == other.full_shape and
             self.ctype == other.ctype)
@@ -50,9 +53,6 @@ class Type:
 
   def __repr__(self):
     return f'{pyiu.cname(self)}({self.name}, {self.full_shape}, {self.ctype})'
-
-  def __hash__(self):
-    return hash((self.name, self.full_shape, self.ctype))
 
   def new_shape(self, *shape):
     if not self.has_bits and (not shape or shape[-1] is not None):
