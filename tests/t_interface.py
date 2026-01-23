@@ -54,7 +54,8 @@ class InterfaceTest(X.Entity):
       XOUT = 0
       self.ifc.reset()
     else:
-      pass
+      self.ifc.X += 1
+      self.ifc.Y -= 1
 
 
 class TestInterface(unittest.TestCase):

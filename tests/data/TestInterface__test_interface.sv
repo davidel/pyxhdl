@@ -50,6 +50,8 @@ module InterfaceTest(CLK, RST_N, A, B, XOUT);
       MYIFC_X <= unsigned'(16'(17));
       MYIFC_Y <= unsigned'(16'(21));
     end else begin
+      MYIFC_X <= MYIFC_X + 1;
+      MYIFC_Y <= MYIFC_Y - 1;
     end
   end
 endmodule

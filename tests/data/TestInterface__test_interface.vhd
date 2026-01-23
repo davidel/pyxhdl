@@ -266,6 +266,8 @@ begin
         MYIFC1_X <= to_unsigned(17, 16);
         MYIFC1_Y <= to_unsigned(21, 16);
       else
+        MYIFC1_X <= MYIFC1_X + 1;
+        MYIFC1_Y <= MYIFC1_Y - 1;
       end if;
     end if;
   end process;
