@@ -702,14 +702,9 @@ class CodeGen(_ExecVisitor):
 
       verify_port_arg(pin, arg)
       if pin.is_ifc():
-        xargs = pin.expand_ifc(pin.name, arg)
-        pargs[pin.name] = arg
+        pargs[pin.name] = pin.ifc_view(arg)
       else:
-        xargs = ((pin, arg),)
-
-      for xpin, xarg in xargs:
-        pargs[xpin.name] = xarg.new_value(make_port_ref(xpin))
-        rkwargs.pop(xpin.name, None)
+        pargs[pin.name] = arg.new_value(make_port_ref(pin))
 
     for kwarg_name, arg in eclass.ARGS.items():
       rkwargs[kwarg_name] = rkwargs.get(kwarg_name, arg)
@@ -771,24 +766,20 @@ class CodeGen(_ExecVisitor):
       if arg is None:
         pyu.fatal(f'Missing argument "{pin.name}" for Entity "{eclass.__name__}"')
 
+      din[pin.name] = pin
       if pin.is_ifc():
-        xargs = pin.expand_ifc(pin.name, arg)
-        cargs[pin.name] = arg
+        cargs[pin.name] = pin.ifc_view(arg)
       else:
-        xargs = ((pin, arg),)
-
-      for xpin, xarg in xargs:
-        ref = make_port_ref(xpin)
-        if isinstance(xarg, Value):
-          port_arg = xarg.new_value(ref)
+        ref = make_port_ref(pin)
+        if isinstance(arg, Value):
+          port_arg = arg.new_value(ref)
         else:
-          if not isinstance(xarg, Type):
-            pyu.fatal(f'Argument must be Type at this point: {xarg}')
+          if not isinstance(arg, Type):
+            pyu.fatal(f'Argument must be Type at this point: {arg}')
 
-          port_arg = mkwire(xarg, name=ref)
+          port_arg = mkwire(arg, name=ref)
 
-        din[xpin.name] = xpin
-        cargs[xpin.name] = self.emitter.make_port_arg(port_arg)
+        cargs[pin.name] = self.emitter.make_port_arg(port_arg)
 
     for kwarg_name, arg in eclass.ARGS.items():
       rarg = kwargs.get(kwarg_name, arg)

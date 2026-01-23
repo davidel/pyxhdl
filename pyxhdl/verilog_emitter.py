@@ -656,7 +656,7 @@ class Verilog_Emitter(Emitter):
           arg = kwargs[pin.name]
 
           if pin.is_ifc():
-            xargs = pin.expand_ifc(pin.name, arg)
+            xargs = pin.ifc_expand(arg)
           else:
             xargs = ((pin, arg),)
 
@@ -684,9 +684,14 @@ class Verilog_Emitter(Emitter):
       for name, ap in ent.args.items():
         pin, arg = ap.port, ap.arg
 
-        if not pin.is_ifc():
-          pdir = 'input' if pin.is_ro() else 'output' if pin.is_wo() else 'inout'
-          ntype = self._type_of(arg.dtype).format(pin.name)
+        if pin.is_ifc():
+          xargs = pin.ifc_expand(arg)
+        else:
+          xargs = ((pin, arg),)
+
+        for xpin, xarg in xargs:
+          pdir = 'input' if xpin.is_ro() else 'output' if xpin.is_wo() else 'inout'
+          ntype = self._type_of(xarg.dtype).format(xpin.name)
 
           self._emit_line(f'{pdir} {ntype};')
 

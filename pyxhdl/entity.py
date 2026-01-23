@@ -46,12 +46,9 @@ class Entity(_CoreEntity):
         pyu.fatal(f'Missing argument "{pin.name}" for Entity "{pyiu.cname(self)}"')
 
       if pin.is_ifc():
-        xargs = pin.expand_ifc(pin.name, arg)
-      else:
-        xargs = ((pin, arg),)
+        arg = pin.ifc_view(arg)
 
-      for xpin, xarg in xargs:
-        self.args[xpin.name] = ArgPort(xarg, xpin)
+      self.args[pin.name] = ArgPort(arg, pin)
 
     for arg_name, arg in self.ARGS.items():
       self.kwargs[arg_name] = kwargs.get(arg_name, arg)

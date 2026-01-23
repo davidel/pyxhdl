@@ -54,15 +54,20 @@ class Port:
   def is_ifc(self):
     return self.idir == self.IFC
 
-  def split_ifc(self):
+  def ifc_split(self):
     ifc_class, ifc_port = pycu.separate(self.type, '.', reverse=True)
 
     return ifc_class, ifc_port
 
-  def expand_ifc(self, name, value):
-    ifc_class, ifc_port = self.split_ifc()
+  def ifc_view(self, value):
+    ifc_class, ifc_port = self.ifc_split()
 
-    return value.expand_port(name, ifc_port)
+    return value.origin.create_port_view(self.name, ifc_port)
+
+  def ifc_expand(self, value):
+    ifc_class, ifc_port = self.ifc_split()
+
+    return value.origin.expand_port(self.name, ifc_port)
 
   @classmethod
   def parse(cls, pdecl):
@@ -110,12 +115,13 @@ def make_port_ref(pin):
 def verify_port_arg(pin, arg):
   if pin.type is not None:
     if pin.is_ifc():
-      ifc_class, ifc_port = pin.split_ifc()
+      ifc_class, ifc_port = pin.ifc_split()
 
       pcls, = pymu.import_module_names(ifc_class)
 
-      if not isinstance(arg, pcls):
-        pyu.fatal(f'Invalid argument of type {pyiu.cname(arg)} when {ifc_class} is required')
+      targ = arg.origin
+      if not isinstance(targ, pcls):
+        pyu.fatal(f'Invalid argument of type {pyiu.cname(targ)} when {ifc_class} is required')
     else:
       tmatch = TypeMatcher.parse(pin.type)
       tmatch.check_value(arg, msg=f' for entity port "{pin.name}"')

@@ -539,7 +539,7 @@ class VHDL_Emitter(Emitter):
           arg = kwargs[pin.name]
 
           if pin.is_ifc():
-            xargs = pin.expand_ifc(pin.name, arg)
+            xargs = pin.ifc_expand(arg)
           else:
             xargs = ((pin, arg),)
 
@@ -570,10 +570,15 @@ class VHDL_Emitter(Emitter):
           for name, ap in ent.args.items():
             pin, arg = ap.port, ap.arg
 
-            if not pin.is_ifc():
-              pdir = 'in' if pin.is_ro() else 'out' if pin.is_wo() else 'inout'
-              ptype = self._type_of(arg.dtype)
-              port_decl = f'{pin.name} : {pdir} {ptype}'
+            if pin.is_ifc():
+              xargs = pin.ifc_expand(arg)
+            else:
+              xargs = ((pin, arg),)
+
+            for xpin, xarg in xargs:
+              pdir = 'in' if xpin.is_ro() else 'out' if xpin.is_wo() else 'inout'
+              ptype = self._type_of(xarg.dtype)
+              port_decl = f'{xpin.name} : {pdir} {ptype}'
 
               self._emit_line(port_decl if pcount == nports - 1 else port_decl + ';')
               pcount += 1
