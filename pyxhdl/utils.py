@@ -191,3 +191,7 @@ def temp_attributes(obj, **attrs):
 def lazy_import(modname):
   return importlib.import_module(f'..{modname}', package=__name__)
 
+
+def subname(*path):
+  return '_'.join(path)
+

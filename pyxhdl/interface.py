@@ -56,7 +56,7 @@ class InterfaceView(InterfaceBase):
       pyu.fatal(f'Wrong field value type (should contain a Ref): {value}')
 
     vref = vref.new_mode(vref.mode if vref.mode == Ref.RO else mode)
-    vref = vref.new_name(f'{self.name}_{name}')
+    vref = vref.new_name(subname(self.name, name))
 
     xvalue = value.new_value(vref)
 
@@ -113,7 +113,7 @@ class Interface(InterfaceBase):
     return xname[len(self._uname) + 1: ]
 
   def get_xname(self, name):
-    return f'{self._uname}_{name}'
+    return subname(self._uname, name)
 
   @hdl
   def reset(self):
@@ -142,8 +142,8 @@ class Interface(InterfaceBase):
     ports = Port.parse_list(ports_spec)
     expanded = []
     for pin in ports:
-      expanded.append((pycu.new_with(pin, name=f'{name}_{pin.name}'),
-                       getattr(self, pin.name)));
+      expanded.append((pycu.new_with(pin, name=subname(name, pin.name)),
+                       getattr(self, pin.name)))
 
     return tuple(expanded)
 
@@ -153,5 +153,4 @@ class Interface(InterfaceBase):
       udata.append(self.xlib.load(self.get_xname(name)))
 
     return udata if len(udata) != 1 else udata[0]
-
 
