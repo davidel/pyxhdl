@@ -1,5 +1,6 @@
 from .decorators import *
 from .entity import *
+from .interface import *
 from .port import *
 from .pyxhdl import *
 from .types import *
