@@ -679,21 +679,17 @@ class Verilog_Emitter(Emitter):
     if self._mod_comment:
       self.emit_comment(self._mod_comment)
 
-    self._emit_line(f'module {name}(' + ', '.join(ent.args.keys()) + ');')
+    xports = ent.expanded_ports()
+
+    self._emit_line(f'module {name}(' + ', '.join(ap.port.name for ap in xports) + ');')
     with self.indent():
-      for name, ap in ent.args.items():
+      for ap in xports:
         pin, arg = ap.port, ap.arg
 
-        if pin.is_ifc():
-          xargs = pin.ifc_expand(arg)
-        else:
-          xargs = ((pin, arg),)
+        pdir = 'input' if pin.is_ro() else 'output' if pin.is_wo() else 'inout'
+        ntype = self._type_of(arg.dtype).format(pin.name)
 
-        for xpin, xarg in xargs:
-          pdir = 'input' if xpin.is_ro() else 'output' if xpin.is_wo() else 'inout'
-          ntype = self._type_of(xarg.dtype).format(xpin.name)
-
-          self._emit_line(f'{pdir} {ntype};')
+        self._emit_line(f'{pdir} {ntype};')
 
       self._init_module_places()
 

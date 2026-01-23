@@ -119,9 +119,8 @@ def verify_port_arg(pin, arg):
 
       pcls, = pymu.import_module_names(ifc_class)
 
-      targ = arg.origin
-      if not isinstance(targ, pcls):
-        pyu.fatal(f'Invalid argument of type {pyiu.cname(targ)} when {ifc_class} is required')
+      if not isinstance(arg.origin, pcls):
+        pyu.fatal(f'Invalid argument of type {pyiu.cname(arg.origin)} when {ifc_class} is required')
     else:
       tmatch = TypeMatcher.parse(pin.type)
       tmatch.check_value(arg, msg=f' for entity port "{pin.name}"')

@@ -53,6 +53,17 @@ class Entity(_CoreEntity):
     for arg_name, arg in self.ARGS.items():
       self.kwargs[arg_name] = kwargs.get(arg_name, arg)
 
+  def expanded_ports(self):
+    xports = []
+    for name, aport in self.args.items():
+      if aport.port.is_ifc():
+        for pin, arg in aport.port.ifc_expand(aport.arg):
+          xports.append(ArgPort(arg, pin))
+      else:
+        xports.append(aport)
+
+    return tuple(xports)
+
   def enum_processes(self):
     for name, func in self.__class__.__dict__.items():
       if is_hdl_function(func):

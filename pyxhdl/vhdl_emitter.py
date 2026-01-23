@@ -566,22 +566,15 @@ class VHDL_Emitter(Emitter):
       with self.indent():
         self._emit_line(f'port (')
         with self.indent():
-          pcount, nports = 0, len(ent.args)
-          for name, ap in ent.args.items():
+          xports = ent.expanded_ports()
+          for i, ap in enumerate(xports):
             pin, arg = ap.port, ap.arg
 
-            if pin.is_ifc():
-              xargs = pin.ifc_expand(arg)
-            else:
-              xargs = ((pin, arg),)
+            pdir = 'in' if pin.is_ro() else 'out' if pin.is_wo() else 'inout'
+            ptype = self._type_of(arg.dtype)
+            port_decl = f'{pin.name} : {pdir} {ptype}'
 
-            for xpin, xarg in xargs:
-              pdir = 'in' if xpin.is_ro() else 'out' if xpin.is_wo() else 'inout'
-              ptype = self._type_of(xarg.dtype)
-              port_decl = f'{xpin.name} : {pdir} {ptype}'
-
-              self._emit_line(port_decl if pcount == nports - 1 else port_decl + ';')
-              pcount += 1
+            self._emit_line(port_decl + (';' if i + 1 < len(xports) else ''))
 
         self._emit_line(f');')
 
