@@ -742,13 +742,31 @@ class CodeGen(_ExecVisitor):
 
       return dest
 
-    sensitivity = expand(hdl_args.get('sens', dict()), dict())
+    sstmp = expand(hdl_args.get('sens', dict()), dict())
 
-    for name, sens in sensitivity.items():
-      if name not in din:
-        pyu.fatal(f'Sensitivity source is not a port: {name}')
+    sensitivity = dict()
+    for name, sens in sstmp.items():
+      m = re.match(r'(\w+)(\.(\w+))?', name)
+      if not m:
+        pyu.fatal(f'Invalid sensitivity port name: {name}')
 
-      pyu.mlog(lambda: f'Sensitivity: {name} {sens.trigger}')
+      pname, fname = m.group(1), m.group(3)
+
+      if fname:
+        pin = din.get(pname)
+        if pin is None:
+          pyu.fatal(f'Sensitivity source interface is not a port: {pname}')
+        if not pin.is_ifc():
+          pyu.fatal(f'Sensitivity source interface is not an interface: {pin}')
+
+        pname = pin.ifc_field_name(fname)
+      else:
+        if pname not in din:
+          pyu.fatal(f'Sensitivity source is not a port: {pname}')
+
+      sensitivity[pname] = sens
+
+      pyu.mlog(lambda: f'Sensitivity: {pname} {sens.trigger}')
 
     return sensitivity
 

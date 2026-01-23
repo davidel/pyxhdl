@@ -69,6 +69,9 @@ class Port:
 
     return value.origin.expand_port(self.name, ifc_port)
 
+  def ifc_field_name(self, fname):
+    return f'{self.name}_{fname}'
+
   @classmethod
   def parse(cls, pdecl):
     m = re.match(r'(=|\+|\*)?(\w+)(:([^\s]*))?$', pdecl)
