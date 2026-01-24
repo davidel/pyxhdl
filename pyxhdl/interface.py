@@ -15,16 +15,16 @@ class _InterfaceBase:
 
   def __init__(self, name, **kwargs):
     self.name = name
-    self.kwargs = kwargs
+    self.args = tuple(kwargs.keys())
     self.fields = dict()
     self.xlib = lazy_import('xlib')
+
+    for k, v in kwargs.items():
+      setattr(self, k, v)
 
   @property
   def origin(self):
     return getattr(self, 'origin_ifc', self)
-
-  def arg(self, name, defval=None):
-    return self.kwargs.get(name, defval)
 
   def __hash__(self):
     return hash(tuple((name, getattr(self, name).dtype) for name in self.fields.keys()))
@@ -48,7 +48,7 @@ class _InterfaceBase:
 class InterfaceView(_InterfaceBase):
 
   def __init__(self, origin, name):
-    super().__init__(name)
+    super().__init__(name, **{k: getattr(origin, k) for k in origin.args})
     self.origin_ifc = origin
 
   def add_field(self, name, value, mode):

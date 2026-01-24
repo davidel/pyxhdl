@@ -54,8 +54,8 @@ _OPSYMS = {
   ast.LtE: OpSym('<='),
   ast.Gt: OpSym('>'),
   ast.GtE: OpSym('>='),
-  ast.LShift: OpSym('shift_left', True),
-  ast.RShift: OpSym('shift_right', True),
+  ast.LShift: OpSym('pyxhdl.bit_shl', True),
+  ast.RShift: OpSym('pyxhdl.bit_shr', True),
 }
 
 
