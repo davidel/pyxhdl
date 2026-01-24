@@ -63,7 +63,7 @@ class Ref:
             self.vname == other.vname)
 
   def new_name(self, name, vname=None):
-    return pycu.new_with(self, name=name, vname=vname)
+    return pycu.new_with(self, name=name, vname=vname, cname=None)
 
   def new_mode(self, mode):
     return pycu.new_with(self, mode=mode)
