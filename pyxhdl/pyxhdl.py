@@ -537,7 +537,8 @@ class CodeGen(_ExecVisitor):
     if var is NONE:
       shvar = self._root_vars.get(name)
       if shvar is not None:
-        var = Value(shvar.dtype, Ref(name, vspec=shvar.vspec), isreg=shvar.isreg)
+        var = Value(shvar.dtype, Ref(name, vspec=shvar.vspec, vname=name),
+                    isreg=shvar.isreg)
       elif isinstance(ctx, ast.Load):
         pyu.fatal(f'Undefined variable: {name}')
 
