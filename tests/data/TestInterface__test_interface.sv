@@ -41,6 +41,7 @@ module InterfaceTest(CLK, RST_N, A, B, XOUT);
     .B(B),
     .IFC_X(MYIFC_X),
     .IFC_Y(MYIFC_Y),
+    .IFC_Q(A),
     .IFC_Z(MYIFC_Z)
   );
   always_ff @(posedge CLK)
@@ -50,22 +51,23 @@ module InterfaceTest(CLK, RST_N, A, B, XOUT);
       MYIFC_X <= unsigned'(16'(17));
       MYIFC_Y <= unsigned'(16'(21));
     end else begin
-      MYIFC_X <= MYIFC_X + 1;
+      MYIFC_X <= MYIFC_X + 16'(A);
       MYIFC_Y <= MYIFC_Y - 1;
     end
   end
 endmodule
 // Entity "IfcEnt" is "IfcEnt" with:
-// 	args={'A': 'uint(8)', 'B': 'uint(8)', 'IFC': 'InterfaceView(X:uint(16), Y:uint(16), Z:uint(16))'}
+// 	args={'A': 'uint(8)', 'B': 'uint(8)', 'IFC': 'InterfaceView(X:uint(16), Y:uint(16), Q:uint(8), Z:uint(16))'}
 // 	kwargs={}
-module IfcEnt(A, B, IFC_X, IFC_Y, IFC_Z);
+module IfcEnt(A, B, IFC_X, IFC_Y, IFC_Q, IFC_Z);
   input logic [7: 0] A;
   input logic [7: 0] B;
   input logic [15: 0] IFC_X;
   input logic [15: 0] IFC_Y;
+  input logic [7: 0] IFC_Q;
   output logic [15: 0] IFC_Z;
-  always @(A or B or IFC_X or IFC_Y)
+  always @(A or B or IFC_X or IFC_Y or IFC_Q)
   sensif : begin
-    IFC_Z = 16'((A & B) | (A ^ B)) | (IFC_X + IFC_Y);
+    IFC_Z = 16'((A & B) | (A ^ B)) | ((IFC_X + IFC_Y) - 16'(IFC_Q));
   end
 endmodule

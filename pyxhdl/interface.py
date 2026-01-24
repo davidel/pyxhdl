@@ -78,25 +78,25 @@ class Interface(_InterfaceBase):
       self.create_fields(fstr)
 
   def _mkvalue(self, name, value, init=None):
-    if not isinstance(value, Value):
-      if isinstance(value, Type):
-        return mkreg(value, name=name)
-      elif isinstance(value, str):
-        if init:
-          return mkvreg(dtype_from_string(value), init, name=name)
-        else:
-          return mkreg(dtype_from_string(value), name=name)
+    if isinstance(value, Type):
+      return mkreg(value, name=name)
+    elif isinstance(value, str):
+      if init:
+        return mkvreg(dtype_from_string(value), init, name=name)
       else:
-        pyu.fatal(f'Invalid interface value: {value}')
-
-    return value
+        return mkreg(dtype_from_string(value), name=name)
+    else:
+      pyu.fatal(f'Invalid interface value: {value}')
 
   def mkfield(self, name, value, init=None):
-    xname = self.get_xname(name)
+    if isinstance(value, Value) and value.name is not None:
+      xname, fvalue = value.name, value
+    else:
+      xname = subname(self._uname, name)
+      fvalue = self._mkvalue(xname, value, init=init)
 
-    fvalue = self._mkvalue(xname, value, init=init)
+      self.xlib.assign(xname, fvalue)
 
-    self.xlib.assign(xname, fvalue)
     setattr(self, name, self.xlib.load(xname))
 
     self.fields[name] = xname
@@ -107,15 +107,6 @@ class Interface(_InterfaceBase):
       ftype, *fvalue = re.split(r'\s*=\s*', fvtype, maxsplit=1)
 
       self.mkfield(name, ftype, init=fvalue[0] if fvalue else None)
-
-  def get_name(self, xname):
-    if not xname.startswith(self._uname):
-      pyu.fatal(f'Invalid external name: {xname}')
-
-    return xname[len(self._uname) + 1: ]
-
-  def get_xname(self, name):
-    return subname(self._uname, name)
 
   @hdl
   def reset(self):
@@ -148,11 +139,4 @@ class Interface(_InterfaceBase):
                        getattr(self, pin.name)))
 
     return tuple(expanded)
-
-  def unpack(self, *names):
-    udata = []
-    for name in pyu.expand_strings(*names):
-      udata.append(self.xlib.load(self.get_xname(name)))
-
-    return udata if len(udata) != 1 else udata[0]
 

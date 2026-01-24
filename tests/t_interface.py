@@ -12,11 +12,13 @@ class MyInterface(X.Interface):
 
   FIELDS = 'X:u16, Y:u16=0'
 
-  IPORT = 'X, Y, =Z'
+  IPORT = 'X, Y, Q, =Z'
 
-  def __init__(self):
+  def __init__(self, **kwargs):
     super().__init__('MYIFC')
     self.mkfield('Z', 'u16')
+    for k, v in kwargs.items():
+      self.mkfield(k, v)
 
   @X.hdl
   def reset(self):
@@ -28,12 +30,12 @@ class IfcEnt(X.Entity):
 
   PORTS = f'A, B, *IFC:{__name__}.MyInterface.IPORT'
 
-  @X.hdl_process(sens='A, B, IFC.X, IFC.Y')
+  @X.hdl_process(sens='A, B, IFC.X, IFC.Y, IFC.Q')
   def sensif(self):
     temp1 = A & B
     temp2 = A ^ B
 
-    IFC.Z = temp1 | temp2 | (IFC.X + IFC.Y)
+    IFC.Z = temp1 | temp2 | (IFC.X + IFC.Y - IFC.Q)
 
 
 class InterfaceTest(X.Entity):
@@ -42,7 +44,7 @@ class InterfaceTest(X.Entity):
 
   @X.hdl_process(kind=X.ROOT_PROCESS)
   def root(self):
-    self.ifc = MyInterface()
+    self.ifc = MyInterface(Q=A)
 
     IfcEnt(A=A,
            B=B,
@@ -54,7 +56,7 @@ class InterfaceTest(X.Entity):
       XOUT = 0
       self.ifc.reset()
     else:
-      self.ifc.X += 1
+      self.ifc.X += self.ifc.Q
       self.ifc.Y -= 1
 
 

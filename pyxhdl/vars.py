@@ -196,17 +196,17 @@ def mkvreg(dtype, value, name=None, **iargs):
 
 
 def make_ro_ref(v):
-  ref = v.ref
-  if ref is not None and ref.mode == Ref.RW:
-    return v.new_value(ref.new_mode(Ref.RO))
+  vref = v.ref
+  if vref is not None and vref.mode == Ref.RW:
+    return v.new_value(vref.new_mode(Ref.RO))
 
   return v
 
 
 def is_ro_ref(v):
-  ref = v.ref
+  vref = v.ref
 
-  return ref is not None and ref.mode == Ref.RO
+  return vref is not None and vref.mode == Ref.RO
 
 
 def has_hdl_vars(v):

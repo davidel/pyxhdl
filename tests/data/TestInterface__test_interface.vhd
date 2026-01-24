@@ -221,7 +221,7 @@ library work;
 use work.all;
 
 -- Entity "IfcEnt" is "IfcEnt" with:
--- 	args={'A': 'uint(8)', 'B': 'uint(8)', 'IFC': 'InterfaceView(X:uint(16), Y:uint(16), Z:uint(16))'}
+-- 	args={'A': 'uint(8)', 'B': 'uint(8)', 'IFC': 'InterfaceView(X:uint(16), Y:uint(16), Q:uint(8), Z:uint(16))'}
 -- 	kwargs={}
 entity IfcEnt is
   port (
@@ -229,6 +229,7 @@ entity IfcEnt is
     B : in unsigned(7 downto 0);
     IFC_X : in unsigned(15 downto 0);
     IFC_Y : in unsigned(15 downto 0);
+    IFC_Q : in unsigned(7 downto 0);
     IFC_Z : out unsigned(15 downto 0)
   );
 end entity;
@@ -256,6 +257,7 @@ begin
     B => B,
     IFC_X => MYIFC1_X,
     IFC_Y => MYIFC1_Y,
+    IFC_Q => A,
     IFC_Z => MYIFC1_Z
   );
   run : process (CLK)
@@ -266,7 +268,7 @@ begin
         MYIFC1_X <= to_unsigned(17, 16);
         MYIFC1_Y <= to_unsigned(21, 16);
       else
-        MYIFC1_X <= MYIFC1_X + 1;
+        MYIFC1_X <= MYIFC1_X + resize(A, 16);
         MYIFC1_Y <= MYIFC1_Y - 1;
       end if;
     end if;
@@ -283,12 +285,12 @@ library work;
 use work.all;
 
 -- Entity "IfcEnt" is "IfcEnt" with:
--- 	args={'A': 'uint(8)', 'B': 'uint(8)', 'IFC': 'InterfaceView(X:uint(16), Y:uint(16), Z:uint(16))'}
+-- 	args={'A': 'uint(8)', 'B': 'uint(8)', 'IFC': 'InterfaceView(X:uint(16), Y:uint(16), Q:uint(8), Z:uint(16))'}
 -- 	kwargs={}
 architecture behavior of IfcEnt is
 begin
-  sensif : process (A, B, IFC_X, IFC_Y)
+  sensif : process (A, B, IFC_X, IFC_Y, IFC_Q)
   begin
-    IFC_Z <= resize((A and B) or (A xor B), 16) or (IFC_X + IFC_Y);
+    IFC_Z <= resize((A and B) or (A xor B), 16) or ((IFC_X + IFC_Y) - resize(IFC_Q, 16));
   end process;
 end architecture;

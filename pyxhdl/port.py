@@ -126,5 +126,5 @@ class Port:
 def make_port_ref(pin):
   # The Ref constructor will assign the proper RO/RW mode according to the
   # vspec.const attribute.
-  return Ref(pin.name, vspec=VSpec(const=pin.is_ro(), port=pin))
+  return Ref(pin.name, vspec=VSpec(const=pin.is_ro(), port=pin), vname=pin.name)
 
