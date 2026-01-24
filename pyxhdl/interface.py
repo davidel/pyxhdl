@@ -11,7 +11,7 @@ from .vars import *
 from .utils import *
 
 
-class InterfaceBase:
+class _InterfaceBase:
 
   def __init__(self, name):
     self.name = name
@@ -41,7 +41,7 @@ class InterfaceBase:
     return pyiu.cname(self) + '(' + ', '.join(parts) + ')'
 
 
-class InterfaceView(InterfaceBase):
+class InterfaceView(_InterfaceBase):
 
   def __init__(self, origin, name):
     super().__init__(name)
@@ -65,7 +65,7 @@ class InterfaceView(InterfaceBase):
     self.fields.append(name)
 
 
-class Interface(InterfaceBase):
+class Interface(_InterfaceBase):
 
   _REVGEN = pycu.RevGen(fmt='{name}{ver}')
 
