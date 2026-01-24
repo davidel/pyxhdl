@@ -15,7 +15,7 @@ class _InterfaceBase:
 
   def __init__(self, name):
     self.name = name
-    self.fields = []
+    self.fields = dict()
     self.xlib = lazy_import('xlib')
 
   @property
@@ -23,20 +23,20 @@ class _InterfaceBase:
     return getattr(self, 'origin_ifc', self)
 
   def __hash__(self):
-    return hash(tuple((name, getattr(self, name).dtype) for name in self.fields))
+    return hash(tuple((name, getattr(self, name).dtype) for name in self.fields.keys()))
 
   def __eq__(self, other):
-    other_fields = set(other.fields)
-    for name in self.fields:
-      if name not in other_fields:
-        return False
+    if self.fields != other.fields:
+      return False
+
+    for name in self.fields.keys():
       if getattr(self, name).dtype != getattr(other, name).dtype:
         return False
 
-    return len(self.fields) == len(other.fields)
+    return True
 
   def __repr__(self):
-    parts = [f'{name}:{getattr(self, name).dtype}' for name in self.fields]
+    parts = [f'{name}:{getattr(self, name).dtype}' for name in self.fields.keys()]
 
     return pyiu.cname(self) + '(' + ', '.join(parts) + ')'
 
@@ -64,7 +64,7 @@ class InterfaceView(_InterfaceBase):
 
     setattr(self, name, xvalue)
 
-    self.fields.append(name)
+    self.fields[name] = xname
 
 
 class Interface(_InterfaceBase):
@@ -99,7 +99,7 @@ class Interface(_InterfaceBase):
     self.xlib.assign(xname, fvalue)
     setattr(self, name, self.xlib.load(xname))
 
-    self.fields.append(name)
+    self.fields[name] = xname
 
   def create_fields(self, fstr):
     for fs in pyu.comma_split(fstr):
