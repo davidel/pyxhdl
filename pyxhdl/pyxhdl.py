@@ -1480,3 +1480,6 @@ class CodeGen(_ExecVisitor):
 
     return pycm.CtxManager(infn, outfn)
 
+  def generate_name(self, name):
+    return self._revgen.newname(name)
+

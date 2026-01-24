@@ -92,14 +92,14 @@ class UartRX(X.Entity):
   WAIT_START = 1
   START = 2
   DATA = 3
-  STOP = 3
+  STOP = 4
 
   @X.hdl_process(sens='+IFC.CLK')
   def run(self):
     state = X.mkreg(X.UINT8)
     clk_counter = X.mkreg(X.Uint(IFC.clks_per_bit.bit_length()))
     bit_counter = X.mkreg(X.UINT8)
-    buffer = X.mkreg(IFC.RX_DATA.dtype)
+    rx_data = X.mkreg(IFC.RX_DATA.dtype)
 
     if not IFC.RST_N:
       state = self.IDLE
@@ -120,7 +120,7 @@ class UartRX(X.Entity):
             IFC.RX_READY = 0
             IFC.RX_BUSY = 1
             clk_counter = 0
-            buffer = 0
+            rx_data = 0
 
         case self.START:
           if clk_counter == IFC.clks_per_bit // 2:
@@ -133,8 +133,8 @@ class UartRX(X.Entity):
         case self.DATA:
           if clk_counter == IFC.clks_per_bit - 1:
             clk_counter = 0
-            buffer = (buffer << 1) | IFC.UIN
-            if bit_counter == buffer.dtype.nbits - 1:
+            rx_data = (rx_data << 1) | IFC.UIN
+            if bit_counter == rx_data.dtype.nbits - 1:
               state = self.STOP
             else:
               bit_counter += 1
@@ -144,8 +144,7 @@ class UartRX(X.Entity):
         case self.STOP:
           if clk_counter == IFC.clks_per_bit - 1:
             state = self.IDLE
-            # TODO: Needs bit swap!
-            IFC.RX_DATA = buffer
+            IFC.RX_DATA = XL.bit_swap(rx_data)
             IFC.RX_READY = 1
           else:
             clk_counter += 1
