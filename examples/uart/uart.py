@@ -88,25 +88,68 @@ class UartRX(X.Entity):
 
   PORTS = f'*IFC:{__name__}.UartIfc.RX'
 
+  IDLE = 0
+  WAIT_START = 1
+  START = 2
+  DATA = 3
+  STOP = 3
+
   @X.hdl_process(sens='+IFC.CLK')
   def run(self):
+    state = X.mkreg(X.UINT8)
+    clk_counter = X.mkreg(X.Uint(IFC.clks_per_bit.bit_length()))
+    bit_counter = X.mkreg(X.UINT8)
+    buffer = X.mkreg(IFC.RX_DATA.dtype)
+
     if not IFC.RST_N:
-      pass
+      state = self.IDLE
+      clk_counter = 0
+      bit_counter = 0
+      IFC.RX_READY = 0
+      IFC.RX_BUSY = 0
     else:
-      pass
+      match state:
+        case self.IDLE:
+          IFC.RX_BUSY = 0
+          if IFC.UIN == 1:
+            state = self.WAIT_START
 
+        case self.WAIT_START:
+          if IFC.UIN == 0:
+            state = self.START
+            IFC.RX_READY = 0
+            IFC.RX_BUSY = 1
+            clk_counter = 0
+            buffer = 0
 
-class UartEcho(X.Entity):
+        case self.START:
+          if clk_counter == IFC.clks_per_bit // 2:
+            state = self.DATA
+            clk_counter = 0
+            bit_counter = 0
+          else:
+            clk_counter += 1
 
-  PORTS = 'CLK, RST_N, UIN, =UOUT, CTS, =RTS'
+        case self.DATA:
+          if clk_counter == IFC.clks_per_bit - 1:
+            clk_counter = 0
+            buffer = (buffer << 1) | IFC.UIN
+            if bit_counter == buffer.dtype.nbits - 1:
+              state = self.STOP
+            else:
+              bit_counter += 1
+          else:
+            clk_counter += 1
 
-  @X.hdl_process(kind=X.ROOT_PROCESS)
-  def root(self):
-    self.uart_ifc = UartIfc(CLK, RST_N, UIN, UOUT, CTS, RTS,
-                            clk_freq=50000000,
-                            baud_rate=115200)
+        case self.STOP:
+          if clk_counter == IFC.clks_per_bit - 1:
+            state = self.IDLE
+            # TODO: Needs bit swap!
+            IFC.RX_DATA = buffer
+            IFC.RX_READY = 1
+          else:
+            clk_counter += 1
 
-    UartTX(IFC=self.axis_ifc)
-
-    UartRX(IFC=self.axis_ifc)
+        case _:
+          pass
 
