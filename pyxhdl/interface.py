@@ -13,14 +13,18 @@ from .utils import *
 
 class _InterfaceBase:
 
-  def __init__(self, name):
+  def __init__(self, name, **kwargs):
     self.name = name
+    self.kwargs = kwargs
     self.fields = dict()
     self.xlib = lazy_import('xlib')
 
   @property
   def origin(self):
     return getattr(self, 'origin_ifc', self)
+
+  def arg(self, name, defval=None):
+    return self.kwargs.get(name, defval)
 
   def __hash__(self):
     return hash(tuple((name, getattr(self, name).dtype) for name in self.fields.keys()))
@@ -71,8 +75,8 @@ class Interface(_InterfaceBase):
 
   _REVGEN = pycu.RevGen(fmt='{name}{ver}')
 
-  def __init__(self, name):
-    super().__init__(name)
+  def __init__(self, name, **kwargs):
+    super().__init__(name, **kwargs)
     self._uname = self._REVGEN.newname(name, shortzero=True)
     if fstr := getattr(self, 'FIELDS', None):
       self.create_fields(fstr)
