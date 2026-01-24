@@ -189,6 +189,17 @@ class Emitter:
 
     return place
 
+  def svalue(self, value):
+    xvalue = value.value if isinstance(value, Value) else value
+
+    mvalue = self._scalar_remap(xvalue)
+    if mvalue is not None:
+      xvalue = mvalue
+    elif not isinstance(xvalue, str):
+      xvalue = str(xvalue)
+
+    return xvalue
+
   def _emit(self, obj, placement=None):
     if placement is None:
       self._code.append(obj)

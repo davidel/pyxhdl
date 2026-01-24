@@ -77,6 +77,10 @@ class VHDL_Emitter(Emitter):
     for ln in hdr.split('\n'):
       self._emit_line(ln)
 
+  def _scalar_remap(self, value):
+    if isinstance(value, bool):
+      return 'true' if value else 'false'
+
   def _type_of(self, dtype):
     nbits, shape = dtype.nbits, dtype.array_shape
 
@@ -446,16 +450,6 @@ class VHDL_Emitter(Emitter):
     avalue = self.svalue(arg) + ''.join(f'({x})' for x in coords)
 
     return avalue, shape
-
-  def svalue(self, value):
-    xvalue = value.value if isinstance(value, Value) else value
-
-    if isinstance(xvalue, bool):
-      xvalue = 'true' if xvalue else 'false'
-    elif not isinstance(xvalue, str):
-      xvalue = str(xvalue)
-
-    return xvalue
 
   def flush(self):
     return self._load_libs() + self._expand()

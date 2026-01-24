@@ -183,6 +183,10 @@ class Verilog_Emitter(Emitter):
 
     return f'{iid}.{svmod.fnname}'
 
+  def _scalar_remap(self, value):
+    if isinstance(value, bool):
+      return '1' if value else '0'
+
   def _type_of(self, dtype):
     kind = 'logic'
     nbits, shape = dtype.nbits, dtype.array_shape
@@ -584,16 +588,6 @@ class Verilog_Emitter(Emitter):
     avalue = paren(self.svalue(arg), kind='{}') + ''.join(f'[{x}]' for x in coords)
 
     return avalue, shape
-
-  def svalue(self, value):
-    xvalue = value.value if isinstance(value, Value) else value
-
-    if isinstance(xvalue, bool):
-      xvalue = '1' if xvalue else '0'
-    elif not isinstance(xvalue, str):
-      xvalue = str(xvalue)
-
-    return xvalue
 
   def flush(self):
     xlibs = tuple(sorted(self._extra_libs))
