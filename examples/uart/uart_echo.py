@@ -10,11 +10,17 @@ class UartEcho(X.Entity):
 
   @X.hdl_process(kind=X.ROOT_PROCESS)
   def root(self):
-    self.uart_ifc = uart.UartIfc(CLK, RST_N, UIN, UOUT, CTS, RTS,
-                                 clk_freq=50000000,
-                                 baud_rate=115200)
+    self.uifc = uart.UartIfc(CLK, RST_N, UIN, UOUT, CTS, RTS,
+                             clk_freq=50000000,
+                             baud_rate=115200)
 
-    uart.UartTX(IFC=self.uart_ifc)
+    uart.UartTX(IFC=self.uifc)
+    uart.UartRX(IFC=self.uifc)
 
-    uart.UartRX(IFC=self.uart_ifc)
+  @X.hdl_process(sens='+CLK')
+  def run(self):
+    if RST_N == 1:
+      if self.uifc.RX_READY:
+        self.uifc.TX_DATA = self.uifc.RX_DATA
+        self.uifc.TX_EN = 1
 
