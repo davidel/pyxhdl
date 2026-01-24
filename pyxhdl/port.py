@@ -72,6 +72,20 @@ class Port:
   def ifc_field_name(self, fname):
     return subname(self.name, fname)
 
+  def verify_arg(self, arg):
+    if self.type is not None:
+      if self.is_ifc():
+        ifc_class, ifc_port = self.ifc_split()
+
+        pcls, = pymu.import_module_names(ifc_class)
+
+        if not isinstance(arg.origin, pcls):
+          pyu.fatal(f'Invalid argument of type {pyiu.cname(arg.origin)} ' \
+                    'when {ifc_class} is required')
+      else:
+        tmatch = TypeMatcher.parse(self.type)
+        tmatch.check_value(arg, msg=f' for entity port "{self.name}"')
+
   @classmethod
   def parse(cls, pdecl):
     m = re.match(r'(=|\+|\*)?(\w+)(:([^\s]*))?$', pdecl)
@@ -113,18 +127,4 @@ def make_port_ref(pin):
   # The Ref constructor will assign the proper RO/RW mode according to the
   # vspec.const attribute.
   return Ref(pin.name, vspec=VSpec(const=pin.is_ro(), port=pin))
-
-
-def verify_port_arg(pin, arg):
-  if pin.type is not None:
-    if pin.is_ifc():
-      ifc_class, ifc_port = pin.ifc_split()
-
-      pcls, = pymu.import_module_names(ifc_class)
-
-      if not isinstance(arg.origin, pcls):
-        pyu.fatal(f'Invalid argument of type {pyiu.cname(arg.origin)} when {ifc_class} is required')
-    else:
-      tmatch = TypeMatcher.parse(pin.type)
-      tmatch.check_value(arg, msg=f' for entity port "{pin.name}"')
 

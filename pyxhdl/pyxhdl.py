@@ -700,7 +700,7 @@ class CodeGen(_ExecVisitor):
       if arg is None:
         pyu.fatal(f'Missing entity port "{pin.name}" binding for entity {eclass.__name__}')
 
-      verify_port_arg(pin, arg)
+      pin.verify_arg(arg)
       if pin.is_ifc():
         pargs[pin.name] = pin.ifc_view(arg)
       else:
