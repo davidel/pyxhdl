@@ -4,11 +4,12 @@ from pyxhdl import xlib as XL
 
 class AxisIfc(X.Interface):
 
-  MASTER = 'RST_N, TREADY, =TDATA, =TVALID'
-  SLAVE = 'RST_N, =TREADY, TDATA, TVALID'
+  MASTER = 'CLK, RST_N, TREADY, =TDATA, =TVALID'
+  SLAVE = 'CLK, RST_N, =TREADY, TDATA, TVALID'
 
-  def __init__(self, dtype, reset):
+  def __init__(self, dtype, clk, reset):
     super().__init__('AXIS')
+    self.mkfield('CLK', clk)
     self.mkfield('RST_N', reset)
     self.mkfield('TVALID', X.BIT)
     self.mkfield('TREADY', X.BIT)
@@ -17,9 +18,9 @@ class AxisIfc(X.Interface):
 
 class AxisMaster(X.Entity):
 
-  PORTS = f'CLK, *IFC:{__name__}.AxisIfc.MASTER, WREN, DATA'
+  PORTS = f'*IFC:{__name__}.AxisIfc.MASTER, WREN, DATA'
 
-  @X.hdl_process(sens='+CLK')
+  @X.hdl_process(sens='+IFC.CLK')
   def run():
     if not IFC.RST_N:
       IFC.TVALID = 0
@@ -33,9 +34,9 @@ class AxisMaster(X.Entity):
 
 class AxisSlave(X.Entity):
 
-  PORTS = f'CLK, *IFC:{__name__}.AxisIfc.SLAVE, =RDEN, =DATA'
+  PORTS = f'*IFC:{__name__}.AxisIfc.SLAVE, =RDEN, =DATA'
 
-  @X.hdl_process(sens='+CLK')
+  @X.hdl_process(sens='+IFC.CLK')
   def run():
     if not IFC.RST_N:
       IFC.TREADY = 0
@@ -55,15 +56,13 @@ class AxisEcho(X.Entity):
 
   @X.hdl_process(kind=X.ROOT_PROCESS)
   def root(self):
-    self.axis_ifc = AxisIfc(WDATA.dtype, RST_N)
+    self.axis_ifc = AxisIfc(WDATA.dtype, CLK, RST_N)
 
-    AxisMaster(CLK=CLK,
-               IFC=self.axis_ifc,
+    AxisMaster(IFC=self.axis_ifc,
                WREN=WREN,
                DATA=WDATA)
 
-    AxisSlave(CLK=CLK,
-              IFC=self.axis_ifc,
+    AxisSlave(IFC=self.axis_ifc,
               DATA=RDATA,
               RDEN=RDEN)
 
