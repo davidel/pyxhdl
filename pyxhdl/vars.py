@@ -30,16 +30,17 @@ class VSpec:
 
 class Ref:
 
-  __slots__ = ('name', 'mode', 'vspec', 'cname')
+  __slots__ = ('name', 'mode', 'vspec', 'cname', 'vname')
 
   RW = 'RW'
   RO = 'RO'
 
-  def __init__(self, name, mode=None, vspec=None, cname=None):
+  def __init__(self, name, mode=None, vspec=None, cname=None, vname=None):
     self.name = name
     self.mode = self._mode(mode, vspec)
     self.vspec = vspec
     self.cname = cname
+    self.vname = vname
 
   @classmethod
   def _mode(cls, mode, vspec):
@@ -49,19 +50,20 @@ class Ref:
     return mode
 
   def __repr__(self):
-    rfmt = pyu.repr_fmt(self, 'name=,mode,vspec,cname')
+    rfmt = pyu.repr_fmt(self, 'name=,mode,vspec,cname,vname')
 
     return f'{pyiu.cname(self)}({rfmt})'
 
   def __hash__(self):
-    return hash((self.name, self.mode, self.vspec, self.cname))
+    return hash((self.name, self.mode, self.vspec, self.cname, self.vname))
 
   def __eq__(self, other):
     return (self.name == other.name and self.mode == other.mode and
-            self.vspec == other.vspec and self.cname == other.cname)
+            self.vspec == other.vspec and self.cname == other.cname and
+            self.vname == other.vname)
 
-  def new_name(self, name):
-    return pycu.new_with(self, name=name)
+  def new_name(self, name, vname=None):
+    return pycu.new_with(self, name=name, vname=vname)
 
   def new_mode(self, mode):
     return pycu.new_with(self, mode=mode)
@@ -122,7 +124,7 @@ class Value(ValueBase):
   @property
   def name(self):
     v = self._value
-    return v.name if isinstance(v, Ref) else None
+    return v.vname if isinstance(v, Ref) else None
 
   def __repr__(self):
     rfmt = pyu.repr_fmt(self, '_value=,dtype,isreg')
@@ -169,7 +171,8 @@ def valkind(isreg):
 def _init_value(name, iargs):
   vspec = VSpec(**(iargs or dict()))
 
-  return Ref(name, vspec=vspec, cname=name) if name is not None else Init(vspec=vspec)
+  return (Ref(name, vspec=vspec, cname=name, vname=name) if name is not None
+          else Init(vspec=vspec))
 
 
 def mkwire(dtype, name=None, **iargs):
@@ -184,6 +187,7 @@ def mkvwire(dtype, value, name=None, **iargs):
   vspec = VSpec(**(iargs or dict()))
 
   return Wire(dtype, Init(value=value, vspec=vspec, name=name))
+
 
 def mkvreg(dtype, value, name=None, **iargs):
   vspec = VSpec(**(iargs or dict()))

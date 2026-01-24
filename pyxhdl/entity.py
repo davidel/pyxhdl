@@ -53,6 +53,14 @@ class Entity(_CoreEntity):
     for arg_name, arg in self.ARGS.items():
       self.kwargs[arg_name] = kwargs.get(arg_name, arg)
 
+  def __repr__(self):
+    gargs = self.kwargs.copy()
+    gargs.update(self.args)
+
+    rstr = pyu.stri(gargs)
+
+    return pyiu.cname(self) + '(' + rstr[1: -1] + ')'
+
   def expanded_ports(self):
     xports = []
     for name, aport in self.args.items():

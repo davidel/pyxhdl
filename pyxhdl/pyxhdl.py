@@ -559,7 +559,7 @@ class CodeGen(_ExecVisitor):
 
     vname = self._revgen.newname(base_name or name, shortzero=True)
 
-    var = Value(value.dtype, Ref(vname, vspec=vspec), isreg=isreg)
+    var = Value(value.dtype, Ref(vname, vspec=vspec, vname=vname), isreg=isreg)
     self._add_variable(vname, var.dtype, var.isreg, init=init, vspec=vspec)
     self._store_value(name, var)
 

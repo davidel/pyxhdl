@@ -55,8 +55,10 @@ class InterfaceView(_InterfaceBase):
     if vref is None:
       pyu.fatal(f'Wrong field value type (should contain a Ref): {value}')
 
+    xname = subname(self.name, name)
+
     vref = vref.new_mode(vref.mode if vref.mode == Ref.RO else mode)
-    vref = vref.new_name(subname(self.name, name))
+    vref = vref.new_name(xname, vname=xname)
 
     xvalue = value.new_value(vref)
 
