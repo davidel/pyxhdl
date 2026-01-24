@@ -124,7 +124,18 @@ class Port:
 
 
 def make_port_ref(pin):
-  # The Ref constructor will assign the proper RO/RW mode according to the
-  # vspec.const attribute.
-  return Ref(pin.name, vspec=VSpec(const=pin.is_ro(), port=pin), vname=pin.name)
+  match pin.idir:
+    case Port.IN:
+      mode = Ref.RO
+
+    case Port.OUT:
+      mode = Ref.WO
+
+    case Port.INOUT:
+      mode = Ref.RW
+
+    case _:
+      pyu.fatal(f'Unrecognized Port direction: {pin.idir}')
+
+  return Ref(pin.name, mode=mode, vspec=VSpec(const=mode == Ref.RO, port=pin), vname=pin.name)
 

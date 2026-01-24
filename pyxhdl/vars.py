@@ -34,6 +34,7 @@ class Ref:
 
   RW = 'RW'
   RO = 'RO'
+  WO = 'WO'
 
   def __init__(self, name, mode=None, vspec=None, cname=None, vname=None):
     self.name = name
@@ -197,7 +198,7 @@ def mkvreg(dtype, value, name=None, **iargs):
 
 def make_ro_ref(v):
   vref = v.ref
-  if vref is not None and vref.mode == Ref.RW:
+  if vref is not None and vref.mode != Ref.RO:
     return v.new_value(vref.new_mode(Ref.RO))
 
   return v
