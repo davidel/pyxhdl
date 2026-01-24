@@ -65,6 +65,12 @@ package pyxhdl is
   function cvt_unsigned(value : in std_logic_vector; nbits : in natural) return unsigned;
   function cvt_signed(value : in std_logic_vector; nbits : in natural) return signed;
 
+  function bit_shl(value : in unsigned; nbits : in natural) return unsigned;
+  function bit_shr(value : in unsigned; nbits : in natural) return unsigned;
+
+  function bit_shl(value : in std_logic_vector; nbits : in natural) return std_logic_vector;
+  function bit_shr(value : in std_logic_vector; nbits : in natural) return std_logic_vector;
+
   function float_equal(value : in float; ref_value : in real; eps: in real) return boolean;
 end package;
 
@@ -177,6 +183,26 @@ package body pyxhdl is
   function cvt_signed(value : in std_logic_vector; nbits : in natural) return signed is
   begin
     return signed(bits_resize(value, nbits));
+  end function;
+
+  function bit_shl(value : in unsigned; nbits : in natural) return unsigned is
+  begin
+    return shift_left(value, nbits);
+  end function;
+
+  function bit_shr(value : in unsigned; nbits : in natural) return unsigned is
+  begin
+    return shift_right(value, nbits);
+  end function;
+
+  function bit_shl(value : in std_logic_vector; nbits : in natural) return std_logic_vector is
+  begin
+    return std_logic_vector(shift_left(unsigned(value), nbits));
+  end function;
+
+  function bit_shr(value : in std_logic_vector; nbits : in natural) return std_logic_vector is
+  begin
+    return std_logic_vector(shift_right(unsigned(value), nbits));
   end function;
 
   function float_equal(value : in float; ref_value : in real; eps: in real) return boolean is

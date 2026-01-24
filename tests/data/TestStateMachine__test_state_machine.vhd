@@ -65,6 +65,12 @@ package pyxhdl is
   function cvt_unsigned(value : in std_logic_vector; nbits : in natural) return unsigned;
   function cvt_signed(value : in std_logic_vector; nbits : in natural) return signed;
 
+  function bit_shl(value : in unsigned; nbits : in natural) return unsigned;
+  function bit_shr(value : in unsigned; nbits : in natural) return unsigned;
+
+  function bit_shl(value : in std_logic_vector; nbits : in natural) return std_logic_vector;
+  function bit_shr(value : in std_logic_vector; nbits : in natural) return std_logic_vector;
+
   function float_equal(value : in float; ref_value : in real; eps: in real) return boolean;
 end package;
 
@@ -179,6 +185,26 @@ package body pyxhdl is
     return signed(bits_resize(value, nbits));
   end function;
 
+  function bit_shl(value : in unsigned; nbits : in natural) return unsigned is
+  begin
+    return shift_left(value, nbits);
+  end function;
+
+  function bit_shr(value : in unsigned; nbits : in natural) return unsigned is
+  begin
+    return shift_right(value, nbits);
+  end function;
+
+  function bit_shl(value : in std_logic_vector; nbits : in natural) return std_logic_vector is
+  begin
+    return std_logic_vector(shift_left(unsigned(value), nbits));
+  end function;
+
+  function bit_shr(value : in std_logic_vector; nbits : in natural) return std_logic_vector is
+  begin
+    return std_logic_vector(shift_right(unsigned(value), nbits));
+  end function;
+
   function float_equal(value : in float; ref_value : in real; eps: in real) return boolean is
     variable xvalue : real := to_real(value);
     variable toll : real := realmax(abs(xvalue), abs(ref_value)) * eps;
@@ -250,7 +276,7 @@ begin
               RDEN <= '0';
             end if;
           when to_unsigned(2, 3) =>
-            value <= shift_left(value, 1) or pyxhdl.cvt_unsigned(BITLINE, 8);
+            value <= pyxhdl.bit_shl(value, 1) or pyxhdl.cvt_unsigned(BITLINE, 8);
             if count = to_unsigned(7, 4) then
               state <= to_unsigned(4, 3);
             else

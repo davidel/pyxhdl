@@ -65,6 +65,12 @@ package pyxhdl is
   function cvt_unsigned(value : in std_logic_vector; nbits : in natural) return unsigned;
   function cvt_signed(value : in std_logic_vector; nbits : in natural) return signed;
 
+  function bit_shl(value : in unsigned; nbits : in natural) return unsigned;
+  function bit_shr(value : in unsigned; nbits : in natural) return unsigned;
+
+  function bit_shl(value : in std_logic_vector; nbits : in natural) return std_logic_vector;
+  function bit_shr(value : in std_logic_vector; nbits : in natural) return std_logic_vector;
+
   function float_equal(value : in float; ref_value : in real; eps: in real) return boolean;
 end package;
 
@@ -179,6 +185,26 @@ package body pyxhdl is
     return signed(bits_resize(value, nbits));
   end function;
 
+  function bit_shl(value : in unsigned; nbits : in natural) return unsigned is
+  begin
+    return shift_left(value, nbits);
+  end function;
+
+  function bit_shr(value : in unsigned; nbits : in natural) return unsigned is
+  begin
+    return shift_right(value, nbits);
+  end function;
+
+  function bit_shl(value : in std_logic_vector; nbits : in natural) return std_logic_vector is
+  begin
+    return std_logic_vector(shift_left(unsigned(value), nbits));
+  end function;
+
+  function bit_shr(value : in std_logic_vector; nbits : in natural) return std_logic_vector is
+  begin
+    return std_logic_vector(shift_right(unsigned(value), nbits));
+  end function;
+
   function float_equal(value : in float; ref_value : in real; eps: in real) return boolean is
     variable xvalue : real := to_real(value);
     variable toll : real := realmax(abs(xvalue), abs(ref_value)) * eps;
@@ -233,6 +259,6 @@ begin
     mul <= resize(A * B, 8);
     div <= A / B;
     sub <= A - B;
-    XOUT <= resize((resize((((add + mul) - div) + sub) - (A mod B), 16) + (A & B)) - (shift_left((A & B), 6) xor shift_right((A & B), 6)), 8);
+    XOUT <= resize((resize((((add + mul) - div) + sub) - (A mod B), 16) + (A & B)) - (pyxhdl.bit_shl((A & B), 6) xor pyxhdl.bit_shr((A & B), 6)), 8);
   end process;
 end architecture;
