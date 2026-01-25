@@ -1,5 +1,6 @@
 import pyxhdl as X
 from pyxhdl import xlib as XL
+from pyxhdl import xutils as XU
 
 
 class UartIfc(X.Interface):
@@ -144,7 +145,7 @@ class UartRX(X.Entity):
         case self.STOP:
           if clk_counter == IFC.clks_per_bit - 1:
             state = self.IDLE
-            IFC.RX_DATA = XL.bit_swap(rx_data)
+            IFC.RX_DATA = XU.bit_swap(rx_data)
             IFC.RX_READY = 1
           else:
             clk_counter += 1
