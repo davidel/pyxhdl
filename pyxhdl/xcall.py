@@ -82,9 +82,6 @@ class _ExternalFunction:
 
       cargs.append(arg)
 
-    # It is possible to make function lookup depend not only on backend, but on inputs
-    # signature. But since VHDL (which is my main target ATM) supports function overloading,
-    # this can be handled within the VHDL library functions supplied with PyXHDL.
     fmap = self._fnmap.get(ctx.emitter.kind)
     if fmap is None:
       pyu.fatal(f'Unable to resolve function {self._fnname}() for {ctx.emitter.kind} backend')
