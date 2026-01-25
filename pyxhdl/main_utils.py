@@ -1,11 +1,18 @@
+import re
+
 import py_misc_utils.core_utils as pycu
 import py_misc_utils.utils as pyu
 
 
 def _add_inputs(inseq, gglobals, ddict):
   for ein in inseq:
-    names, expr = [t.strip() for t in ein.split('=', 1)]
-    value = eval(expr, gglobals)
+    names, expr = re.split(r'\s*=\s*', ein, maxsplit=1)
+
+    try:
+      value = eval(expr, gglobals)
+    except:
+      value = expr
+
     for name in pyu.comma_split(names):
       pycu.dict_add(ddict, name, value)
 

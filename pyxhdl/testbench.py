@@ -42,7 +42,10 @@ class _TestData:
     self._inp, self._outp = inp, outp
 
   def conf(self, *cpath, defval=None):
-    return pyu.dict_rget(self._data, ('conf',) + cpath, defval=defval)
+    return pyu.dict_rget(self._conf, cpath, defval=defval)
+
+  def setenv(self, name, value):
+    self._env[name] = value
 
   def _load(self, name, value):
     loader = self.conf('loaders', name)
@@ -83,12 +86,12 @@ _REQUIRED = _Required()
 _STD_TOLL = 1e-5
 
 _TB_ARGS = dict(
-  tb_input_file=_REQUIRED,
-  tb_wait=None,
-  tb_clock=[],
-  tb_clock_sync=None,
-  tb_write_output=False,
-  tb_toll=_STD_TOLL,
+  input_file=_REQUIRED,
+  wait=None,
+  clock=[],
+  clock_sync=None,
+  write_output=False,
+  toll=_STD_TOLL,
 )
 
 
@@ -109,15 +112,16 @@ def add_arguments(parser):
 
 def _make_args(args):
   tb_args = dict()
-  for k, v in _TB_ARGS.items():
-    av = getattr(args, k, None)
-    if av is None:
-      if v is _REQUIRED:
-        pyu.fatal(f'Missing command line argument: --{k}')
+  for name, value in _TB_ARGS.items():
+    aname = f'tb_{name}'
+    avalue = getattr(args, aname, None)
+    if avalue is None:
+      if value is _REQUIRED:
+        pyu.fatal(f'Missing command line argument: --{aname}')
       else:
-        av = v
+        avalue = value
 
-    tb_args[k] = av
+    tb_args[name] = avalue
 
   return tb_args
 
@@ -177,7 +181,7 @@ _Clock = collections.namedtuple('Clock', 'name, period')
 
 def _parse_clocks(args):
   clocks = []
-  for clk in args['tb_clock']:
+  for clk in args['clock']:
     name, period = pyu.resplit(clk, ',')
 
     clocks.append(_Clock(name=name, period=int(period)))
@@ -239,7 +243,7 @@ class TestBench(Entity):
     self._eclass = eclass
     self._inputs = inputs
     self._tbargs = args
-    self._tbdata = _TestData(args['tb_input_file'], eclass)
+    self._tbdata = _TestData(args['input_file'], eclass)
     self._clocks = _parse_clocks(args)
 
   @hdl_process(kind=INIT_PROCESS)
@@ -258,15 +262,15 @@ class TestBench(Entity):
 
   @hdl_process()
   def test(self):
-    wait = self._tbargs['tb_wait']
-    clock_sync = self._tbargs['tb_clock_sync']
+    wait = self._tbargs['wait']
+    clock_sync = self._tbargs['clock_sync']
     if clock_sync:
       clock, clock_sync = pyu.resplit(clock_sync, ',')
     else:
       clock = None
 
     write_string = (_get_write_string(self._eclass, self._inputs)
-                    if self._tbargs['tb_write_output'] else None)
+                    if self._tbargs['write_output'] else None)
 
     for data in self._tbdata:
       for dk, dv in data.inputs.items():
@@ -279,7 +283,7 @@ class TestBench(Entity):
           XL.write(wstr)
 
       for dk, dv in data.outputs.items():
-        _compare_value(XL.load(dk), dv, toll=args['tb_toll'])
+        _compare_value(XL.load(dk), dv, toll=args['toll'])
 
     XL.finish()
 
