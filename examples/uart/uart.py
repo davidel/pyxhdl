@@ -44,7 +44,7 @@ class UartTX(X.Entity):
     bit_counter = X.mkreg(X.UINT8)
     tx_data = X.mkreg(IFC.TX_DATA.dtype)
 
-    if not IFC.RST_N:
+    if IFC.RST_N != 1:
       state = self.IDLE
       clk_counter = 0
       bit_counter = 0
@@ -101,7 +101,7 @@ class UartRX(X.Entity):
     bit_counter = X.mkreg(X.UINT8)
     rx_data = X.mkreg(IFC.RX_DATA.dtype)
 
-    if not IFC.RST_N:
+    if IFC.RST_N != 1:
       state = self.IDLE
       clk_counter = 0
       bit_counter = 0
