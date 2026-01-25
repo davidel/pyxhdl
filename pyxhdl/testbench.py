@@ -21,7 +21,7 @@ from .wrap import *
 from . import xlib as XL
 
 
-_TbData = collections.namedtuple('_TbData', 'inputs, outputs, wait, wait_expr, env')
+_TbData = collections.namedtuple('TbData', 'inputs, outputs, wait, wait_expr, env')
 
 
 class _TestData:
@@ -173,9 +173,13 @@ def _repr(v, dtype):
   return v
 
 
+_Clock = collections.namedtuple('Clock', 'name, period')
+
 def _enum_clocks(args):
   for clk in args['tb_clock']:
-    yield pyu.resplit(clk, ',')
+    name, period = pyu.resplit(clk, ',')
+
+    yield _Clock(name=name, period=int(period))
 
 
 @hdl
@@ -281,15 +285,15 @@ class TestBench(Entity):
       yield pfn
 
     env = globals().copy()
-    for name, period in _enum_clocks(self.kwargs['args']):
-      alog.debug(f'Generating clock "{name}" with period {period}')
+    for clk in _enum_clocks(self.kwargs['args']):
+      alog.debug(f'Generating clock "{clk.name}" with period {clk.period}')
 
-      clock_fn, clk_name = f'clock_{name}', name
+      clock_fn, clk_name = f'clock_{clk.name}', clk.name
       scode = pytr.template_replace(textwrap.dedent(self._CLOCK_FN),
                                     vals=dict(clock_fn=clock_fn,
                                               clk_name=clk_name,
                                               sig='eclass, inputs, args',
-                                              period=period,
+                                              period=clk.period,
                                               ))
 
       pfn, = pyu.compile(scode, clock_fn, env=env)
