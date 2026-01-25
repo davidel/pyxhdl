@@ -232,7 +232,7 @@ class TestBench(Entity):
       XL.assign(pin.name, inputs[pin.name])
 
   @hdl_process(kind=ROOT_PROCESS)
-  def root(eclass, inputs, args):
+  def root(self, eclass, inputs, args):
     eargs = inputs.copy()
     for pin in eclass.PORTS:
       eargs[pin.name] = XL.xeval(f'{pin.name}')
@@ -241,7 +241,7 @@ class TestBench(Entity):
     ent = eclass(**eargs)
 
   @hdl_process()
-  def test(eclass, inputs, args):
+  def test(self, eclass, inputs, args):
     tbdata = _TestData(args['tb_input_file'], eclass)
 
     wait = args['tb_wait']
