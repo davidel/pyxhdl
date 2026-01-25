@@ -3,7 +3,6 @@ import os
 import re
 import string
 import textwrap
-import yaml
 
 import numpy as np
 
@@ -28,9 +27,7 @@ _TbData = collections.namedtuple('_TbData', 'inputs, outputs, wait, wait_expr')
 class _TestData:
 
   def __init__(self, path, eclass):
-    with open(path, mode='r') as efd:
-      self._data = yaml.load(efd, Loader=yaml.Loader)
-
+    self._data = pyu.load_config(path)
     self._conf = self._data.get('conf', dict())
     self._loaders = self._conf.get('loaders', dict())
 
@@ -147,7 +144,6 @@ def _gen_wait(data, wait, clock, clock_sync, eclass):
 
   if clock_sync == 'rising':
     XL.wait_rising(XL.load(clock))
-
   elif clock_sync == 'falling':
     XL.wait_falling(XL.load(clock))
 
@@ -291,7 +287,7 @@ class TestBench(Entity):
                                               period=period,
                                               ))
 
-      pfn = pyu.compile(scode, clock_fn, env=env)[0]
+      pfn, = pyu.compile(scode, clock_fn, env=env)
 
       # The inspect API is not able to find the source code information required
       # by the pyxhdl module when using exec(), so we need to provide them here.
