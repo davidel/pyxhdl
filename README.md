@@ -741,7 +741,7 @@ def not_in_global_context(...):
   # Otherwise the module will be registered within the active CodeGen context.
   # For anyone using the `generator` module to emit HDL code (which will be the
   # majority), there will be no difference between global and context-local registrations.
-  XL.register_module('mypkg', {X.VHDL: MY_VHDL_MODULE})
+  XL.register_module('mypkg', {'vhdl': MY_VHDL_MODULE})
 
   # Note that the 'mypkg' argument to *XL.register_module()* is just a unique ID
   # (further registrations with such ID will override the previous ones) which does
@@ -751,7 +751,7 @@ def not_in_global_context(...):
 # Versus ...
 # This will register globally. This and not_in_global_context() should not be used at
 # the same time.
-XL.register_module('mypkg', {X.VHDL: MY_VHDL_MODULE})
+XL.register_module('mypkg', {'vhdl': MY_VHDL_MODULE})
 
 # Then it is possible to define Python functions using them, like describe below.
 # Note that we we did not register the Verilog variant with the XL.register_module()
@@ -759,15 +759,15 @@ XL.register_module('mypkg', {X.VHDL: MY_VHDL_MODULE})
 # backend will fail.
 my_func = XL.create_function('my_func',
                              {
-                               X.VHDL: 'mypkg.func',
-                               X.VERILOG: 'mypkg.func',
+                               'vhdl': 'mypkg.func',
+                               'verilog: 'mypkg.func',
                              },
                              fnsig='u*, u*',
                              dtype=XL.argn_dtype(0))
 my_proc = XL.create_function('my_proc',
                              {
-                               X.VHDL: 'mypkg.proc',
-                               X.VERILOG: 'mypkg.proc',
+                               'vhdl': 'mypkg.proc',
+                               'verilog: 'mypkg.proc',
                              },
                              fnsig='u*, u*')
 
