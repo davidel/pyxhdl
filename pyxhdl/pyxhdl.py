@@ -834,7 +834,7 @@ class CodeGen(_ExecVisitor):
         # Process functions will automatically see port names as locals, so the
         # position arguments list is empty. Process functions can still have keyword
         # arguments, which will be correctly populated.
-        self.generate_process(func, [],
+        self.generate_process(func, [ent],
                               kwargs=ent_args,
                               sensitivity=sensitivity,
                               process_kind=process_kind,

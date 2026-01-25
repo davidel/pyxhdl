@@ -175,11 +175,14 @@ def _repr(v, dtype):
 
 _Clock = collections.namedtuple('Clock', 'name, period')
 
-def _enum_clocks(args):
+def _parse_clocks(args):
+  clocks = []
   for clk in args['tb_clock']:
     name, period = pyu.resplit(clk, ',')
 
-    yield _Clock(name=name, period=int(period))
+    clocks.append(_Clock(name=name, period=int(period)))
+
+  return clocks
 
 
 @hdl
@@ -231,38 +234,45 @@ class TestBench(Entity):
   PORTS = tuple()
   ARGS = dict(args=None)
 
+  def __init__(self, eclass, inputs, args, **kwargs):
+    super().__init__(**kwargs)
+    self._eclass = eclass
+    self._inputs = inputs
+    self._tbargs = args
+    self._tbdata = _TestData(args['tb_input_file'], eclass)
+    self._clocks = _parse_clocks(args)
+
   @hdl_process(kind=INIT_PROCESS)
-  def init(self, eclass, inputs, args):
-    for pin in eclass.PORTS:
+  def init(self):
+    for pin in self._eclass.PORTS:
       XL.assign(pin.name, inputs[pin.name])
 
   @hdl_process(kind=ROOT_PROCESS)
-  def root(self, eclass, inputs, args):
-    eargs = inputs.copy()
-    for pin in eclass.PORTS:
+  def root(self):
+    eargs = self._inputs.copy()
+    for pin in self._eclass.PORTS:
       eargs[pin.name] = XL.load(pin.name)
 
     # Instantiate the entity under test.
-    ent = eclass(**eargs)
+    ent = self._eclass(**eargs)
 
   @hdl_process()
-  def test(self, eclass, inputs, args):
-    tbdata = _TestData(args['tb_input_file'], eclass)
-
-    wait = args['tb_wait']
-    clock_sync = args['tb_clock_sync']
+  def test(self):
+    wait = self._tbargs['tb_wait']
+    clock_sync = self._tbargs['tb_clock_sync']
     if clock_sync:
       clock, clock_sync = pyu.resplit(clock_sync, ',')
     else:
       clock = None
 
-    write_string = _get_write_string(eclass, inputs) if args['tb_write_output'] else None
+    write_string = (_get_write_string(self._eclass, self._inputs)
+                    if self._tbargs['tb_write_output'] else None)
 
-    for data in tbdata:
+    for data in self._tbdata:
       for dk, dv in data.inputs.items():
         _assign_value(XL.load(dk), dv)
 
-      _gen_wait(data, wait, clock, clock_sync, eclass, data.env)
+      _gen_wait(data, wait, clock, clock_sync, self._eclass, data.env)
 
       if write_string is not None and (data.inputs or data.outputs):
         for wstr in write_string.split('\n'):
@@ -275,7 +285,7 @@ class TestBench(Entity):
 
   _CLOCK_FN = """
     @hdl_process()
-    def $clock_fn($sig):
+    def $clock_fn(self):
       $clk_name = not $clk_name
       XL.wait_for($period // 2)
   """
@@ -285,14 +295,13 @@ class TestBench(Entity):
       yield pfn
 
     env = globals().copy()
-    for clk in _enum_clocks(self.kwargs['args']):
+    for clk in self._clocks:
       alog.debug(f'Generating clock "{clk.name}" with period {clk.period}')
 
-      clock_fn, clk_name = f'clock_{clk.name}', clk.name
+      clock_fn = f'clock_{clk.name}'
       scode = pytr.template_replace(textwrap.dedent(self._CLOCK_FN),
                                     vals=dict(clock_fn=clock_fn,
-                                              clk_name=clk_name,
-                                              sig='eclass, inputs, args',
+                                              clk_name=clk.name,
                                               period=clk.period,
                                               ))
 
