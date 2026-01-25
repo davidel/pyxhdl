@@ -1028,6 +1028,8 @@ The *--tb_input_file* points to the input data file for the test (both *YAML*
 and *JSON* are supported), which has the following format:
 
 ```YAML
+env:
+  ENV_VAR: WAIT_MODE
 conf:
   loaders:
     - A:
@@ -1059,6 +1061,21 @@ The *testbench* works by iterating the *data* section, setting the inputs to the
 specified values, waiting according to the *_wait_expr* rule (see below for
 more options), and comparing the outputs of the module/entity with the expected
 values specified by the data.
+
+The *_wait_expr* can be any Python code, and can also be multiline, by using the
+pipe ("|") *YAML* separator. It needs to be properly indented though, example:
+
+```YAML
+  - A: 17
+    B: 21
+    XOUT: 134
+    _wait_expr: |
+      if ENV_VAR == 'WAIT_MODE':
+        XL.wait_rising(CLK)
+```
+
+Where the value of *ENV_VAR* comes from the *env* section of the *--tb_input_file*
+configuration.
 
 The wait condition can also be specified in the command line, using the *--tb_wait*
 argument. The *--tb_wait* specifies a wait time in nanoseconds. In case the

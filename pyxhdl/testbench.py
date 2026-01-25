@@ -21,7 +21,7 @@ from .wrap import *
 from . import xlib as XL
 
 
-_TbData = collections.namedtuple('_TbData', 'inputs, outputs, wait, wait_expr')
+_TbData = collections.namedtuple('_TbData', 'inputs, outputs, wait, wait_expr, env')
 
 
 class _TestData:
@@ -29,6 +29,7 @@ class _TestData:
   def __init__(self, path, eclass):
     self._data = pyu.load_config(path)
     self._conf = self._data.get('conf', dict())
+    self._env = self._data.get('env', dict())
     self._loaders = self._conf.get('loaders', dict())
 
     inp, outp = dict(), dict()
@@ -66,7 +67,11 @@ class _TestData:
       wait = data.get('_wait')
       wait_expr = data.get('_wait_expr')
 
-      yield _TbData(inputs=inputs, outputs=outputs, wait=wait, wait_expr=wait_expr)
+      yield _TbData(inputs=inputs,
+                    outputs=outputs,
+                    wait=wait,
+                    wait_expr=wait_expr,
+                    env=self._env)
 
 
 class _Required:
@@ -137,7 +142,7 @@ def _get_write_string(eclass, inputs, chunksize=5):
   return '\n'.join(writes)
 
 
-def _gen_wait(data, wait, clock, clock_sync, eclass):
+def _gen_wait(data, wait, clock, clock_sync, eclass, env):
   rwait = data.wait or wait
   if rwait:
     XL.wait_for(rwait)
@@ -149,7 +154,7 @@ def _gen_wait(data, wait, clock, clock_sync, eclass):
 
   if data.wait_expr is not None:
     wexpr = data.wait_expr.replace(';', '\n')
-    XL.xexec(wexpr)
+    XL.xexec(wexpr, **env)
 
 
 def _repr(v, dtype):
@@ -253,7 +258,7 @@ class TestBench(Entity):
       for dk, dv in data.inputs.items():
         _assign_value(XL.load(dk), dv)
 
-      _gen_wait(data, wait, clock, clock_sync, eclass)
+      _gen_wait(data, wait, clock, clock_sync, eclass, data.env)
 
       if write_string is not None and (data.inputs or data.outputs):
         for wstr in write_string.split('\n'):

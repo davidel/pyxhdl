@@ -1424,10 +1424,12 @@ class CodeGen(_ExecVisitor):
     return pytc.Context(_CGENCTX, self)
 
   def run_code(self, code, args, mode, filename=None, lineno=None):
+    dcode = textwrap.dedent(code)
+
     if filename is None:
       filename, lineno = pyiu.parent_coords()
 
-    cnode = ast.parse(code, filename=filename, mode=mode)
+    cnode = ast.parse(dcode, filename=filename, mode=mode)
     cnode.lineno = lineno
     ast.fix_missing_locations(cnode)
 
