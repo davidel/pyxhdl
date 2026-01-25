@@ -29,7 +29,7 @@ class UartEcho(X.Entity):
       state = self.IDLE
       RTS = 0
     else:
-      RTS = self.uifc.RX_BUSY
+      RTS = self.uifc.RX_BUSY or (self.uifc.RX_READY and not self.uifc.TX_BUSY)
 
       match state:
         case self.IDLE:
