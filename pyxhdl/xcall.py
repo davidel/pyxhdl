@@ -86,10 +86,7 @@ class _ExternalFunction:
     if fmap is None:
       pyu.fatal(f'Unable to resolve function {self._fnname}() for {ctx.emitter.kind} backend')
 
-    if callable(fmap):
-      fnname = fmap(ctx, cargs)
-    else:
-      fnname = fmap
+    fnname = fmap(ctx, cargs) if callable(fmap) else fmap
 
     dtype = self._dtype(cargs) if callable(self._dtype) else self._dtype
 
