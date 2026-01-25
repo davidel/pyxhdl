@@ -212,11 +212,11 @@ def _compare_value(var, value, toll=None):
     for idx in np.ndindex(shape):
       substr = ', '.join(str(x) for x in idx)
       astr = f'{var.ref.name}[{substr}]'
-      tmp = XL.xeval(astr)
+      tmp = XL.load(astr)
       if _values_differ(tmp, value[idx].item(), toll=toll):
         XL.report(f'{{NOW}} Output mismatch: {astr} = {{{astr}}} (should be {_repr(value[idx], tmp.dtype)})')
   else:
-    tmp = XL.xeval(var.ref.name)
+    tmp = XL.load(var.ref.name)
     if _values_differ(tmp, value, toll=toll):
       XL.report(f'{{NOW}} Output mismatch: {var.ref.name} = {{{var.ref.name}}} (should be {_repr(value, tmp.dtype)})')
 
@@ -235,7 +235,7 @@ class TestBench(Entity):
   def root(self, eclass, inputs, args):
     eargs = inputs.copy()
     for pin in eclass.PORTS:
-      eargs[pin.name] = XL.xeval(f'{pin.name}')
+      eargs[pin.name] = XL.load(pin.name)
 
     # Instantiate the entity under test.
     ent = eclass(**eargs)
@@ -255,7 +255,7 @@ class TestBench(Entity):
 
     for data in tbdata:
       for dk, dv in data.inputs.items():
-        _assign_value(XL.xeval(dk), dv)
+        _assign_value(XL.load(dk), dv)
 
       _gen_wait(data, wait, clock, clock_sync, eclass)
 
@@ -264,7 +264,7 @@ class TestBench(Entity):
           XL.write(wstr)
 
       for dk, dv in data.outputs.items():
-        _compare_value(XL.xeval(dk), dv, toll=args['tb_toll'])
+        _compare_value(XL.load(dk), dv, toll=args['tb_toll'])
 
     XL.finish()
 
