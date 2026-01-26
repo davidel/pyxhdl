@@ -1,6 +1,7 @@
 import pyxhdl as X
 from pyxhdl import xlib as XL
 
+import edger
 import uart
 
 
@@ -22,6 +23,15 @@ class UartEcho(X.Entity):
     uart.UartTX(IFC=self.uifc)
     uart.UartRX(IFC=self.uifc)
 
+    rxrdy_pedge = X.mkreg(self.uifc.RX_READY.dtype)
+    rxrdy_nedge = X.mkreg(self.uifc.RX_READY.dtype)
+
+    edger.Edger(CLK=CLK,
+                RST_N=RST_N,
+                DIN=self.uifc.RX_READY,
+                POUT=rxrdy_pedge,
+                NOUT=rxrdy_nedge)
+
   @X.hdl_process(sens='+CLK')
   def run(self):
     state = X.mkreg(X.UINT8)
@@ -34,7 +44,7 @@ class UartEcho(X.Entity):
 
       match state:
         case self.IDLE:
-          if CTS == 0 and self.uifc.RX_READY == 1:
+          if CTS == 0 and rxrdy_pedge:
             self.uifc.TX_DATA = self.uifc.RX_DATA
             self.uifc.TX_EN = 1
             state = self.TX_START
