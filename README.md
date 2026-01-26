@@ -228,14 +228,17 @@ The restriction is that the *CASE* values need to be constants.
 Example:
 
 ```Python
+# Somewhere defined ...
+IDLE, START, STOP = 17, 21, 34
+
 @X.hdl_process(sens='A, B')
 def tester():
   match A:
-    case 17:
+    case IDLE:
       XOUT = A + 1
-    case 21:
+    case START:
       XOUT = A + B
-    case 34:
+    case STOP:
       XOUT = A - B
     case _:
       XOUT = A * B
