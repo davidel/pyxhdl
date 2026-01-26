@@ -223,13 +223,13 @@ end architecture;
 
 *PyXHDL* uses the new Python *MATCH*/*CASE* statement to map that to the appropriate
 HDL case select construct, in order to easily code FSMs.
-The restriction is that the *CASE* values need to be constants.
+The restriction is that the *CASE* values need to be Python variables (cannot be HDL).
 
 Example:
 
 ```Python
 # Somewhere defined ...
-IDLE, START, STOP = 17, 21, 34
+IDLE, START, STOP = 1, 2, 3
 
 @X.hdl_process(sens='A, B')
 def tester():
@@ -252,11 +252,11 @@ begin
   tester : process (A, B)
   begin
     case A is
-      when to_unsigned(17, 8) =>
+      when to_unsigned(1, 8) =>
         XOUT <= A + 1;
-      when to_unsigned(21, 8) =>
+      when to_unsigned(2, 8) =>
         XOUT <= A + B;
-      when to_unsigned(34, 8) =>
+      when to_unsigned(3, 8) =>
         XOUT <= A - B;
       when others =>
         XOUT <= resize(A * B, 8);
