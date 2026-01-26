@@ -538,7 +538,6 @@ Example of simple gates composition in *PyXHDL*:
 import pyxhdl as X
 from pyxhdl import xlib as XL
 
-
 class AndGate(X.Entity):
 
   PORTS = 'A, B, =XOUT'
@@ -612,8 +611,8 @@ class UseArgsEntity(X.Entity):
 
 ## Interfaces
 
-*PyXHDL* has supports for interfaces as well, in order to group signals
-and simplify modules argument passing.
+*PyXHDL* has support for interfaces as well, in order to group signals and
+simplify modules argument passing.
 
 The interfaces within *PyXHDL* are not generated into the specific HDL
 backend ones, but are expanded at code generation time. For the user there
