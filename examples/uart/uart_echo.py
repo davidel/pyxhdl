@@ -8,6 +8,8 @@ class UartEcho(X.Entity):
 
   PORTS = 'CLK, RST_N, UIN, =UOUT, CTS, =RTS'
 
+  ARGS = dict(clk_freq=50000000, baud_rate=115200)
+
   IDLE = 0
   TX_START = 1
   TX_ACTIVE = 2
@@ -15,8 +17,7 @@ class UartEcho(X.Entity):
   @X.hdl_process(kind=X.ROOT_PROCESS)
   def root(self):
     self.uifc = uart.UartIfc(CLK, RST_N, UIN, UOUT, CTS, RTS,
-                             clk_freq=50000000,
-                             baud_rate=115200)
+                             **self.kwargs)
 
     uart.UartTX(IFC=self.uifc)
     uart.UartRX(IFC=self.uifc)
@@ -40,6 +41,7 @@ class UartEcho(X.Entity):
 
         case self.TX_START:
           if self.uifc.TX_BUSY == 1:
+            self.uifc.TX_EN = 0
             state = self.TX_ACTIVE
 
         case self.TX_ACTIVE:
