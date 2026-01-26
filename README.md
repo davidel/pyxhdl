@@ -221,6 +221,46 @@ begin
 end architecture;
 ```
 
+*PyXHDL* uses the new Python *MATCH*/*CASE* statement to map that to the appropriate
+HDL case select construct, in order to easily code FSMs.
+The restriction is that the *CASE* values need to be constants.
+
+Example:
+
+```Python
+@X.hdl_process(sens='A, B')
+def tester():
+  match A:
+    case 17:
+      XOUT = A + 1
+    case 21:
+      XOUT = A + B
+    case 34:
+      XOUT = A - B
+    case _:
+      XOUT = A * B
+```
+
+Will map to VHDL:
+
+```VHDL
+architecture behavior of MatchEnt is
+begin
+  tester : process (A, B)
+  begin
+    case A is
+      when to_unsigned(17, 8) =>
+        XOUT <= A + 1;
+      when to_unsigned(21, 8) =>
+        XOUT <= A + B;
+      when to_unsigned(34, 8) =>
+        XOUT <= A - B;
+      when others =>
+        XOUT <= resize(A * B, 8);
+    end case;
+  end process;
+end architecture;
+```
 
 ## Data Types
 
@@ -1196,47 +1236,6 @@ def my_hdl_function(a, b):
 
   return c * b
 ```
-
-*PyXHDL* uses the new Python *MATCH*/*CASE* statement to map that to the appropriate
-HDL case select construct. The *CASE* values need to be constants.
-
-Example:
-
-```Python
-@X.hdl_process(sens='A, B')
-def tester():
-  match A:
-    case 17:
-      XOUT = A + 1
-    case 21:
-      XOUT = A + B
-    case 34:
-      XOUT = A - B
-    case _:
-      XOUT = A * B
-```
-
-Will map to VHDL:
-
-```VHDL
-architecture behavior of MatchEnt is
-begin
-  tester : process (A, B)
-  begin
-    case A is
-      when to_unsigned(17, 8) =>
-        XOUT <= A + 1;
-      when to_unsigned(21, 8) =>
-        XOUT <= A + B;
-      when to_unsigned(34, 8) =>
-        XOUT <= A - B;
-      when others =>
-        XOUT <= resize(A * B, 8);
-    end case;
-  end process;
-end architecture;
-```
-
 
 ## Verifying Generated HDL Output
 
