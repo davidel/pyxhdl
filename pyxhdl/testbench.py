@@ -7,6 +7,7 @@ import textwrap
 import numpy as np
 
 import py_misc_utils.alog as alog
+import py_misc_utils.module_utils as pymu
 import py_misc_utils.template_replace as pytr
 import py_misc_utils.utils as pyu
 
@@ -21,7 +22,7 @@ from .wrap import *
 from . import xlib as XL
 
 
-_TbData = collections.namedtuple('TbData', 'inputs, outputs, wait, wait_expr, env')
+TbData = collections.namedtuple('TbData', 'inputs, outputs, wait, wait_expr, env')
 
 
 class _TestData:
@@ -70,11 +71,11 @@ class _TestData:
       wait = data.get('_wait')
       wait_expr = data.get('_wait_expr')
 
-      yield _TbData(inputs=inputs,
-                    outputs=outputs,
-                    wait=wait,
-                    wait_expr=wait_expr,
-                    env=self._env)
+      yield TbData(inputs=inputs,
+                   outputs=outputs,
+                   wait=wait,
+                   wait_expr=wait_expr,
+                   env=self._env)
 
 
 class _Required:
@@ -177,14 +178,14 @@ def _repr(v, dtype):
   return v
 
 
-_Clock = collections.namedtuple('Clock', 'name, period')
+Clock = collections.namedtuple('Clock', 'name, period')
 
 def _parse_clocks(args):
   clocks = []
   for clk in args['clock']:
     name, period = pyu.resplit(clk, ',')
 
-    clocks.append(_Clock(name=name, period=int(period)))
+    clocks.append(Clock(name=name, period=int(period)))
 
   return clocks
 
@@ -243,8 +244,19 @@ class TestBench(Entity):
     self._eclass = eclass
     self._inputs = inputs
     self._tbargs = args
-    self._tbdata = _TestData(args['input_file'], eclass)
     self._clocks = _parse_clocks(args)
+
+  def _input_data(self):
+    _, ext = os.path.splitext(self._tbargs['input_file'])
+    if ext == '.py':
+      mod = pymu.load_module(self._tbargs['input_file'])
+
+      return mod.tb_iterator(self._eclass, self._inputs, self._tbargs,
+                             clocks=self._clocks)
+    else:
+      tbdata = _TestData(self._tbargs['input_file'], self._eclass)
+
+      return tbdata
 
   @hdl_process(kind=INIT_PROCESS)
   def init(self):
@@ -272,7 +284,7 @@ class TestBench(Entity):
     write_string = (_get_write_string(self._eclass, self._inputs)
                     if self._tbargs['write_output'] else None)
 
-    for data in self._tbdata:
+    for data in self._input_data():
       for dk, dv in data.inputs.items():
         _assign_value(XL.load(dk), dv)
 
