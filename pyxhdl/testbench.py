@@ -249,14 +249,24 @@ class TestBench(Entity):
   def _input_data(self):
     _, ext = os.path.splitext(self._tbargs['input_file'])
     if ext == '.py':
+      # Inputs comes from a Python file.
       mod = pymu.load_module(self._tbargs['input_file'])
 
       return mod.tb_iterator(self._eclass, self._inputs, self._tbargs,
                              clocks=self._clocks)
-    else:
-      tbdata = _TestData(self._tbargs['input_file'], self._eclass)
 
-      return tbdata
+    m = re.match(r'(\w+(\.\w+)*):(\w+)$', self._tbargs['input_file'])
+    if m:
+      # Inputs comes from a Python module.
+      iterfn, = pymu.import_module_names(m.group(1), names=m.group(3))
+
+      return iterfn(self._eclass, self._inputs, self._tbargs,
+                    clocks=self._clocks)
+
+    # Inputs comes from a YAML/JSON data file.
+    tbdata = _TestData(self._tbargs['input_file'], self._eclass)
+
+    return tbdata
 
   @hdl_process(kind=INIT_PROCESS)
   def init(self):
