@@ -57,15 +57,13 @@ class UartTX(X.Entity):
       match state:
         case self.IDLE:
           if IFC.TX_EN:
-            if not IFC.TX_BUSY:
-              tx_data = IFC.TX_DATA
-              IFC.UOUT = 0
-              bit_counter = 0
-              IFC.TX_BUSY = 1
-              state = self.DATA
+            tx_data = IFC.TX_DATA
+            IFC.UOUT = 0
+            bit_counter = 0
+            IFC.TX_BUSY = 1
+            state = self.DATA
           else:
             IFC.TX_BUSY = 0
-            IFC.UOUT = 1
 
         case self.DATA:
           IFC.UOUT = tx_data[0]
