@@ -1,9 +1,12 @@
 
 LOG_LEVEL ?= INFO
 DATA_SOURCE ?= uart_tb.yaml
-CLK_FREQ ?= 50000000
+CLK_FREQ ?= 100000000
 BAUD_RATE ?= 115200
+NUM_TESTS ?= 100
 SOURCES = uart_echo.py ${DATA_SOURCE}
+
+CLK = $(shell expr 1000000000 / ${CLK_FREQ})
 
 TARGETS = uart_tb.vhd uart_tb.sv
 
@@ -19,8 +22,9 @@ uart_tb.vhd: ${SOURCES}
 		--inputs "CLK,RST_N,UIN,UOUT,CTS,RTS=mkvreg(BIT, 0)" \
 		--inputs clk_freq=${CLK_FREQ} \
 		--inputs baud_rate=${BAUD_RATE} \
+		--inputs num_tests=${NUM_TESTS} \
 		--testbench \
-		--tb_clock "CLK,10" \
+		--tb_clock CLK,${CLK} \
 		--tb_input_file ${DATA_SOURCE} \
 		--log_level ${LOG_LEVEL} \
 		--output_file uart_tb.vhd
@@ -33,8 +37,9 @@ uart_tb.sv: ${SOURCES}
 		--inputs "CLK,RST_N,UIN,UOUT,CTS,RTS=mkvreg(BIT, 0)" \
 		--inputs clk_freq=${CLK_FREQ} \
 		--inputs baud_rate=${BAUD_RATE} \
+		--inputs num_tests=${NUM_TESTS} \
 		--testbench \
-		--tb_clock "CLK,10" \
+		--tb_clock CLK,${CLK} \
 		--tb_input_file ${DATA_SOURCE} \
 		--log_level ${LOG_LEVEL} \
 		--output_file uart_tb.sv
