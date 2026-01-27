@@ -1,6 +1,7 @@
 
-LOGLEV = INFO
-SOURCES = uart_echo.py uart_tb.yaml
+LOG_LEVEL ?= INFO
+DATA_SOURCE ?= uart_tb.yaml
+SOURCES = uart_echo.py ${DATA_SOURCE}
 
 TARGETS = uart_tb.vhd uart_tb.sv
 
@@ -16,8 +17,8 @@ uart_tb.vhd: ${SOURCES}
 		--inputs "CLK,RST_N,UIN,UOUT,CTS,RTS=mkvreg(BIT, 0)" \
 		--testbench \
 		--tb_clock "CLK,10" \
-		--tb_input_file uart_tb.yaml \
-		--log_level ${LOGLEV} \
+		--tb_input_file ${DATA_SOURCE} \
+		--log_level ${LOG_LEVEL} \
 		--output_file uart_tb.vhd
 
 uart_tb.sv: ${SOURCES}
@@ -28,8 +29,8 @@ uart_tb.sv: ${SOURCES}
 		--inputs "CLK,RST_N,UIN,UOUT,CTS,RTS=mkvreg(BIT, 0)" \
 		--testbench \
 		--tb_clock "CLK,10" \
-		--tb_input_file uart_tb.yaml \
-		--log_level ${LOGLEV} \
+		--tb_input_file ${DATA_SOURCE} \
+		--log_level ${LOG_LEVEL} \
 		--output_file uart_tb.sv
 
 clean:
