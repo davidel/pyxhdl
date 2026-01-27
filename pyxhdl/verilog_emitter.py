@@ -491,7 +491,7 @@ class Verilog_Emitter(Emitter):
         fpcall = self._get_fpcall('to_real', NX=fspec.exp, NM=fspec.mant)
         return f'$sformatf("%e", {fpcall}({xvalue}))'
       else:
-        pyu.fatal(f'Unable to convert to real: {value.dtype}')
+        pyu.fatal(f'Unable to convert to string: {value.dtype}')
 
     return self.quote_string(xvalue)
 
