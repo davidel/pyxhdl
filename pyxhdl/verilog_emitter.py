@@ -501,7 +501,8 @@ class Verilog_Emitter(Emitter):
 
   def eval_token(self, token):
     if token == 'NOW':
-      return '$sformatf("%t", $time)'
+      time_fmt = os.getenv('TIME_FMT', '%t')
+      return f'$sformatf("{time_fmt}", $time)'
 
   def emit_finish(self):
     self.emit_code('$finish;')
