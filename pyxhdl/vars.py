@@ -10,22 +10,27 @@ from .value_base import *
 
 class VSpec:
 
-  __slots__ = ('const', 'port')
+  __slots__ = ('const', 'port', 'attributes')
 
-  def __init__(self, const=False, port=None):
+  def __init__(self, const=False, port=None, attributes=None):
     self.const = const
     self.port = port
+    self.attributes = attributes
 
   def __repr__(self):
-    rfmt = pyu.repr_fmt(self, 'const,port')
+    rfmt = pyu.repr_fmt(self, 'const,port,attributes')
 
     return f'{pyiu.cname(self)}({rfmt})'
 
   def __hash__(self):
-    return hash((self.const, self.port))
+    return hash((self.const, self.port, self.attributes))
 
   def __eq__(self, other):
-    return self.const == other.const and self.port == other.port
+    return (self.const == other.const and self.port == other.port and
+            self.attributes == other.attributes)
+
+  def for_new_variable(self):
+    return pycu.new_with(self, port=None)
 
 
 class Ref:

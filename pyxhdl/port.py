@@ -137,5 +137,5 @@ def make_port_ref(pin):
     case _:
       pyu.fatal(f'Unrecognized Port direction: {pin.idir}')
 
-  return Ref(pin.name, mode=mode, vspec=VSpec(const=mode == Ref.RO, port=pin), vname=pin.name)
+  return Ref(pin.name, mode=mode, vspec=VSpec(port=pin), vname=pin.name)
 

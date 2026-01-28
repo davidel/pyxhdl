@@ -554,9 +554,14 @@ class CodeGen(_ExecVisitor):
     else:
       init, vspec = None, None
 
-    vref = value.ref
-    if vref is not None and vref.cname is not None:
-      base_name = vref.cname
+      vref = value.ref
+      if vref is not None:
+        vspec = vref.vspec
+        if vref.cname is not None:
+          base_name = vref.cname
+
+    if vspec is not None:
+      vspec = vspec.for_new_variable()
 
     vname = self._revgen.newname(base_name or name, shortzero=True)
 
