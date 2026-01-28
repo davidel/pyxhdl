@@ -61,9 +61,9 @@ def finish():
   ctx.emitter.emit_finish()
 
 
-def wait_for(t=None):
+def wait_for(ts=None):
   ctx = CodeGen.current()
-  ctx.emitter.emit_wait_for(t=t)
+  ctx.emitter.emit_wait_for(ts=ts)
 
 
 def wait_rising(*args):

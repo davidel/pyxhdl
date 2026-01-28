@@ -1061,7 +1061,7 @@ $ python -m pyxhdl.generator \
     --output_file my_entity_tb.vhd \
     --testbench \
     --tb_input_file test/my_entity_input_data.yaml \
-    --tb_clock 'CLK,10'
+    --tb_clock 'CLK,10ns'
 ```
 
 The *--testbench* argument triggers the *testbench* module code generation.
@@ -1138,7 +1138,7 @@ The *--tb_clock* enables the generation of a clock signal, on the specified port
 For example, to generate a 10ns period clock signal on the **CLK** port:
 
 ```
---tb_clock 'CLK,10'
+--tb_clock 'CLK,10ns'
 ```
 
 A simpler version of the run above, using command line specified wait/sync
@@ -1156,7 +1156,7 @@ $ python -m pyxhdl.generator \
     --output_file my_entity_tb.vhd \
     --testbench \
     --tb_input_file test/my_entity_input_data.yaml \
-    --tb_clock 'CLK,10' \
+    --tb_clock 'CLK,10ns' \
     --tb_clock_sync 'CLK,rising'
 ```
 

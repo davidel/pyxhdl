@@ -509,7 +509,7 @@ class Verilog_Emitter(Emitter):
 
   def emit_wait_for(self, ts=None):
     if ts is not None:
-      wts, tu = self._parse_time(ts)
+      wts, tu = self._normalize_time(ts)
       self.emit_code(f'#{wts}{tu};')
     else:
       self.emit_code('forever;')

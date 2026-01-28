@@ -17,7 +17,7 @@ axis_tb.vhd: ${SOURCES}
 		--inputs "CLK,RST_N,WREN,RDEN=mkvreg(BIT, 0)" \
 		--inputs "WDATA,RDATA=mkvreg(Bits(32), 0)" \
 		--testbench \
-		--tb_clock "CLK,10" \
+		--tb_clock "CLK,10ns" \
 		--tb_input_file axis_tb.yaml \
 		--log_level ${LOGLEV} \
 		--output_file axis_tb.vhd
@@ -30,7 +30,7 @@ axis_tb.sv: ${SOURCES}
 		--inputs "CLK,RST_N,WREN,RDEN=mkvreg(BIT, 0)" \
 		--inputs "WDATA,RDATA=mkvreg(Bits(32), 0)" \
 		--testbench \
-		--tb_clock "CLK,10" \
+		--tb_clock "CLK,10ns" \
 		--tb_input_file axis_tb.yaml \
 		--log_level ${LOGLEV} \
 		--output_file axis_tb.sv
@@ -43,7 +43,7 @@ axis_tb_ifc.vhd: ${IFC_SOURCES}
 		--inputs "CLK,RST_N,WREN,RDEN=mkvreg(BIT, 0)" \
 		--inputs "WDATA,RDATA=mkvreg(Bits(32), 0)" \
 		--testbench \
-		--tb_clock "CLK,10" \
+		--tb_clock "CLK,10ns" \
 		--tb_input_file axis_tb.yaml \
 		--log_level ${LOGLEV} \
 		--output_file axis_tb_ifc.vhd
@@ -56,7 +56,7 @@ axis_tb_ifc.sv: ${IFC_SOURCES}
 		--inputs "CLK,RST_N,WREN,RDEN=mkvreg(BIT, 0)" \
 		--inputs "WDATA,RDATA=mkvreg(Bits(32), 0)" \
 		--testbench \
-		--tb_clock "CLK,10" \
+		--tb_clock "CLK,10ns" \
 		--tb_input_file axis_tb.yaml \
 		--log_level ${LOGLEV} \
 		--output_file axis_tb_ifc.sv

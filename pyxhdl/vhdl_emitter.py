@@ -370,7 +370,7 @@ class VHDL_Emitter(Emitter):
 
   def emit_wait_for(self, ts=None):
     if ts is not None:
-      wts, tu = self._parse_time(ts)
+      wts, tu = self._normalize_time(ts)
       self.emit_code(f'wait for {round(wts)} {tu};')
     else:
       self.emit_code('wait;')

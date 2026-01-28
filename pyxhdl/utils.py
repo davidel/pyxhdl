@@ -195,3 +195,21 @@ def lazy_import(modname):
 def subname(*path):
   return '_'.join(path)
 
+
+_TIME_SCALES = {'s': 1.0, 'ms': 1e3, 'us': 1e6, 'ns': 1e9, 'ps': 1e12}
+
+def scaled_time(ts, tu):
+  return ts * _TIME_SCALES[tu]
+
+
+def parse_time(ts):
+  units = '|'.join(_TIME_SCALES.keys())
+
+  m = re.match(rf'(\d+(\.(\d*))?([eE][+\-]?\d+)?)\s*({units})?$', ts)
+  if m is None:
+    pyu.fatal(f'Invalid time format: {ts}')
+
+  nts = float(m.group(1))
+
+  return nts / _TIME_SCALES[m.group(5)] if m.group(5) else nts
+

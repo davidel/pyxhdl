@@ -102,7 +102,7 @@ def add_arguments(parser):
   parser.add_argument('--tb_wait', type=int,
                       help='The amount of wait after setting the inputs, to emit the output')
   parser.add_argument('--tb_clock', type=str, action='append',
-                      help='The name and period of the clock input (NAME,PERIOD)')
+                      help='The name and period (format NUM{s,ms,us,ns,ps}) of the clock input (NAME,PERIOD)')
   parser.add_argument('--tb_clock_sync', type=str,
                       help='The edge of the clock to sync the data feed with')
   parser.add_argument('--tb_write_output', action='store_true',
@@ -185,7 +185,7 @@ def _parse_clocks(args):
   for clk in args['clock']:
     name, period = pyu.resplit(clk, ',')
 
-    clocks.append(Clock(name=name, period=int(period)))
+    clocks.append(Clock(name=name, period=parse_time(period)))
 
   return clocks
 
@@ -313,7 +313,7 @@ class TestBench(Entity):
     @hdl_process()
     def $clock_fn(self):
       $clk_name = not $clk_name
-      XL.wait_for($period // 2)
+      XL.wait_for($period / 2)
   """
 
   def enum_processes(self):
