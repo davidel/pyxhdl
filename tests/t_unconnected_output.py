@@ -32,7 +32,7 @@ class OpenOut(X.Entity):
 
 class TestUnconnectedOut(unittest.TestCase):
 
-  def test_root(self):
+  def test_unconnected_out(self):
     inputs = dict(
       A=X.mkwire(X.UINT8),
       B=X.mkwire(X.UINT8),
