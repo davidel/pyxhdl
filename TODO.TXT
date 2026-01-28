@@ -1,4 +1,3 @@
-- Allow wait_for() time to specify a time unit.
 - Allow unconnected output ports.
 - Check if we can cover Verilog "generate" functionality with bare Python.
 

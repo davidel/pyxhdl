@@ -507,9 +507,10 @@ class Verilog_Emitter(Emitter):
   def emit_finish(self):
     self.emit_code('$finish;')
 
-  def emit_wait_for(self, t=None):
-    if t is not None:
-      self.emit_code(f'#{t}{self.time_unit()};')
+  def emit_wait_for(self, ts=None):
+    if ts is not None:
+      wts, tu = self._parse_time(ts)
+      self.emit_code(f'#{wts}{tu};')
     else:
       self.emit_code('forever;')
 

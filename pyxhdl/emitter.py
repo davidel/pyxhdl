@@ -3,6 +3,7 @@ import collections
 import functools
 import inspect
 import os
+import re
 
 import py_misc_utils.alog as alog
 import py_misc_utils.context_managers as pycm
@@ -577,4 +578,20 @@ class Emitter:
 
   def time_unit(self):
     return self._cfg_lookup('TIME_UNIT', defval='ns')
+
+  def _parse_time(self, ts):
+    tu = self.time_unit()
+
+    m = re.match(r'(\d+(\.\d*))(s|ms|us|ns|ps)?$', ts)
+    if m is None:
+      pyu.fatal(f'Invalid time format: {ts}')
+
+    nts = float(m.group(1))
+
+    if (ptu := m.group(3)) and ptu != tu:
+      time_scales = {'s': 1.0, 'ms': 1e-3, 'us': 1e-6, 'ns': 1e-9, 'ps': 1e-12}
+
+      nts = nts * time_scales[ptu] / time_scales[tu]
+
+    return nts, tu
 
