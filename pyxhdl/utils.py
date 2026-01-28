@@ -197,15 +197,15 @@ def subname(*path):
 
 
 _TIME_SCALES = {'s': 1.0, 'ms': 1e3, 'us': 1e6, 'ns': 1e9, 'ps': 1e12}
+_TIME_UNITS = '|'.join(_TIME_SCALES.keys())
+_TIME_REX = re.compile(rf'([+\-]?\d+(\.(\d*))?([eE][+\-]?\d+)?)\s*({_TIME_UNITS})?$')
 
 def scaled_time(ts, tu):
   return ts * _TIME_SCALES[tu]
 
 
 def parse_time(ts):
-  units = '|'.join(_TIME_SCALES.keys())
-
-  m = re.match(rf'(\d+(\.(\d*))?([eE][+\-]?\d+)?)\s*({units})?$', ts)
+  m = _TIME_REX.match(ts)
   if m is None:
     pyu.fatal(f'Invalid time format: {ts}')
 
