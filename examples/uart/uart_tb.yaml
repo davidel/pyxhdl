@@ -1,7 +1,0 @@
-data:
-  - RST_N: 0
-    _wait_expr: XL.wait_rising(CLK)
-  - RST_N: 0
-    _wait_expr: XL.wait_rising(CLK)
-  - RST_N: 1
-    _wait_expr: XL.wait_rising(CLK)

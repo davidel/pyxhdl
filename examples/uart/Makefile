@@ -1,6 +1,6 @@
 
 LOG_LEVEL ?= INFO
-DATA_SOURCE ?= uart_tb.yaml
+DATA_SOURCE ?= tb_generator.py
 CLK_FREQ ?= 100000000
 BAUD_RATE ?= 115200
 NUM_TESTS ?= 100
