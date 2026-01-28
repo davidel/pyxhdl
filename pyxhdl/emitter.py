@@ -582,7 +582,7 @@ class Emitter:
   def _parse_time(self, ts):
     tu = self.time_unit()
 
-    m = re.match(r'(\d+(\.\d*))(s|ms|us|ns|ps)?$', ts)
+    m = re.match(r'(\d+(\.\d*))\s*(s|ms|us|ns|ps)?$', ts)
     if m is None:
       pyu.fatal(f'Invalid time format: {ts}')
 
