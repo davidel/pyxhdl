@@ -95,9 +95,12 @@ class Interface(_InterfaceBase):
 
   def _mkvalue(self, name, value, init=None):
     if isinstance(value, Type):
-      return mkreg(value, name=name)
+      if init is not None:
+        return mkvreg(value, init, name=name)
+      else:
+        return mkreg(value, name=name)
     elif isinstance(value, str):
-      if init:
+      if init is not None:
         return mkvreg(dtype_from_string(value), init, name=name)
       else:
         return mkreg(dtype_from_string(value), name=name)

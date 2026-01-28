@@ -247,7 +247,7 @@ class _ExecVisitor(_AstVisitor):
       self.locals[name] = value
 
   def _add_variable(self, name, dtype, isreg, init=None, vspec=None):
-    pyu.mlog(lambda: f'NEW VAR: {valkind(isreg)} {dtype}\t{name}')
+    pyu.mlog(lambda: f'NEW VAR: {valkind(isreg)} {dtype}\t{name}\t{init}\t{vspec}')
 
     self.variables[name] = Variable(dtype, isreg, init=init, vspec=vspec)
 

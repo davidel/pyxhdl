@@ -22,11 +22,11 @@ class UartIfc(X.Interface):
     self.mkfield('UOUT', uout)
     self.mkfield('CTS', cts)
     self.mkfield('RTS', rts)
-    self.mkfield('TX_EN', X.BIT)
-    self.mkfield('TX_BUSY', X.BIT)
+    self.mkfield('TX_EN', X.BIT, init=0)
+    self.mkfield('TX_BUSY', X.BIT, init=0)
     self.mkfield('TX_DATA', X.Bits(word_size))
-    self.mkfield('RX_BUSY', X.BIT)
-    self.mkfield('RX_READY', X.BIT)
+    self.mkfield('RX_BUSY', X.BIT, init=0)
+    self.mkfield('RX_READY', X.BIT, init=0)
     self.mkfield('RX_DATA', X.Bits(word_size))
 
 
