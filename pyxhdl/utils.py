@@ -201,7 +201,11 @@ _TIME_UNITS = '|'.join(_TIME_SCALES.keys())
 _TIME_REX = re.compile(rf'([+\-]?\d+(\.(\d*))?([eE][+\-]?\d+)?)\s*({_TIME_UNITS})?$')
 
 def scaled_time(ts, tu):
-  return ts * _TIME_SCALES[tu]
+  scale = _TIME_SCALES.get(tu.lower())
+  if scale is None:
+    pyu.fatal(f'Invalid time unit: {tu}')
+
+  return ts * scale
 
 
 def parse_time(ts):
