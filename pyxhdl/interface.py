@@ -51,7 +51,8 @@ class _InterfaceBase:
     return True
 
   def __repr__(self):
-    parts = [f'{name}:{getattr(self, name).dtype}' for name in self.fields.keys()]
+    parts = [f'{name}:{getattr(self, name)}' for name in self.args]
+    parts += [f'{name}:{getattr(self, name).dtype}' for name in self.fields.keys()]
 
     return pyiu.cname(self) + '(' + ', '.join(parts) + ')'
 
