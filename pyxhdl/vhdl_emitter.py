@@ -542,8 +542,11 @@ class VHDL_Emitter(Emitter):
             if not isinstance(xarg, Value):
               pyu.fatal(f'Argument must be a Value subclass: {xarg}')
 
-            earg = self.svalue(xarg)
-            binds.append(f'{xpin.name} => {earg}')
+            if xarg.is_none():
+              binds.append(f'{xpin.name} => open')
+            else:
+              earg = self.svalue(xarg)
+              binds.append(f'{xpin.name} => {earg}')
 
         for i, port_bind in enumerate(binds):
           self._emit_line(port_bind + ('' if i == len(binds) - 1 else ','))

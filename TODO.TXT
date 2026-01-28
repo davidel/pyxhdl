@@ -1,3 +1,0 @@
-- Allow unconnected output ports.
-- Check if we can cover Verilog "generate" functionality with bare Python.
-

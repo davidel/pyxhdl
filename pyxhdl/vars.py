@@ -127,6 +127,9 @@ class Value(ValueBase):
     v = self._value
     return v.vname if isinstance(v, Ref) else None
 
+  def is_none(self):
+    return self._value is None
+
   def __repr__(self):
     rfmt = pyu.repr_fmt(self, '_value=,dtype,isreg')
 
@@ -194,6 +197,10 @@ def mkvreg(dtype, value, name=None, **iargs):
   vspec = VSpec(**(iargs or dict()))
 
   return Register(dtype, Init(value=value, vspec=vspec, name=name))
+
+
+def mknone(dtype):
+  return Register(dtype, None)
 
 
 def make_ro_ref(v):
