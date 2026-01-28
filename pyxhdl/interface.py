@@ -15,7 +15,7 @@ class _InterfaceBase:
 
   def __init__(self, name, **kwargs):
     self.name = name
-    self.args = tuple(kwargs.keys())
+    self.args = tuple(sorted(kwargs.keys()))
     self.fields = dict()
     self.xlib = lazy_import('xlib')
 
@@ -27,11 +27,22 @@ class _InterfaceBase:
     return getattr(self, 'origin_ifc', self)
 
   def __hash__(self):
-    return hash(tuple((name, getattr(self, name).dtype) for name in self.fields.keys()))
+    hargs = tuple((getattr(self, name) for name in self.args))
+    hfields = tuple((name, getattr(self, name).dtype) for name in
+                    sorted(self.fields.keys()))
+
+    return hash(hargs + hfields)
 
   def __eq__(self, other):
+    if self.args != other.args:
+      return False
+
     if self.fields != other.fields:
       return False
+
+    for name in self.args:
+      if getattr(self, name) != getattr(other, name):
+        return False
 
     for name in self.fields.keys():
       if getattr(self, name).dtype != getattr(other, name).dtype:
