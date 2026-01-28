@@ -18,19 +18,19 @@ class ClkTrigger(X.Entity):
       count = 0
       counter = 0
     else:
-      if enabled:
+      if not EN:
+        enabled = 0
+        ACTIVE = 0
+      elif enabled:
         if not ACTIVE:
           if counter + 1 == count:
             ACTIVE = 1
           else:
             counter += 1
-      elif EN:
+      else:
         count = COUNT
         counter = 0
         enabled = 1
         if COUNT == 0:
           ACTIVE = 1
-      else:
-        enabled = 0
-        ACTIVE = 0
 
