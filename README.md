@@ -1201,6 +1201,11 @@ code to:
 
  - ...
 
+The *--tb_input_file* argument can also point to a Python file, implementing
+a *tb_iterator()* API, returning a Python iterator yielding *TbData* structures.
+For a full example, see [UART TB Generator](https://github.com/davidel/pyxhdl/blob/main/examples/uart/tb_generator.py).
+
+
 ## Less Used Features
 
 Below are briefly illustrated some less common features which are supported, with
