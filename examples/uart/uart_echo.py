@@ -37,8 +37,9 @@ class UartEcho(X.Entity):
     state = X.mkreg(X.UINT8)
 
     if RST_N != 1:
-      state = self.IDLE
+      self.uifc.TX_EN = 0
       RTS = 0
+      state = self.IDLE
     else:
       RTS = self.uifc.RX_BUSY or (self.uifc.RX_READY and not self.uifc.TX_BUSY)
 
