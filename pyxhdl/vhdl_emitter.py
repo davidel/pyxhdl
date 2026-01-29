@@ -461,6 +461,20 @@ class VHDL_Emitter(Emitter):
   def var_remap(self, var, is_store):
     return var
 
+  def _emit_attributes(self, name, varkind, attributes):
+    for aname, avalue in self._enum_attributes(attributes):
+      if isinstance(avalue, str):
+        self._emit_line(f'attribute {aname} : string;')
+        self._emit_line(f'attribute {aname} of {name} : {varkind} is "{avalue}";')
+      elif isinstance(avalue, int):
+        self._emit_line(f'attribute {aname} : integer;')
+        self._emit_line(f'attribute {aname} of {name} : {varkind} is {avalue};')
+      elif isinstance(avalue, float):
+        self._emit_line(f'attribute {aname} : real;')
+        self._emit_line(f'attribute {aname} of {name} : {varkind} is {avalue};')
+      else:
+        pyu.fatal(f'Unknown attribute type: {value}')
+
   def emit_declare_variable(self, name, var):
     vtype = self._type_of(var.dtype)
 
@@ -478,6 +492,10 @@ class VHDL_Emitter(Emitter):
       vinit = ''
 
     self._emit_line(f'{vprefix} {name} : {vtype}{vinit};')
+
+    vspec = var.vspec
+    if vspec is not None and vspec.attributes is not None:
+      self._emit_attributes(name, vprefix, vspec.attributes)
 
   def emit_assign(self, var, name, value):
     xvalue = self._cast(value, var.dtype)

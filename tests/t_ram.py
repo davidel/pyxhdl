@@ -14,9 +14,20 @@ class RamTest(X.Entity):
 
   ARGS = dict(RAM_SIZE=None)
 
+  RAM_ATTRIBUTES = {
+    '$common': {
+      'ram_style': 'block',
+    },
+    'vhdl': {
+    },
+    'verilog': {
+    }
+  }
+
   @X.hdl_process(sens='+CLK')
-  def run():
-    mem = X.mkreg(X.mkarray(IN_DATA.dtype, RAM_SIZE))
+  def run(self):
+    mem = X.mkreg(X.mkarray(IN_DATA.dtype, RAM_SIZE),
+                  attributes=self.RAM_ATTRIBUTES)
 
     if not RST_N:
       OUT_DATA = 0

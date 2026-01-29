@@ -584,3 +584,10 @@ class Emitter:
 
     return scaled_time(ts, tu), tu
 
+  def _enum_attributes(self, attributes):
+    for aname in ('$common', self.kind):
+      attrs = attributes.get(aname)
+      if attrs is not None:
+        for name, value in attrs.items():
+          yield name, value
+

@@ -35,6 +35,7 @@ module RamTest(CLK, RST_N, RDEN, WREN, ADDR, IN_DATA, OUT_DATA);
   input logic [11: 0] ADDR;
   input logic [15: 0] IN_DATA;
   output logic [15: 0] OUT_DATA;
+  (* ram_style = "block" *)
   logic [15: 0] mem[3072];
   always_ff @(posedge CLK)
   run : begin

@@ -253,6 +253,8 @@ use work.all;
 -- 	kwargs={RAM_SIZE=3072}
 architecture behavior of RamTest is
   signal mem : pyxhdl.bits_array1d(0 to 3071)(15 downto 0);
+  attribute ram_style : string;
+  attribute ram_style of mem : signal is "block";
 begin
   run : process (CLK)
   begin

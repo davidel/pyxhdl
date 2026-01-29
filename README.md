@@ -265,6 +265,7 @@ begin
 end architecture;
 ```
 
+
 ## Data Types
 
 The types supported by *PyXHDL* are *Uint* (unsigned integer), *Sint* (signed integer),
@@ -609,6 +610,7 @@ class UseArgsEntity(X.Entity):
     ...
 ```
 
+
 ## Interfaces
 
 *PyXHDL* has support for interfaces as well, in order to group signals and
@@ -740,6 +742,92 @@ module IfcEnt(IFC_CLK, IFC_RST_N, IFC_X, IFC_Y, IFC_XOUT, A);
       IFC_XOUT <= (16'(A * IFC_X) + IFC_Y) - 17;
       IFC_X <= IFC_X + 1;
       IFC_Y <= IFC_Y + 2;
+    end
+  end
+endmodule
+```
+
+
+## Attributes
+
+*PyXHDL* allows the user to specify the equivalent of VHDL and Verilog
+attributes, when creating new objects. Example:
+
+```Python
+class BlockRam(X.Entity):
+
+  PORTS = 'CLK, RST_N, RDEN, WREN, ADDR, IN_DATA, =OUT_DATA'
+
+  ARGS = dict(RAM_SIZE=None)
+
+  RAM_ATTRIBUTES = {
+    '$common': {
+      'ram_style': 'block',
+    },
+    'vhdl': {
+    },
+    'verilog': {
+    }
+  }
+
+  @X.hdl_process(sens='+CLK')
+  def run(self):
+    mem = X.mkreg(X.mkarray(IN_DATA.dtype, RAM_SIZE),
+                  attributes=self.RAM_ATTRIBUTES)
+
+    if not RST_N:
+      OUT_DATA = 0
+    else:
+      if WREN:
+        mem[ADDR] = IN_DATA
+      elif RDEN:
+        OUT_DATA = mem[ADDR]
+```
+
+The above Python code generates the following VHDL:
+
+```VHDL
+architecture behavior of BlockRam is
+  signal mem : pyxhdl.bits_array1d(0 to 3071)(15 downto 0);
+  attribute ram_style : string;
+  attribute ram_style of mem : signal is "block";
+begin
+  run : process (CLK)
+  begin
+    if rising_edge(CLK) then
+      if (not RST_N) /= '0' then
+        OUT_DATA <= std_logic_vector(to_unsigned(0, 16));
+      elsif WREN /= '0' then
+        mem(to_integer(unsigned(ADDR))) <= IN_DATA;
+      elsif RDEN /= '0' then
+        OUT_DATA <= mem(to_integer(unsigned(ADDR)));
+      end if;
+    end if;
+  end process;
+end architecture;
+```
+
+And the following Verilog:
+
+```Verilog
+module BlockRam(CLK, RST_N, RDEN, WREN, ADDR, IN_DATA, OUT_DATA);
+  input logic CLK;
+  input logic RST_N;
+  input logic RDEN;
+  input logic WREN;
+  input logic [11: 0] ADDR;
+  input logic [15: 0] IN_DATA;
+  output logic [15: 0] OUT_DATA;
+  (* ram_style = "block" *)
+  logic [15: 0] mem[3072];
+  always_ff @(posedge CLK)
+  run : begin
+    if (&(!RST_N)) begin
+      OUT_DATA <= unsigned'(16'(0));
+    end else if (&WREN) begin
+      mem[int'(ADDR)] <= IN_DATA;
+    end else if (&RDEN) begin
+      OUT_DATA <= mem[int'(ADDR)];
     end
   end
 endmodule

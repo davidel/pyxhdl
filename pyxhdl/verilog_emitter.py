@@ -602,6 +602,17 @@ class Verilog_Emitter(Emitter):
   def var_remap(self, var, is_store):
     return var
 
+  def _emit_attributes(self, attributes):
+    attrs = []
+    for aname, avalue in self._enum_attributes(attributes):
+      if isinstance(avalue, str):
+        attrs.append(f'{aname} = "{avalue}"')
+      else:
+        attrs.append(f'{aname} = {avalue}')
+
+    if attrs:
+      self._emit_line('(* ' + ', '.join(attrs) + ' *)')
+
   def emit_declare_variable(self, name, var):
     if var.is_const():
       vprefix, is_const = 'const ', True
@@ -615,6 +626,10 @@ class Verilog_Emitter(Emitter):
         vprefix = f'static {vprefix}'
 
     ntype = self._type_of(var.dtype).format(name)
+
+    vspec = var.vspec
+    if vspec is not None and vspec.attributes is not None:
+      self._emit_attributes(vspec.attributes)
 
     self._emit_line(f'{vprefix}{ntype}{vinit};')
 
