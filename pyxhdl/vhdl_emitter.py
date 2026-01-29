@@ -68,6 +68,7 @@ class VHDL_Emitter(Emitter):
     self.eol = ';'
     self._arch = self._cfg.get('entity_arch', 'behavior')
     self._mod_comment = None
+    self._mod_attributes = dict()
     self._proc_indent = 0
     self.module_vars_place = self.emit_placement()
     self._entity_place = self.emit_placement()
@@ -462,15 +463,24 @@ class VHDL_Emitter(Emitter):
     return var
 
   def _emit_attributes(self, name, varkind, attributes):
+    def declare_attr(aname, atype):
+      rtype = self._mod_attributes.get(aname)
+      if rtype is None:
+        self._mod_attributes[aname] = atype
+        self._emit_line(f'attribute {aname} : {atype};')
+      elif atype != rtype:
+        pyu.fatal(f'Attribute {aname} was {rtype} before, not {atype}')
+
+
     for aname, avalue in self._enum_attributes(attributes):
       if isinstance(avalue, str):
-        self._emit_line(f'attribute {aname} : string;')
+        declare_attr(aname, 'string')
         self._emit_line(f'attribute {aname} of {name} : {varkind} is "{avalue}";')
       elif isinstance(avalue, int):
-        self._emit_line(f'attribute {aname} : integer;')
+        declare_attr(aname, 'integer')
         self._emit_line(f'attribute {aname} of {name} : {varkind} is {avalue};')
       elif isinstance(avalue, float):
-        self._emit_line(f'attribute {aname} : real;')
+        declare_attr(aname, 'real')
         self._emit_line(f'attribute {aname} of {name} : {varkind} is {avalue};')
       else:
         pyu.fatal(f'Unknown attribute type: {value}')
@@ -612,6 +622,7 @@ class VHDL_Emitter(Emitter):
     self._emit_line(f'end architecture;')
 
     self._mod_comment = None
+    self._mod_attributes = dict()
 
   def emit_process_decl(self, name, sensitivity=None, process_kind=None,
                         process_args=None):
