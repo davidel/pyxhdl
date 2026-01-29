@@ -469,7 +469,7 @@ class VHDL_Emitter(Emitter):
         self._mod_attributes[aname] = atype
         self._emit_line(f'attribute {aname} : {atype};')
       elif atype != rtype:
-        pyu.fatal(f'Attribute {aname} was {rtype} before, not {atype}')
+        pyu.fatal(f'Attribute {aname} was {rtype} before, now {atype}')
 
 
     for aname, avalue in self._enum_attributes(attributes):
