@@ -43,7 +43,7 @@ class Entity(_CoreEntity):
     for pin in self.PORTS:
       arg = kwargs.get(pin.name)
       if arg is None:
-        pyu.fatal(f'Missing argument "{pin.name}" for Entity "{pyiu.cname(self)}"')
+        fatal(f'Missing argument "{pin.name}" for Entity "{pyiu.cname(self)}"')
 
       if pin.is_ifc():
         arg = pin.ifc_view(arg)

@@ -118,7 +118,7 @@ def _make_args(args):
     avalue = getattr(args, aname, None)
     if avalue is None:
       if value is _REQUIRED:
-        pyu.fatal(f'Missing command line argument: --{aname}')
+        fatal(f'Missing command line argument: --{aname}')
       else:
         avalue = value
 
@@ -196,7 +196,7 @@ def _assign_value(var, value):
   if isinstance(value, np.ndarray):
     shape = var.dtype.array_shape
     if tuple(shape) != tuple(value.shape):
-      pyu.fatal(f'Wrong shape for "{var.ref.name}": {tuple(shape)} vs {tuple(value.shape)}')
+      fatal(f'Wrong shape for "{var.ref.name}": {tuple(shape)} vs {tuple(value.shape)}')
 
     for idx in np.ndindex(shape):
       substr = ', '.join(str(x) for x in idx)
@@ -220,7 +220,7 @@ def _compare_value(var, value, toll=None):
   if isinstance(value, np.ndarray):
     shape = var.dtype.array_shape
     if tuple(shape) != tuple(value.shape):
-      pyu.fatal(f'Wrong shape for "{var.ref.name}": {tuple(shape)} vs {tuple(value.shape)}')
+      fatal(f'Wrong shape for "{var.ref.name}": {tuple(shape)} vs {tuple(value.shape)}')
 
     for idx in np.ndindex(shape):
       substr = ', '.join(str(x) for x in idx)

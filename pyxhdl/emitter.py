@@ -131,7 +131,7 @@ class Emitter:
   def create(cls, name, **kwargs):
     eclass = cls._BACKEND_REGISTRY.get(name)
     if eclass is None:
-      pyu.fatal(f'Unknown emitter: {name}')
+      fatal(f'Unknown emitter: {name}')
 
     return eclass(**kwargs)
 
@@ -141,7 +141,7 @@ class Emitter:
       mdict = dest[kind]
       if mid in mdict:
         if replace is False:
-          pyu.fatal(f'Module "{mid}" already registered')
+          fatal(f'Module "{mid}" already registered')
         else:
           alog.info(f'Module "{mid}" already registered, overriding!')
 
@@ -162,8 +162,8 @@ class Emitter:
     fspecs = self._cfg.get('float_specs', _FLOAT_SPECS)
     fspec = fspecs.get(dtype.nbits)
     if fspec is None:
-      pyu.fatal(f'Unknown floating point spec: {dtype.nbits} bits',
-                exc=TypeError)
+      fatal(f'Unknown floating point spec: {dtype.nbits} bits',
+            exc=TypeError)
 
     return fspec
 
@@ -248,7 +248,7 @@ class Emitter:
       nbits = int(m.group(2))
       ivalue = ast.literal_eval(m.group(3))
       if not isinstance(ivalue, int):
-        pyu.fatal(f'Invalid literal value: {value}')
+        fatal(f'Invalid literal value: {value}')
 
       if m.group(1) == 'u':
         dtype = Uint(nbits)
@@ -266,8 +266,8 @@ class Emitter:
   def _best_type(self, cur, new, type_prec):
     nprec = type_prec.get(type(new))
     if nprec is None:
-      pyu.fatal(f'Unsupported type {pyiu.cname(new)} ... should be ' \
-                f'{tuple(pyiu.cname(x) for x in type_prec.keys())}')
+      fatal(f'Unsupported type {pyiu.cname(new)} ... should be ' \
+            f'{tuple(pyiu.cname(x) for x in type_prec.keys())}')
 
     if cur is not None:
       cprec = type_prec[type(cur)]
@@ -344,7 +344,7 @@ class Emitter:
         rdtype = Integer()
         right = Value(rdtype, self._cast(right, rdtype))
     elif type(right) != int:
-      pyu.fatal(f'Shift amount should be an integer: {right}')
+      fatal(f'Shift amount should be an integer: {right}')
     if not isinstance(left, Value):
       left = self._try_convert_literal(arg)
       if not isinstance(left, Value):
@@ -376,7 +376,7 @@ class Emitter:
         ytype = type(arg)
         yind = ctype_allowed.get(ytype, -1)
         if yind < 0:
-          pyu.fatal(f'Type {ytype} not allowed, should be one of {ctype_allowed.keys()}')
+          fatal(f'Type {ytype} not allowed, should be one of {ctype_allowed.keys()}')
         if ctype is None or ctype_allowed[ctype] > yind:
           ctype = ytype
 
@@ -387,7 +387,7 @@ class Emitter:
       elif ctype == int:
         dtype = Integer()
       else:
-        pyu.fatal(f'Unknown type: {ctype}')
+        fatal(f'Unknown type: {ctype}')
 
     for i, arg in enumerate(cargs):
       if isinstance(arg, Value):
@@ -409,7 +409,7 @@ class Emitter:
       v = os.getenv(f'PYXHDL_{k}')
       if v is None:
         if defval is None:
-          pyu.fatal(f'Missing configuration: {k}')
+          fatal(f'Missing configuration: {k}')
         else:
           v = defval
 
@@ -572,7 +572,7 @@ class Emitter:
     elif tclass in (Bool, Integer, Real):
       dtype = tclass()
     else:
-      pyu.fatal(f'Unsupported class "{pyiu.cname(tclass)}" while converting "{value}"')
+      fatal(f'Unsupported class "{pyiu.cname(tclass)}" while converting "{value}"')
 
     return self.cast(value, dtype)
 

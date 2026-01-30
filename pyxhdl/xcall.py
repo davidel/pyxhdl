@@ -3,6 +3,7 @@ import py_misc_utils.utils as pyu
 
 from .pyxhdl import *
 from .types import *
+from .utils import *
 from .vars import *
 
 
@@ -37,8 +38,8 @@ class _Marshal:
       dtype = self._get_tclass_dtype(tclass, arg.dtype)
       if dtype is None:
         if not isinstance(arg.dtype, tclass):
-          pyu.fatal(f'Wrong type for argument {self._argno} of {self._fnname}() ' \
-                    f'call: {pyiu.cname(tclass)} vs {pyiu.cname(arg.dtype)}')
+          fatal(f'Wrong type for argument {self._argno} of {self._fnname}() ' \
+                f'call: {pyiu.cname(tclass)} vs {pyiu.cname(arg.dtype)}')
       else:
         arg = ctx.emitter.cast(arg, dtype)
     else:
@@ -100,7 +101,7 @@ class _ExternalFunction:
 
     fmap = self._fnmap.get(ctx.emitter.kind)
     if fmap is None:
-      pyu.fatal(f'Unable to resolve function {self._fnname}() for {ctx.emitter.kind} backend')
+      fatal(f'Unable to resolve function {self._fnname}() for {ctx.emitter.kind} backend')
 
     fnname = fmap(ctx, cargs) if callable(fmap) else fmap
 

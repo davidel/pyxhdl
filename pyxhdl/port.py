@@ -81,8 +81,8 @@ class Port:
         pcls, = pymu.import_module_names(ifc_class)
 
         if not isinstance(arg.origin, pcls):
-          pyu.fatal(f'Invalid argument of type {pyiu.cname(arg.origin)} ' \
-                    'when {ifc_class} is required')
+          fatal(f'Invalid argument of type {pyiu.cname(arg.origin)} ' \
+                'when {ifc_class} is required')
       else:
         tmatch = TypeMatcher.parse(self.type)
         tmatch.check_value(arg, msg=f' for entity port "{self.name}"')
@@ -91,7 +91,7 @@ class Port:
   def parse(cls, pdecl):
     m = re.match(r'(=|\+|\*)?(\w+)(:([^\s]*))?(\s*=\s*(\w+))?$', pdecl)
     if not m:
-      pyu.fatal(f'Unrecognized port format: {pdecl}')
+      fatal(f'Unrecognized port format: {pdecl}')
 
     match m.group(1):
       case '=':
@@ -111,7 +111,7 @@ class Port:
   def parse_list(cls, cports):
     if isinstance(cports, (list, tuple)):
       if not all(isinstance(p, cls) for p in cports):
-        pyu.fatal(f'Unrecognized port value: {cports}')
+        fatal(f'Unrecognized port value: {cports}')
 
       return tuple(cports)
     elif isinstance(cports, str):
@@ -121,7 +121,7 @@ class Port:
 
       return tuple(ports)
     else:
-      pyu.fatal(f'Unrecognized ports value: {cports}')
+      fatal(f'Unrecognized ports value: {cports}')
 
 
 def make_port_ref(pin):
@@ -136,7 +136,7 @@ def make_port_ref(pin):
       mode = Ref.RW
 
     case _:
-      pyu.fatal(f'Unrecognized Port direction: {pin.idir}')
+      fatal(f'Unrecognized Port direction: {pin.idir}')
 
   return Ref(pin.name, mode=mode, vspec=VSpec(port=pin), vname=pin.name)
 

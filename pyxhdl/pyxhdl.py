@@ -366,7 +366,7 @@ class _ExecVisitor(_AstVisitor):
     elif vindex < len(tmp_names):
       rvname = tmp_names[vindex]
     else:
-      pyu.fatal(f'Value index out of range: {vindex} vs {len(tmp_names)}')
+      fatal(f'Value index out of range: {vindex} vs {len(tmp_names)}')
 
     var = self.load_var(rvname, ctx=ast.Store())
     if var is NONE and isinstance(value, Value):
@@ -382,7 +382,7 @@ class _ExecVisitor(_AstVisitor):
       with self.emitter.placement(retval.placement):
         vsig = pycu.signature(retval.value)
         if sig is not None and not pycu.equal_signature(sig, vsig):
-          pyu.fatal(f'Return values signature mismatch: {vsig} vs. {sig}')
+          fatal(f'Return values signature mismatch: {vsig} vs. {sig}')
 
         sig = vsig
 
@@ -540,7 +540,7 @@ class CodeGen(_ExecVisitor):
         var = Value(shvar.dtype, Ref(name, vspec=shvar.vspec, vname=name),
                     isreg=shvar.isreg)
       elif isinstance(ctx, ast.Load):
-        pyu.fatal(f'Undefined variable: {name}')
+        fatal(f'Undefined variable: {name}')
 
     return self.emitter.var_remap(var, isinstance(ctx, ast.Store))
 
@@ -582,7 +582,7 @@ class CodeGen(_ExecVisitor):
         pyu.mlog(lambda: f'ASSIGN CREATE: {name} is {value.dtype}')
     else:
       if is_ro_ref(var):
-        pyu.fatal(f'{var.name} is read-only')
+        fatal(f'{var.name} is read-only')
 
       self.emitter.emit_assign(var, name, value)
 
@@ -692,7 +692,7 @@ class CodeGen(_ExecVisitor):
         shv = self._root_vars.get(name)
         if shv is not None:
           if shv != var:
-            pyu.fatal(f'Root variable declaration mismatch: {pyu.stri(var)} vs. {pyu.stri(shv)}')
+            fatal(f'Root variable declaration mismatch: {pyu.stri(var)} vs. {pyu.stri(shv)}')
         else:
           pyu.mlog(lambda: f'ROOT VARIABLE: {valkind(var.isreg)} {var.dtype} {name}')
           emt.emit_declare_variable(name, var)
@@ -704,7 +704,7 @@ class CodeGen(_ExecVisitor):
     for pin in eclass.PORTS:
       arg = rkwargs.pop(pin.name, None)
       if arg is None:
-        pyu.fatal(f'Missing entity port "{pin.name}" binding for entity {eclass.__name__}')
+        fatal(f'Missing entity port "{pin.name}" binding for entity {eclass.__name__}')
 
       pin.verify_arg(arg)
       if pin.is_ifc():
@@ -754,21 +754,21 @@ class CodeGen(_ExecVisitor):
     for name, sens in sstmp.items():
       m = re.match(r'(\w+)(\.(\w+))?', name)
       if not m:
-        pyu.fatal(f'Invalid sensitivity port name: {name}')
+        fatal(f'Invalid sensitivity port name: {name}')
 
       pname, fname = m.group(1), m.group(3)
 
       if fname:
         pin = din.get(pname)
         if pin is None:
-          pyu.fatal(f'Sensitivity source interface is not a port: {pname}')
+          fatal(f'Sensitivity source interface is not a port: {pname}')
         if not pin.is_ifc():
-          pyu.fatal(f'Sensitivity source interface is not an interface: {pin}')
+          fatal(f'Sensitivity source interface is not an interface: {pin}')
 
         pname = pin.ifc_field_name(fname)
       else:
         if pname not in din:
-          pyu.fatal(f'Sensitivity source is not a port: {pname}')
+          fatal(f'Sensitivity source is not a port: {pname}')
 
       sensitivity[pname] = sens
 
@@ -788,7 +788,7 @@ class CodeGen(_ExecVisitor):
 
       arg = kwargs.pop(pin.name, None)
       if arg is None:
-        pyu.fatal(f'Missing argument "{pin.name}" for Entity "{eclass.__name__}"')
+        fatal(f'Missing argument "{pin.name}" for Entity "{eclass.__name__}"')
 
       din[pin.name] = pin
       if pin.is_ifc():
@@ -799,7 +799,7 @@ class CodeGen(_ExecVisitor):
           port_arg = arg.new_value(ref)
         else:
           if not isinstance(arg, Type):
-            pyu.fatal(f'Argument must be Type at this point: {arg}')
+            fatal(f'Argument must be Type at this point: {arg}')
 
           port_arg = mkwire(arg, name=ref)
 
@@ -1026,7 +1026,7 @@ class CodeGen(_ExecVisitor):
         kwargs[kwarg.arg] = self._prepare_call_arg(kwval)
       else:
         if not pycu.isdict(kwval):
-          pyu.fatal(f'Wrong type: {type(kwval)}')
+          fatal(f'Wrong type: {type(kwval)}')
 
         for name, value in kwval.items():
           kwargs[name] = self._prepare_call_arg(value)
@@ -1060,11 +1060,11 @@ class CodeGen(_ExecVisitor):
       result = getattr(value, node.attr)
     elif isinstance(node.ctx, ast.Store):
       if isinstance(value, Value) and is_ro_ref(value):
-        pyu.fatal(f'{value.name} is read-only')
+        fatal(f'{value.name} is read-only')
 
       result = _Storer(self._attr_storefn(value, node.attr))
     else:
-      pyu.fatal(f'Unknown subscript context type: {asu.dump(node.ctx)}')
+      fatal(f'Unknown subscript context type: {asu.dump(node.ctx)}')
 
     self.push_result(result)
 
@@ -1076,7 +1076,7 @@ class CodeGen(_ExecVisitor):
   def visit_Subscript(self, node):
     value = self._load_subs_attr(node.value, node.ctx)
     if isinstance(value, Value) and isinstance(node.ctx, ast.Store) and is_ro_ref(value):
-      pyu.fatal(f'{value.name} is read-only')
+      fatal(f'{value.name} is read-only')
 
     sv = self.eval_node(node.slice)
     if isinstance(value, Value):
@@ -1086,7 +1086,7 @@ class CodeGen(_ExecVisitor):
     elif isinstance(node.ctx, ast.Store):
       result = _Storer(subscript_setter(value, sv))
     else:
-      pyu.fatal(f'Unknown subscript context type: {asu.dump(node.ctx)}')
+      fatal(f'Unknown subscript context type: {asu.dump(node.ctx)}')
 
     self.push_result(result)
 
@@ -1095,7 +1095,7 @@ class CodeGen(_ExecVisitor):
     upper = self.eval_node(node.upper) if node.upper is not None else None
     step = self.eval_node(node.step) if node.step is not None else None
     if has_hdl_vars((upper, step)):
-      pyu.fatal(f'Slice cannot have HDL arguments: {asu.dump(node)}')
+      fatal(f'Slice cannot have HDL arguments: {asu.dump(node)}')
 
     self.push_result(slice(lower, upper, step))
 
@@ -1177,7 +1177,7 @@ class CodeGen(_ExecVisitor):
       parts = self._get_format_parts(msg, dict()) if msg else None
       self.emitter.emit_Assert(test, parts)
     elif not test:
-      pyu.fatal(msg, exc=AssertionError)
+      fatal(msg, exc=AssertionError)
 
   def visit_Module(self, node):
     # This handler simply dive into inner nodes by calling the AST Visitor
@@ -1260,7 +1260,7 @@ class CodeGen(_ExecVisitor):
     while True:
       test = self.eval_node(node.test)
       if has_hdl_vars(test):
-        pyu.fatal(f'While test cannot have HDL vars: {asu.dump(node.test)}')
+        fatal(f'While test cannot have HDL vars: {asu.dump(node.test)}')
 
       if test:
         got_break = False
@@ -1447,7 +1447,7 @@ class CodeGen(_ExecVisitor):
       with self._eval_locals(args):
         return self.eval_node(cnode)
     else:
-      pyu.fatal(f'Invalid mode: {mode}')
+      fatal(f'Invalid mode: {mode}')
 
   def flush(self):
     self._flush_generation()

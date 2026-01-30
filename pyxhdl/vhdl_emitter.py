@@ -117,7 +117,7 @@ class VHDL_Emitter(Emitter):
       else:
         return f'float({fspec.exp} downto {-fspec.mant})'
 
-    pyu.fatal(f'Unknown type: {dtype}', exc=TypeError)
+    fatal(f'Unknown type: {dtype}', exc=TypeError)
 
   def _resize_bits(self, value, nbits):
     if value.dtype.nbits == nbits:
@@ -256,7 +256,7 @@ class VHDL_Emitter(Emitter):
       elif isinstance(value.dtype, Real):
         return f'integer({self.svalue(value)})'
       else:
-        pyu.fatal(f'Unable to convert to integer: {value.dtype}')
+        fatal(f'Unable to convert to integer: {value.dtype}')
 
     return str(value) if isinstance(value, int) else f'integer({value})'
 
@@ -271,7 +271,7 @@ class VHDL_Emitter(Emitter):
       elif isinstance(value.dtype, Integer):
         return f'real({self.svalue(value)})'
       else:
-        pyu.fatal(f'Unable to convert to real: {value.dtype}')
+        fatal(f'Unable to convert to real: {value.dtype}')
 
     return str(value) if isinstance(value, float) else f'real({value})'
 
@@ -291,7 +291,7 @@ class VHDL_Emitter(Emitter):
     if isinstance(dtype, Real):
       return self._to_real(value, dtype)
 
-    pyu.fatal(f'Unknown type: {dtype}')
+    fatal(f'Unknown type: {dtype}')
 
   def _do_cast(self, value, dtype):
     if not isinstance(value, Value):
@@ -300,7 +300,7 @@ class VHDL_Emitter(Emitter):
     if isinstance(value, np.ndarray):
       shape = dtype.array_shape
       if shape != tuple(value.shape):
-        pyu.fatal(f'Shape mismatch: {tuple(value.shape)} vs. {shape}')
+        fatal(f'Shape mismatch: {tuple(value.shape)} vs. {shape}')
 
       element_type = dtype.element_type()
       parts = []
@@ -311,7 +311,7 @@ class VHDL_Emitter(Emitter):
     elif isinstance(value, Value) and value.dtype.array_shape:
       shape, vshape = dtype.array_shape, value.dtype.array_shape
       if shape != vshape:
-        pyu.fatal(f'Shape mismatch: {vshape} vs. {shape}')
+        fatal(f'Shape mismatch: {vshape} vs. {shape}')
 
       element_type = dtype.element_type()
       velement_type = value.dtype.element_type()
@@ -399,16 +399,16 @@ class VHDL_Emitter(Emitter):
 
     ashape = arg.dtype.shape
     if len(idx) > len(ashape):
-      pyu.fatal(f'Wrong indexing for shape: {idx} vs. {ashape}')
+      fatal(f'Wrong indexing for shape: {idx} vs. {ashape}')
 
     shape, coords = [], []
     for i, ix in enumerate(idx):
       if isinstance(ix, slice):
         if isinstance(ix.start, Value):
           if ix.stop is not None:
-            pyu.fatal(f'Variable part select ({arg} [{i}]) slice stop must be empty: {ix.stop}')
+            fatal(f'Variable part select ({arg} [{i}]) slice stop must be empty: {ix.stop}')
           if ix.step > ashape[i]:
-            pyu.fatal(f'Variable part select ({arg} [{i}]) is too big: {ix.step} ({ashape[i]})')
+            fatal(f'Variable part select ({arg} [{i}]) is too big: {ix.step} ({ashape[i]})')
 
           base = self._to_integer(ix.start, Integer())
 
@@ -422,11 +422,11 @@ class VHDL_Emitter(Emitter):
           step = ix.step if ix.step is not None else 1
 
           if abs(step) != 1:
-            pyu.fatal(f'Slice step must be 1: {step}')
+            fatal(f'Slice step must be 1: {step}')
 
           start, stop = pycu.norm_slice(ix.start, ix.stop, ashape[i])
           if start < 0 or start >= ashape[i] or stop < 0 or stop > ashape[i]:
-            pyu.fatal(f'Slice ({arg} [{i}]) is out of bounds: {start} ... {stop} ({ashape[i]})')
+            fatal(f'Slice ({arg} [{i}]) is out of bounds: {start} ... {stop} ({ashape[i]})')
 
           if step == 1:
             if i == len(ashape) - 1:
@@ -469,7 +469,7 @@ class VHDL_Emitter(Emitter):
         self._mod_attributes[aname] = atype
         self._emit_line(f'attribute {aname} : {atype};')
       elif atype != rtype:
-        pyu.fatal(f'Attribute {aname} was {rtype} before, now {atype}')
+        fatal(f'Attribute {aname} was {rtype} before, now {atype}')
 
 
     for aname, avalue in self._enum_attributes(attributes):
@@ -483,7 +483,7 @@ class VHDL_Emitter(Emitter):
         declare_attr(aname, 'real')
         self._emit_line(f'attribute {aname} of {name} : {varkind} is {avalue};')
       else:
-        pyu.fatal(f'Unknown attribute type: {value}')
+        fatal(f'Unknown attribute type: {value}')
 
   def emit_declare_variable(self, name, var):
     vtype = self._type_of(var.dtype)
@@ -517,9 +517,9 @@ class VHDL_Emitter(Emitter):
     if delay is not None or trans is True:
       # Delays apply only to signals, not registers ...
       if var.isreg is False:
-        pyu.fatal(f'Cannot use delay/trans on wires: {var}')
+        fatal(f'Cannot use delay/trans on wires: {var}')
       if self._proc.kind == ROOT_PROCESS:
-        pyu.fatal(f'Cannot use delay/trans within a root process: {var}')
+        fatal(f'Cannot use delay/trans within a root process: {var}')
 
       if delay is not None:
         xdelay = f' after {self.svalue(delay)} {self.time_unit()}'
@@ -568,7 +568,7 @@ class VHDL_Emitter(Emitter):
 
           for xpin, xarg in xargs:
             if not isinstance(xarg, Value):
-              pyu.fatal(f'Argument must be a Value subclass: {xarg}')
+              fatal(f'Argument must be a Value subclass: {xarg}')
 
             if xarg.is_none():
               binds.append(f'{xpin.name} => open')
@@ -759,7 +759,7 @@ class VHDL_Emitter(Emitter):
 
       return Value(dtype, self._build_op(op, xleft, xright))
     else:
-      pyu.fatal(f'Unsupported operation: {op}')
+      fatal(f'Unsupported operation: {op}')
 
   def eval_UnaryOp(self, op, arg):
     xvalue = self.svalue(arg)
@@ -774,7 +774,7 @@ class VHDL_Emitter(Emitter):
     elif isinstance(op, (ast.Not, ast.Invert)):
       result = f'not {paren(xvalue)}'
     else:
-      pyu.fatal(f'Unsupported operation: {op}')
+      fatal(f'Unsupported operation: {op}')
 
     return Value(arg.dtype, result)
 
@@ -788,7 +788,7 @@ class VHDL_Emitter(Emitter):
     elif isinstance(op, ast.Or):
       result = self._paren_join(' or ', xargs)
     else:
-      pyu.fatal(f'Unsupported operation: {op}')
+      fatal(f'Unsupported operation: {op}')
 
     return Value(BOOL, result)
 
@@ -826,7 +826,7 @@ class VHDL_Emitter(Emitter):
   # Extension functions.
   def eval_is_nan(self, value):
     if not isinstance(value.dtype, Float):
-      pyu.fatal(f'Unsupported type: {value.dtype}')
+      fatal(f'Unsupported type: {value.dtype}')
 
     result = f'Isnan({self.svalue(value)})'
 
@@ -834,7 +834,7 @@ class VHDL_Emitter(Emitter):
 
   def eval_is_inf(self, value):
     if not isinstance(value.dtype, Float):
-      pyu.fatal(f'Unsupported type: {value.dtype}')
+      fatal(f'Unsupported type: {value.dtype}')
 
     result = f'not Finite({self.svalue(value)})'
 

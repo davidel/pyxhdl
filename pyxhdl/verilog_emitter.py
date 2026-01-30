@@ -177,7 +177,7 @@ class Verilog_Emitter(Emitter):
     fn_map = pyu.dict_rget(self._cfg, 'verilog/fpu_fnmap', defval=_FPU_FNMAP)
     svmod = fn_map.get(fnname)
     if svmod is None:
-      pyu.fatal(f'Unable to find configuration for FPU function: {fnname}')
+      fatal(f'Unable to find configuration for FPU function: {fnname}')
 
     iid = self._iface_id(svmod.mod, **kwargs)
 
@@ -224,7 +224,7 @@ class Verilog_Emitter(Emitter):
       else:
         return f'{kind} [{nfbits - 1}: 0] {{}}'
 
-    pyu.fatal(f'Unknown type: {dtype}', exc=TypeError)
+    fatal(f'Unknown type: {dtype}', exc=TypeError)
 
   def _resize_bits(self, value, nbits):
     if value.dtype.nbits == nbits:
@@ -275,7 +275,7 @@ class Verilog_Emitter(Emitter):
         xvalue = f'{dtype.nbits}\'({self.svalue(value)})'
         return f'signed\'({xvalue})' if signed else xvalue
       else:
-        pyu.fatal(f'Unknown type: {value.dtype}', exc=TypeError)
+        fatal(f'Unknown type: {value.dtype}', exc=TypeError)
 
     if isinstance(value, str):
       value = ast.literal_eval(value)
@@ -387,7 +387,7 @@ class Verilog_Emitter(Emitter):
       elif isinstance(value.dtype, Real):
         return f'int\'({self.svalue(value)})'
       else:
-        pyu.fatal(f'Unable to convert to integer: {value.dtype}')
+        fatal(f'Unable to convert to integer: {value.dtype}')
 
     return str(value) if isinstance(value, int) else f'int\'({value})'
 
@@ -402,7 +402,7 @@ class Verilog_Emitter(Emitter):
         fpcall = self._get_fpcall('to_real', NX=fspec.exp, NM=fspec.mant)
         return f'{fpcall}({self.svalue(value)})'
       else:
-        pyu.fatal(f'Unable to convert to real: {value.dtype}')
+        fatal(f'Unable to convert to real: {value.dtype}')
 
     return str(value) if isinstance(value, float) else f'real\'({value})'
 
@@ -422,7 +422,7 @@ class Verilog_Emitter(Emitter):
     if isinstance(dtype, Real):
       return self._to_real(value, dtype)
 
-    pyu.fatal(f'Unknown type: {dtype}')
+    fatal(f'Unknown type: {dtype}')
 
   def _do_cast(self, value, dtype):
     if not isinstance(value, Value):
@@ -431,7 +431,7 @@ class Verilog_Emitter(Emitter):
     if isinstance(value, np.ndarray):
       shape = dtype.array_shape
       if shape != tuple(value.shape):
-        pyu.fatal(f'Shape mismatch: {tuple(value.shape)} vs. {shape}')
+        fatal(f'Shape mismatch: {tuple(value.shape)} vs. {shape}')
 
       element_type = dtype.element_type()
       parts = []
@@ -442,7 +442,7 @@ class Verilog_Emitter(Emitter):
     elif isinstance(value, Value) and value.dtype.array_shape:
       shape, vshape = dtype.array_shape, value.dtype.array_shape
       if shape != vshape:
-        pyu.fatal(f'Shape mismatch: {vshape} vs. {shape}')
+        fatal(f'Shape mismatch: {vshape} vs. {shape}')
 
       element_type = dtype.element_type()
       velement_type = value.dtype.element_type()
@@ -491,7 +491,7 @@ class Verilog_Emitter(Emitter):
         fpcall = self._get_fpcall('to_real', NX=fspec.exp, NM=fspec.mant)
         return f'$sformatf("%e", {fpcall}({xvalue}))'
       else:
-        pyu.fatal(f'Unable to convert to string: {value.dtype}')
+        fatal(f'Unable to convert to string: {value.dtype}')
 
     return self.quote_string(xvalue)
 
@@ -537,16 +537,16 @@ class Verilog_Emitter(Emitter):
 
     ashape = arg.dtype.shape
     if len(idx) > len(ashape):
-      pyu.fatal(f'Wrong indexing for shape: {idx} vs. {ashape}')
+      fatal(f'Wrong indexing for shape: {idx} vs. {ashape}')
 
     shape, coords = [], []
     for i, ix in enumerate(idx):
       if isinstance(ix, slice):
         if isinstance(ix.start, Value):
           if ix.stop is not None:
-            pyu.fatal(f'Variable part select ({arg} [{i}]) slice stop must be empty: {ix.stop}')
+            fatal(f'Variable part select ({arg} [{i}]) slice stop must be empty: {ix.stop}')
           if ix.step > ashape[i]:
-            pyu.fatal(f'Variable part select ({arg} [{i}]) is too big: {ix.step} ({ashape[i]})')
+            fatal(f'Variable part select ({arg} [{i}]) is too big: {ix.step} ({ashape[i]})')
 
           base = self._to_integer(ix.start, Integer())
 
@@ -560,11 +560,11 @@ class Verilog_Emitter(Emitter):
           step = ix.step if ix.step is not None else 1
 
           if abs(step) != 1:
-            pyu.fatal(f'Slice step must be 1: {step}')
+            fatal(f'Slice step must be 1: {step}')
 
           start, stop = pycu.norm_slice(ix.start, ix.stop, ashape[i])
           if start < 0 or start >= ashape[i] or stop < 0 or stop > ashape[i]:
-            pyu.fatal(f'Slice ({arg} [{i}]) is out of bounds: {start} ... {stop} ({ashape[i]})')
+            fatal(f'Slice ({arg} [{i}]) is out of bounds: {start} ... {stop} ({ashape[i]})')
 
           if step == 1:
             if i == len(ashape) - 1:
@@ -673,7 +673,7 @@ class Verilog_Emitter(Emitter):
 
           for xpin, xarg in xargs:
             if not isinstance(xarg, Value):
-              pyu.fatal(f'Argument must be a Value subclass: {xarg}')
+              fatal(f'Argument must be a Value subclass: {xarg}')
 
             if xarg.is_none():
               binds.append(f'.{xpin.name}()')
@@ -724,7 +724,7 @@ class Verilog_Emitter(Emitter):
 
     if process_kind == INIT_PROCESS:
       if sensitivity:
-        pyu.fatal(f'Sensitivity list not allowed in init process')
+        fatal(f'Sensitivity list not allowed in init process')
 
       self._emit_line('initial')
     elif sensitivity:
@@ -863,7 +863,7 @@ class Verilog_Emitter(Emitter):
 
       return Value(dtype, f'{{{xleft}, {xright}}}')
     else:
-      pyu.fatal(f'Unsupported operation: {op}')
+      fatal(f'Unsupported operation: {op}')
 
   def eval_UnaryOp(self, op, arg):
     xvalue = self.svalue(arg)
@@ -880,7 +880,7 @@ class Verilog_Emitter(Emitter):
           fpcall = self._get_fpcall('neg', NX=fspec.exp, NM=fspec.mant)
           result = f'{fpcall}({xvalue})'
         else:
-          pyu.fatal(f'Unsupported operation for type {arg.dtype}: {op}')
+          fatal(f'Unsupported operation for type {arg.dtype}: {op}')
       else:
         if isinstance(op, ast.USub):
           result = f'-{paren(xvalue)}'
@@ -889,7 +889,7 @@ class Verilog_Emitter(Emitter):
         elif isinstance(op, ast.Invert):
           result = f'~{paren(xvalue)}'
         else:
-          pyu.fatal(f'Unsupported operation for type {arg.dtype}: {op}')
+          fatal(f'Unsupported operation for type {arg.dtype}: {op}')
 
     return Value(arg.dtype, result)
 
@@ -903,7 +903,7 @@ class Verilog_Emitter(Emitter):
     elif isinstance(op, ast.Or):
       result = self._paren_join(' || ', xargs)
     else:
-      pyu.fatal(f'Unsupported operation: {op}')
+      fatal(f'Unsupported operation: {op}')
 
     return Value(BOOL, result)
 
@@ -939,7 +939,7 @@ class Verilog_Emitter(Emitter):
   # Extension functions.
   def eval_is_nan(self, value):
     if not isinstance(value.dtype, Float):
-      pyu.fatal(f'Unsupported type: {value.dtype}')
+      fatal(f'Unsupported type: {value.dtype}')
 
     fspec = self.float_spec(value.dtype)
     fpcall = self._get_fpcall('is_nan', NX=fspec.exp, NM=fspec.mant)
@@ -949,7 +949,7 @@ class Verilog_Emitter(Emitter):
 
   def eval_is_inf(self, value):
     if not isinstance(value.dtype, Float):
-      pyu.fatal(f'Unsupported type: {value.dtype}')
+      fatal(f'Unsupported type: {value.dtype}')
 
     fspec = self.float_spec(value.dtype)
     fpcall = self._get_fpcall('is_inf', NX=fspec.exp, NM=fspec.mant)

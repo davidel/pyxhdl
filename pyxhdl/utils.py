@@ -198,7 +198,7 @@ _TIME_REX = re.compile(rf'([+\-]?\d+(\.(\d*))?([eE][+\-]?\d+)?)\s*({_TIME_UNITS}
 def scaled_time(ts, tu):
   scale = _TIME_SCALES.get(tu.lower())
   if scale is None:
-    pyu.fatal(f'Invalid time unit: {tu}')
+    fatal(f'Invalid time unit: {tu}')
 
   return ts * scale
 
@@ -206,9 +206,13 @@ def scaled_time(ts, tu):
 def parse_time(ts):
   m = _TIME_REX.match(ts)
   if m is None:
-    pyu.fatal(f'Invalid time format: {ts}')
+    fatal(f'Invalid time format: {ts}')
 
   nts = float(m.group(1))
 
   return nts / _TIME_SCALES[m.group(5)] if m.group(5) else nts
+
+
+def fatal(msg, exc=RuntimeError):
+  pyu.fatal(msg, exc=exc)
 

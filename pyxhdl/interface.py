@@ -66,11 +66,11 @@ class InterfaceView(_InterfaceBase):
 
   def add_field(self, name, value, mode):
     if not isinstance(value, Value):
-      pyu.fatal(f'Wrong field value type (should be Value): {value}')
+      fatal(f'Wrong field value type (should be Value): {value}')
 
     vref = value.ref
     if vref is None:
-      pyu.fatal(f'Wrong field value type (should contain a Ref): {value}')
+      fatal(f'Wrong field value type (should contain a Ref): {value}')
 
     xname = subname(self.name, name)
 
@@ -106,7 +106,7 @@ class Interface(_InterfaceBase):
       else:
         return mkreg(dtype_from_string(value), name=name)
     else:
-      pyu.fatal(f'Invalid interface value: {value}')
+      fatal(f'Invalid interface value: {value}')
 
   def mkfield(self, name, value, init=None):
     if isinstance(value, Value) and value.name is not None:
@@ -135,7 +135,7 @@ class Interface(_InterfaceBase):
   def create_port_view(self, name, port_name):
     ports_spec = getattr(self, port_name, None)
     if ports_spec is None:
-      pyu.fatal(f'Invalid port name: {port_name}')
+      fatal(f'Invalid port name: {port_name}')
 
     ports = Port.parse_list(ports_spec)
 
@@ -150,7 +150,7 @@ class Interface(_InterfaceBase):
   def expand_port(self, name, port_name):
     ports_spec = getattr(self, port_name, None)
     if ports_spec is None:
-      pyu.fatal(f'Invalid port name: {port_name}')
+      fatal(f'Invalid port name: {port_name}')
 
     ports = Port.parse_list(ports_spec)
     expanded = []

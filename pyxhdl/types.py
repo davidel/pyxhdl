@@ -7,6 +7,8 @@ import py_misc_utils.core_utils as pycu
 import py_misc_utils.inspect_utils as pyiu
 import py_misc_utils.utils as pyu
 
+from .utils import *
+
 
 class Type:
 
@@ -158,7 +160,7 @@ def has_bits(tclass):
 def tclass_from_string(tcls):
   tclass = _TYPE_CLASS.get(tcls)
   if tclass is None:
-    pyu.fatal(f'Unknown type class: {tcls}')
+    fatal(f'Unknown type class: {tcls}')
 
   return tclass
 
@@ -182,7 +184,7 @@ def dtype_from_string(s):
       dtype = _TYPE_NMAP[m.group(1)]
       ls = ls[m.end(): ]
     else:
-      pyu.fatal(f'Unknown type string: {s}')
+      fatal(f'Unknown type string: {s}')
 
   m = re.match(r'\((\d+(,\d+)*)\)$', ls)
   if m:
@@ -190,7 +192,7 @@ def dtype_from_string(s):
   elif not ls:
     shape = None
   else:
-    pyu.fatal(f'Unknown type string: {s}')
+    fatal(f'Unknown type string: {s}')
 
   return mkarray(dtype, *shape) if shape else dtype
 
@@ -223,7 +225,7 @@ class TypeMatcher:
           break
 
       if not matched:
-        pyu.fatal(f'Mismatch type{msg}: {arg.dtype} vs. {self.dtype}')
+        fatal(f'Mismatch type{msg}: {arg.dtype} vs. {self.dtype}')
 
     if self.tclass:
       matched = False
@@ -233,8 +235,8 @@ class TypeMatcher:
           break
 
       if not matched:
-        pyu.fatal(f'Mismatch type class{msg}: {arg.dtype} vs. ' \
-                  f'{tuple(pyiu.cname(x) for x in self.tclass)}')
+        fatal(f'Mismatch type class{msg}: {arg.dtype} vs. ' \
+              f'{tuple(pyiu.cname(x) for x in self.tclass)}')
 
 
 def mkarray(base_type, *shape):
