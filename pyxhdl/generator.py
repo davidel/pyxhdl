@@ -35,6 +35,13 @@ def _main(args):
 
   inputs = parse_inputs(args.inputs, args.kwargs, gglobals)
 
+  for pin in ent_class.PORTS:
+    if pin.name not in inputs and pin.default is not None:
+      if pin.idir == Port.IN:
+        inputs[pin.name] = mkwire(pin.default)
+      else:
+        inputs[pin.name] = mkreg(pin.default)
+
   with codegen.context():
     if args.testbench:
       tb.generate(codegen, args, ent_class, inputs)

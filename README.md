@@ -408,7 +408,7 @@ Note that the entity *PORTS* declaration:
 ```Python
 class MyEntity(X.Entity):
 
-  PORTS = 'A, B, =XOUT'
+  PORTS = 'A, B:u*, C:s*=s16, D=b8, =XOUT'
   ...
 ```
 
@@ -419,7 +419,9 @@ class MyEntity(X.Entity):
 
   PORTS = (
     X.Port('A', X.IN),
-    X.Port('B', X.IN),
+    X.Port('B', X.IN, type='u*'),
+    X.Port('C', X.IN, type='s*', default=SINT16),
+    X.Port('D', X.IN, default=Bits(8)),
     X.Port('XOUT', X.OUT),
   )
   ...
@@ -428,6 +430,10 @@ class MyEntity(X.Entity):
 If a port name is prefixed with the "=" character, the port is an output one. If instead
 is prefixed with a "+" character is an input/output one, otherwise (with no prefix at all)
 it is an input only port.
+
+The "default" argument in the port declaration is used only when a root entity is
+being generated, to avoid specifying manually the input to the generator script.
+In all other cases the type is bound at instantiation time, as usual.
 
 If necessary, it is possible to restrict the port input types to specific types, using
 the following syntax:

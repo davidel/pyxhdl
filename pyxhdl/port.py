@@ -12,29 +12,30 @@ from .utils import *
 
 class Port:
 
-  __slots__ = ('name', 'idir', 'type')
+  __slots__ = ('name', 'idir', 'type', 'default')
 
   IN = 'IN'
   OUT = 'OUT'
   INOUT = 'INOUT'
   IFC = 'IFC'
 
-  def __init__(self, name, idir, type=None):
+  def __init__(self, name, idir, type=None, default=None):
     self.name = name
     self.idir = idir
     self.type = type
+    self.default = default
 
   def __repr__(self):
-    rfmt = pyu.repr_fmt(self, 'name=,idir=,type')
+    rfmt = pyu.repr_fmt(self, 'name=,idir=,type,default')
 
     return f'{pyiu.cname(self)}({rfmt})'
 
   def __hash__(self):
-    return hash((self.name, self.idir, self.type))
+    return hash((self.name, self.idir, self.type, self.default))
 
   def __eq__(self, other):
     return (self.name == other.name and self.idir == other.idir and
-            self.type == other.type)
+            self.type == other.type and self.default == other.default)
 
   def is_ro(self):
     return self.idir == self.IN
@@ -88,7 +89,7 @@ class Port:
 
   @classmethod
   def parse(cls, pdecl):
-    m = re.match(r'(=|\+|\*)?(\w+)(:([^\s]*))?$', pdecl)
+    m = re.match(r'(=|\+|\*)?(\w+)(:([^\s]*))?(\s*=\s*(\w+))?$', pdecl)
     if not m:
       pyu.fatal(f'Unrecognized port format: {pdecl}')
 
@@ -102,9 +103,9 @@ class Port:
       case _:
         idir = cls.IN
 
-    ptype = m.group(4)
+    type_default = dtype_from_string(m.group(6)) if m.group(6) else None
 
-    return cls(m.group(2), idir, type=ptype)
+    return cls(m.group(2), idir, type=m.group(4), default=type_default)
 
   @classmethod
   def parse_list(cls, cports):
