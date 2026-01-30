@@ -1353,6 +1353,6 @@ Verilog (**Vivado**, **Verilator**, **SLANG** and **YoSys/SLANG**).
 Example use to verify a generated VHDL file *generate_output.vhd* with a *RootEntity* top:
 
 ```Shell
-$ python3 -m pyxhdl.tools.verify --inputs generate_output.vhd --backend vhdl --entity RootEntity
+$ python3 -m pyxhdl.tools.verify --inputs generated_output.vhd --backend vhdl --entity RootEntity
 ```
 
