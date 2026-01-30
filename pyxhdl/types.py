@@ -233,7 +233,8 @@ class TypeMatcher:
           break
 
       if not matched:
-        pyu.fatal(f'Mismatch type class{msg}: {arg.dtype} vs. {pyiu.cname(self.tclass)}')
+        pyu.fatal(f'Mismatch type class{msg}: {arg.dtype} vs. ' \
+                  f'{tuple(pyiu.cname(x) for x in self.tclass)}')
 
 
 def mkarray(base_type, *shape):
