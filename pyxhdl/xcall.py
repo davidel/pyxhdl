@@ -47,10 +47,28 @@ class _Marshal:
     return arg
 
   def __call__(self, ctx, arg):
-    if self._tmatch.dtype is not None:
-      return ctx.emitter.cast(arg, self._tmatch.dtype)
-    if self._tmatch.tclass is not None:
-      return self._tclass_cast(ctx, arg, self._tmatch.tclass)
+    if self._tmatch.dtype:
+      for dtype in self._tmatch.dtype:
+        cex = None
+        try:
+          return ctx.emitter.cast(arg, dtype)
+        except Exception as ex:
+          if cex is None:
+            cex = ex
+        finally:
+          if cex is not None:
+            raise cex
+    if self._tmatch.tclass:
+      for tclass in self._tmatch.tclass:
+        cex = None
+        try:
+          return self._tclass_cast(ctx, arg, tclass)
+        except Exception as ex:
+          if cex is None:
+            cex = ex
+        finally:
+          if cex is not None:
+            raise cex
 
     return arg
 

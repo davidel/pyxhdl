@@ -198,27 +198,30 @@ def dtype_from_string(s):
 class TypeMatcher:
 
   def __init__(self, dtype=None, tclass=None):
-    self.dtype = dtype
-    self.tclass = tclass
+    self.dtype = dtype or ()
+    self.tclass = tclass or ()
 
   @classmethod
   def parse(cls, tmstr):
-    dtype, tclass = None, None
-    if tmstr != '*':
-      m = re.match(r'(.+)\*$', tmstr)
-      if m:
-        tclass = tclass_from_string(m.group(1))
-      else:
-        dtype = dtype_from_string(tmstr)
+    dtype, tclass = [], []
+    for tstr in pyu.resplit(tmstr, ','):
+      if tstr != '*':
+        m = re.match(r'(.+)\*$', tstr)
+        if m:
+          tclass.append(tclass_from_string(m.group(1)))
+        else:
+          dtype.append(dtype_from_string(tstr))
 
-    return cls(dtype=dtype, tclass=tclass)
+    return cls(dtype=tuple(dtype), tclass=tuple(tclass))
 
   def check_value(self, arg, msg=''):
-    if self.dtype is not None and self.dtype != arg.dtype:
-      pyu.fatal(f'Mismatch type{msg}: {arg.dtype} vs. {self.dtype}')
+    for dtype in self.dtype:
+      if dtype != arg.dtype:
+        pyu.fatal(f'Mismatch type{msg}: {arg.dtype} vs. {dtype}')
 
-    if self.tclass is not None and not isinstance(arg.dtype, self.tclass):
-      pyu.fatal(f'Mismatch type class{msg}: {arg.dtype} vs. {pyiu.cname(self.tclass)}')
+    for tclass in self.tclass:
+      if not isinstance(arg.dtype, tclass):
+        pyu.fatal(f'Mismatch type class{msg}: {arg.dtype} vs. {pyiu.cname(tclass)}')
 
 
 def mkarray(base_type, *shape):
