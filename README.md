@@ -313,8 +313,8 @@ REAL = Real()
 VOID = Void()
 ```
 
-Logic bit values can be *0*, *1*, *X* and *Z*, although is expected to use the
-VHDL backend only, the full set of VHDL logica values can be used.
+Logic bit values can be *0*, *1*, *X* and *Z*, although if expected to use the
+VHDL backend only, the full set of VHDL logic values (*01XUZWHL*) can be used.
 Bits are assigned with Python strings like '0b110xz' (the '0b' prefix, followed
 by the logic states for the bits).
 
