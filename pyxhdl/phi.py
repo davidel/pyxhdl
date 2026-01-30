@@ -1,7 +1,5 @@
 import collections
 
-from .utils import *
-
 
 class _Phi:
 
@@ -12,7 +10,7 @@ class _Phi:
   def set_version(self, name, ver):
     cver = self._phid.get(name, 0)
     if cver >= ver:
-      fatal(f'New version must be greater: {cver} >= {ver}')
+      raise RuntimeError(f'New version must be greater: {cver} >= {ver}')
 
     self._phid[name] = ver
 
