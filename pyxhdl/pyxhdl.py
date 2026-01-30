@@ -212,7 +212,7 @@ class _ExecVisitor(_AstVisitor):
       ref_dict = self.locals
       for k, v in save_dict.items():
         if v is NONE:
-          ref_dict.pop(k)
+          ref_dict.pop(k, None)
         else:
           ref_dict[k] = v
 
