@@ -215,13 +215,25 @@ class TypeMatcher:
     return cls(dtype=tuple(dtype), tclass=tuple(tclass))
 
   def check_value(self, arg, msg=''):
-    for dtype in self.dtype:
-      if dtype != arg.dtype:
-        pyu.fatal(f'Mismatch type{msg}: {arg.dtype} vs. {dtype}')
+    if self.dtype:
+      matched = False
+      for dtype in self.dtype:
+        if dtype == arg.dtype:
+          matched = True
+          break
 
-    for tclass in self.tclass:
-      if not isinstance(arg.dtype, tclass):
-        pyu.fatal(f'Mismatch type class{msg}: {arg.dtype} vs. {pyiu.cname(tclass)}')
+      if not matched:
+        pyu.fatal(f'Mismatch type{msg}: {arg.dtype} vs. {self.dtype}')
+
+    if self.tclass:
+      matched = False
+      for tclass in self.tclass:
+        if isinstance(arg.dtype, tclass):
+          matched = True
+          break
+
+      if not matched:
+        pyu.fatal(f'Mismatch type class{msg}: {arg.dtype} vs. {pyiu.cname(self.tclass)}')
 
 
 def mkarray(base_type, *shape):
