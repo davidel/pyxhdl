@@ -239,19 +239,19 @@ class TypeMatcher:
         fatal(f'Mismatch type class{msg}: {arg.dtype} vs. ' \
               f'{tuple(pyiu.cname(x) for x in self.tclass)}')
 
-  def try_cast(self, arg, dtype_fn=None, tclass_fn=None):
+  def cast(self, arg, dtype_fn=None, tclass_fn=None):
     cex = []
     if dtype_fn is not None and self.dtype:
       for dtype in self.dtype:
         try:
-          return dtype_fn(dtype)
+          return dtype_fn(arg, dtype)
         except Exception as ex:
           cex.append(ex)
 
     if tclass_fn is not None and self.tclass:
       for tclass in self.tclass:
         try:
-          return tclass_fn(tclass)
+          return tclass_fn(arg, tclass)
         except Exception as ex:
           cex.append(ex)
 

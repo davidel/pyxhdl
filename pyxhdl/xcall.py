@@ -48,10 +48,10 @@ class _Marshal:
     return arg
 
   def __call__(self, ctx, arg):
-    return self._tmatch.try_cast(
+    return self._tmatch.cast(
       arg,
-      dtype_fn=lambda t: ctx.emitter.cast(arg, t),
-      tclass_fn=lambda t: self._tclass_cast(ctx, arg, t))
+      dtype_fn=lambda v, t: ctx.emitter.cast(v, t),
+      tclass_fn=lambda v, t: self._tclass_cast(ctx, v, t))
 
 
 class _ExternalFunction:
