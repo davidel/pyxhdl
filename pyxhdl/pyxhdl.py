@@ -960,6 +960,7 @@ class CodeGen(_ExecVisitor):
   def visit_BoolOp(self, node):
     pyu.mlog(lambda: asu.dump(node))
 
+    # Implement AND(False, ...) and OR(True,...) shortcutting.
     result, values = None, []
     for val in node.values:
       xval = self.eval_node(val)
