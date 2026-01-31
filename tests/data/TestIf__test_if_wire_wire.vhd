@@ -272,7 +272,7 @@ begin
       end if;
       temp := temp + 1;
     end if;
-    if (true /= false) and (A > B) then
+    if A > B then
       temp := temp - 1;
     end if;
     XOUT <= temp;

@@ -272,9 +272,6 @@ begin
       end if;
       temp := temp + 1;
     end if;
-    if (false /= false) and (resize(A, 16) > B) then
-      temp := temp - 1;
-    end if;
     XOUT <= resize(temp, 16);
   end process;
 end architecture;

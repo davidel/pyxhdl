@@ -54,9 +54,6 @@ module IfEnt(A, B, XOUT);
       end
       temp = temp + 1;
     end
-    if ((0 != 0) && (16'(A) > B)) begin
-      temp = temp - 1;
-    end
     XOUT = 16'(temp);
   end
 endmodule

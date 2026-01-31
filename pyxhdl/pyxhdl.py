@@ -958,15 +958,27 @@ class CodeGen(_ExecVisitor):
     self.push_result(result)
 
   def visit_BoolOp(self, node):
-    values = []
+    pyu.mlog(lambda: asu.dump(node))
+
+    result, values = None, []
     for val in node.values:
       xval = self.eval_node(val)
-      values.append(xval)
+      if xval is True:
+        if isinstance(node.op, ast.Or):
+          result = True
+          break
+      elif xval is False:
+        if isinstance(node.op, ast.And):
+          result = False
+          break
+      else:
+        values.append(xval)
 
-    if has_hdl_vars(values):
-      result = self.emitter.eval_BoolOp(node.op, values)
-    else:
-      result = self._static_eval(node)
+    if result is None:
+      if has_hdl_vars(values):
+        result = self.emitter.eval_BoolOp(node.op, values)
+      else:
+        result = self._static_eval(node)
 
     self.push_result(result)
 

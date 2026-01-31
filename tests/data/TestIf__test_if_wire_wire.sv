@@ -54,7 +54,7 @@ module IfEnt(A, B, XOUT);
       end
       temp = temp + 1;
     end
-    if ((1 != 0) && (A > B)) begin
+    if (A > B) begin
       temp = temp - 1;
     end
     XOUT = temp;
