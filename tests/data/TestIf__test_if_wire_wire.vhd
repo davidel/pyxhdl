@@ -275,6 +275,8 @@ begin
     if A > B then
       temp := temp - 1;
     end if;
+    -- You should always see this: 17 <= 1000
+    temp := temp + 17;
     XOUT <= temp;
   end process;
 end architecture;

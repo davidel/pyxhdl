@@ -272,6 +272,8 @@ begin
       end if;
       temp := temp + 1;
     end if;
+    -- You should always see this: 3 <= 1000
+    temp := temp + 3;
     XOUT <= resize(temp, 16);
   end process;
 end architecture;

@@ -49,6 +49,12 @@ class IfEnt(X.Entity):
     if kwarg > 5 and A > B:
       temp -= 1
 
+    if kwarg > 10000 and A > B:
+      XL.comment(f'You should never see this: {kwarg} > 1000')
+    else:
+      XL.comment(f'You should always see this: {kwarg} <= 1000')
+      temp += kwarg
+
     XOUT = temp
 
 

@@ -54,6 +54,8 @@ module IfEnt(A, B, XOUT);
       end
       temp = temp + 1;
     end
+    // You should always see this: 3 <= 1000
+    temp = temp + 3;
     XOUT = 16'(temp);
   end
 endmodule

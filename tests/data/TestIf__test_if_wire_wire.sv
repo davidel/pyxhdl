@@ -57,6 +57,8 @@ module IfEnt(A, B, XOUT);
     if (A > B) begin
       temp = temp - 1;
     end
+    // You should always see this: 17 <= 1000
+    temp = temp + 17;
     XOUT = temp;
   end
 endmodule
