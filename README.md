@@ -74,6 +74,30 @@ else:
 In the above example if, say, *pyint* is 3, the *ELSE* branch won't be evaluated,
 which means that no code will be emitted for the HDL array operation in it.
 
+An *IF* condition containing a mix of Python and HDL conditions get shortcutted.
+Example:
+
+```Python
+# Given a Python scalar A with value 3, and HDL variables B and C, we have ...
+if A < 2 and B >= C:
+  # Code below never executed because of AND(False, B >= C) shortcut.
+  ...
+
+if A > 2 or B >= C:
+  # Code below always executed (the B >= C won't be generated) because of
+  # OR(True, B >= C) shortcut.
+  ...
+
+if A > 2 and B >= C:
+  # The above test reduces to:
+  #
+  #  if B >= C:
+  #    ...
+  #
+  # Because the A > 2 statement is known to be True at compile time.
+  ...
+```
+
 If an HDL function contains return statements nested within a branch depending on
 the value of an HDL variable, all the "return paths" must have the same signature.
 
