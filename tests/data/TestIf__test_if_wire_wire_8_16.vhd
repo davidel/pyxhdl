@@ -248,29 +248,32 @@ use work.all;
 -- 	args={'A': 'uint(8)', 'B': 'uint(16)', 'XOUT': 'uint(16)'}
 -- 	kwargs={kwarg=3}
 architecture behavior of IfEnt is
-  signal temp : unsigned(7 downto 0);
 begin
   run : process (A, B)
+    variable temp : unsigned(7 downto 0);
   begin
-    temp <= resize(B, 8);
+    temp := resize(B, 8);
     if resize(A, 16) > B then
-      temp <= temp + A;
+      temp := temp + A;
     elsif B > resize(A, 16) then
-      temp <= resize(resize(temp, 16) - B, 8);
+      temp := resize(resize(temp, 16) - B, 8);
     elsif B = resize(A, 16) then
-      temp <= resize(resize(resize(temp, 16) * B, 16), 8);
+      temp := resize(resize(resize(temp, 16) * B, 16), 8);
     else
-      temp <= to_unsigned(0, 8);
+      temp := to_unsigned(0, 8);
     end if;
     if resize(A, 16) > B then
-      temp <= temp - A;
+      temp := temp - A;
     elsif resize(A, 16) < B then
-      temp <= temp + A;
+      temp := temp + A;
     else
       if resize(A, 16) = B then
-        temp <= temp / A;
+        temp := temp / A;
       end if;
-      temp <= temp + 1;
+      temp := temp + 1;
+    end if;
+    if (false /= false) and (resize(A, 16) > B) then
+      temp := temp - 1;
     end if;
     XOUT <= resize(temp, 16);
   end process;

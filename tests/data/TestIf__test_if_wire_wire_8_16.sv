@@ -31,9 +31,9 @@ module IfEnt(A, B, XOUT);
   input logic [7: 0] A;
   input logic [15: 0] B;
   output logic [15: 0] XOUT;
-  logic [7: 0] temp;
   always @(A or B)
   run : begin
+    logic [7: 0] temp;
     temp = 8'(B);
     if (16'(A) > B) begin
       temp = temp + A;
@@ -53,6 +53,9 @@ module IfEnt(A, B, XOUT);
         temp = temp / A;
       end
       temp = temp + 1;
+    end
+    if ((0 != 0) && (16'(A) > B)) begin
+      temp = temp - 1;
     end
     XOUT = 16'(temp);
   end

@@ -21,7 +21,7 @@ class IfEnt(X.Entity):
   @X.hdl_process(sens='A, B')
   def run():
     # The "else" branch should be droppped.
-    temp = X.mkreg(A.dtype)
+    temp = X.mkwire(A.dtype)
     if kwarg > 10:
       temp = A
     else:
@@ -45,6 +45,9 @@ class IfEnt(X.Entity):
         temp /= A
 
       temp += 1
+
+    if kwarg > 5 and A > B:
+      temp -= 1
 
     XOUT = temp
 
