@@ -273,29 +273,29 @@ use work.all;
 -- 	args={'CLK': 'bits(1)', 'RST_N': 'bits(1)', 'A': 'uint(8)', 'B': 'uint(8)', 'XOUT': 'uint(8)'}
 -- 	kwargs={}
 architecture behavior of InterfaceTest is
-  signal MYIFC1_X : unsigned(15 downto 0);
-  signal MYIFC1_Y : unsigned(15 downto 0) := to_unsigned(0, 16);
-  signal MYIFC1_Z : unsigned(15 downto 0);
+  signal MYIFC_X : unsigned(15 downto 0);
+  signal MYIFC_Y : unsigned(15 downto 0) := to_unsigned(0, 16);
+  signal MYIFC_Z : unsigned(15 downto 0);
 begin
   IfcEnt_1 : entity IfcEnt
   port map (
     A => A,
     B => B,
-    IFC_X => MYIFC1_X,
-    IFC_Y => MYIFC1_Y,
+    IFC_X => MYIFC_X,
+    IFC_Y => MYIFC_Y,
     IFC_Q => A,
-    IFC_Z => MYIFC1_Z
+    IFC_Z => MYIFC_Z
   );
   run : process (CLK)
   begin
     if rising_edge(CLK) then
       if (not RST_N) /= '0' then
         XOUT <= to_unsigned(0, 8);
-        MYIFC1_X <= to_unsigned(17, 16);
-        MYIFC1_Y <= to_unsigned(21, 16);
+        MYIFC_X <= to_unsigned(17, 16);
+        MYIFC_Y <= to_unsigned(21, 16);
       else
-        MYIFC1_X <= MYIFC1_X + resize(A, 16);
-        MYIFC1_Y <= MYIFC1_Y - 1;
+        MYIFC_X <= MYIFC_X + resize(A, 16);
+        MYIFC_Y <= MYIFC_Y - 1;
       end if;
     end if;
   end process;

@@ -138,7 +138,7 @@ class _ExecVisitor(_AstVisitor):
     self._frames = [_Frame(vglobals, vlocals or dict(), _SourceLocation('NOFILE', 0))]
     self._variables = []
     self._results = []
-    self._revgen = pycu.RevGen()
+    self._revgen = pycu.RevGen(fmt='{name}{ver}')
 
   @property
   def frame(self):
@@ -824,8 +824,8 @@ class CodeGen(_ExecVisitor):
       emt.emit_module_def(ent_name, ent, comment=ecomm)
 
     self.emitter.emit_module_decl(ent_name, ent)
-    self._root_vars = dict()
-    self._revgen = pycu.RevGen()
+
+    self._reset_entity_context()
 
     for func in ent.enum_processes():
       hdl_args = get_hdl_args(func) or dict()
@@ -873,6 +873,10 @@ class CodeGen(_ExecVisitor):
       self.emitter.emit_process_end()
 
     return result
+
+  def _reset_entity_context(self):
+    self._root_vars = dict()
+    self._revgen = pycu.RevGen(fmt='{name}{ver}')
 
   def _flush_generation(self):
     while True:
@@ -1500,6 +1504,6 @@ class CodeGen(_ExecVisitor):
 
     return pycm.CtxManager(infn, outfn)
 
-  def generate_name(self, name):
-    return self._revgen.newname(name)
+  def generate_name(self, name, shortzero=False):
+    return self._revgen.newname(name, shortzero=shortzero)
 

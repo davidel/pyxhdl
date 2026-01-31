@@ -86,11 +86,9 @@ class InterfaceView(_InterfaceBase):
 
 class Interface(_InterfaceBase):
 
-  _REVGEN = pycu.RevGen(fmt='{name}{ver}')
-
   def __init__(self, name, **kwargs):
     super().__init__(name, **kwargs)
-    self._uname = self._REVGEN.newname(name, shortzero=True)
+    self._uname = self.xlib.generate_name(name, shortzero=True)
     if fstr := getattr(self, 'FIELDS', None):
       self.create_fields(fstr)
 

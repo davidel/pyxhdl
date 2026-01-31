@@ -114,3 +114,10 @@ float_equal = create_function(
   },
   fnsig='f*, real, real',
   dtype=BOOL)
+
+
+def generate_name(name, shortzero=False):
+  ctx = CodeGen.current()
+
+  return ctx.generate_name(name, shortzero=shortzero)
+

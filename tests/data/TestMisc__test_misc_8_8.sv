@@ -38,22 +38,22 @@ module Misc(A, B, C, XOUT1, XOUT2);
     logic [7: 0] na;
     logic [7: 0] nb;
     logic [7: 0] br;
-    logic [7: 0] branchy_0;
-    logic [7: 0] branchy_1;
-    logic [7: 0] branchy_tuple_0;
-    logic [7: 0] branchy_tuple_1;
-    logic [7: 0] branchy_tuple_2;
-    logic [7: 0] branchy_tuple_3;
+    logic [7: 0] branchy0;
+    logic [7: 0] branchy1;
+    logic [7: 0] branchy_tuple0;
+    logic [7: 0] branchy_tuple1;
+    logic [7: 0] branchy_tuple2;
+    logic [7: 0] branchy_tuple3;
     logic [7: 0] zz;
-    logic [7: 0] branchy_dict_0;
-    logic [7: 0] branchy_dict_1;
+    logic [7: 0] branchy_dict0;
+    logic [7: 0] branchy_dict1;
     static logic [7: 0] rbits = 8'b1101x0x0;
     logic [7: 0] tw1;
     logic [7: 0] tw2;
     logic [7: 0] twd1;
     logic [7: 0] twd2;
     logic [7: 0] twdecl;
-    logic [7: 0] twdecl_1;
+    logic [7: 0] twdecl1;
     nb = A + B;
     na = A - B;
     if (na[2] == 1'bx) begin
@@ -62,38 +62,38 @@ module Misc(A, B, C, XOUT1, XOUT2);
       na = na - nb;
     end
     if (A > B) begin
-      branchy_0 = A + B;
+      branchy0 = A + B;
     end else begin
-      branchy_0 = A - B;
+      branchy0 = A - B;
     end
-    br = branchy_0;
+    br = branchy0;
     if (A > B) begin
-      branchy_1 = A + B;
+      branchy1 = A + B;
     end else begin
-      branchy_1 = A - B;
-    end
-    if (A > B) begin
-      branchy_tuple_0 = A + B;
-      branchy_tuple_1 = A;
-    end else begin
-      branchy_tuple_0 = A - B;
-      branchy_tuple_1 = A + B;
+      branchy1 = A - B;
     end
     if (A > B) begin
-      branchy_tuple_2 = A + B;
-      branchy_tuple_3 = A;
+      branchy_tuple0 = A + B;
+      branchy_tuple1 = A;
     end else begin
-      branchy_tuple_2 = A - B;
-      branchy_tuple_3 = A + B;
+      branchy_tuple0 = A - B;
+      branchy_tuple1 = A + B;
     end
-    if (branchy_tuple_0 > branchy_tuple_1) begin
-      branchy_dict_0 = branchy_tuple_0 + branchy_tuple_1;
-      branchy_dict_1 = branchy_tuple_0;
+    if (A > B) begin
+      branchy_tuple2 = A + B;
+      branchy_tuple3 = A;
     end else begin
-      branchy_dict_0 = branchy_tuple_0 - branchy_tuple_1;
-      branchy_dict_1 = branchy_tuple_0 + branchy_tuple_1;
+      branchy_tuple2 = A - B;
+      branchy_tuple3 = A + B;
     end
-    zz = 8'(branchy_dict_0 * branchy_dict_1);
+    if (branchy_tuple0 > branchy_tuple1) begin
+      branchy_dict0 = branchy_tuple0 + branchy_tuple1;
+      branchy_dict1 = branchy_tuple0;
+    end else begin
+      branchy_dict0 = branchy_tuple0 - branchy_tuple1;
+      branchy_dict1 = branchy_tuple0 + branchy_tuple1;
+    end
+    zz = 8'(branchy_dict0 * branchy_dict1);
     if (C == 8'b0110x110) begin
     end
     if (C != rbits) begin
@@ -105,8 +105,8 @@ module Misc(A, B, C, XOUT1, XOUT2);
     tw2 = (A - B) + (A + B);
     twdecl = A + B;
     twd1 = (A - B) + twdecl;
-    twdecl_1 = A + B;
-    twd2 = (A - B) + twdecl_1;
+    twdecl1 = A + B;
+    twd2 = (A - B) + twdecl1;
     XOUT1 = ((A - B) - ((8'(na * nb) - 1) - (na + 8'(nb * 3)))) + zz;
   end
   always @(A or B or C)

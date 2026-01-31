@@ -255,22 +255,22 @@ begin
     variable na : unsigned(7 downto 0);
     variable nb : unsigned(7 downto 0);
     variable br : unsigned(7 downto 0);
-    variable branchy_0 : unsigned(7 downto 0);
-    variable branchy_1 : unsigned(7 downto 0);
-    variable branchy_tuple_0 : unsigned(7 downto 0);
-    variable branchy_tuple_1 : unsigned(7 downto 0);
-    variable branchy_tuple_2 : unsigned(7 downto 0);
-    variable branchy_tuple_3 : unsigned(7 downto 0);
+    variable branchy0 : unsigned(7 downto 0);
+    variable branchy1 : unsigned(7 downto 0);
+    variable branchy_tuple0 : unsigned(7 downto 0);
+    variable branchy_tuple1 : unsigned(7 downto 0);
+    variable branchy_tuple2 : unsigned(7 downto 0);
+    variable branchy_tuple3 : unsigned(7 downto 0);
     variable zz : unsigned(7 downto 0);
-    variable branchy_dict_0 : unsigned(7 downto 0);
-    variable branchy_dict_1 : unsigned(7 downto 0);
+    variable branchy_dict0 : unsigned(7 downto 0);
+    variable branchy_dict1 : unsigned(7 downto 0);
     variable rbits : std_logic_vector(7 downto 0) := "1101X0X0";
     variable tw1 : unsigned(7 downto 0);
     variable tw2 : unsigned(7 downto 0);
     variable twd1 : unsigned(7 downto 0);
     variable twd2 : unsigned(7 downto 0);
     variable twdecl : unsigned(3 downto 0);
-    variable twdecl_1 : unsigned(3 downto 0);
+    variable twdecl1 : unsigned(3 downto 0);
   begin
     nb := A + resize(B, 8);
     na := A - resize(B, 8);
@@ -280,38 +280,38 @@ begin
       na := na - nb;
     end if;
     if A > resize(B, 8) then
-      branchy_0 := A + resize(B, 8);
+      branchy0 := A + resize(B, 8);
     else
-      branchy_0 := A - resize(B, 8);
+      branchy0 := A - resize(B, 8);
     end if;
-    br := branchy_0;
+    br := branchy0;
     if A > resize(B, 8) then
-      branchy_1 := A + resize(B, 8);
+      branchy1 := A + resize(B, 8);
     else
-      branchy_1 := A - resize(B, 8);
-    end if;
-    if A > resize(B, 8) then
-      branchy_tuple_0 := A + resize(B, 8);
-      branchy_tuple_1 := A;
-    else
-      branchy_tuple_0 := A - resize(B, 8);
-      branchy_tuple_1 := A + resize(B, 8);
+      branchy1 := A - resize(B, 8);
     end if;
     if A > resize(B, 8) then
-      branchy_tuple_2 := A + resize(B, 8);
-      branchy_tuple_3 := A;
+      branchy_tuple0 := A + resize(B, 8);
+      branchy_tuple1 := A;
     else
-      branchy_tuple_2 := A - resize(B, 8);
-      branchy_tuple_3 := A + resize(B, 8);
+      branchy_tuple0 := A - resize(B, 8);
+      branchy_tuple1 := A + resize(B, 8);
     end if;
-    if branchy_tuple_0 > branchy_tuple_1 then
-      branchy_dict_0 := branchy_tuple_0 + branchy_tuple_1;
-      branchy_dict_1 := branchy_tuple_0;
+    if A > resize(B, 8) then
+      branchy_tuple2 := A + resize(B, 8);
+      branchy_tuple3 := A;
     else
-      branchy_dict_0 := branchy_tuple_0 - branchy_tuple_1;
-      branchy_dict_1 := branchy_tuple_0 + branchy_tuple_1;
+      branchy_tuple2 := A - resize(B, 8);
+      branchy_tuple3 := A + resize(B, 8);
     end if;
-    zz := resize(branchy_dict_0 * branchy_dict_1, 8);
+    if branchy_tuple0 > branchy_tuple1 then
+      branchy_dict0 := branchy_tuple0 + branchy_tuple1;
+      branchy_dict1 := branchy_tuple0;
+    else
+      branchy_dict0 := branchy_tuple0 - branchy_tuple1;
+      branchy_dict1 := branchy_tuple0 + branchy_tuple1;
+    end if;
+    zz := resize(branchy_dict0 * branchy_dict1, 8);
     if C = "0110X110" then
     end if;
     if C /= rbits then
@@ -323,8 +323,8 @@ begin
     tw2 := (A - resize(B, 8)) + (A + resize(B, 8));
     twdecl := resize(A + resize(B, 8), 4);
     twd1 := (A - resize(B, 8)) + resize(twdecl, 8);
-    twdecl_1 := resize(A + resize(B, 8), 4);
-    twd2 := (A - resize(B, 8)) + resize(twdecl_1, 8);
+    twdecl1 := resize(A + resize(B, 8), 4);
+    twd2 := (A - resize(B, 8)) + resize(twdecl1, 8);
     XOUT1 <= ((A - resize(B, 8)) - ((resize(na * nb, 8) - 1) - (na + resize(nb * 3, 8)))) + zz;
   end process;
   use_self : process (A, B, C)
