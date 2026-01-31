@@ -1,5 +1,3 @@
-import traceback
-
 import py_misc_utils.inspect_utils as pyiu
 import py_misc_utils.utils as pyu
 
@@ -50,28 +48,10 @@ class _Marshal:
     return arg
 
   def __call__(self, ctx, arg):
-    cex = []
-    if self._tmatch.dtype:
-      for dtype in self._tmatch.dtype:
-        try:
-          return ctx.emitter.cast(arg, dtype)
-        except Exception as ex:
-          cex.append(ex)
-
-    if self._tmatch.tclass:
-      for tclass in self._tmatch.tclass:
-        try:
-          return self._tclass_cast(ctx, arg, tclass)
-        except Exception as ex:
-          cex.append(ex)
-
-    if cex:
-      xmsgs = []
-      map(lambda x: xmsgs.extend(traceback.format_exception(x)), cex)
-
-      fatal('\n'.join(xmsgs), exc=ValueError)
-
-    return arg
+    return self._tmatch.try_cast(
+      arg,
+      dtype_fn=lambda t: ctx.emitter.cast(arg, t),
+      tclass_fn=lambda t: self._tclass_cast(ctx, arg, t))
 
 
 class _ExternalFunction:
