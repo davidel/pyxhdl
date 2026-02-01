@@ -23,3 +23,41 @@ class AutoReset(X.Entity):
 
       count += 1
 
+
+class Test(X.Entity):
+
+  ARGS = dict(clock_frequency=100e6) | AutoReset.ARGS
+
+  @X.hdl_process(kind=X.ROOT_PROCESS)
+  def root(self):
+    from . import clock
+
+    CLK = X.mkreg(X.BIT)
+
+    clock.Clock(CLK=CLK,
+                frequency=clock_frequency)
+
+    RST = X.mkvreg(X.BIT, 0)
+
+    AutoReset(CLK=CLK,
+              RST=RST,
+              **{k: locals()[k] for k in AutoReset.ARGS.keys()})
+
+  @X.hdl_process()
+  def init(self):
+    period = 1 / clock_frequency
+
+    XL.wait_for((start_clocks + 1) * period)
+    if polarity > 0 and RST != 1:
+      XL.report(f'{{NOW}} Wrong reset value: RST={{RST}}')
+    if polarity < 0 and RST != 0:
+      XL.report(f'{{NOW}} Wrong reset value: RST={{RST}}')
+
+    XL.wait_for(clocks_count * period)
+    if polarity > 0 and RST != 0:
+      XL.report(f'{{NOW}} Wrong reset value: RST={{RST}}')
+    if polarity < 0 and RST != 1:
+      XL.report(f'{{NOW}} Wrong reset value: RST={{RST}}')
+
+    XL.finish()
+
