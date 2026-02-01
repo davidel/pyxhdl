@@ -52,8 +52,7 @@ class Test(X.Entity):
     RST_N = 0
     DIN = 0
 
-    XL.wait_rising(CLK)
-    XL.wait_rising(CLK)
+    TB.wait_rising(CLK)
 
     RST_N = 1
     DIN = 1
