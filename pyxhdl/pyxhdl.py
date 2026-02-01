@@ -1511,3 +1511,6 @@ class CodeGen(_ExecVisitor):
   def generate_name(self, name, shortzero=False):
     return self._revgen.newname(name, shortzero=shortzero)
 
+  def source_location(self):
+    return self.location
+

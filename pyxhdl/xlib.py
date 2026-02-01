@@ -121,3 +121,8 @@ def generate_name(name, shortzero=False):
 
   return ctx.generate_name(name, shortzero=shortzero)
 
+def source_location():
+  ctx = CodeGen.current()
+
+  return ctx.source_location()
+
