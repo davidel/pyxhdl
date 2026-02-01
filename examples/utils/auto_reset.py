@@ -6,7 +6,7 @@ class AutoReset(X.Entity):
 
   PORTS = 'CLK=bit, =RST=bit'
 
-  ARGS = dict(start_clocks=0, clocks_count=1, polarity=-1)
+  ARGS = dict(start_clocks=0, clocks_count=4, polarity=-1)
 
   @X.hdl_process(sens='+CLK')
   def run(self):

@@ -749,6 +749,8 @@ class Verilog_Emitter(Emitter):
         self._emit_line('always_comb')
       elif proc_mode == 'latch':
         self._emit_line('always_latch')
+      elif proc_mode == 'loop':
+        self._emit_line('always')
       else:
         self._emit_line('always @(*)')
 
