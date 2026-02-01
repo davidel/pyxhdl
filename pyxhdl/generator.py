@@ -14,7 +14,7 @@ from .utils import *
 from .vars import *
 from .vhdl_emitter import *
 
-from . import testbench as tb
+from . import testbench as TB
 
 
 def _main(args):
@@ -44,7 +44,7 @@ def _main(args):
 
   with codegen.context():
     if args.testbench:
-      tb.generate(codegen, args, ent_class, inputs)
+      TB.generate(codegen, args, ent_class, inputs)
     else:
       codegen.generate_entity(ent_class, inputs)
 
@@ -78,7 +78,7 @@ if __name__ == '__main__':
   parser.add_argument('--testbench', action='store_true',
                       help='Run the entity with a testbench')
 
-  tb.add_arguments(parser)
+  TB.add_arguments(parser)
 
   app_main.main(parser, _main)
 

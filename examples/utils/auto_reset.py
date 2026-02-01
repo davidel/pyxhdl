@@ -45,19 +45,21 @@ class Test(X.Entity):
 
   @X.hdl_process()
   def init(self):
+    from pyxhdl import testbench as TB
+
     period = 1 / clock_frequency
 
     XL.wait_for((start_clocks + 1) * period)
-    if polarity > 0 and RST != 1:
-      XL.report(f'{{NOW}} Wrong reset value: RST={{RST}}')
-    if polarity < 0 and RST != 0:
-      XL.report(f'{{NOW}} Wrong reset value: RST={{RST}}')
+    if polarity > 0:
+      TB.compare_value(RST, 1)
+    if polarity < 0:
+      TB.compare_value(RST, 0)
 
     XL.wait_for(clocks_count * period)
-    if polarity > 0 and RST != 0:
-      XL.report(f'{{NOW}} Wrong reset value: RST={{RST}}')
-    if polarity < 0 and RST != 1:
-      XL.report(f'{{NOW}} Wrong reset value: RST={{RST}}')
+    if polarity > 0:
+      TB.compare_value(RST, 0)
+    if polarity < 0:
+      TB.compare_value(RST, 1)
 
     XL.finish()
 

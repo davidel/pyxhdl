@@ -317,6 +317,8 @@ class _ExecVisitor(_AstVisitor):
     return [node]
 
   def _populate_args_locals(self, sig, args, kwargs, func_locals):
+    pyu.mlog(lambda: f'Build Args: ARGS={args}\tKWARGS={kwargs}\tFNLOCALS={func_locals}')
+
     n, xkwargs = 0, kwargs.copy()
     for param in sig.parameters.values():
       if param.kind == inspect.Parameter.POSITIONAL_ONLY:
@@ -329,6 +331,8 @@ class _ExecVisitor(_AstVisitor):
         pvalue = xkwargs.pop(param.name, NONE)
         if pvalue is not NONE:
           func_locals[param.name] = pvalue
+        elif param.default != inspect.Parameter.empty:
+          func_locals[param.name] = param.default
         else:
           func_locals[param.name] = args[n]
           n += 1

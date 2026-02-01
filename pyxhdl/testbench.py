@@ -216,22 +216,24 @@ def _values_differ(value, ref_value, toll):
 
 
 @hdl
-def _compare_value(var, value, toll=None):
+def compare_value(var, value, toll=1e-5):
+  cvar = XL.load(var) if isinstance(var, str) else var
+
   if isinstance(value, np.ndarray):
-    shape = var.dtype.array_shape
+    shape = cvar.dtype.array_shape
     if tuple(shape) != tuple(value.shape):
-      fatal(f'Wrong shape for "{var.ref.name}": {tuple(shape)} vs {tuple(value.shape)}')
+      fatal(f'Wrong shape for "{cvar.ref.name}": {tuple(shape)} vs {tuple(value.shape)}')
 
     for idx in np.ndindex(shape):
       substr = ', '.join(str(x) for x in idx)
-      astr = f'{var.ref.name}[{substr}]'
+      astr = f'{cvar.ref.name}[{substr}]'
       tmp = XL.load(astr)
       if _values_differ(tmp, value[idx].item(), toll=toll):
         XL.report(f'{{NOW}} Output mismatch: {astr} = {{{astr}}} (should be {_repr(value[idx], tmp.dtype)})')
   else:
-    tmp = XL.load(var.ref.name)
+    tmp = XL.load(cvar.ref.name)
     if _values_differ(tmp, value, toll=toll):
-      XL.report(f'{{NOW}} Output mismatch: {var.ref.name} = {{{var.ref.name}}} (should be {_repr(value, tmp.dtype)})')
+      XL.report(f'{{NOW}} Output mismatch: {cvar.ref.name} = {{{cvar.ref.name}}} (should be {_repr(value, tmp.dtype)})')
 
 
 class TestBench(Entity):
@@ -305,7 +307,7 @@ class TestBench(Entity):
           XL.write(wstr)
 
       for dk, dv in data.outputs.items():
-        _compare_value(XL.load(dk), dv, toll=args['toll'])
+        compare_value(dk, dv, toll=args['toll'])
 
     XL.finish()
 
