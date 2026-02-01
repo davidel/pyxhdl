@@ -216,7 +216,9 @@ def _values_differ(value, ref_value, toll):
 
 
 @hdl
-def compare_value(var, value, toll=1e-5):
+def compare_value(var, value, toll=1e-5, debug=None):
+  cdebug = int(os.getenv('TB_DEBUG', '0')) != 0 if debug is None else debug
+
   cvar = XL.load(var) if isinstance(var, str) else var
 
   if isinstance(value, np.ndarray):
@@ -230,10 +232,14 @@ def compare_value(var, value, toll=1e-5):
       tmp = XL.load(astr)
       if _values_differ(tmp, value[idx].item(), toll=toll):
         XL.report(f'{{NOW}} Output mismatch: {astr} = {{{astr}}} (should be {_repr(value[idx], tmp.dtype)})')
+      elif cdebug:
+        XL.report(f'{{NOW}} Output match: {astr} = {{{astr}}}')
   else:
     tmp = XL.load(cvar.ref.name)
     if _values_differ(tmp, value, toll=toll):
       XL.report(f'{{NOW}} Output mismatch: {cvar.ref.name} = {{{cvar.ref.name}}} (should be {_repr(value, tmp.dtype)})')
+    elif cdebug:
+      XL.report(f'{{NOW}} Output match: {cvar.ref.name} = {{{cvar.ref.name}}}')
 
 
 class TestBench(Entity):

@@ -364,7 +364,7 @@ class VHDL_Emitter(Emitter):
 
   def eval_token(self, token):
     if token == 'NOW':
-      return 'to_string(now)'
+      return f'to_string(now, 1 {self.time_unit()})'
 
   def emit_finish(self):
     self.emit_code('std.env.finish;')
