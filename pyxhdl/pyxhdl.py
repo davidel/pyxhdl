@@ -767,7 +767,7 @@ class CodeGen(_ExecVisitor):
 
         pname = pin.ifc_field_name(fname)
       else:
-        if pname not in din:
+        if pname not in din and pname not in self._root_vars:
           fatal(f'Sensitivity source is not a port: {pname}')
 
       sensitivity[pname] = sens
