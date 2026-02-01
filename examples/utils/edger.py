@@ -58,14 +58,14 @@ class Test(X.Entity):
     RST_N = 1
     DIN = 1
 
-    XL.wait_until(POUT == 1)
+    TB.wait_rising(CLK)
 
     TB.compare_value(POUT, 1)
     TB.compare_value(NOUT, 0)
 
     DIN = 0
 
-    XL.wait_until(POUT == 0)
+    TB.wait_rising(CLK)
 
     TB.compare_value(POUT, 0)
     TB.compare_value(NOUT, 1)

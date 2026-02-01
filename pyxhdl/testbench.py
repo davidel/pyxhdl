@@ -242,6 +242,12 @@ def compare_value(var, value, toll=1e-5, debug=None):
       XL.report(f'{{NOW}} Output match: {cvar.ref.name} = {{{cvar.ref.name}}}')
 
 
+@hdl
+def wait_rising(var):
+  XL.wait_rising(var)
+  XL.wait_falling(var)
+
+
 class TestBench(Entity):
 
   PORTS = tuple()
