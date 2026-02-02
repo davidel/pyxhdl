@@ -795,6 +795,8 @@ class BlockRam(X.Entity):
 
   ARGS = dict(RAM_SIZE=None)
 
+  # The "vhdl" and "verilog" entries are for backend-specific attributes, and do
+  # not need to be present if empty. The "$common" ones will be used for all backends.
   RAM_ATTRIBUTES = {
     '$common': {
       'ram_style': 'block',
