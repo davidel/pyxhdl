@@ -1,68 +1,24 @@
+import py_misc_utils.module_utils as pymu
+
 import pyxhdl as X
 from pyxhdl import xlib as XL
 
-
-class AxisIfc(X.Interface):
-
-  MASTER = 'CLK, RST_N, TREADY, =TDATA, =TVALID'
-  SLAVE = 'CLK, RST_N, =TREADY, TDATA, TVALID'
-
-  def __init__(self, dtype, clk, reset):
-    super().__init__('AXIS')
-    self.mkfield('CLK', clk)
-    self.mkfield('RST_N', reset)
-    self.mkfield('TVALID', X.BIT)
-    self.mkfield('TREADY', X.BIT)
-    self.mkfield('TDATA', dtype)
-
-
-class AxisMaster(X.Entity):
-
-  PORTS = f'*IFC:{__name__}.AxisIfc.MASTER, WREN, DATA'
-
-  @X.hdl_process(sens='+IFC.CLK')
-  def run():
-    if not IFC.RST_N:
-      IFC.TVALID = 0
-    else:
-      if WREN:
-        IFC.TDATA = DATA
-        IFC.TVALID = 1
-      elif IFC.TREADY:
-        IFC.TVALID = 0
-
-
-class AxisSlave(X.Entity):
-
-  PORTS = f'*IFC:{__name__}.AxisIfc.SLAVE, =RDEN, =DATA'
-
-  @X.hdl_process(sens='+IFC.CLK')
-  def run():
-    if not IFC.RST_N:
-      IFC.TREADY = 0
-      RDEN = 0
-    else:
-      if IFC.TVALID:
-        DATA = IFC.TDATA
-        RDEN = 1
-        IFC.TREADY = 1
-      else:
-        RDEN = 0
+axis = pymu.rel_import_module('../utils/axis_ifc')
 
 
 class AxisEcho(X.Entity):
 
-  PORTS = 'CLK, RST_N, WDATA, WREN, =RDATA, =RDEN'
+  PORTS = 'CLK=bit, RST_N=bit, WDATA, WREN=bit, =RDATA, =RDEN=bit'
 
   @X.hdl_process(kind=X.ROOT_PROCESS)
   def root(self):
-    self.axis_ifc = AxisIfc(WDATA.dtype, CLK, RST_N)
+    self.axis_ifc = axis.AxisIfc(WDATA.dtype, CLK, RST_N)
 
-    AxisMaster(IFC=self.axis_ifc,
-               WREN=WREN,
-               DATA=WDATA)
+    axis.AxisMaster(IFC=self.axis_ifc,
+                    WREN=WREN,
+                    DATA=WDATA)
 
-    AxisSlave(IFC=self.axis_ifc,
-              DATA=RDATA,
-              RDEN=RDEN)
+    axis.AxisSlave(IFC=self.axis_ifc,
+                   DATA=RDATA,
+                   RDEN=RDEN)
 
