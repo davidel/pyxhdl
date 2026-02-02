@@ -282,8 +282,8 @@ architecture behavior of XLib is
 begin
   run : process (CLK, A, B)
   begin
-    report "TIME=" & to_string(now) & " A=" & to_hstring(A - B) & " B=" & to_hstring(A + B) & " arg1=" & "17" & " arg2=" & "PyXHDL" & " $$vanilla";
-    write(output, "TIME=" & to_string(now) & " A=" & to_hstring(A) & " B=" & to_hstring(B) & " arg1=" & "17" & " arg2=" & "PyXHDL" & " $$vanilla" & LF);
+    report "TIME=" & to_string(now, 1 ns) & " A=" & to_hstring(A - B) & " B=" & to_hstring(A + B) & " arg1=" & "17" & " arg2=" & "PyXHDL" & " $$vanilla";
+    write(output, "TIME=" & to_string(now, 1 ns) & " A=" & to_hstring(A) & " B=" & to_hstring(B) & " arg1=" & "17" & " arg2=" & "PyXHDL" & " $$vanilla" & LF);
     dummy.proc((A + B) + B, A - resize((A + B) * 2, 8));
     e <= dummy.func(A + 1, resize(B * 3, 8));
     ctx <= resize(A * B, 8) after 10 ns;

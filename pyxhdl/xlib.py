@@ -121,3 +121,9 @@ def generate_name(name, shortzero=False):
 
   return ctx.generate_name(name, shortzero=shortzero)
 
+
+def backend():
+  ctx = CodeGen.current()
+
+  return ctx.emitter.kind
+
