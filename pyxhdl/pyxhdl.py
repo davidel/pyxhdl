@@ -1466,8 +1466,8 @@ class CodeGen(_ExecVisitor):
 
     cnode = ast.parse(dcode, filename=filename, mode=mode)
 
-    cnode.lineno = 1
-    ast.increment_lineno(cnode, lineno - 1)
+    cnode.lineno = lineno
+    ast.fix_missing_locations(cnode)
 
     pyu.mlog(lambda: f'RUN CODE: {asu.dump(cnode)}')
 
