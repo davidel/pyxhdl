@@ -640,8 +640,8 @@ class UseArgsEntity(X.Entity):
     OOUT = X.mkreg(A.dtype)
     ArgsEntity(CLK=CLK,
                XIN=A,
-	       XOUT=OOUT,
-	       mask=63)
+               XOUT=OOUT,
+               mask=63)
     ...
 ```
 
