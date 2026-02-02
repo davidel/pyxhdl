@@ -467,8 +467,8 @@ class _ExecVisitor(_AstVisitor):
                       filename=self.location.filename,
                       mode='eval')
 
-    cnode.lineno = 1
-    ast.increment_lineno(cnode, self.location.lineno - 1)
+    cnode.lineno = self.location.lineno
+    ast.fix_missing_locations(cnode)
 
     ccode = compile(cnode, filename=self.location.filename, mode='eval')
 
