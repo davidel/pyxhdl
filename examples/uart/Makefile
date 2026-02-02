@@ -1,10 +1,11 @@
 
+SRCDIR ?= .
 LOG_LEVEL ?= INFO
 DATA_SOURCE ?= tb_generator.py
 CLK_FREQ ?= 100000000
 BAUD_RATE ?= 115200
 NUM_TESTS ?= 100
-SOURCES = uart_echo.py ${DATA_SOURCE}
+SOURCES = ${SRCDIR}/uart_echo.py ${DATA_SOURCE}
 
 CLK = "$(shell expr 1000000000 / ${CLK_FREQ})ns"
 
@@ -16,7 +17,7 @@ all: ${TARGETS}
 
 uart_tb.vhd: ${SOURCES}
 	python -m pyxhdl.generator \
-		--input_file uart_echo.py \
+		--input_file ${SRCDIR}/uart_echo.py \
 		--entity UartEcho \
 		--backend vhdl \
 		--inputs "CLK,RST_N,UIN,UOUT,CTS,RTS=mkvreg(BIT, 0)" \
@@ -31,7 +32,7 @@ uart_tb.vhd: ${SOURCES}
 
 uart_tb.sv: ${SOURCES}
 	python -m pyxhdl.generator \
-		--input_file uart_echo.py \
+		--input_file ${SRCDIR}/uart_echo.py \
 		--entity UartEcho \
 		--backend verilog \
 		--inputs "CLK,RST_N,UIN,UOUT,CTS,RTS=mkvreg(BIT, 0)" \

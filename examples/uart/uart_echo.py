@@ -8,7 +8,7 @@ uart = pymu.rel_import_module('../utils/uart')
 
 class UartEcho(X.Entity):
 
-  PORTS = 'CLK, RST_N, UIN, =UOUT, CTS, =RTS'
+  PORTS = 'CLK=bit, RST_N=bit, UIN=bit, =UOUT=bit, CTS=bit, =RTS=bit'
 
   ARGS = dict(clk_freq=50000000, baud_rate=115200)
 

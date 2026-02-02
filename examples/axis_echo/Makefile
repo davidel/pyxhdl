@@ -1,6 +1,6 @@
 
 SRCDIR ?= .
-LOGLEV ?= INFO
+LOG_LEVEL ?= INFO
 SOURCES = ${SRCDIR}/axis_echo.py ${SRCDIR}/axis_tb.yaml
 IFC_SOURCES = ${SRCDIR}/axis_echo_ifc.py ${SRCDIR}/axis_tb.yaml
 
@@ -20,7 +20,7 @@ axis_tb.vhd: ${SOURCES}
 		--testbench \
 		--tb_clock "CLK,10ns" \
 		--tb_input_file ${SRCDIR}/axis_tb.yaml \
-		--log_level ${LOGLEV} \
+		--log_level ${LOG_LEVEL} \
 		--output_file axis_tb.vhd
 
 axis_tb.sv: ${SOURCES}
@@ -33,7 +33,7 @@ axis_tb.sv: ${SOURCES}
 		--testbench \
 		--tb_clock "CLK,10ns" \
 		--tb_input_file ${SRCDIR}/axis_tb.yaml \
-		--log_level ${LOGLEV} \
+		--log_level ${LOG_LEVEL} \
 		--output_file axis_tb.sv
 
 axis_tb_ifc.vhd: ${IFC_SOURCES}
@@ -46,7 +46,7 @@ axis_tb_ifc.vhd: ${IFC_SOURCES}
 		--testbench \
 		--tb_clock "CLK,10ns" \
 		--tb_input_file ${SRCDIR}/axis_tb.yaml \
-		--log_level ${LOGLEV} \
+		--log_level ${LOG_LEVEL} \
 		--output_file axis_tb_ifc.vhd
 
 axis_tb_ifc.sv: ${IFC_SOURCES}
@@ -59,7 +59,7 @@ axis_tb_ifc.sv: ${IFC_SOURCES}
 		--testbench \
 		--tb_clock "CLK,10ns" \
 		--tb_input_file ${SRCDIR}/axis_tb.yaml \
-		--log_level ${LOGLEV} \
+		--log_level ${LOG_LEVEL} \
 		--output_file axis_tb_ifc.sv
 
 clean:
