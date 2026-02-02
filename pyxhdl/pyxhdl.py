@@ -456,11 +456,23 @@ class _ExecVisitor(_AstVisitor):
     pyu.mlog(lambda: f'DIRECT CALL: function={pyiu.func_name(func)} args={pyu.stri(args)} ' \
              f'kwargs={pyu.stri(kwargs)}')
 
-    # Do not call func(*args, **kwargs) directly as we need to insert the current
+    # We cannot call func(*args, **kwargs) directly as we need to insert the current
     # locals and globals.
     self.locals.update(__func=func, __args=args, __kwargs=kwargs)
 
-    return eval('__func(*__args, **__kwargs)', self.globals, self.locals)
+    # This is kinf of cumbersome. In order to inject the source code line number,
+    # we need to pass through the AST. Luckily enough the AST tree is very small
+    # for the call expression below.
+    cnode = ast.parse('__func(*__args, **__kwargs)',
+                      filename=self.location.filename,
+                      mode='eval')
+
+    cnode.lineno = 1
+    ast.increment_lineno(cnode, self.location.lineno - 1)
+
+    ccode = compile(cnode, filename=self.location.filename, mode='eval')
+
+    return eval(ccode, self.globals, self.locals)
 
   def _is_hdl_function(self, func):
     if is_hdl_function(func):
@@ -1449,15 +1461,13 @@ class CodeGen(_ExecVisitor):
   def context(self):
     return pytc.Context(_CGENCTX, self)
 
-  def run_code(self, code, args, mode, filename=None, lineno=None):
+  def run_code(self, code, args, mode, filename='<string>', lineno=1):
     dcode = textwrap.dedent(code)
 
-    if filename is None:
-      filename, lineno = pyiu.parent_coords()
-
     cnode = ast.parse(dcode, filename=filename, mode=mode)
-    cnode.lineno = lineno
-    ast.fix_missing_locations(cnode)
+
+    cnode.lineno = 1
+    ast.increment_lineno(cnode, lineno - 1)
 
     pyu.mlog(lambda: f'RUN CODE: {asu.dump(cnode)}')
 
@@ -1510,4 +1520,7 @@ class CodeGen(_ExecVisitor):
 
   def generate_name(self, name, shortzero=False):
     return self._revgen.newname(name, shortzero=shortzero)
+
+  def get_frames(self):
+    return tuple((f.location.filename, f.location.lineno) for f in self._frames)
 
