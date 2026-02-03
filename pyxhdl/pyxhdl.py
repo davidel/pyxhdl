@@ -247,7 +247,7 @@ class _ExecVisitor(_AstVisitor):
       self.locals[name] = value
 
   def _add_variable(self, name, dtype, isreg, init=None, vspec=None):
-    pyu.mlog(lambda: f'NEW VAR: {valkind(isreg)} {dtype}\t{name}\t{init}\t{vspec}')
+    alog.debug(lambda: f'NEW VAR: {valkind(isreg)} {dtype}\t{name}\t{init}\t{vspec}')
 
     self.variables[name] = Variable(dtype, isreg, init=init, vspec=vspec)
 
@@ -266,7 +266,7 @@ class _ExecVisitor(_AstVisitor):
       if visit_node:
         self.visit(node)
       else:
-        pyu.mlog(lambda: asu.dump(node))
+        alog.debug(lambda: asu.dump(node))
         self.generic_visit(node)
     finally:
       self._results.pop()
@@ -317,7 +317,7 @@ class _ExecVisitor(_AstVisitor):
     return [node]
 
   def _populate_args_locals(self, sig, args, kwargs, func_locals):
-    pyu.mlog(lambda: f'Build Args: ARGS={args}\tKWARGS={kwargs}\tFNLOCALS={func_locals}')
+    alog.debug(lambda: f'Build Args: ARGS={args}\tKWARGS={kwargs}\tFNLOCALS={func_locals}')
 
     n, xkwargs = 0, kwargs.copy()
     for param in sig.parameters.values():
@@ -400,15 +400,15 @@ class _ExecVisitor(_AstVisitor):
     func = getattr(func, '__wrapped__', func)
 
     sig = inspect.signature(func)
-    pyu.mlog(lambda: f'Signature: {sig}')
+    alog.debug(lambda: f'Signature: {sig}')
 
     fninfo = get_function_info(func)
-    pyu.mlog(lambda: f'Source: {fninfo.filename} @ {fninfo.lineno}\n{fninfo.source}')
+    alog.debug(lambda: f'Source: {fninfo.filename} @ {fninfo.lineno}\n{fninfo.source}')
 
     func_node = ast.parse(fninfo.source, filename=fninfo.filename, mode='exec')
 
     func_node = ast_hdl_transform(func_node)
-    pyu.mlog(lambda: f'FUNC AST: {asu.dump(func_node)}')
+    alog.debug(lambda: f'FUNC AST: {asu.dump(func_node)}')
 
     func_locals = dict()
     if func_self is not None:
@@ -438,13 +438,13 @@ class _ExecVisitor(_AstVisitor):
     else:
       result = frame.yields if frame.yields else frame.retval
 
-    pyu.mlog(lambda: f'RESULT: {result}\tEXIT LOCALS: {pyu.stri(func_locals)}')
+    alog.debug(lambda: f'RESULT: {result}\tEXIT LOCALS: {pyu.stri(func_locals)}')
 
     return result
 
   def _run_class_function(self, func, args, kwargs):
-    pyu.mlog(lambda: f'OBJECT CREATE: class={pyiu.func_name(func)} args={pyu.stri(args)} ' \
-             f'kwargs={pyu.stri(kwargs)}')
+    alog.debug(lambda: f'OBJECT CREATE: class={pyiu.func_name(func)} args={pyu.stri(args)} ' \
+               f'kwargs={pyu.stri(kwargs)}')
     obj = func.__new__(func, *args, **kwargs)
     init = getattr(func, '__init__', None)
     if init is not None:
@@ -453,8 +453,8 @@ class _ExecVisitor(_AstVisitor):
     return obj
 
   def _call_direct(self, func, args, kwargs):
-    pyu.mlog(lambda: f'DIRECT CALL: function={pyiu.func_name(func)} args={pyu.stri(args)} ' \
-             f'kwargs={pyu.stri(kwargs)}')
+    alog.debug(lambda: f'DIRECT CALL: function={pyiu.func_name(func)} args={pyu.stri(args)} ' \
+               f'kwargs={pyu.stri(kwargs)}')
 
     # We cannot call func(*args, **kwargs) directly as we need to insert the current
     # locals and globals.
@@ -533,7 +533,7 @@ class CodeGen(_ExecVisitor):
     # This is the default handler when a specific visit_XXX() method does not exist.
     # If something is not working, look for 'FAST STATIC' within the logs, which will
     # tell which node is escaping from the PyXHDL interpreter.
-    pyu.mlog(lambda: f'FAST STATIC: {asu.dump(node)}')
+    alog.debug(lambda: f'FAST STATIC: {asu.dump(node)}')
     self._static_eval(node)
 
   def load_var(self, name, ctx=ast.Load()):
@@ -581,9 +581,9 @@ class CodeGen(_ExecVisitor):
         alog.warning(f'Cannot create "{var.name}" as {valkind(value.isreg)}, ' \
                      f'will be {valkind(var.isreg)}')
       if isinstance(value.value, Init):
-        pyu.mlog(lambda: f'ASSIGN CREATE: {name} is {value.dtype} = {value.value}')
+        alog.debug(lambda: f'ASSIGN CREATE: {name} is {value.dtype} = {value.value}')
       else:
-        pyu.mlog(lambda: f'ASSIGN CREATE: {name} is {value.dtype}')
+        alog.debug(lambda: f'ASSIGN CREATE: {name} is {value.dtype}')
     else:
       if is_ro_ref(var):
         fatal(f'{var.name} is read-only')
@@ -591,7 +591,7 @@ class CodeGen(_ExecVisitor):
       self.emitter.emit_assign(var, name, value)
 
   def _assign_value(self, var, value, name):
-    pyu.mlog(lambda: f'ASSIGN: {var} ({name}) = {value}')
+    alog.debug(lambda: f'ASSIGN: {var} ({name}) = {value}')
 
     if not isinstance(var, Value):
       if isinstance(value, Value):
@@ -643,7 +643,7 @@ class CodeGen(_ExecVisitor):
           self._unpack_value(t, v, dest)
 
   def _handle_array(self, node, atype):
-    pyu.mlog(lambda: asu.dump(node))
+    alog.debug(lambda: asu.dump(node))
     values = [self.eval_node(n) for n in node.elts]
 
     self.push_result(atype(values))
@@ -653,8 +653,8 @@ class CodeGen(_ExecVisitor):
 
   def _handle_call(self, func, args, kwargs):
     if pyiu.is_subclass(func, Entity):
-      pyu.mlog(lambda: f'Entity instantiation: {pyiu.func_name(func)} args={pyu.stri(args)} ' \
-               f'kwargs={pyu.stri(kwargs)}')
+      alog.debug(lambda: f'Entity instantiation: {pyiu.func_name(func)} args={pyu.stri(args)} ' \
+                 f'kwargs={pyu.stri(kwargs)}')
       # We do not run the Entity init code with run_function() as this is not what
       # we want. Doing so will end up emitting HDL code.
       # Entities constructors cannot perform operations which lead to HDL code emission.
@@ -677,7 +677,7 @@ class CodeGen(_ExecVisitor):
     self._process_args = process_args
 
   def _process_scope_exit(self):
-    pyu.mlog(lambda: f'Variables stack is {len(self._variables)} deep')
+    alog.debug(lambda: f'Variables stack is {len(self._variables)} deep')
 
     svars = self._variables.pop()
     place = self._vars_places.pop()
@@ -688,7 +688,7 @@ class CodeGen(_ExecVisitor):
         if emt.is_root_variable(var):
           root_vars[name] = var
         else:
-          pyu.mlog(lambda: f'VARIABLE: {valkind(var.isreg)} {var.dtype} {name}')
+          alog.debug(lambda: f'VARIABLE: {valkind(var.isreg)} {var.dtype} {name}')
           emt.emit_declare_variable(name, var)
 
     with self.emitter.placement(self.emitter.module_vars_place) as emt:
@@ -698,7 +698,7 @@ class CodeGen(_ExecVisitor):
           if shv != var:
             fatal(f'Root variable declaration mismatch: {pyu.stri(var)} vs. {pyu.stri(shv)}')
         else:
-          pyu.mlog(lambda: f'ROOT VARIABLE: {valkind(var.isreg)} {var.dtype} {name}')
+          alog.debug(lambda: f'ROOT VARIABLE: {valkind(var.isreg)} {var.dtype} {name}')
           emt.emit_declare_variable(name, var)
 
     self._root_vars.update(**root_vars)
@@ -776,19 +776,19 @@ class CodeGen(_ExecVisitor):
 
       sensitivity[pname] = sens
 
-      pyu.mlog(lambda: f'Sensitivity: {pname} {sens.trigger}')
+      alog.debug(lambda: f'Sensitivity: {pname} {sens.trigger}')
 
     return sensitivity
 
   def generate_entity(self, eclass, eargs):
-    pyu.mlog(lambda: f'Entity {eclass.__name__}')
+    alog.debug(lambda: f'Entity {eclass.__name__}')
 
     ent_name = self._register_entity(eclass, eargs, generated=True)
 
     kwargs = eargs.copy()
     din, cargs = dict(), dict()
     for pin in eclass.PORTS:
-      pyu.mlog(lambda: f'Port: {pin.name} {pin.idir}')
+      alog.debug(lambda: f'Port: {pin.name} {pin.idir}')
 
       arg = kwargs.pop(pin.name, None)
       if arg is None:
@@ -813,7 +813,7 @@ class CodeGen(_ExecVisitor):
       rarg = kwargs.get(kwarg_name, arg)
       kwargs[kwarg_name] = rarg
 
-      pyu.mlog(lambda: f'Arg: {kwarg_name} = {rarg}')
+      alog.debug(lambda: f'Arg: {kwarg_name} = {rarg}')
 
     uw_kwargs = {k: unwrap(v) for k, v in kwargs.items()}
     ent_args = pycu.dmerge(cargs, uw_kwargs)
@@ -834,7 +834,7 @@ class CodeGen(_ExecVisitor):
     for func in ent.enum_processes():
       hdl_args = get_hdl_args(func) or dict()
 
-      pyu.mlog(lambda: f'Process function: {pyiu.func_name(func)}')
+      alog.debug(lambda: f'Process function: {pyiu.func_name(func)}')
 
       sensitivity = self._get_sensitivity(hdl_args, din)
       process_kind = hdl_args.get('kind')
@@ -910,7 +910,7 @@ class CodeGen(_ExecVisitor):
     self._handle_array(node, list)
 
   def visit_Set(self, node):
-    pyu.mlog(lambda: asu.dump(node))
+    alog.debug(lambda: asu.dump(node))
     result = set()
     for snode in node.elts:
       result.add(self.eval_node(snode))
@@ -918,7 +918,7 @@ class CodeGen(_ExecVisitor):
     self.push_result(result)
 
   def visit_Dict(self, node):
-    pyu.mlog(lambda: asu.dump(node))
+    alog.debug(lambda: asu.dump(node))
     result = dict()
     for knode, vnode in zip(node.keys, node.values):
       k = self.eval_node(knode)
@@ -928,7 +928,7 @@ class CodeGen(_ExecVisitor):
     self.push_result(result)
 
   def visit_Name(self, node):
-    pyu.mlog(lambda: asu.dump(node))
+    alog.debug(lambda: asu.dump(node))
     result = self.load_var(node.id, ctx=node.ctx)
     self.push_result(result)
 
@@ -966,7 +966,7 @@ class CodeGen(_ExecVisitor):
     self.push_result(result)
 
   def visit_BoolOp(self, node):
-    pyu.mlog(lambda: asu.dump(node))
+    alog.debug(lambda: asu.dump(node))
 
     # Implement AND(False, ...) and OR(True, ...) shortcutting.
     result, values = None, []
@@ -1006,7 +1006,7 @@ class CodeGen(_ExecVisitor):
     self.push_result(result)
 
   def visit_Lambda(self, node):
-    pyu.mlog(lambda: asu.dump(node))
+    alog.debug(lambda: asu.dump(node))
 
     flocals = self.locals
 
@@ -1021,7 +1021,7 @@ class CodeGen(_ExecVisitor):
       with self._frame(self.frame.new_locals(func_locals)):
         result = self.eval_node(node.body)
 
-      pyu.mlog(lambda: f'LM RESULT {result}\tLOCALS: {pyu.stri(func_locals)}')
+      alog.debug(lambda: f'LM RESULT {result}\tLOCALS: {pyu.stri(func_locals)}')
 
       return result
 
@@ -1052,7 +1052,7 @@ class CodeGen(_ExecVisitor):
         for name, value in kwval.items():
           kwargs[name] = self._prepare_call_arg(value)
 
-    pyu.mlog(lambda: f'CALL: {func}\t{pyu.stri(args)}\t{pyu.stri(kwargs)}')
+    alog.debug(lambda: f'CALL: {func}\t{pyu.stri(args)}\t{pyu.stri(kwargs)}')
 
     result = self._handle_call(func, args, kwargs)
 
@@ -1247,7 +1247,7 @@ class CodeGen(_ExecVisitor):
 
         self.emitter.emit_EndIf()
     else:
-      pyu.mlog(lambda: f'Resolving static If test: {asu.dump(node.test)}')
+      alog.debug(lambda: f'Resolving static If test: {asu.dump(node.test)}')
       if test:
         for insn in node.body:
           self.eval_node(insn)
@@ -1256,7 +1256,7 @@ class CodeGen(_ExecVisitor):
           self.eval_node(insn)
 
   def visit_For(self, node):
-    pyu.mlog(lambda: asu.dump(node))
+    alog.debug(lambda: asu.dump(node))
 
     for_iter = self.eval_node(node.iter)
     for t in for_iter:
@@ -1276,7 +1276,7 @@ class CodeGen(_ExecVisitor):
         break
 
   def visit_While(self, node):
-    pyu.mlog(lambda: asu.dump(node))
+    alog.debug(lambda: asu.dump(node))
 
     while True:
       test = self.eval_node(node.test)
@@ -1300,11 +1300,11 @@ class CodeGen(_ExecVisitor):
         break
 
   def visit_Break(self, node):
-    pyu.mlog(lambda: asu.dump(node))
+    alog.debug(lambda: asu.dump(node))
     raise _BreakException()
 
   def visit_Continue(self, node):
-    pyu.mlog(lambda: asu.dump(node))
+    alog.debug(lambda: asu.dump(node))
     raise _ContinueException()
 
   def visit_Try(self, node):
@@ -1312,7 +1312,7 @@ class CodeGen(_ExecVisitor):
       for bnode in node.body:
         self.visit(bnode)
     except Exception as e:
-      pyu.mlog(lambda: f'Caught exception: {e}')
+      alog.debug(lambda: f'Caught exception: {e}')
       for xhand in node.handlers:
         xtype = self.eval_node(xhand.type)
         if isinstance(e, xtype):
@@ -1368,7 +1368,7 @@ class CodeGen(_ExecVisitor):
       raise wex
 
   def visit_Return(self, node):
-    pyu.mlog(lambda: asu.dump(node))
+    alog.debug(lambda: asu.dump(node))
     value = self.eval_node(node.value) if node.value is not None else None
     if self.frame.in_hdl_branch:
       retval = _Return(value=value, placement=self.emitter.emit_placement())
@@ -1380,7 +1380,7 @@ class CodeGen(_ExecVisitor):
     # Yielded values are accumulated into yields list setup by the function call
     # processing. This is different from how they are implemented in CPython but
     # they are much easier to implement.
-    pyu.mlog(lambda: asu.dump(node))
+    alog.debug(lambda: asu.dump(node))
     value = self.eval_node(node.value)
     self.push_yield(value)
 
@@ -1388,7 +1388,7 @@ class CodeGen(_ExecVisitor):
     # Yielded values are accumulated into yields list setup by the function call
     # processing. This is different from how they are implemented in CPython but
     # they are much easier to implement.
-    pyu.mlog(lambda: asu.dump(node))
+    alog.debug(lambda: asu.dump(node))
     yiter = self.eval_node(node.value)
     for value in yiter:
       self.push_yield(value)
@@ -1416,7 +1416,7 @@ class CodeGen(_ExecVisitor):
     self.emitter.emit_match_cases(subject, cases)
 
   def visit_MatchAs(self, node):
-    pyu.mlog(lambda: asu.dump(node))
+    alog.debug(lambda: asu.dump(node))
     if node.pattern:
       result = self.eval_node(node.pattern)
       assert node.name is None, 'TBH'
@@ -1429,12 +1429,12 @@ class CodeGen(_ExecVisitor):
     self.push_result(result)
 
   def visit_MatchValue(self, node):
-    pyu.mlog(lambda: asu.dump(node))
+    alog.debug(lambda: asu.dump(node))
     result = self.eval_node(node.value)
     self.push_result(result)
 
   def visit_MatchSequence(self, node):
-    pyu.mlog(lambda: asu.dump(node))
+    alog.debug(lambda: asu.dump(node))
     patterns = []
     for ptrn in node.patterns:
       value = self.eval_node(ptrn)
@@ -1457,7 +1457,7 @@ class CodeGen(_ExecVisitor):
     cnode.lineno = lineno
     ast.fix_missing_locations(cnode)
 
-    pyu.mlog(lambda: f'RUN CODE: {asu.dump(cnode)}')
+    alog.debug(lambda: f'RUN CODE: {asu.dump(cnode)}')
 
     if mode == 'exec':
       with self._exec_locals(args):
@@ -1474,7 +1474,7 @@ class CodeGen(_ExecVisitor):
 
   def emit_code(self, code, **kwargs):
     dcode = textwrap.dedent(code)
-    pyu.mlog(lambda: f'INLINE CODE:\n{dcode}')
+    alog.debug(lambda: f'INLINE CODE:\n{dcode}')
 
     hcode = self._resolve_code(dcode, kwargs)
     self.emitter.emit_code(hcode)

@@ -424,7 +424,7 @@ class Emitter:
   def _load_libs(self, extra_libs=tuple()):
     pkgdir = os.path.dirname(__file__)
     libdir = os.path.join(pkgdir, 'hdl_libs', self.kind)
-    pyu.mlog(lambda: f'Using {self.kind} library folder {libdir}')
+    alog.debug(lambda: f'Using {self.kind} library folder {libdir}')
 
     libcode, loaded = [], set()
 
@@ -437,7 +437,7 @@ class Emitter:
       for libfname in libs:
         if libfname and not libfname.startswith('#'):
           lpath = os.path.join(libdir, libfname)
-          pyu.mlog(lambda: f'Loading {self.kind} library file {lpath}')
+          alog.debug(lambda: f'Loading {self.kind} library file {lpath}')
           libcode.extend(self._load_code(lpath).split('\n'))
           loaded.add(os.path.splitext(libfname)[0])
 
@@ -453,7 +453,7 @@ class Emitter:
       for path in lib_paths:
         lpath = os.path.join(path, libfname)
         if os.path.isfile(lpath):
-          pyu.mlog(lambda: f'Loading {self.kind} library file {lpath}')
+          alog.debug(lambda: f'Loading {self.kind} library file {lpath}')
           libcode.extend(self._load_code(lpath).split('\n'))
           loaded.add(libname)
           break
@@ -469,14 +469,14 @@ class Emitter:
         if not os.path.isabs(lpath):
           lpath = os.path.abspath(os.path.join(cpath, lpath))
 
-        pyu.mlog(lambda: f'Loading {self.kind} library file {lpath}')
+        alog.debug(lambda: f'Loading {self.kind} library file {lpath}')
         libcode.extend(self._load_code(lpath).split('\n'))
 
     for lpath in self._cfg.get('libs', dict()).get(self.kind, []):
       if not os.path.isabs(lpath):
         lpath = os.path.abspath(os.path.join(cpath, lpath))
 
-      pyu.mlog(lambda: f'Loading {self.kind} library file {lpath}')
+      alog.debug(lambda: f'Loading {self.kind} library file {lpath}')
       libcode.extend(self._load_code(lpath).split('\n'))
 
     # Add user defined modules within the PyXHDL code.
@@ -543,7 +543,7 @@ class Emitter:
 
     call = f'{fname}({cargs})'
 
-    pyu.mlog(lambda: f'{call} -> {dtype}')
+    alog.debug(lambda: f'{call} -> {dtype}')
 
     # None return type means no return value call, which is emitted directly.
     # Otherwise it is a function, which returns a Value, which materializes only
