@@ -3,7 +3,7 @@ import py_misc_utils.module_utils as pymu
 import pyxhdl as X
 from pyxhdl import xlib as XL
 
-uart = pymu.rel_import_module('../utils/uart')
+uart = pymu.rel_import_module('../utils/uart', __file__)
 
 
 class UartEcho(X.Entity):

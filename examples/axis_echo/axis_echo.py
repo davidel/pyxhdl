@@ -1,9 +1,5 @@
-import py_misc_utils.module_utils as pymu
-
 import pyxhdl as X
 from pyxhdl import xlib as XL
-
-axis = pymu.rel_import_module('../utils/axis')
 
 
 class AxisEcho(X.Entity):
@@ -12,6 +8,10 @@ class AxisEcho(X.Entity):
 
   @X.hdl_process(kind=X.ROOT_PROCESS)
   def root():
+    import py_misc_utils.module_utils as pymu
+
+    axis = pymu.rel_import_module('../utils/axis', __file__)
+
     TVALID = X.mkreg(X.BIT)
     TREADY = X.mkreg(X.BIT)
     TDATA = X.mkreg(WDATA.dtype)

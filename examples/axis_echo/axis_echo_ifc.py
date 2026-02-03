@@ -3,7 +3,7 @@ import py_misc_utils.module_utils as pymu
 import pyxhdl as X
 from pyxhdl import xlib as XL
 
-axis = pymu.rel_import_module('../utils/axis_ifc')
+axis = pymu.rel_import_module('../utils/axis_ifc', __file__)
 
 
 class AxisEcho(X.Entity):
