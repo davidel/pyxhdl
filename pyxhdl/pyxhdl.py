@@ -294,7 +294,7 @@ class _ExecVisitor(_AstVisitor):
       # These are internal exceptions meant to be left as is.
       raise
     except Exception as ex:
-      raise self._annotated_exception(ex)
+      raise self._annotated_exception(ex) from None
 
   def push_result(self, result):
     results = self.results
