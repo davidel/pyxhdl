@@ -2,7 +2,6 @@ import re
 
 import py_misc_utils.core_utils as pycu
 import py_misc_utils.inspect_utils as pyiu
-import py_misc_utils.module_utils as pymu
 import py_misc_utils.utils as pyu
 
 from .decorators import *
@@ -15,10 +14,12 @@ from .utils import *
 class _InterfaceBase:
 
   def __init__(self, name, **kwargs):
+    from . import xlib
+
     self.name = name
     self.args = tuple(sorted(kwargs.keys()))
     self.fields = dict()
-    self.xlib = pymu.rel_import_module('xlib')
+    self.xlib = xlib
 
     for k, v in kwargs.items():
       setattr(self, k, v)
