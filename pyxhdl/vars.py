@@ -208,14 +208,6 @@ def mknone(dtype):
   return Register(dtype, None)
 
 
-def make_ro_ref(v):
-  vref = v.ref
-  if vref is not None and vref.mode != Ref.RO:
-    return v.new_value(vref.new_mode(Ref.RO))
-
-  return v
-
-
 def is_ro_ref(v):
   vref = v.ref
 

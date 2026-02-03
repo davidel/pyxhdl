@@ -586,7 +586,7 @@ class CodeGen(_ExecVisitor):
         alog.debug(lambda: f'ASSIGN CREATE: {name} is {value.dtype}')
     else:
       if is_ro_ref(var):
-        fatal(f'{var.name} is read-only')
+        fatal(f'Trying to assign {var.name} which is read-only')
 
       self.emitter.emit_assign(var, name, value)
 
@@ -647,9 +647,6 @@ class CodeGen(_ExecVisitor):
     values = [self.eval_node(n) for n in node.elts]
 
     self.push_result(atype(values))
-
-  def _prepare_call_arg(self, arg):
-    return make_ro_ref(arg) if isinstance(arg, Value) else arg
 
   def _handle_call(self, func, args, kwargs):
     if pyiu.is_subclass(func, Entity):
@@ -1035,22 +1032,22 @@ class CodeGen(_ExecVisitor):
       if isinstance(carg, ast.Starred):
         value = self.eval_node(carg.value)
         for svalue in elements(value):
-          args.append(self._prepare_call_arg(svalue))
+          args.append(svalue)
       else:
         value = self.eval_node(carg)
-        args.append(self._prepare_call_arg(value))
+        args.append(value)
 
     kwargs = dict()
     for kwarg in node.keywords:
       kwval = self.eval_node(kwarg.value)
       if kwarg.arg:
-        kwargs[kwarg.arg] = self._prepare_call_arg(kwval)
+        kwargs[kwarg.arg] = kwval
       else:
         if not pycu.isdict(kwval):
           fatal(f'Wrong type: {type(kwval)}')
 
         for name, value in kwval.items():
-          kwargs[name] = self._prepare_call_arg(value)
+          kwargs[name] = value
 
     alog.debug(lambda: f'CALL: {func}\t{pyu.stri(args)}\t{pyu.stri(kwargs)}')
 
@@ -1081,7 +1078,7 @@ class CodeGen(_ExecVisitor):
       result = getattr(value, node.attr)
     elif isinstance(node.ctx, ast.Store):
       if isinstance(value, Value) and is_ro_ref(value):
-        fatal(f'{value.name} is read-only')
+        fatal(f'Trying to assign attribute {node.attr} of {value.name}, which is read-only')
 
       result = _Storer(self._attr_storefn(value, node.attr))
     else:
@@ -1096,10 +1093,11 @@ class CodeGen(_ExecVisitor):
 
   def visit_Subscript(self, node):
     value = self._load_subs_attr(node.value, node.ctx)
-    if isinstance(value, Value) and isinstance(node.ctx, ast.Store) and is_ro_ref(value):
-      fatal(f'{value.name} is read-only')
-
     sv = self.eval_node(node.slice)
+
+    if isinstance(value, Value) and isinstance(node.ctx, ast.Store) and is_ro_ref(value):
+      fatal(f'Trying to assign subscript {sv} of {value.name}, which is read-only')
+
     if isinstance(value, Value):
       result = self.emitter.eval_Subscript(value, sv)
     elif isinstance(node.ctx, ast.Load):

@@ -16,7 +16,8 @@ class MyInterface(X.Interface):
 
   def __init__(self, fields, **kwargs):
     super().__init__('MYIFC', **kwargs)
-    self.mkfield('Z', 'u16')
+    if not 'Z' in fields:
+      self.mkfield('Z', 'u16')
     for k, v in fields.items():
       self.mkfield(k, v)
 
@@ -58,6 +59,30 @@ class InterfaceTest(X.Entity):
     else:
       self.ifc.X += self.ifc.Q
       self.ifc.Y -= 1
+      XOUT = self.ifc.Q + 3
+
+
+class InterfaceArrayTest(X.Entity):
+
+  PORTS = 'CLK, RST_N, A, =XOUT'
+
+  @X.hdl_process(kind=X.ROOT_PROCESS)
+  def root(self):
+    self.ifc = MyInterface(dict(Q=A[0], Z=XOUT[0]))
+
+    IfcEnt(A=A[0],
+           B=A[1],
+           IFC=self.ifc)
+
+  @X.hdl_process(sens='+CLK')
+  def run(self):
+    if not RST_N:
+      XOUT[1] = 0
+      self.ifc.reset()
+    else:
+      self.ifc.X -= self.ifc.Q
+      self.ifc.Y += 1
+      XOUT[1] = self.ifc.Q * 3
 
 
 class TestInterface(unittest.TestCase):
@@ -68,9 +93,18 @@ class TestInterface(unittest.TestCase):
       RST_N=X.mkwire(X.BIT),
       A=X.mkwire(X.UINT8),
       B=X.mkwire(X.UINT8),
-
       XOUT=X.mkreg(X.UINT8),
     )
 
     tu.run(self, tu.test_name(self, pyu.fname()), InterfaceTest, inputs)
+
+  def test_interface_array(self):
+    inputs = dict(
+      CLK=X.mkwire(X.BIT),
+      RST_N=X.mkwire(X.BIT),
+      A=X.mkwire(X.mkarray(X.UINT8, 2)),
+      XOUT=X.mkreg(X.mkarray(X.UINT8, 2)),
+    )
+
+    tu.run(self, tu.test_name(self, pyu.fname()), InterfaceArrayTest, inputs)
 

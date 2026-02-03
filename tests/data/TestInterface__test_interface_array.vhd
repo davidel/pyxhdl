@@ -224,16 +224,15 @@ use std.textio.all;
 library work;
 use work.all;
 
--- Entity "InterfaceTest" is "InterfaceTest" with:
--- 	args={'CLK': 'bits(1)', 'RST_N': 'bits(1)', 'A': 'uint(8)', 'B': 'uint(8)', 'XOUT': 'uint(8)'}
+-- Entity "InterfaceArrayTest" is "InterfaceArrayTest" with:
+-- 	args={'CLK': 'bits(1)', 'RST_N': 'bits(1)', 'A': 'uint(2, 8)', 'XOUT': 'uint(2, 8)'}
 -- 	kwargs={}
-entity InterfaceTest is
+entity InterfaceArrayTest is
   port (
     CLK : in std_logic;
     RST_N : in std_logic;
-    A : in unsigned(7 downto 0);
-    B : in unsigned(7 downto 0);
-    XOUT : out unsigned(7 downto 0)
+    A : in pyxhdl.uint_array1d(0 to 1)(7 downto 0);
+    XOUT : out pyxhdl.uint_array1d(0 to 1)(7 downto 0)
   );
 end entity;
 library ieee;
@@ -247,7 +246,7 @@ library work;
 use work.all;
 
 -- Entity "IfcEnt" is "IfcEnt" with:
--- 	args={'A': 'uint(8)', 'B': 'uint(8)', 'IFC': 'InterfaceView(X:uint(16), Y:uint(16), Q:uint(8), Z:uint(16))'}
+-- 	args={'A': 'uint(8)', 'B': 'uint(8)', 'IFC': 'InterfaceView(X:uint(16), Y:uint(16), Q:uint(8), Z:uint(8))'}
 -- 	kwargs={}
 entity IfcEnt is
   port (
@@ -256,7 +255,7 @@ entity IfcEnt is
     IFC_X : in unsigned(15 downto 0);
     IFC_Y : in unsigned(15 downto 0);
     IFC_Q : in unsigned(7 downto 0);
-    IFC_Z : out unsigned(15 downto 0)
+    IFC_Z : out unsigned(7 downto 0)
   );
 end entity;
 library ieee;
@@ -269,34 +268,33 @@ use std.textio.all;
 library work;
 use work.all;
 
--- Entity "InterfaceTest" is "InterfaceTest" with:
--- 	args={'CLK': 'bits(1)', 'RST_N': 'bits(1)', 'A': 'uint(8)', 'B': 'uint(8)', 'XOUT': 'uint(8)'}
+-- Entity "InterfaceArrayTest" is "InterfaceArrayTest" with:
+-- 	args={'CLK': 'bits(1)', 'RST_N': 'bits(1)', 'A': 'uint(2, 8)', 'XOUT': 'uint(2, 8)'}
 -- 	kwargs={}
-architecture behavior of InterfaceTest is
+architecture behavior of InterfaceArrayTest is
   signal MYIFC_X : unsigned(15 downto 0);
   signal MYIFC_Y : unsigned(15 downto 0) := to_unsigned(0, 16);
-  signal MYIFC_Z : unsigned(15 downto 0);
 begin
   IfcEnt_1 : entity IfcEnt
   port map (
-    A => A,
-    B => B,
+    A => A(0),
+    B => A(1),
     IFC_X => MYIFC_X,
     IFC_Y => MYIFC_Y,
-    IFC_Q => A,
-    IFC_Z => MYIFC_Z
+    IFC_Q => A(0),
+    IFC_Z => XOUT(0)
   );
   run : process (CLK)
   begin
     if rising_edge(CLK) then
       if (not RST_N) /= '0' then
-        XOUT <= to_unsigned(0, 8);
+        XOUT(1) <= to_unsigned(0, 8);
         MYIFC_X <= to_unsigned(17, 16);
         MYIFC_Y <= to_unsigned(21, 16);
       else
-        MYIFC_X <= MYIFC_X + resize(A, 16);
-        MYIFC_Y <= MYIFC_Y - 1;
-        XOUT <= A + 3;
+        MYIFC_X <= MYIFC_X - resize(A(0), 16);
+        MYIFC_Y <= MYIFC_Y + 1;
+        XOUT(1) <= resize(A(0) * 3, 8);
       end if;
     end if;
   end process;
@@ -312,12 +310,12 @@ library work;
 use work.all;
 
 -- Entity "IfcEnt" is "IfcEnt" with:
--- 	args={'A': 'uint(8)', 'B': 'uint(8)', 'IFC': 'InterfaceView(X:uint(16), Y:uint(16), Q:uint(8), Z:uint(16))'}
+-- 	args={'A': 'uint(8)', 'B': 'uint(8)', 'IFC': 'InterfaceView(X:uint(16), Y:uint(16), Q:uint(8), Z:uint(8))'}
 -- 	kwargs={}
 architecture behavior of IfcEnt is
 begin
   sensif : process (A, B, IFC_X, IFC_Y, IFC_Q)
   begin
-    IFC_Z <= resize((A and B) or (A xor B), 16) or ((IFC_X + IFC_Y) - resize(IFC_Q, 16));
+    IFC_Z <= resize(resize((A and B) or (A xor B), 16) or ((IFC_X + IFC_Y) - resize(IFC_Q, 16)), 8);
   end process;
 end architecture;

@@ -79,3 +79,90 @@ class Ioctx(X.Entity):
             else:
               IFC.ERROR = 2
 
+
+class Test(X.Entity):
+
+  ARGS = dict(clock_frequency=100e6,
+              num_tests=10,
+              num_channels=4,
+              width=8) | Ioctx.ARGS
+
+  @X.hdl_process(kind=X.ROOT_PROCESS)
+  def root(self):
+    import py_misc_utils.module_utils as pymu
+
+    from . import clock
+
+    axis = pymu.rel_import_module('../utils/axis', __file__)
+
+    CLK = X.mkreg(X.BIT)
+
+    clock.Clock(CLK=CLK,
+                frequency=clock_frequency)
+
+    RST_N = X.mkreg(X.BIT)
+
+    self.ifc = IoctxIfc(CLK, RST_N,
+                        num_channels=num_channels,
+                        width=width)
+
+    Ioctx(IFC=self.ifc,
+          **{k: locals()[k] for k in Ioctx.ARGS.keys()})
+
+    for i in range(num_channels):
+      axis.AxisMaster(CLK=CLK,
+                      RST_N=RST_N,
+                      WREN=self.ifc.WREN,
+                      DATA=self.ifc.WDATA,
+                      TREADY=self.ifc.S_TREADY[i],
+                      TDATA=self.ifc.S_TDATA[i],
+                      TVALID=self.ifc.S_TVALID[i])
+
+      axis.AxisSlave(CLK=CLK,
+                     RST_N=RST_N,
+                     TDATA=self.ifc.M_TDATA[i],
+                     TVALID=self.ifc.M_TVALID[i],
+                     TREADY=self.ifc.M_TREADY[i],
+                     DATA=self.ifc.RDATA,
+                     RDEN=self.ifc.RDEN)
+
+  @X.hdl_process()
+  def init(self):
+    import random
+
+    from pyxhdl import testbench as TB
+
+    RST_N = 0
+
+    TB.wait_rising(CLK)
+
+    RST_N = 1
+
+    for i in range(num_tests):
+      data = random.randint(0, 2**width - 1)
+      chaddr = random.randint(0, num_channels - 1)
+
+      self.ifc.CHADDR = chaddr
+
+      XL.report('WAIT WREADY')
+      XL.wait_until(self.ifc.WREADY[chaddr] == 1)
+      XL.report('WAIT WREADY ... DONE!')
+
+      self.ifc.WDATA = data
+      self.ifc.WREN = 1
+      TB.wait_rising(CLK)
+      self.ifc.WREN = 0
+
+      self.ifc.RDEN = 1
+      TB.wait_rising(CLK)
+      self.ifc.RDEN = 0
+
+      XL.report('WAIT RREADY')
+      XL.wait_until(self.ifc.RREADY[chaddr] == 1)
+      XL.report('WAIT RREADY ... DONE!')
+
+      TB.compare_value(self.ifc.RDATA, data)
+
+
+    XL.finish()
+

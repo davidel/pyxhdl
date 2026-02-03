@@ -108,8 +108,13 @@ class Interface(_InterfaceBase):
       fatal(f'Invalid interface value: {value}')
 
   def mkfield(self, name, value, init=None):
-    if isinstance(value, Value) and value.name is not None:
-      xname, fvalue = value.name, value
+    if isinstance(value, Value):
+      if value.name is not None:
+        xname, fvalue = value.name, value
+      else:
+        xname, fvalue = subname(self._uname, name), value
+
+        self.xlib.assign(xname, fvalue)
     else:
       xname = subname(self._uname, name)
       fvalue = self._mkvalue(xname, value, init=init)
