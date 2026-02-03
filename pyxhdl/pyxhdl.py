@@ -460,19 +460,7 @@ class _ExecVisitor(_AstVisitor):
     # locals and globals.
     self.locals.update(__func=func, __args=args, __kwargs=kwargs)
 
-    # This is kinf of cumbersome. In order to inject the source code line number,
-    # we need to pass through the AST. Luckily enough the AST tree is very small
-    # for the call expression below.
-    cnode = ast.parse('__func(*__args, **__kwargs)',
-                      filename=self.location.filename,
-                      mode='eval')
-
-    cnode.lineno = self.location.lineno
-    ast.fix_missing_locations(cnode)
-
-    ccode = compile(cnode, filename=self.location.filename, mode='eval')
-
-    return eval(ccode, self.globals, self.locals)
+    return eval('__func(*__args, **__kwargs)', self.globals, self.locals)
 
   def _is_hdl_function(self, func):
     if is_hdl_function(func):
