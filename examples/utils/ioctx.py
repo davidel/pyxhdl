@@ -83,8 +83,8 @@ class Ioctx(X.Entity):
 class Test(X.Entity):
 
   ARGS = dict(clock_frequency=100e6,
-              num_tests=10,
-              num_channels=1,
+              num_tests=20,
+              num_channels=8,
               width=8) | Ioctx.ARGS
 
   @X.hdl_process(kind=X.ROOT_PROCESS)
