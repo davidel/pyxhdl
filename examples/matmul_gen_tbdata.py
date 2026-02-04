@@ -66,7 +66,7 @@ def _main(args):
     mdata.append(gs)
 
     gs = obj.Obj()
-    gs._wait_expr = 'if READY != 1:; XL.wait_until(READY == 1)'
+    gs._wait_expr = 'XL.wait_until(READY == 1)'
     mdata.append(gs)
 
     gs = obj.Obj()

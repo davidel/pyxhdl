@@ -293,6 +293,8 @@ begin
   end process;
   waiter : process
   begin
-    wait until (A = to_unsigned(1, 8));
+    if not (A = to_unsigned(1, 8)) then
+      wait until (A = to_unsigned(1, 8));
+    end if;
   end process;
 end architecture;

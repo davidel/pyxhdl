@@ -8,7 +8,7 @@ class AxisMaster(X.Entity):
 
   @X.hdl_process(sens='+CLK')
   def run():
-    if not RST_N:
+    if RST_N != 1:
       TVALID = 0
     else:
       if WREN:
@@ -24,7 +24,7 @@ class AxisSlave(X.Entity):
 
   @X.hdl_process(sens='+CLK')
   def run():
-    if not RST_N:
+    if RST_N != 1:
       TREADY = 0
       RDEN = 0
     else:

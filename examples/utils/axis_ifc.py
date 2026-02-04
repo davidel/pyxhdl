@@ -22,7 +22,7 @@ class AxisMaster(X.Entity):
 
   @X.hdl_process(sens='+IFC.CLK')
   def run():
-    if not IFC.RST_N:
+    if IFC.RST_N != 1:
       IFC.TVALID = 0
     else:
       if WREN:
@@ -38,7 +38,7 @@ class AxisSlave(X.Entity):
 
   @X.hdl_process(sens='+IFC.CLK')
   def run():
-    if not IFC.RST_N:
+    if IFC.RST_N != 1:
       IFC.TREADY = 0
       RDEN = 0
     else:

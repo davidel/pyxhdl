@@ -109,11 +109,14 @@ class Test(X.Entity):
     Ioctx(IFC=self.ifc,
           **{k: locals()[k] for k in Ioctx.ARGS.keys()})
 
+    RDEN = X.mkreg(X.Bits(num_channels))
+    DATA = X.mkreg(self.ifc.M_TDATA.dtype)
+
     for i in range(num_channels):
       axis.AxisMaster(CLK=CLK,
                       RST_N=RST_N,
-                      WREN=self.ifc.WREN,
-                      DATA=self.ifc.WDATA,
+                      WREN=RDEN[i],
+                      DATA=DATA[i],
                       TREADY=self.ifc.S_TREADY[i],
                       TDATA=self.ifc.S_TDATA[i],
                       TVALID=self.ifc.S_TVALID[i])
@@ -123,8 +126,8 @@ class Test(X.Entity):
                      TDATA=self.ifc.M_TDATA[i],
                      TVALID=self.ifc.M_TVALID[i],
                      TREADY=self.ifc.M_TREADY[i],
-                     DATA=self.ifc.RDATA,
-                     RDEN=self.ifc.RDEN)
+                     DATA=DATA[i],
+                     RDEN=RDEN[i])
 
   @X.hdl_process()
   def init(self):

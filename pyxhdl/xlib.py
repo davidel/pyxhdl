@@ -66,19 +66,22 @@ def wait_for(ts=None):
   ctx.emitter.emit_wait_for(ts=ts)
 
 
-def wait_rising(*args):
+def wait_rising(arg):
   ctx = CodeGen.current()
-  ctx.emitter.emit_wait_rising(*args)
+  ctx.emitter.emit_wait_rising(arg)
 
 
-def wait_falling(*args):
+def wait_falling(arg):
   ctx = CodeGen.current()
-  ctx.emitter.emit_wait_falling(*args)
+  ctx.emitter.emit_wait_falling(arg)
 
 
-def wait_until(*args):
-  ctx = CodeGen.current()
-  ctx.emitter.emit_wait_until(*args)
+@hdl
+def wait_until(arg):
+  if not arg:
+    with no_hdl():
+      ctx = CodeGen.current()
+      ctx.emitter.emit_wait_until(arg)
 
 
 def report(fmt, **kwargs):

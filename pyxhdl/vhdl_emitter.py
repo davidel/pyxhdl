@@ -377,17 +377,14 @@ class VHDL_Emitter(Emitter):
     else:
       self.emit_code('wait;')
 
-  def emit_wait_rising(self, *args):
-    sargs = self.build_args_string(lambda a: f'rising_edge({paren(a)})', ' or ', args)
-    self.emit_code(f'wait until {sargs};')
+  def emit_wait_rising(self, arg):
+    self.emit_code(f'wait until rising_edge({self.svalue(arg)});')
 
-  def emit_wait_falling(self, *args):
-    sargs = self.build_args_string(lambda a: f'falling_edge({paren(a)})', ' or ', args)
-    self.emit_code(f'wait until {sargs};')
+  def emit_wait_falling(self, arg):
+    self.emit_code(f'wait until falling_edge({self.svalue(arg)});')
 
-  def emit_wait_until(self, *args):
-    sargs = self.build_args_string(lambda a: paren(a), ' or ', args)
-    self.emit_code(f'wait until {sargs};')
+  def emit_wait_until(self, arg):
+    self.emit_code(f'wait until {paren(self.svalue(arg))};')
 
   def emit_report(self, parts, severity=None):
     self._emit_line('report ' + ' & '.join(parts) + ';')

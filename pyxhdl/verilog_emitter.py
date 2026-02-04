@@ -515,17 +515,14 @@ class Verilog_Emitter(Emitter):
     else:
       self.emit_code('forever;')
 
-  def emit_wait_rising(self, *args):
-    sargs = self.build_args_string(lambda a: f'posedge {paren(a)}', ' or ', args)
-    self.emit_code(f'@({sargs});')
+  def emit_wait_rising(self, arg):
+    self.emit_code(f'@(posedge {paren(self.svalue(arg))});')
 
-  def emit_wait_falling(self, *args):
-    sargs = self.build_args_string(lambda a: f'negedge {paren(a)}', ' or ', args)
-    self.emit_code(f'@({sargs});')
+  def emit_wait_falling(self, arg):
+    self.emit_code(f'@(negedge {paren(self.svalue(arg))});')
 
-  def emit_wait_until(self, *args):
-    sargs = self.build_args_string(lambda a: paren(a), ' or ', args)
-    self.emit_code(f'@({sargs});')
+  def emit_wait_until(self, arg):
+    self.emit_code(f'@({paren(self.svalue(arg))});')
 
   def emit_report(self, parts, severity=None):
     self.emit_write(parts)
