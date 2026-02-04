@@ -36,7 +36,7 @@ class IoctxIfc(X.Interface):
     self.mkfield('RDATA', X.Bits(width))
     self.mkfield('RREADY', X.mkarray(X.BIT, num_channels))
     self.mkfield('WREADY', X.mkarray(X.BIT, num_channels))
-    self.mkfield('ERROR', X.UINT4)
+    self.mkfield('ERROR', X.mkarray(X.BIT, num_channels))
 
 
 class Ioctx(X.Entity):
@@ -56,6 +56,7 @@ class Ioctx(X.Entity):
         IFC.M_TVALID[i] = 0
         IFC.M_TLAST[i] = 0
         IFC.S_TREADY[i] = 0
+        IFC.ERROR[i] = 0
       else:
         IFC.S_TREADY[i] = 0
 
@@ -63,21 +64,21 @@ class Ioctx(X.Entity):
           IFC.M_TVALID[i] = 0
 
         if IFC.CHADDR == i:
-          IFC.ERROR = 0
+          IFC.ERROR[i] = 0
 
           if IFC.RDEN:
             if IFC.S_TVALID[i]:
               IFC.S_TREADY[i] = 1
               IFC.RDATA = IFC.S_TDATA[i]
             else:
-              IFC.ERROR = 1
+              IFC.ERROR[i] = 1
 
           if IFC.WREN:
             if not IFC.M_TVALID[i]:
               IFC.M_TDATA[i] = IFC.WDATA
               IFC.M_TVALID[i] = 1
             else:
-              IFC.ERROR = 2
+              IFC.ERROR[i] = 1
 
 
 class Test(X.Entity):
