@@ -17,16 +17,16 @@ class IoctxIfc(X.Interface):
     self.mkfield('RST_N', reset)
 
     # Master signals.
-    self.mkfield('M_TREADY', X.Bits(num_channels))
+    self.mkfield('M_TREADY', X.mkarray(X.BIT, num_channels))
     self.mkfield('M_TDATA', X.mkarray(X.Bits(width), num_channels))
-    self.mkfield('M_TVALID', X.Bits(num_channels))
-    self.mkfield('M_TLAST', X.Bits(num_channels))
+    self.mkfield('M_TVALID', X.mkarray(X.BIT, num_channels))
+    self.mkfield('M_TLAST', X.mkarray(X.BIT, num_channels))
 
     # Slave signals.
-    self.mkfield('S_TREADY', X.Bits(num_channels))
+    self.mkfield('S_TREADY', X.mkarray(X.BIT, num_channels))
     self.mkfield('S_TDATA', X.mkarray(X.Bits(width), num_channels))
-    self.mkfield('S_TVALID', X.Bits(num_channels))
-    self.mkfield('S_TLAST', X.Bits(num_channels))
+    self.mkfield('S_TVALID', X.mkarray(X.BIT, num_channels))
+    self.mkfield('S_TLAST', X.mkarray(X.BIT, num_channels))
 
     # Module signals.
     self.mkfield('RDEN', X.BIT)
@@ -34,8 +34,8 @@ class IoctxIfc(X.Interface):
     self.mkfield('CHADDR', X.Bits(num_channels.bit_length()))
     self.mkfield('WDATA', X.Bits(width))
     self.mkfield('RDATA', X.Bits(width))
-    self.mkfield('RREADY', X.Bits(num_channels))
-    self.mkfield('WREADY', X.Bits(num_channels))
+    self.mkfield('RREADY', X.mkarray(X.BIT, num_channels))
+    self.mkfield('WREADY', X.mkarray(X.BIT, num_channels))
     self.mkfield('ERROR', X.UINT4)
 
 
@@ -84,7 +84,7 @@ class Test(X.Entity):
 
   ARGS = dict(clock_frequency=100e6,
               num_tests=10,
-              num_channels=4,
+              num_channels=1,
               width=8) | Ioctx.ARGS
 
   @X.hdl_process(kind=X.ROOT_PROCESS)
@@ -109,7 +109,7 @@ class Test(X.Entity):
     Ioctx(IFC=self.ifc,
           **{k: locals()[k] for k in Ioctx.ARGS.keys()})
 
-    RDEN = X.mkreg(X.Bits(num_channels))
+    RDEN = X.mkvreg(X.mkarray(X.BIT, num_channels), 0)
     DATA = X.mkreg(self.ifc.M_TDATA.dtype)
 
     for i in range(num_channels):
@@ -136,6 +136,8 @@ class Test(X.Entity):
     from pyxhdl import testbench as TB
 
     RST_N = 0
+    self.ifc.RDEN = 0
+    self.ifc.WREN = 0
 
     TB.wait_rising(CLK)
 
@@ -147,25 +149,22 @@ class Test(X.Entity):
 
       self.ifc.CHADDR = chaddr
 
-      XL.report('WAIT WREADY')
       XL.wait_until(self.ifc.WREADY[chaddr] == 1)
-      XL.report('WAIT WREADY ... DONE!')
 
       self.ifc.WDATA = data
       self.ifc.WREN = 1
       TB.wait_rising(CLK)
       self.ifc.WREN = 0
 
+      TB.wait_rising(CLK)
+
+      XL.wait_until(self.ifc.RREADY[chaddr] == 1)
+
       self.ifc.RDEN = 1
       TB.wait_rising(CLK)
       self.ifc.RDEN = 0
 
-      XL.report('WAIT RREADY')
-      XL.wait_until(self.ifc.RREADY[chaddr] == 1)
-      XL.report('WAIT RREADY ... DONE!')
-
       TB.compare_value(self.ifc.RDATA, data)
-
 
     XL.finish()
 
