@@ -227,8 +227,6 @@ def compare_value(var, value, toll=1e-5, debug=None):
       fatal(f'Wrong shape for "{cvar.value}": {tuple(shape)} vs {tuple(value.shape)}')
 
     for idx in np.ndindex(shape):
-      # substr = ', '.join(str(x) for x in idx)
-      # astr = f'{cvar.ref.name}[{substr}]'
       tmp = cvar[idx]
       if _values_differ(tmp, value[idx].item(), toll=toll):
         XL.report(f'{{NOW}} Output mismatch: {tmp.value} = {{tmp}} (should be {_repr(value[idx], tmp.dtype)})')
