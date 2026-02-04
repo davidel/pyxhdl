@@ -15,9 +15,9 @@ class MatMult(X.Entity):
 
   @X.hdl_process(sens='+CLK')
   def mat_mult():
-    i_mmiter = X.mkvreg(X.INT, 0)
-    iarow = X.mkvreg(X.INT, 0)
-    ibcol = X.mkvreg(X.INT, 0)
+    i_mmiter = X.mkwire(X.INT)
+    iarow = X.mkwire(X.INT)
+    ibcol = X.mkwire(X.INT)
 
     if RESET == 1:
       XOUT = 0
