@@ -45,13 +45,13 @@ class MMUnit(X.Entity):
     tsize = min(tilesize, N)
     assert N % tsize == 0
 
-    amat = X.mkwire(AROW.dtype.new_shape(N, N, AROW.dtype.nbits))
-    bmat = X.mkwire(BROW.dtype.new_shape(N, N, BROW.dtype.nbits))
-    a_row = X.mkvwire(X.UINT8, 0)
-    mmiter = X.mkvwire(X.UINT8, 0)
-    b_col = X.mkvwire(X.UINT8, 0)
-    cmat = X.mkwire(CROW.dtype.new_shape(N, N, CROW.dtype.nbits))
-    mmcompute = X.mkvwire(COMPUTE.dtype, 0)
+    amat = X.mkreg(AROW.dtype.new_shape(N, N, AROW.dtype.nbits))
+    bmat = X.mkreg(BROW.dtype.new_shape(N, N, BROW.dtype.nbits))
+    a_row = X.mkvreg(X.UINT8, 0)
+    mmiter = X.mkvreg(X.UINT8, 0)
+    b_col = X.mkvreg(X.UINT8, 0)
+    cmat = X.mkreg(CROW.dtype.new_shape(N, N, CROW.dtype.nbits))
+    mmcompute = X.mkvreg(COMPUTE.dtype, 0)
 
     MatMult(
       CLK=CLK,

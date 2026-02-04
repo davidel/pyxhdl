@@ -160,7 +160,10 @@ class EntityVersions:
 def subscript_setter(arr, idx):
 
   def setfn(value):
-    arr[idx] = value
+    try:
+      arr[idx] = value
+    except Exception as ex:
+      raise pycu.rewrited_exception(ex, f'; arr = {arr}, idx = {idx}') from None
 
   return setfn
 

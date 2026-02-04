@@ -224,22 +224,25 @@ def compare_value(var, value, toll=1e-5, debug=None):
   if isinstance(value, np.ndarray):
     shape = cvar.dtype.array_shape
     if tuple(shape) != tuple(value.shape):
-      fatal(f'Wrong shape for "{cvar.ref.name}": {tuple(shape)} vs {tuple(value.shape)}')
+      fatal(f'Wrong shape for "{cvar.value}": {tuple(shape)} vs {tuple(value.shape)}')
 
     for idx in np.ndindex(shape):
-      substr = ', '.join(str(x) for x in idx)
-      astr = f'{cvar.ref.name}[{substr}]'
-      tmp = XL.load(astr)
+      # substr = ', '.join(str(x) for x in idx)
+      # astr = f'{cvar.ref.name}[{substr}]'
+      tmp = cvar[idx]
       if _values_differ(tmp, value[idx].item(), toll=toll):
-        XL.report(f'{{NOW}} Output mismatch: {astr} = {{{astr}}} (should be {_repr(value[idx], tmp.dtype)})')
+        XL.report(f'{{NOW}} Output mismatch: {tmp.value} = {{tmp}} (should be {_repr(value[idx], tmp.dtype)})')
       elif cdebug:
-        XL.report(f'{{NOW}} Output match: {astr} = {{{astr}}}')
+        XL.report(f'{{NOW}} Output match: {tmp.value} = {{tmp}}')
+
+      # TODO: Fix the fact we end up with HDL variable write, instead of locals
+      # assignment, in case we write the same symbol more than once.
+      del tmp
   else:
-    tmp = XL.load(cvar.ref.name)
-    if _values_differ(tmp, value, toll=toll):
-      XL.report(f'{{NOW}} Output mismatch: {cvar.ref.name} = {{{cvar.ref.name}}} (should be {_repr(value, tmp.dtype)})')
+    if _values_differ(cvar, value, toll=toll):
+      XL.report(f'{{NOW}} Output mismatch: {cvar.value} = {{cvar}} (should be {_repr(value, cvar.dtype)})')
     elif cdebug:
-      XL.report(f'{{NOW}} Output match: {cvar.ref.name} = {{{cvar.ref.name}}}')
+      XL.report(f'{{NOW}} Output match: {cvar.value} = {{cvar}}')
 
 
 @hdl

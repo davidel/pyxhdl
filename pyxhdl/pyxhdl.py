@@ -281,8 +281,7 @@ class _ExecVisitor(_AstVisitor):
       for f in self._frames[1: ]:
         locs.append(f'{f.location.filename}:{f.location.lineno}')
 
-      xmsg = f'{ex}\nError stack:\n' + '\n'.join(locs)
-      ex = ex.__class__(xmsg).with_traceback(ex.__traceback__)
+      ex = pycu.rewrited_exception(ex, f'\nError stack:\n' + '\n'.join(locs))
       setattr(ex, '_noted', True)
 
     return ex
