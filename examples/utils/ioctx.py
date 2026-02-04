@@ -31,7 +31,7 @@ class IoctxIfc(X.Interface):
     # Module signals.
     self.mkfield('RDEN', X.BIT)
     self.mkfield('WREN', X.BIT)
-    self.mkfield('CHADDR', X.Bits(num_channels.bit_length()))
+    self.mkfield('CHADDR', X.Uint(num_channels.bit_length()))
     self.mkfield('WDATA', X.Bits(width))
     self.mkfield('RDATA', X.Bits(width))
     self.mkfield('RREADY', X.mkarray(X.BIT, num_channels))
