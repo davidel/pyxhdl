@@ -1,5 +1,5 @@
 
-SRCDIR ?= .
+SRCDIR ?= $(dir $(realpath $(lastword ${MAKEFILE_LIST})))
 LOG_LEVEL ?= INFO
 SOURCES = ${SRCDIR}/axis_echo.py ${SRCDIR}/axis_tb.yaml
 IFC_SOURCES = ${SRCDIR}/axis_echo_ifc.py ${SRCDIR}/axis_tb.yaml

@@ -1,5 +1,5 @@
 
-SRCDIR ?= .
+SRCDIR ?= $(dir $(realpath $(lastword ${MAKEFILE_LIST})))
 LOG_LEVEL ?= INFO
 DATA_SOURCE ?= tb_generator.py
 CLK_FREQ ?= 100000000
