@@ -65,7 +65,8 @@ mm_svl_test: ${MM_SVL_FILE}
 		--assert \
 		--binary \
 		-O1 \
-		-j 4 \
+		-j 8 \
+		--output-split 100 \
 		--Mdir ${VERILATOR_BINDIR} \
 		-sv \
 		--top-module TestBench \
