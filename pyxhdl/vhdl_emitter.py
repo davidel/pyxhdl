@@ -326,7 +326,7 @@ class VHDL_Emitter(Emitter):
       xvalue = flat2shape(parts, shape, '(', ')')
     else:
       xvalue = self._scalar_cast(unwrap(value), dtype)
-      for _ in range(dtype.ndim - 1):
+      for _ in range(len(dtype.array_shape)):
         xvalue = f'(others => {xvalue})'
 
     return xvalue

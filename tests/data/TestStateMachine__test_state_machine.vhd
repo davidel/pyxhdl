@@ -72,6 +72,7 @@ package pyxhdl is
   function bit_shr(value : in std_logic_vector; nbits : in natural) return std_logic_vector;
 
   function float_equal(value : in float; ref_value : in real; eps: in real) return boolean;
+  function float_equal(value : in real; ref_value : in real; eps: in real) return boolean;
 end package;
 
 package body pyxhdl is
@@ -210,6 +211,12 @@ package body pyxhdl is
     variable toll : real := realmax(abs(xvalue), abs(ref_value)) * eps;
   begin
     return abs(xvalue - ref_value) <= toll;
+  end function;
+
+  function float_equal(value : in real; ref_value : in real; eps: in real) return boolean is
+    variable toll : real := realmax(abs(value), abs(ref_value)) * eps;
+  begin
+    return abs(value - ref_value) <= toll;
   end function;
 end package body;
 
