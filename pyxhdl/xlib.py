@@ -119,6 +119,16 @@ float_equal = create_function(
   dtype=BOOL)
 
 
+real_equal = create_function(
+  'real_equal',
+  {
+    'vhdl': 'pyxhdl.float_equal',
+    'verilog': 'pyxhdl::float_equal',
+  },
+  fnsig='real, real, real',
+  dtype=BOOL)
+
+
 def generate_name(name, shortzero=False):
   ctx = CodeGen.current()
 

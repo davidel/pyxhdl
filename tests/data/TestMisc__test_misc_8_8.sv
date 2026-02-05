@@ -24,6 +24,19 @@ struct packed { \
 
 // PyXHDL support functions.
 
+package pyxhdl;
+
+  function automatic bit float_equal(real value, real ref_value, real eps);
+    real toll = fp::MAX(fp::FABS(value), fp::FABS(ref_value)) * eps;
+
+    begin
+      float_equal = (fp::FABS(value - ref_value) < toll) ? 1'b1 : 1'b0;
+    end
+  endfunction
+endpackage
+
+
+
 // Entity "Misc" is "Misc" with:
 // 	args={'A': 'uint(8)', 'B': 'uint(8)', 'C': 'bits(8)', 'XOUT1': 'uint(8)', 'XOUT2': 'uint(8)'}
 // 	kwargs={}

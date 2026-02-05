@@ -24,6 +24,19 @@ struct packed { \
 
 // PyXHDL support functions.
 
+package pyxhdl;
+
+  function automatic bit float_equal(real value, real ref_value, real eps);
+    real toll = fp::MAX(fp::FABS(value), fp::FABS(ref_value)) * eps;
+
+    begin
+      float_equal = (fp::FABS(value - ref_value) < toll) ? 1'b1 : 1'b0;
+    end
+  endfunction
+endpackage
+
+
+
 // Entity "Switcher" is "Switcher" with:
 // 	args={'SEL': 'bits(3)', 'DIN': 'bits(16)', 'SEL_DOUT': 'bits(8, 16)', 'SEL_DIN': 'bits(8, 16)', 'DOUT': 'bits(16)'}
 // 	kwargs={}

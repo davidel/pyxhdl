@@ -24,6 +24,19 @@ struct packed { \
 
 // PyXHDL support functions.
 
+package pyxhdl;
+
+  function automatic bit float_equal(real value, real ref_value, real eps);
+    real toll = fp::MAX(fp::FABS(value), fp::FABS(ref_value)) * eps;
+
+    begin
+      float_equal = (fp::FABS(value - ref_value) < toll) ? 1'b1 : 1'b0;
+    end
+  endfunction
+endpackage
+
+
+
 // Entity "PythonEnt" is "PythonEnt" with:
 // 	args={'DUMMY_A': 'uint(8)', 'DUMMY_OUT': 'uint(8)'}
 // 	kwargs={i=17, j=21, f=3.140e+00, s="ABC", l=[1, 2, 3], d={a=3, b=11, c=65}}

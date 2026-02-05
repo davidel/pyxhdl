@@ -211,6 +211,8 @@ def _assign_value(var, value):
 def _values_differ(value, ref_value, toll):
   if isinstance(value.dtype, Float):
     return not XL.float_equal(value, ref_value, _STD_TOLL if toll is None else toll)
+  if isinstance(value.dtype, Real):
+    return not XL.real_equal(value, ref_value, _STD_TOLL if toll is None else toll)
 
   return value != ref_value
 

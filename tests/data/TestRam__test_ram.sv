@@ -24,6 +24,19 @@ struct packed { \
 
 // PyXHDL support functions.
 
+package pyxhdl;
+
+  function automatic bit float_equal(real value, real ref_value, real eps);
+    real toll = fp::MAX(fp::FABS(value), fp::FABS(ref_value)) * eps;
+
+    begin
+      float_equal = (fp::FABS(value - ref_value) < toll) ? 1'b1 : 1'b0;
+    end
+  endfunction
+endpackage
+
+
+
 // Entity "RamTest" is "RamTest" with:
 // 	args={'CLK': 'bits(1)', 'RST_N': 'bits(1)', 'RDEN': 'bits(1)', 'WREN': 'bits(1)', 'ADDR': 'bits(12)', 'IN_DATA': 'bits(16)', 'OUT_DATA': 'bits(16)'}
 // 	kwargs={RAM_SIZE=3072}
