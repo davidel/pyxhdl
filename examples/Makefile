@@ -13,7 +13,7 @@ MM_SVL_FILE = ${WORKDIR}/matmul.sv
 VERILATOR_BINDIR ?= ${WORKDIR}/vobj
 TARGETS = ${MM_DATA_FILE} ${MM_VHDL_FILE} ${MM_SVL_FILE}
 
-all: ${TARGETS} mm_vhdl_test mm_svl_test
+all: ${TARGETS} hdl_generate
 
 hdl_generate: ${MM_VHDL_FILE} ${MM_SVL_FILE}
 

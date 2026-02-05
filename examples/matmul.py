@@ -40,7 +40,7 @@ class MMUnit(X.Entity):
   ARGS = dict(tilesize=8)
 
   @X.hdl_process(kind=X.ROOT_PROCESS)
-  def root():
+  def root(self):
     N = AROW.dtype.array_shape[-1]
     tsize = min(tilesize, N)
     assert N % tsize == 0
@@ -70,7 +70,7 @@ class MMUnit(X.Entity):
   COMPUTING = 1
 
   @X.hdl_process(sens='+CLK')
-  def main():
+  def main(self):
     rowidx = XL.mkreg(X.INT)
     state = XL.mkreg(X.UINT4)
 
@@ -79,8 +79,8 @@ class MMUnit(X.Entity):
       rowidx = 0
       mmcompute = 0
       a_row, mmiter, b_col = 0, 0, 0
-      state = MMUnit.INIT
-    elif state == MMUnit.COMPUTING:
+      state = self.INIT
+    elif state == self.COMPUTING:
       N = AROW.dtype.array_shape[-1]
       tsize = min(tilesize, N)
       LIMIT = N - tsize
@@ -89,7 +89,7 @@ class MMUnit(X.Entity):
         if a_row == LIMIT:
           a_row = 0
           if b_col == LIMIT:
-            state = MMUnit.INIT
+            state = self.INIT
             mmcompute = 0
             READY = 1
           else:
@@ -107,7 +107,7 @@ class MMUnit(X.Entity):
       rowidx += 1
     elif COMPUTE == 1:
       READY = 0
-      state = MMUnit.COMPUTING
+      state = self.COMPUTING
       rowidx = 0
       a_row, mmiter, b_col = 0, 0, 0
       mmcompute = 1
