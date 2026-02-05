@@ -388,7 +388,7 @@ class Verilog_Emitter(Emitter):
       elif isinstance(value.dtype, Real):
         return f'int\'({self.svalue(value)})'
       else:
-        fatal(f'Unable to convert to integer: {value.dtype}')
+        fatal(f'Unable to convert to integer: {value} {dtype}')
 
     return str(value) if isinstance(value, int) else f'int\'({value})'
 
@@ -403,7 +403,7 @@ class Verilog_Emitter(Emitter):
         fpcall = self._get_fpcall('to_real', NX=fspec.exp, NM=fspec.mant)
         return f'{fpcall}({self.svalue(value)})'
       else:
-        fatal(f'Unable to convert to real: {value.dtype}')
+        fatal(f'Unable to convert to real: {value} {dtype}')
 
     return str(value) if isinstance(value, float) else f'real\'({value})'
 
@@ -492,7 +492,7 @@ class Verilog_Emitter(Emitter):
         fpcall = self._get_fpcall('to_real', NX=fspec.exp, NM=fspec.mant)
         return f'$sformatf("%e", {fpcall}({xvalue}))'
       else:
-        fatal(f'Unable to convert to string: {value.dtype}')
+        fatal(f'Unable to convert to string: {value}')
 
     return self.quote_string(xvalue)
 

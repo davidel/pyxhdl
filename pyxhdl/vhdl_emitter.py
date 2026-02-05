@@ -257,7 +257,7 @@ class VHDL_Emitter(Emitter):
       elif isinstance(value.dtype, Real):
         return f'integer({self.svalue(value)})'
       else:
-        fatal(f'Unable to convert to integer: {value.dtype}')
+        fatal(f'Unable to convert to integer: {value} {dtype}')
 
     return str(value) if isinstance(value, int) else f'integer({value})'
 
@@ -272,7 +272,7 @@ class VHDL_Emitter(Emitter):
       elif isinstance(value.dtype, Integer):
         return f'real({self.svalue(value)})'
       else:
-        fatal(f'Unable to convert to real: {value.dtype}')
+        fatal(f'Unable to convert to real: {value} {dtype}')
 
     return str(value) if isinstance(value, float) else f'real({value})'
 
