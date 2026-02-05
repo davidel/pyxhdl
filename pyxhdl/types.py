@@ -38,7 +38,7 @@ class Type:
 
   @property
   def nbits(self):
-    return self.full_shape[-1] if self.has_bits else 0
+    return self.full_shape[-1] if self.has_bits else None
 
   @property
   def size(self):

@@ -4,6 +4,7 @@ import functools
 import inspect
 import os
 import re
+import sys
 
 import py_misc_utils.alog as alog
 import py_misc_utils.context_managers as pycm
@@ -276,12 +277,15 @@ class Emitter:
         return new
       elif dprec < 0:
         return cur
-      elif new.nbits > cur.nbits:
-        return new
-      elif new.nbits < cur.nbits:
-        return cur
       else:
-        return new if nprec.prio > cprec.prio else cur
+        nnbits = sys.maxsize if new.nbits is None else new.nbits
+        cnbits = sys.maxsize if cur.nbits is None else cur.nbits
+        if nnbits > cnbits:
+          return new
+        elif nnbits < cnbits:
+          return cur
+        else:
+          return new if nprec.prio > cprec.prio else cur
 
     return new
 
