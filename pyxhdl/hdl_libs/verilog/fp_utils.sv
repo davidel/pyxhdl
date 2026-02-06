@@ -48,7 +48,7 @@ interface fp_utils;
     input logic [N - 1: 0] v;
 
     localparam integer     MSIZE = fp::MIN(52, NM);
-    localparam integer     ZFILL = (NM > 52) ? NM - 52 : 0;
+    localparam integer     ZFILL = fp::MAX(52 - NM, 0);
 
     `IEEE754(NX, NM) pv = v;
 

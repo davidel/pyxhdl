@@ -14,7 +14,7 @@ interface fp_conv;
   localparam integer ON = ONX + ONM + 1;
   localparam integer OXOFF = fp::EXP_OFFSET(ONX);
 
-  localparam integer ZFILL = (ONM > INM) ? ONM - INM : 0;
+  localparam integer ZFILL = fp::MAX(ONM - INM, 0);
   localparam integer MSIZE = fp::MIN(ONM, INM);
 
   function automatic logic [ON - 1: 0] convert;

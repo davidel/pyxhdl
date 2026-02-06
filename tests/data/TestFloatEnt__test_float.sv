@@ -53,7 +53,7 @@ interface fp_conv;
   localparam integer ON = ONX + ONM + 1;
   localparam integer OXOFF = fp::EXP_OFFSET(ONX);
 
-  localparam integer ZFILL = (ONM > INM) ? ONM - INM : 0;
+  localparam integer ZFILL = fp::MAX(ONM - INM, 0);
   localparam integer MSIZE = fp::MIN(ONM, INM);
 
   function automatic logic [ON - 1: 0] convert;
@@ -80,7 +80,8 @@ endinterface
 interface clz_mod;
   parameter integer N = 32;
   localparam integer NPAD = ((N + 3) / 4) * 4;
-  localparam integer NB = $clog2(N);
+  localparam integer NDIFF = NPAD - N;
+  localparam integer NB = fp::MAX($clog2(N), 1);
 
   function automatic logic [2: 0] clz4;
     input [3: 0]     vin;
@@ -117,15 +118,15 @@ interface clz_mod;
       vpad = vin;
 
       res = 0;
-      for (i = NPAD - 4; i >= 0; i = i - 4) begin
-        cres = clz4(vpad[i +: 4]);
+      for (i = NPAD - 1; i >= 3; i = i - 4) begin
+        cres = clz4(vpad[i -: 4]);
         if (zmore) begin
           res = res + cres;
-          zmore = zmore & cres[2];
+          zmore = zmore & (cres == 4);
         end
       end
 
-      clz = res;
+      clz = res - NDIFF;
     end
   endfunction
 endinterface
