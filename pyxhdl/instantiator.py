@@ -21,10 +21,10 @@ class _Instance:
 
 class Instanciator:
 
-  def __init__(self, param_key=None):
+  def __init__(self, param_key=None, revbase=None):
     self._param_key = param_key
     self._instances = dict()
-    self._revgen = pycu.RevGen(revbase=1)
+    self._revgen = pycu.RevGen(revbase=revbase if revbase is not None else 1)
 
   def _cname(self, name):
     cname = re.sub(r'[.$:]+', '_', name)
