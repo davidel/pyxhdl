@@ -15,6 +15,7 @@ import py_misc_utils.utils as pyu
 
 from .entity import *
 from .emitter import *
+from .instantiator import *
 from .pyxhdl import *
 from .types import *
 from .utils import *
@@ -81,52 +82,6 @@ _FLOAT_OPFNS = {
 }
 
 
-class _Instance:
-
-  def __init__(self, name, params, args):
-    self.name = name
-    self.params = params
-    self.args = args
-    self.hash = pycu.genhash((name, params, args))
-
-  def __hash__(self):
-    return self.hash
-
-  def __eq__(self, other):
-    return (self.name == other.name and self.params == other.params and
-            self.args == other.args)
-
-
-class _Instanciator:
-
-  def __init__(self):
-    self._instances = dict()
-    self._iids = dict()
-
-  def _cname(self, name):
-    cname = re.sub(r'[.$:]+', '_', name)
-
-    return cname
-
-  def getid(self, name, **kwargs):
-    params = kwargs.pop(PARAM_KEY, dict())
-    inst = _Instance(name, params, kwargs)
-    iid = self._instances.get(inst)
-    if iid is None:
-      cname = self._cname(name)
-      cid = self._iids.get(cname, 0)
-      self._iids[cname] = cid + 1
-      iid = f'{cname}_{cid + 1}'
-
-      self._instances[inst] = iid
-
-    return iid
-
-  def __iter__(self):
-    for inst, iid in self._instances.items():
-      yield iid, inst
-
-
 class Verilog_Emitter(Emitter):
 
   def __init__(self, cfg_file=None, **kwargs):
@@ -163,7 +118,7 @@ class Verilog_Emitter(Emitter):
 
   def _module_reset(self):
     self._mod_comment = None
-    self._itor = _Instanciator()
+    self._itor = Instanciator(param_key=PARAM_KEY)
 
     self._process_reset()
 
