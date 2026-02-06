@@ -33,6 +33,10 @@ def _main(args):
   mdata = []
   for n in range(args.nsamples):
     gs = obj.Obj()
+    gs._wait_expr = 'XL.wait_rising(CLK)'
+    mdata.append(gs)
+
+    gs = obj.Obj()
     gs.RESET = 1
     gs._wait_expr = 'XL.wait_rising(CLK)'
     mdata.append(gs)

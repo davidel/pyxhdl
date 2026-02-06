@@ -1227,19 +1227,22 @@ class CodeGen(_ExecVisitor):
           for insn in node.body:
             self.eval_node(insn)
 
-        enode = node
+        enode, enodes = node, []
         while len(enode.orelse) == 1 and isinstance(enode.orelse[0], ast.If):
           enode = enode.orelse[0]
           etest = self.eval_node(enode.test)
-          self.emitter.emit_Elif(etest)
-          with self.emitter.indent():
-            for insn in enode.body:
-              self.eval_node(insn)
+          if has_hdl_vars(etest):
+            self.emitter.emit_Elif(etest)
+            with self.emitter.indent():
+              for insn in enode.body:
+                self.eval_node(insn)
+          elif etest:
+            enodes.extend(enode.body)
 
-        if enode.orelse:
+        if enode.orelse or enodes:
           self.emitter.emit_Else()
           with self.emitter.indent():
-            for insn in enode.orelse:
+            for insn in enodes + list(enode.orelse or []):
               self.eval_node(insn)
 
         self.emitter.emit_EndIf()
