@@ -23,7 +23,8 @@ class Instanciator:
 
   def __init__(self, param_key=None, revbase=None):
     self._param_key = param_key
-    self._instances = dict()
+    self._instdb = dict()
+    self._instances = []
     self._revgen = pycu.RevGen(revbase=revbase if revbase is not None else 1)
 
   def _cname(self, name):
@@ -34,16 +35,22 @@ class Instanciator:
   def getid(self, name, kwargs, force_new=False):
     params = kwargs.pop(self._param_key, dict()) if self._param_key else dict()
     inst = _Instance(name, params, kwargs)
-    iid = self._instances.get(inst) if not force_new else None
-    if iid is None:
+    if force_new:
       cname = self._cname(name)
       iid = self._revgen.newname(cname)
 
-      self._instances[inst] = iid
+      self._instances.append((iid, inst))
+    else:
+      iid = self._instdb.get(inst)
+      if iid is None:
+        cname = self._cname(name)
+        iid = self._revgen.newname(cname)
+
+        self._instdb[inst] = iid
+        self._instances.append((iid, inst))
 
     return iid
 
   def __iter__(self):
-    for inst, iid in self._instances.items():
-      yield iid, inst
+    yield from self._instances
 
