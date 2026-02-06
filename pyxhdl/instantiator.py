@@ -24,22 +24,20 @@ class Instanciator:
   def __init__(self, param_key=None):
     self._param_key = param_key
     self._instances = dict()
-    self._iids = dict()
+    self._revgen = pycu.RevGen(revbase=1)
 
   def _cname(self, name):
     cname = re.sub(r'[.$:]+', '_', name)
 
     return cname
 
-  def getid(self, name, **kwargs):
+  def getid(self, name, kwargs):
     params = kwargs.pop(self._param_key, dict()) if self._param_key else dict()
     inst = _Instance(name, params, kwargs)
     iid = self._instances.get(inst)
     if iid is None:
       cname = self._cname(name)
-      cid = self._iids.get(cname, 0)
-      self._iids[cname] = cid + 1
-      iid = f'{cname}_{cid + 1}'
+      iid = self._revgen.newname(cname)
 
       self._instances[inst] = iid
 

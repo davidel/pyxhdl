@@ -127,7 +127,7 @@ class Verilog_Emitter(Emitter):
 
     # This API instantiates only Verilog interfaces, which takes no arguments
     # (only parameters).
-    return self._itor.getid(mod_name, **{PARAM_KEY: kwargs})
+    return self._itor.getid(mod_name, {PARAM_KEY: kwargs})
 
   def _get_fpcall(self, fnname, **kwargs):
     fn_map = pyu.dict_rget(self._cfg, 'verilog/fpu_fnmap', defval=_FPU_FNMAP)
