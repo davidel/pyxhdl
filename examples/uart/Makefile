@@ -7,7 +7,7 @@ BAUD_RATE ?= 115200
 NUM_TESTS ?= 100
 SOURCES = ${SRCDIR}/uart_echo.py ${DATA_SOURCE}
 
-CLK = "$(shell expr 1000000000 / ${CLK_FREQ})ns"
+CLK = $(shell expr 1000000000 / ${CLK_FREQ})ns
 
 TARGETS = uart_tb.vhd uart_tb.sv
 
