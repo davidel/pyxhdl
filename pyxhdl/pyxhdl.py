@@ -779,6 +779,8 @@ class CodeGen(_ExecVisitor):
   def generate_entity(self, eclass, eargs):
     alog.debug(lambda: f'Entity {eclass.__name__}')
 
+    self._reset_entity_context()
+
     ent_name = self._register_entity(eclass, eargs, generated=True)
 
     kwargs = eargs.copy()
@@ -824,8 +826,6 @@ class CodeGen(_ExecVisitor):
       emt.emit_module_def(ent_name, ent, comment=ecomm)
 
     self.emitter.emit_module_decl(ent_name, ent)
-
-    self._reset_entity_context()
 
     for func in ent.enum_processes():
       hdl_args = get_hdl_args(func) or dict()
