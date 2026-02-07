@@ -2,3 +2,5 @@
 ROOT_PROCESS = '$ROOT'
 INIT_PROCESS = '$INIT'
 
+PARAM_KEY = '_P'
+

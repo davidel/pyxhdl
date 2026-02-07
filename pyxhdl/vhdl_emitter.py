@@ -68,11 +68,11 @@ class VHDL_Emitter(Emitter):
     self.file_ext = '.vhd'
     self.eol = ';'
     self._arch = self._cfg.get('entity_arch', 'behavior')
-    self._mod_comment = None
     self._mod_attributes = dict()
     self._proc_indent = 0
     self.module_vars_place = self.emit_placement()
     self._entity_place = self.emit_placement()
+    self._module_reset()
 
   def _emit_header(self):
     hdr = self._cfg.get('header', _STD_HEADER)
@@ -619,8 +619,8 @@ class VHDL_Emitter(Emitter):
   def emit_module_end(self):
     self._emit_line(f'end architecture;')
 
-    self._mod_comment = None
     self._mod_attributes = dict()
+    self._module_reset()
 
   def emit_process_decl(self, name, sensitivity=None, process_kind=None,
                         process_args=None):

@@ -16,7 +16,6 @@ import py_misc_utils.utils as pyu
 from .common_defs import *
 from .entity import *
 from .emitter import *
-from .instantiator import *
 from .types import *
 from .utils import *
 from .vars import *
@@ -89,7 +88,6 @@ class Verilog_Emitter(Emitter):
     self.kind = 'verilog'
     self.file_ext = '.sv'
     self.eol = ';'
-    self._mod_comment = None
     self._init_module_places()
     self._module_reset()
 
@@ -114,12 +112,6 @@ class Verilog_Emitter(Emitter):
     self.module_vars_place = self.emit_placement()
     self._modules_place = self.emit_placement()
     self._entity_place = self.emit_placement()
-
-  def _module_reset(self):
-    self._mod_comment = None
-    self._itor = Instanciator(param_key=PARAM_KEY)
-
-    self._process_reset()
 
   def _iface_id(self, mod_name, **kwargs):
     self._extra_libs.add(mod_name)

@@ -14,12 +14,11 @@ import py_misc_utils.template_replace as pytr
 import py_misc_utils.utils as pyu
 
 from .common_defs import *
+from .instantiator import *
 from .types import *
 from .vars import *
 from .utils import *
 
-
-PARAM_KEY = '_P'
 
 OpSym = collections.namedtuple('OpSym', 'sym, isfn', defaults=[False])
 
@@ -119,7 +118,9 @@ class Emitter:
     self._ent_versions = collections.defaultdict(int)
     self._user_modules = collections.defaultdict(dict)
     self._contexts = []
+    self._mod_comment = None
     self._proc = _ProcessInfo()
+    self._itor = Instanciator(param_key=PARAM_KEY)
 
   @classmethod
   def register(cls, name, eclass):
@@ -235,6 +236,11 @@ class Emitter:
 
   def _process_reset(self):
     self._proc = _ProcessInfo()
+
+  def _module_reset(self):
+    self._mod_comment = None
+    self._itor = Instanciator(param_key=PARAM_KEY)
+    self._process_reset()
 
   def _paren_join(self, joiner, args):
     return joiner.join(paren(x) for x in args) if len(args) > 1 else args[0]
