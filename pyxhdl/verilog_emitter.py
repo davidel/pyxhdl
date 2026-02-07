@@ -129,6 +129,11 @@ class Verilog_Emitter(Emitter):
 
     return f'{iid}.{svmod.fnname}'
 
+  def _mod_call(self, fnname, *args, **kwargs):
+    mcall = self._get_fpcall(fnname, **kwargs)
+
+    return f'{mcall}(' + ', '.join(self.svalue(arg) for arg in args) + ')'
+
   def _scalar_remap(self, value):
     if isinstance(value, bool):
       return '1' if value else '0'
@@ -208,8 +213,13 @@ class Verilog_Emitter(Emitter):
         return f'signed\'({xvalue})' if signed else xvalue
       elif isinstance(value.dtype, Float):
         fspec = self.float_spec(dtype)
-        fpcall = self._get_fpcall('to_integer', NX=fspec.exp, NM=fspec.mant, NINT=dtype.nbits)
-        xvalue = f'{dtype.nbits}\'({fpcall}({self.svalue(value)}))'
+
+        mcall = self._mod_call('to_integer', value,
+                               NX=fspec.exp,
+                               NM=fspec.mant,
+                               NINT=dtype.nbits)
+
+        xvalue = f'{dtype.nbits}\'({mcall})'
         return f'unsigned\'({xvalue})' if not signed else xvalue
       elif isinstance(value.dtype, Integer):
         xvalue = f'{dtype.nbits}\'({self.svalue(value)})'
@@ -266,8 +276,13 @@ class Verilog_Emitter(Emitter):
         return self.svalue(self._resize_bits(value, dtype.nbits))
       elif isinstance(value.dtype, Float):
         fspec = self.float_spec(dtype)
-        fpcall = self._get_fpcall('to_integer', NX=fspec.exp, NM=fspec.mant, NINT=dtype.nbits)
-        return f'unsigned\'({dtype.nbits}\'({fpcall}({self.svalue(value)})))'
+
+        mcall = self._mod_call('to_integer', value,
+                               NX=fspec.exp,
+                               NM=fspec.mant,
+                               NINT=dtype.nbits)
+
+        return f'unsigned\'({dtype.nbits}\'({mcall}))'
       elif isinstance(value.dtype, Integer):
         return f'unsigned\'({dtype.nbits}\'({self.svalue(value)}))'
       elif isinstance(value.dtype, Real):
@@ -293,25 +308,39 @@ class Verilog_Emitter(Emitter):
     fspec = self.float_spec(dtype)
     if isinstance(value, Value):
       if isinstance(value.dtype, (Uint, Sint, Bits)):
-        fpcall = self._get_fpcall('from_integer', NX=fspec.exp, NM=fspec.mant, NINT=value.dtype.nbits)
-        return f'{fpcall}({self.svalue(value)})'
+        return self._mod_call('from_integer', value,
+                              NX=fspec.exp,
+                              NM=fspec.mant,
+                              NINT=value.dtype.nbits)
       elif isinstance(value.dtype, Float):
         ifspec = self.float_spec(value.dtype)
-        fpcall = self._get_fpcall('convert', INX=ifspec.exp, INM=ifspec.mant,
-                                  ONX=fspec.exp, ONM=fspec.mant)
-        return f'{fpcall}({self.svalue(value)})'
+
+        return self._mod_call('convert', value,
+                              INX=ifspec.exp,
+                              INM=ifspec.mant,
+                              ONX=fspec.exp,
+                              ONM=fspec.mant)
       elif isinstance(value.dtype, Integer):
         nbits = max(32, dtype.nbits)
-        fpcall = self._get_fpcall('from_integer', NX=fspec.exp, NM=fspec.mant, NINT=nbits)
-        return f'{fpcall}({nbits}\'({self.svalue(value)}))'
+
+        return self._mod_call('from_integer', f'{nbits}\'({self.svalue(value)})',
+                              NX=fspec.exp,
+                              NM=fspec.mant,
+                              NINT=nbits)
       elif isinstance(value.dtype, Real):
-        fpcall = self._get_fpcall('from_real', NX=fspec.exp, NM=fspec.mant)
-        return f'{fpcall}({self.svalue(value)})'
+        return self._mod_call('from_real', value,
+                              NX=fspec.exp,
+                              NM=fspec.mant)
       elif isinstance(value.dtype, Bool):
-        fpcall_one = self._get_fpcall('one', NX=fspec.exp, NM=fspec.mant)
-        fpcall_zero = self._get_fpcall('zero', NX=fspec.exp, NM=fspec.mant)
+        mcall_one = self._mod_call('one',
+                                   NX=fspec.exp,
+                                   NM=fspec.mant)
+        mcall_zero = self._mod_call('zero',
+                                    NX=fspec.exp,
+                                    NM=fspec.mant)
+
         xvalue = self.svalue(value)
-        return f'{paren(xvalue)} ? {fpcall_one}() : {fpcall_zero}()'
+        return f'{paren(xvalue)} ? {mcall_one}() : {mcall_zero}()'
 
     if isinstance(value, str):
       value = ast.literal_eval(value)
@@ -328,8 +357,13 @@ class Verilog_Emitter(Emitter):
         return f'int\'({self.svalue(value)})'
       elif isinstance(value.dtype, Float):
         fspec = self.float_spec(value.dtype)
-        fpcall = self._get_fpcall('to_integer', NX=fspec.exp, NM=fspec.mant, NINT=32)
-        return f'int\'({fpcall}({self.svalue(value)}))'
+
+        mcall = self._mod_call('to_integer', value,
+                               NX=fspec.exp,
+                               NM=fspec.mant,
+                               NINT=32)
+
+        return f'int\'({mcall})'
       elif isinstance(value.dtype, Real):
         return f'int\'({self.svalue(value)})'
       else:
@@ -345,8 +379,10 @@ class Verilog_Emitter(Emitter):
         return f'real\'({self.svalue(value)})'
       elif isinstance(value.dtype, Float):
         fspec = self.float_spec(value.dtype)
-        fpcall = self._get_fpcall('to_real', NX=fspec.exp, NM=fspec.mant)
-        return f'{fpcall}({self.svalue(value)})'
+
+        return self._mod_call('to_real', value,
+                              NX=fspec.exp,
+                              NM=fspec.mant)
       else:
         fatal(f'Unable to convert to real: {value} {dtype}')
 
@@ -434,8 +470,12 @@ class Verilog_Emitter(Emitter):
         return f'$sformatf("%e", {xvalue})'
       elif isinstance(value.dtype, Float):
         fspec = self.float_spec(value.dtype)
-        fpcall = self._get_fpcall('to_real', NX=fspec.exp, NM=fspec.mant)
-        return f'$sformatf("%e", {fpcall}({xvalue}))'
+
+        mcall = self._mod_call('to_real', value,
+                               NX=fspec.exp,
+                               NM=fspec.mant)
+
+        return f'$sformatf("%e", {mcall})'
       else:
         fatal(f'Unable to convert to string: {value}')
 
@@ -764,8 +804,10 @@ class Verilog_Emitter(Emitter):
     if isinstance(dtype, Float):
       fspec = self.float_spec(dtype)
       opfn = _FLOAT_OPFNS[pyiu.classof(op)]
-      fpcall = self._get_fpcall(opfn, NX=fspec.exp, NM=fspec.mant)
-      return f'{fpcall}({left}, {right})'
+
+      return self._mod_call(opfn, left, right,
+                            NX=fspec.exp,
+                            NM=fspec.mant)
     else:
       return self._build_op(op, left, right)
 
@@ -820,8 +862,10 @@ class Verilog_Emitter(Emitter):
       if isinstance(arg, Value) and isinstance(arg.dtype, Float):
         if isinstance(op, ast.USub):
           fspec = self.float_spec(arg.dtype)
-          fpcall = self._get_fpcall('neg', NX=fspec.exp, NM=fspec.mant)
-          result = f'{fpcall}({xvalue})'
+
+          result = self._mod_call('neg', arg,
+                                  NX=fspec.exp,
+                                  NM=fspec.mant)
         else:
           fatal(f'Unsupported operation for type {arg.dtype}: {op}')
       else:
@@ -885,8 +929,10 @@ class Verilog_Emitter(Emitter):
       fatal(f'Unsupported type: {value.dtype}')
 
     fspec = self.float_spec(value.dtype)
-    fpcall = self._get_fpcall('is_nan', NX=fspec.exp, NM=fspec.mant)
-    result = f'{fpcall}({self.svalue(value)})'
+
+    result = self._mod_call('is_nan', value,
+                            NX=fspec.exp,
+                            NM=fspec.mant)
 
     return Value(BOOL, result)
 
@@ -895,8 +941,10 @@ class Verilog_Emitter(Emitter):
       fatal(f'Unsupported type: {value.dtype}')
 
     fspec = self.float_spec(value.dtype)
-    fpcall = self._get_fpcall('is_inf', NX=fspec.exp, NM=fspec.mant)
-    result = f'{fpcall}({self.svalue(value)})'
+
+    result = self._mod_call('is_inf', value,
+                            NX=fspec.exp,
+                            NM=fspec.mant)
 
     return Value(BOOL, result)
 
