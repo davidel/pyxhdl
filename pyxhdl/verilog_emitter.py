@@ -119,18 +119,14 @@ class Verilog_Emitter(Emitter):
     # (only parameters).
     return self._itor.getid(mod_name, {PARAM_KEY: kwargs})
 
-  def _get_fpcall(self, fnname, **kwargs):
+  def _mod_call(self, fnname, *args, **kwargs):
     fn_map = pyu.dict_rget(self._cfg, 'verilog/fpu_fnmap', defval=_FPU_FNMAP)
     svmod = fn_map.get(fnname)
     if svmod is None:
       fatal(f'Unable to find configuration for FPU function: {fnname}')
 
     iid = self._iface_id(svmod.mod, **kwargs)
-
-    return f'{iid}.{svmod.fnname}'
-
-  def _mod_call(self, fnname, *args, **kwargs):
-    mcall = self._get_fpcall(fnname, **kwargs)
+    mcall = f'{iid}.{svmod.fnname}'
 
     return f'{mcall}(' + ', '.join(self.svalue(arg) for arg in args) + ')'
 
