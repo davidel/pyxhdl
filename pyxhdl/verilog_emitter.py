@@ -92,7 +92,6 @@ class Verilog_Emitter(Emitter):
     self._mod_comment = None
     self._init_module_places()
     self._module_reset()
-    self._extra_libs = set()
 
   @staticmethod
   def fpmod_resolve(mod_name, fnname, argno, exp_param='NX', mant_param='NM',
@@ -545,9 +544,7 @@ class Verilog_Emitter(Emitter):
     return avalue, shape
 
   def flush(self):
-    xlibs = tuple(sorted(self._extra_libs))
-
-    return self._load_libs(extra_libs=xlibs) + self._expand()
+    return self._load_libs() + self._expand()
 
   def is_root_variable(self, var):
     return var.isreg or var.is_const()

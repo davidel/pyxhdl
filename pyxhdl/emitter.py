@@ -115,6 +115,7 @@ class Emitter:
     self._indent = 0
     self._placements = []
     self._code = []
+    self._extra_libs = set()
     self._ent_versions = collections.defaultdict(int)
     self._user_modules = collections.defaultdict(dict)
     self._contexts = []
@@ -425,7 +426,7 @@ class Emitter:
 
     return pytr.template_replace(code, lookup_fn=self._cfg_lookup, delim='@')
 
-  def _load_libs(self, extra_libs=tuple()):
+  def _load_libs(self):
     pkgdir = os.path.dirname(__file__)
     libdir = os.path.join(pkgdir, 'hdl_libs', self.kind)
     alog.debug(lambda: f'Using {self.kind} library folder {libdir}')
@@ -452,7 +453,8 @@ class Emitter:
     if lpaths is not None:
       lib_paths.extend(pyu.resplit(lpaths, ';'))
 
-    for libname in pyu.enum_set(extra_libs, loaded, False):
+    xlibs = tuple(sorted(self._extra_libs))
+    for libname in pyu.enum_set(xlibs, loaded, False):
       libfname, llsize = libname + self.file_ext, len(loaded)
       for path in lib_paths:
         lpath = os.path.join(path, libfname)
@@ -594,4 +596,9 @@ class Emitter:
       if attrs is not None:
         for name, value in attrs.items():
           yield name, value
+
+  def _codegen_ctx(self):
+    from . import pyxhdl as X
+
+    return X.CodeGen.current()
 
