@@ -118,9 +118,7 @@ class Emitter:
     self._ent_versions = collections.defaultdict(int)
     self._user_modules = collections.defaultdict(dict)
     self._contexts = []
-    self._mod_comment = None
-    self._proc = _ProcessInfo()
-    self._itor = Instanciator(param_key=PARAM_KEY)
+    self._module_reset()
 
   @classmethod
   def register(cls, name, eclass):

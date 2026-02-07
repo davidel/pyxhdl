@@ -72,7 +72,6 @@ class VHDL_Emitter(Emitter):
     self._proc_indent = 0
     self.module_vars_place = self.emit_placement()
     self._entity_place = self.emit_placement()
-    self._module_reset()
 
   def _emit_header(self):
     hdr = self._cfg.get('header', _STD_HEADER)

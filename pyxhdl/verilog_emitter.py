@@ -89,7 +89,6 @@ class Verilog_Emitter(Emitter):
     self.file_ext = '.sv'
     self.eol = ';'
     self._init_module_places()
-    self._module_reset()
 
   @staticmethod
   def fpmod_resolve(mod_name, fnname, argno, exp_param='NX', mant_param='NM',
