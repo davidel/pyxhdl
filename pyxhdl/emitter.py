@@ -13,7 +13,7 @@ import py_misc_utils.obj as obj
 import py_misc_utils.template_replace as pytr
 import py_misc_utils.utils as pyu
 
-from .pyxhdl import *
+from .common_defs import *
 from .types import *
 from .vars import *
 from .utils import *

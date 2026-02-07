@@ -1,0 +1,4 @@
+
+ROOT_PROCESS = '$ROOT'
+INIT_PROCESS = '$INIT'
+

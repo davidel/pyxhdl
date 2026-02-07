@@ -14,6 +14,7 @@ import py_misc_utils.thread_context as pytc
 import py_misc_utils.utils as pyu
 
 from .ast_utils import *
+from .common_defs import *
 from .decorators import *
 from .entity import *
 from .types import *
@@ -21,9 +22,6 @@ from .vars import *
 from .utils import *
 from .wrap import *
 
-
-ROOT_PROCESS = '$ROOT'
-INIT_PROCESS = '$INIT'
 
 _Return = collections.namedtuple('Return', 'value, placement')
 _MatchCase = collections.namedtuple('MatchCase', 'pattern, scope')
@@ -779,8 +777,6 @@ class CodeGen(_ExecVisitor):
   def generate_entity(self, eclass, eargs):
     alog.debug(lambda: f'Entity {eclass.__name__}')
 
-    self._reset_entity_context()
-
     ent_name = self._register_entity(eclass, eargs, generated=True)
 
     kwargs = eargs.copy()
@@ -846,6 +842,8 @@ class CodeGen(_ExecVisitor):
                               process_args=hdl_args)
 
     self.emitter.emit_module_end()
+
+    self._reset_entity_context()
 
   def generate_process(self, func, args, kwargs=None, sensitivity=None,
                        process_kind=None, process_args=None):

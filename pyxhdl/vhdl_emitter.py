@@ -12,9 +12,9 @@ import py_misc_utils.core_utils as pycu
 import py_misc_utils.inspect_utils as pyiu
 import py_misc_utils.utils as pyu
 
+from .common_defs import *
 from .entity import *
 from .emitter import *
-from .pyxhdl import *
 from .types import *
 from .utils import *
 from .vars import *
