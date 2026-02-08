@@ -16,7 +16,7 @@ class ExternLogic:
     self.modname = modname
     self.funcname = funcname
     self.nargs = nargs
-    self.params = params or dict()
+    self.params = params or ()
     self.args = args or dict()
     self.name_remap = name_remap or dict()
 

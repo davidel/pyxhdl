@@ -192,9 +192,15 @@ class Emitter:
       if pname in xlogic.params:
         rpname = xlogic.name_remap.get(pname, pname)
         mod_params[rpname] = pvalue
-      elif pname in xlogic.args:
-        rpname = xlogic.name_remap.get(pname, pname)
-        mod_args[rpname] = pvalue
+
+    for aname, aref in xlogic.args.items():
+      if aname in kwargs:
+        raname = xlogic.name_remap.get(aref, aref)
+        mod_args[raname] = kwargs[aname]
+      elif m := re.match(r'\$(\d+)$', aname):
+        argno = int(m.group(1))
+        raname = xlogic.name_remap.get(aref, aref)
+        mod_args[raname] = args[argno]
 
     mod_args[PARAM_KEY] = mod_params
 
