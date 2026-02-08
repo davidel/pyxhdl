@@ -658,8 +658,7 @@ class Verilog_Emitter(Emitter):
               earg = self.svalue(xarg)
               binds.append(f'.{xpin.name}({earg})')
 
-        for i, port_bind in enumerate(binds):
-          self._emit_line(port_bind + ('' if i == len(binds) - 1 else ','))
+        self._emit_lines(binds, sep=',')
 
       self._emit_line(f');')
 
