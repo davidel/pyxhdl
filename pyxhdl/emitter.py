@@ -215,6 +215,17 @@ class Emitter:
     else:
       self._emit(spaces + line, placement=self._placements[-1])
 
+  def _emit_lines(self, lines, sep=''):
+    if not hasattr(lines, '__len__'):
+      lines = tuple(lines)
+
+    count = len(lines)
+    for i, ln in enumerate(lines):
+      if i + 1 < count:
+        self._emit_line(ln + sep)
+      else:
+        self._emit_line(ln)
+
   def _expand_helper(self, code, lines):
     for ent in code:
       if isinstance(ent, _Placement):

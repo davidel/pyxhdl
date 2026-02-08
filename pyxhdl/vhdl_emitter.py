@@ -71,6 +71,7 @@ class VHDL_Emitter(Emitter):
     self._mod_attributes = dict()
     self._proc_indent = 0
     self.module_vars_place = self.emit_placement()
+    self._modules_place = self.emit_placement()
     self._entity_place = self.emit_placement()
 
   def _emit_header(self):
@@ -547,9 +548,7 @@ class VHDL_Emitter(Emitter):
       if eparams is not None:
         self._emit_line(f'generic map (')
         with self.indent():
-          for i, (k, v) in enumerate(eparams.items()):
-            gmap = f'{k} => {v}' + ('' if i == len(eparams) - 1 else ',')
-            self._emit_line(gmap)
+          self._emit_lines((f'{k} => {v}' for k, v in eparams.items()), sep=',')
         self._emit_line(f')')
 
       self._emit_line(f'port map (')
@@ -573,8 +572,7 @@ class VHDL_Emitter(Emitter):
               earg = self.svalue(xarg)
               binds.append(f'{xpin.name} => {earg}')
 
-        for i, port_bind in enumerate(binds):
-          self._emit_line(port_bind + ('' if i == len(binds) - 1 else ','))
+        self._emit_lines(binds, sep=',')
 
       self._emit_line(f');')
 
@@ -589,15 +587,15 @@ class VHDL_Emitter(Emitter):
       with self.indent():
         self._emit_line(f'port (')
         with self.indent():
-          xports = ent.expanded_ports()
-          for i, ap in enumerate(xports):
+          xports = []
+          for ap in ent.expanded_ports():
             pin, arg = ap.port, ap.arg
 
             pdir = 'in' if pin.is_ro() else 'out' if pin.is_wo() else 'inout'
             ptype = self._type_of(arg.dtype)
-            port_decl = f'{pin.name} : {pdir} {ptype}'
+            xports.append(f'{pin.name} : {pdir} {ptype}')
 
-            self._emit_line(port_decl + (';' if i + 1 < len(xports) else ''))
+          self._emit_lines(xports, sep=';')
 
         self._emit_line(f');')
 
@@ -613,9 +611,24 @@ class VHDL_Emitter(Emitter):
 
     self._emit_line(f'begin')
 
+    self._modules_place = self.emit_placement(extra_indent=1)
     self._entity_place = self.emit_placement(extra_indent=1)
 
   def emit_module_end(self):
+    with self.placement(self._modules_place):
+      for iid, inst in self._itor:
+        self._emit_line(f'{iid} : entity {inst.name}')
+        if inst.params:
+          self._emit_line('generic map (')
+          with self.indent():
+            self._emit_lines((f'{k} => {v}' for k, v in inst.params.items()), sep=',')
+          self._emit_line(')')
+
+        self._emit_line(f'port map (')
+        with self.indent():
+          self._emit_lines((f'{k} => {v}' for k, v in inst.args.items()), sep=',')
+        self._emit_line(');')
+
     self._emit_line(f'end architecture;')
 
     self._mod_attributes = dict()
