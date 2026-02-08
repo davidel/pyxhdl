@@ -41,25 +41,25 @@ endpackage
 
 // FP_CONV
 interface fp_conv;
-  parameter integer INX = 11;
-  parameter integer INM = 23;
+  parameter integer NX = 11;
+  parameter integer NM = 23;
 
   parameter integer ONX = 11;
   parameter integer ONM = 23;
 
-  localparam integer IN = INX + INM + 1;
-  localparam integer IXOFF = fp::EXP_OFFSET(INX);
+  localparam integer IN = NX + NM + 1;
+  localparam integer IXOFF = fp::EXP_OFFSET(NX);
 
   localparam integer ON = ONX + ONM + 1;
   localparam integer OXOFF = fp::EXP_OFFSET(ONX);
 
-  localparam integer ZFILL = fp::MAX(ONM - INM, 0);
-  localparam integer MSIZE = fp::MIN(ONM, INM);
+  localparam integer ZFILL = fp::MAX(ONM - NM, 0);
+  localparam integer MSIZE = fp::MIN(ONM, NM);
 
   function automatic logic [ON - 1: 0] convert;
     input logic [IN - 1: 0] v;
 
-    `IEEE754(INX, INM) pv = v;
+    `IEEE754(NX, NM) pv = v;
 
     logic [ONM - 1: 0] m;
     logic [ONX - 1: 0] x;
@@ -141,8 +141,8 @@ interface fpu;
   localparam integer XOFF = fp::EXP_OFFSET(NX);
   localparam integer ADDSUB_PAD = 3;
 
-  clz_mod #(.N (NM)) add_clz();
-  clz_mod #(.N (fp::MAX(NINT, N))) from_integer_clz();
+  clz_mod #(.N(NM)) add_clz();
+  clz_mod #(.N(fp::MAX(NINT, N))) from_integer_clz();
 
   function automatic logic [N - 1: 0] inf;
     input logic      s;
@@ -428,7 +428,7 @@ module FloatEnt(A, B, XOUT);
   logic [31: 0] div;
   logic [31: 0] sub;
   fpu #(.NX(8), .NM(23)) fpu_1();
-  fp_conv #(.INX(8), .INM(23), .ONX(5), .ONM(10)) fp_conv_1();
+  fp_conv #(.NX(8), .NM(23), .ONX(5), .ONM(10)) fp_conv_1();
   always @(A or B)
   run : begin
     add = fpu_1.add(A, B);

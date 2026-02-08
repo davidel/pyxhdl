@@ -1,5 +1,4 @@
 import ast
-import collections
 import functools
 import inspect
 import os
@@ -21,27 +20,6 @@ from .utils import *
 from .vars import *
 from .wrap import *
 
-
-_SVMod = collections.namedtuple('SVMod', 'mod, fnname')
-
-_FPU_FNMAP = {
-  'add': _SVMod('fpu', 'add'),
-  'sub': _SVMod('fpu', 'sub'),
-  'mul': _SVMod('fpu', 'mul'),
-  'div': _SVMod('fpu', 'div'),
-  'mod': _SVMod('fpu', 'mod'),
-  'neg': _SVMod('fpu', 'neg'),
-  'to_integer': _SVMod('fpu', 'to_integer'),
-  'from_integer': _SVMod('fpu', 'from_integer'),
-  'one': _SVMod('fpu', 'one'),
-  'zero': _SVMod('fpu', 'zero'),
-  'is_nan': _SVMod('fpu', 'is_nan'),
-  'is_inf': _SVMod('fpu', 'is_inf'),
-  'is_zero': _SVMod('fpu', 'is_zero'),
-  'from_real': _SVMod('fp_utils', 'from_real'),
-  'to_real': _SVMod('fp_utils', 'to_real'),
-  'convert': _SVMod('fp_conv', 'convert'),
-}
 
 _LOGIC_REMAP = dict(zip('01XUZWHL', '01xxzx10'))
 
@@ -88,6 +66,7 @@ class Verilog_Emitter(Emitter):
     self.kind = 'verilog'
     self.file_ext = '.sv'
     self.eol = ';'
+    self._vfpu = self.load_extern_module('hdl_libs/verilog/vfpu.yaml')
     self._init_module_places()
 
   @staticmethod
@@ -120,15 +99,32 @@ class Verilog_Emitter(Emitter):
     return self._itor.getid(mod_name, {PARAM_KEY: kwargs})
 
   def _mod_call(self, fnname, *args, **kwargs):
-    fn_map = pyu.dict_rget(self._cfg, 'verilog/fpu_fnmap', defval=_FPU_FNMAP)
-    svmod = fn_map.get(fnname)
-    if svmod is None:
-      fatal(f'Unable to find configuration for FPU function: {fnname}')
+    xlogic = self._vfpu.get_logic(fnname)
 
-    iid = self._iface_id(svmod.mod, **kwargs)
-    mcall = f'{iid}.{svmod.fnname}'
+    if xlogic.nargs != len(args):
+      fatal(f'Number of arguments mismatch for {fnname}: {xlogic.nargs} vs. {len(args)}')
 
-    return f'{mcall}(' + ', '.join(self.svalue(arg) for arg in args) + ')'
+    self._extra_libs.add(xlogic.modname)
+
+    mod_params, mod_args = dict(), dict()
+    for pname, pvalue in kwargs.items():
+      if pname in xlogic.params:
+        rpname = xlogic.name_remap.get(pname, pname)
+        mod_params[rpname] = pvalue
+      elif pname in xlogic.args:
+        rpname = xlogic.name_remap.get(pname, pname)
+        mod_args[rpname] = pvalue
+
+    mod_args[PARAM_KEY] = mod_params
+
+    iid = self._itor.getid(xlogic.modname, mod_args)
+
+    if xlogic.funcname:
+      mcall = f'{iid}.{xlogic.funcname}'
+
+      return f'{mcall}(' + ', '.join(self.svalue(arg) for arg in args) + ')'
+    else:
+      fatal(f'TBD!')
 
   def _scalar_remap(self, value):
     if isinstance(value, bool):
@@ -211,9 +207,9 @@ class Verilog_Emitter(Emitter):
         fspec = self.float_spec(dtype)
 
         mcall = self._mod_call('to_integer', value,
-                               NX=fspec.exp,
-                               NM=fspec.mant,
-                               NINT=dtype.nbits)
+                               FPEXP=fspec.exp,
+                               FPMANT=fspec.mant,
+                               INTSIZE=dtype.nbits)
 
         xvalue = f'{dtype.nbits}\'({mcall})'
         return f'unsigned\'({xvalue})' if not signed else xvalue
@@ -274,9 +270,9 @@ class Verilog_Emitter(Emitter):
         fspec = self.float_spec(dtype)
 
         mcall = self._mod_call('to_integer', value,
-                               NX=fspec.exp,
-                               NM=fspec.mant,
-                               NINT=dtype.nbits)
+                               FPEXP=fspec.exp,
+                               FPMANT=fspec.mant,
+                               INTSIZE=dtype.nbits)
 
         return f'unsigned\'({dtype.nbits}\'({mcall}))'
       elif isinstance(value.dtype, Integer):
@@ -305,35 +301,35 @@ class Verilog_Emitter(Emitter):
     if isinstance(value, Value):
       if isinstance(value.dtype, (Uint, Sint, Bits)):
         return self._mod_call('from_integer', value,
-                              NX=fspec.exp,
-                              NM=fspec.mant,
-                              NINT=value.dtype.nbits)
+                              FPEXP=fspec.exp,
+                              FPMANT=fspec.mant,
+                              INTSIZE=value.dtype.nbits)
       elif isinstance(value.dtype, Float):
         ifspec = self.float_spec(value.dtype)
 
         return self._mod_call('convert', value,
-                              INX=ifspec.exp,
-                              INM=ifspec.mant,
-                              ONX=fspec.exp,
-                              ONM=fspec.mant)
+                              FPEXP=ifspec.exp,
+                              FPMANT=ifspec.mant,
+                              OUT_FPEXP=fspec.exp,
+                              OUT_FPMANT=fspec.mant)
       elif isinstance(value.dtype, Integer):
         nbits = max(32, dtype.nbits)
 
         return self._mod_call('from_integer', f'{nbits}\'({self.svalue(value)})',
-                              NX=fspec.exp,
-                              NM=fspec.mant,
-                              NINT=nbits)
+                              FPEXP=fspec.exp,
+                              FPMANT=fspec.mant,
+                              INTSIZE=nbits)
       elif isinstance(value.dtype, Real):
         return self._mod_call('from_real', value,
-                              NX=fspec.exp,
-                              NM=fspec.mant)
+                              FPEXP=fspec.exp,
+                              FPMANT=fspec.mant)
       elif isinstance(value.dtype, Bool):
         mcall_one = self._mod_call('one',
-                                   NX=fspec.exp,
-                                   NM=fspec.mant)
+                                   FPEXP=fspec.exp,
+                                   FPMANT=fspec.mant)
         mcall_zero = self._mod_call('zero',
-                                    NX=fspec.exp,
-                                    NM=fspec.mant)
+                                    FPEXP=fspec.exp,
+                                    FPMANT=fspec.mant)
 
         xvalue = self.svalue(value)
         return f'{paren(xvalue)} ? {mcall_one}() : {mcall_zero}()'
@@ -355,9 +351,9 @@ class Verilog_Emitter(Emitter):
         fspec = self.float_spec(value.dtype)
 
         mcall = self._mod_call('to_integer', value,
-                               NX=fspec.exp,
-                               NM=fspec.mant,
-                               NINT=32)
+                               FPEXP=fspec.exp,
+                               FPMANT=fspec.mant,
+                               INTSIZE=32)
 
         return f'int\'({mcall})'
       elif isinstance(value.dtype, Real):
@@ -377,8 +373,8 @@ class Verilog_Emitter(Emitter):
         fspec = self.float_spec(value.dtype)
 
         return self._mod_call('to_real', value,
-                              NX=fspec.exp,
-                              NM=fspec.mant)
+                              FPEXP=fspec.exp,
+                              FPMANT=fspec.mant)
       else:
         fatal(f'Unable to convert to real: {value} {dtype}')
 
@@ -468,8 +464,8 @@ class Verilog_Emitter(Emitter):
         fspec = self.float_spec(value.dtype)
 
         mcall = self._mod_call('to_real', value,
-                               NX=fspec.exp,
-                               NM=fspec.mant)
+                               FPEXP=fspec.exp,
+                               FPMANT=fspec.mant)
 
         return f'$sformatf("%e", {mcall})'
       else:
@@ -801,8 +797,8 @@ class Verilog_Emitter(Emitter):
       opfn = _FLOAT_OPFNS[pyiu.classof(op)]
 
       return self._mod_call(opfn, left, right,
-                            NX=fspec.exp,
-                            NM=fspec.mant)
+                            FPEXP=fspec.exp,
+                            FPMANT=fspec.mant)
     else:
       return self._build_op(op, left, right)
 
@@ -859,8 +855,8 @@ class Verilog_Emitter(Emitter):
           fspec = self.float_spec(arg.dtype)
 
           result = self._mod_call('neg', arg,
-                                  NX=fspec.exp,
-                                  NM=fspec.mant)
+                                  FPEXP=fspec.exp,
+                                  FPMANT=fspec.mant)
         else:
           fatal(f'Unsupported operation for type {arg.dtype}: {op}')
       else:
@@ -926,8 +922,8 @@ class Verilog_Emitter(Emitter):
     fspec = self.float_spec(value.dtype)
 
     result = self._mod_call('is_nan', value,
-                            NX=fspec.exp,
-                            NM=fspec.mant)
+                            FPEXP=fspec.exp,
+                            FPMANT=fspec.mant)
 
     return Value(BOOL, result)
 
@@ -938,8 +934,8 @@ class Verilog_Emitter(Emitter):
     fspec = self.float_spec(value.dtype)
 
     result = self._mod_call('is_inf', value,
-                            NX=fspec.exp,
-                            NM=fspec.mant)
+                            FPEXP=fspec.exp,
+                            FPMANT=fspec.mant)
 
     return Value(BOOL, result)
 

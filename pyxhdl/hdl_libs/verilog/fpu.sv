@@ -65,8 +65,8 @@ interface fpu;
   localparam integer XOFF = fp::EXP_OFFSET(NX);
   localparam integer ADDSUB_PAD = 3;
 
-  clz_mod #(.N (NM)) add_clz();
-  clz_mod #(.N (fp::MAX(NINT, N))) from_integer_clz();
+  clz_mod #(.N(NM)) add_clz();
+  clz_mod #(.N(fp::MAX(NINT, N))) from_integer_clz();
 
   function automatic logic [N - 1: 0] inf;
     input logic      s;

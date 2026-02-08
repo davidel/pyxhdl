@@ -1,0 +1,141 @@
+name: vfpu
+
+name_remap:
+  FPEXP: NX
+  FPMANT: NM
+  OUT_FPEXP: ONX
+  OUT_FPMANT: ONM
+  INTSIZE: NINT
+
+functions:
+  add:
+    modname: fpu
+    funcname: add
+    nargs: 2
+    params:
+      - FPEXP
+      - FPMANT
+
+  sub:
+    modname: fpu
+    funcname: sub
+    nargs: 2
+    params:
+      - FPEXP
+      - FPMANT
+
+  mul:
+    modname: fpu
+    funcname: mul
+    nargs: 2
+    params:
+      - FPEXP
+      - FPMANT
+
+  div:
+    modname: fpu
+    funcname: div
+    nargs: 2
+    params:
+      - FPEXP
+      - FPMANT
+
+  mod:
+    modname: fpu
+    funcname: mod
+    nargs: 2
+    params:
+      - FPEXP
+      - FPMANT
+
+  neg:
+    modname: fpu
+    funcname: neg
+    nargs: 1
+    params:
+      - FPEXP
+      - FPMANT
+
+  to_integer:
+    modname: fpu
+    funcname: to_integer
+    nargs: 1
+    params:
+      - FPEXP
+      - FPMANT
+      - INTSIZE
+
+  from_integer:
+    modname: fpu
+    funcname: from_integer
+    nargs: 1
+    params:
+      - FPEXP
+      - FPMANT
+      - INTSIZE
+
+  one:
+    modname: fpu
+    funcname: one
+    nargs: 0
+    params:
+      - FPEXP
+      - FPMANT
+
+  zero:
+    modname: fpu
+    funcname: zero
+    nargs: 0
+    params:
+      - FPEXP
+      - FPMANT
+
+  is_nan:
+    modname: fpu
+    funcname: is_nan
+    nargs: 1
+    params:
+      - FPEXP
+      - FPMANT
+
+  is_inf:
+    modname: fpu
+    funcname: is_inf
+    nargs: 1
+    params:
+      - FPEXP
+      - FPMANT
+
+  is_zero:
+    modname: fpu
+    funcname: is_zero
+    nargs: 1
+    params:
+      - FPEXP
+      - FPMANT
+
+  from_real:
+    modname: fp_utils
+    funcname: from_real
+    nargs: 1
+    params:
+      - FPEXP
+      - FPMANT
+
+  to_real:
+    modname: fp_utils
+    funcname: to_real
+    nargs: 1
+    params:
+      - FPEXP
+      - FPMANT
+
+  convert:
+    modname: fp_conv
+    funcname: convert
+    nargs: 1
+    params:
+      - FPEXP
+      - FPMANT
+      - OUT_FPEXP
+      - OUT_FPMANT

@@ -14,6 +14,7 @@ import py_misc_utils.template_replace as pytr
 import py_misc_utils.utils as pyu
 
 from .common_defs import *
+from .extern_logic import *
 from .instantiator import *
 from .types import *
 from .vars import *
@@ -117,6 +118,7 @@ class Emitter:
     self._extra_libs = set()
     self._ent_versions = collections.defaultdict(int)
     self._user_modules = collections.defaultdict(dict)
+    self._extern_modules = dict()
     self._contexts = []
     self._module_reset()
 
@@ -154,6 +156,18 @@ class Emitter:
 
   def register_module(self, mid, code, replace=None):
     self._register_module(mid, code, self._user_modules, replace=replace)
+
+  def load_extern_module(self, path):
+    if os.path.isabs(path):
+      mod_path = path
+    else:
+      mod_path = os.path.join(os.path.dirname(__file__), path)
+
+    xmod = ExternModule.load(mod_path)
+
+    self._extern_modules[xmod.name] = xmod
+
+    return xmod
 
   def float_spec(self, dtype):
     fsenv = os.getenv(f'F{dtype.nbits}_SPEC')
