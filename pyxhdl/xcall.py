@@ -83,9 +83,12 @@ class _ExternalFunction:
     if fmap is None:
       fatal(f'Unable to resolve function {self._fnname}() for {ctx.emitter.kind} backend')
 
-    fnname = fmap(ctx, cargs) if callable(fmap) else fmap
-
     dtype = self._dtype(cargs) if callable(self._dtype) else self._dtype
 
-    return ctx.emit_call(fnname, cargs, dtype)
+    if callable(fmap):
+      call = fmap(ctx, cargs)
+
+      return Value(dtype, call)
+    else:
+      return ctx.emit_call(fmap, cargs, dtype)
 

@@ -113,7 +113,7 @@ float_equal = create_function(
   'float_equal',
   {
     'vhdl': 'pyxhdl.float_equal',
-    'verilog': Verilog_Emitter.fpmod_resolve('fp_utils', 'rcloseto', 0),
+    'verilog': Verilog_Emitter.fpmod_resolve('vfpu', 'rcloseto', 0),
   },
   fnsig='f*, real, real',
   dtype=BOOL)

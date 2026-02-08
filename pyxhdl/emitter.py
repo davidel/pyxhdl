@@ -169,6 +169,44 @@ class Emitter:
 
     return xmod
 
+  def _get_extern_module(self, name):
+    xmod = self._extern_modules.get(name)
+    if xmod is None:
+      fatal(f'Extern module {name} is not available')
+
+    return xmod
+
+  def _module_arg(self, modname, name):
+    return f'{modname}.{name}'
+
+  def _call_external_module(self, xmod, fnname, *args, **kwargs):
+    xlogic = xmod.get_logic(fnname)
+
+    if xlogic.nargs != len(args):
+      fatal(f'Number of arguments mismatch for {fnname}: {xlogic.nargs} vs. {len(args)}')
+
+    self._extra_libs.add(xlogic.modname)
+
+    mod_params, mod_args = dict(), dict()
+    for pname, pvalue in kwargs.items():
+      if pname in xlogic.params:
+        rpname = xlogic.name_remap.get(pname, pname)
+        mod_params[rpname] = pvalue
+      elif pname in xlogic.args:
+        rpname = xlogic.name_remap.get(pname, pname)
+        mod_args[rpname] = pvalue
+
+    mod_args[PARAM_KEY] = mod_params
+
+    iid = self._itor.getid(xlogic.modname, mod_args)
+
+    if xlogic.funcname:
+      mcall = self._module_arg(iid, xlogic.funcname)
+
+      return f'{mcall}(' + ', '.join(self.svalue(arg) for arg in args) + ')'
+    else:
+      fatal(f'TBD!')
+
   def float_spec(self, dtype):
     fsenv = os.getenv(f'F{dtype.nbits}_SPEC')
     if fsenv is not None:

@@ -66,65 +66,35 @@ class Verilog_Emitter(Emitter):
     self.kind = 'verilog'
     self.file_ext = '.sv'
     self.eol = ';'
-    self._vfpu = self.load_extern_module('hdl_libs/verilog/vfpu.yaml')
+
+    vfpu_path = pyu.dict_rget(self._cfg, 'vfpu_conf',
+                              defval='hdl_libs/verilog/vfpu.yaml')
+
+    self._vfpu = self.load_extern_module(vfpu_path)
     self._init_module_places()
 
   @staticmethod
-  def fpmod_resolve(mod_name, fnname, argno, exp_param='NX', mant_param='NM',
-                    **kwargs):
+  def fpmod_resolve(modname, fnname, argno, **kwargs):
     def resolver(ctx, cargs):
-      return ctx.emitter._fpmod_resolve(mod_name, fnname, cargs, argno, exp_param,
-                                        mant_param, kwargs)
+      return ctx.emitter._fpmod_resolve(modname, fnname, cargs, argno, kwargs)
 
     return resolver
 
-  def _fpmod_resolve(self, mod_name, fnname, cargs, argno, exp_param, mant_param,
-                     kwargs):
-    fspec = self.float_spec(cargs[argno].dtype)
-    margs = pycu.new_with(kwargs, **{exp_param: fspec.exp, mant_param: fspec.mant})
-    iid = self._iface_id(mod_name, **margs)
+  def _fpmod_resolve(self, modname, fnname, cargs, argno, kwargs):
+    xmod = self._get_extern_module(modname)
 
-    return f'{iid}.{fnname}'
+    fspec = self.float_spec(cargs[argno].dtype)
+    kwargs.update(FPEXP=fspec.exp, FPMANT=fspec.mant)
+
+    return self._call_external_module(xmod, fnname, *cargs, **kwargs)
 
   def _init_module_places(self):
     self.module_vars_place = self.emit_placement()
     self._modules_place = self.emit_placement()
     self._entity_place = self.emit_placement()
 
-  def _iface_id(self, mod_name, **kwargs):
-    self._extra_libs.add(mod_name)
-
-    # This API instantiates only Verilog interfaces, which takes no arguments
-    # (only parameters).
-    return self._itor.getid(mod_name, {PARAM_KEY: kwargs})
-
   def _mod_call(self, fnname, *args, **kwargs):
-    xlogic = self._vfpu.get_logic(fnname)
-
-    if xlogic.nargs != len(args):
-      fatal(f'Number of arguments mismatch for {fnname}: {xlogic.nargs} vs. {len(args)}')
-
-    self._extra_libs.add(xlogic.modname)
-
-    mod_params, mod_args = dict(), dict()
-    for pname, pvalue in kwargs.items():
-      if pname in xlogic.params:
-        rpname = xlogic.name_remap.get(pname, pname)
-        mod_params[rpname] = pvalue
-      elif pname in xlogic.args:
-        rpname = xlogic.name_remap.get(pname, pname)
-        mod_args[rpname] = pvalue
-
-    mod_args[PARAM_KEY] = mod_params
-
-    iid = self._itor.getid(xlogic.modname, mod_args)
-
-    if xlogic.funcname:
-      mcall = f'{iid}.{xlogic.funcname}'
-
-      return f'{mcall}(' + ', '.join(self.svalue(arg) for arg in args) + ')'
-    else:
-      fatal(f'TBD!')
+    return self._call_external_module(self._vfpu, fnname, *args, **kwargs)
 
   def _scalar_remap(self, value):
     if isinstance(value, bool):

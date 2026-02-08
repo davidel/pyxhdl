@@ -130,6 +130,14 @@ functions:
       - FPEXP
       - FPMANT
 
+  rcloseto:
+    modname: fp_utils
+    funcname: rcloseto
+    nargs: 3
+    params:
+      - FPEXP
+      - FPMANT
+
   convert:
     modname: fp_conv
     funcname: convert
