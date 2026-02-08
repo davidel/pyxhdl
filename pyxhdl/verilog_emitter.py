@@ -74,16 +74,18 @@ class Verilog_Emitter(Emitter):
     self._init_module_places()
 
   @staticmethod
-  def fpmod_resolve(modname, fnname, argno, **kwargs):
+  def fpmod_resolve(modname, fnname, argref, **kwargs):
     def resolver(ctx, cargs):
-      return ctx.emitter._fpmod_resolve(modname, fnname, cargs, argno, kwargs)
+      return ctx.emitter._fpmod_resolve(modname, fnname, cargs, argref, kwargs)
 
     return resolver
 
-  def _fpmod_resolve(self, modname, fnname, cargs, argno, kwargs):
+  def _fpmod_resolve(self, modname, fnname, cargs, argref, kwargs):
     xmod = self._get_extern_module(modname)
 
-    fspec = self.float_spec(cargs[argno].dtype)
+    ref_arg = cargs[argref] if isinstance(argref, int) else kwargs[argref]
+
+    fspec = self.float_spec(ref_arg.dtype)
     kwargs.update(FPEXP=fspec.exp, FPMANT=fspec.mant)
 
     return self._call_external_module(xmod, fnname, *cargs, **kwargs)
