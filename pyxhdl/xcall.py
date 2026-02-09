@@ -8,7 +8,7 @@ from .vars import *
 
 
 def argn_dtype(n):
-  def typefn(args):
+  def typefn(args, kwargs):
     return args[n].dtype
 
   return typefn
@@ -86,7 +86,7 @@ class _ExternalFunction:
     else:
       fmap = self._fnmap
 
-    dtype = self._dtype(cargs) if callable(self._dtype) else self._dtype
+    dtype = self._dtype(cargs, kwargs) if callable(self._dtype) else self._dtype
 
     if callable(fmap):
       call = fmap(ctx, cargs, kwargs)
