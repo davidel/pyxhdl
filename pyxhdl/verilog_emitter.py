@@ -77,7 +77,7 @@ class Verilog_Emitter(Emitter):
   def fpmod_resolve(modname, fnname, argref, **kwargs):
     def resolver(ctx, cargs, **rkwargs):
       xkwargs = kwargs.copy()
-      xkwargs.update(kwargs)
+      xkwargs.update(rkwargs)
       return ctx.emitter._fpmod_resolve(modname, fnname, cargs, argref, xkwargs)
 
     return resolver
