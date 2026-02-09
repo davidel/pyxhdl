@@ -179,7 +179,7 @@ class Emitter:
   def _module_arg(self, modname, name):
     return f'{modname}.{name}'
 
-  def _call_external_module(self, xmod, fnname, *args, **kwargs):
+  def _call_external_module(self, xmod, fnname, dtype, *args, **kwargs):
     xlogic = xmod.get_logic(fnname)
 
     if xlogic.nargs != len(args):

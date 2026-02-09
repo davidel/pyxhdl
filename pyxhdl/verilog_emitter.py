@@ -88,15 +88,15 @@ class Verilog_Emitter(Emitter):
     fspec = self.float_spec(ref_arg.dtype)
     kwargs.update(FPEXP=fspec.exp, FPMANT=fspec.mant)
 
-    return self._call_external_module(xmod, fnname, *cargs, **kwargs)
+    return self._call_external_module(xmod, fnname, ref_arg.dtype, *cargs, **kwargs)
 
   def _init_module_places(self):
     self.module_vars_place = self.emit_placement()
     self._modules_place = self.emit_placement()
     self._entity_place = self.emit_placement()
 
-  def _mod_call(self, fnname, *args, **kwargs):
-    return self._call_external_module(self._vfpu, fnname, *args, **kwargs)
+  def _mod_call(self, fnname, dtype, *args, **kwargs):
+    return self._call_external_module(self._vfpu, fnname, dtype, *args, **kwargs)
 
   def _scalar_remap(self, value):
     if isinstance(value, bool):
@@ -178,7 +178,7 @@ class Verilog_Emitter(Emitter):
       elif isinstance(value.dtype, Float):
         fspec = self.float_spec(dtype)
 
-        mcall = self._mod_call('to_integer', value,
+        mcall = self._mod_call('to_integer', dtype, value,
                                FPEXP=fspec.exp,
                                FPMANT=fspec.mant,
                                INTSIZE=dtype.nbits)
@@ -241,7 +241,7 @@ class Verilog_Emitter(Emitter):
       elif isinstance(value.dtype, Float):
         fspec = self.float_spec(dtype)
 
-        mcall = self._mod_call('to_integer', value,
+        mcall = self._mod_call('to_integer', dtype, value,
                                FPEXP=fspec.exp,
                                FPMANT=fspec.mant,
                                INTSIZE=dtype.nbits)
@@ -272,14 +272,14 @@ class Verilog_Emitter(Emitter):
     fspec = self.float_spec(dtype)
     if isinstance(value, Value):
       if isinstance(value.dtype, (Uint, Sint, Bits)):
-        return self._mod_call('from_integer', value,
+        return self._mod_call('from_integer', dtype, value,
                               FPEXP=fspec.exp,
                               FPMANT=fspec.mant,
                               INTSIZE=value.dtype.nbits)
       elif isinstance(value.dtype, Float):
         ifspec = self.float_spec(value.dtype)
 
-        return self._mod_call('convert', value,
+        return self._mod_call('convert', dtype, value,
                               FPEXP=ifspec.exp,
                               FPMANT=ifspec.mant,
                               OUT_FPEXP=fspec.exp,
@@ -287,19 +287,19 @@ class Verilog_Emitter(Emitter):
       elif isinstance(value.dtype, Integer):
         nbits = max(32, dtype.nbits)
 
-        return self._mod_call('from_integer', f'{nbits}\'({self.svalue(value)})',
+        return self._mod_call('from_integer', dtype, f'{nbits}\'({self.svalue(value)})',
                               FPEXP=fspec.exp,
                               FPMANT=fspec.mant,
                               INTSIZE=nbits)
       elif isinstance(value.dtype, Real):
-        return self._mod_call('from_real', value,
+        return self._mod_call('from_real', dtype, value,
                               FPEXP=fspec.exp,
                               FPMANT=fspec.mant)
       elif isinstance(value.dtype, Bool):
-        mcall_one = self._mod_call('one',
+        mcall_one = self._mod_call('one', dtype,
                                    FPEXP=fspec.exp,
                                    FPMANT=fspec.mant)
-        mcall_zero = self._mod_call('zero',
+        mcall_zero = self._mod_call('zero', dtype,
                                     FPEXP=fspec.exp,
                                     FPMANT=fspec.mant)
 
@@ -322,7 +322,7 @@ class Verilog_Emitter(Emitter):
       elif isinstance(value.dtype, Float):
         fspec = self.float_spec(value.dtype)
 
-        mcall = self._mod_call('to_integer', value,
+        mcall = self._mod_call('to_integer', dtype, value,
                                FPEXP=fspec.exp,
                                FPMANT=fspec.mant,
                                INTSIZE=32)
@@ -344,7 +344,7 @@ class Verilog_Emitter(Emitter):
       elif isinstance(value.dtype, Float):
         fspec = self.float_spec(value.dtype)
 
-        return self._mod_call('to_real', value,
+        return self._mod_call('to_real', dtype, value,
                               FPEXP=fspec.exp,
                               FPMANT=fspec.mant)
       else:
@@ -435,7 +435,7 @@ class Verilog_Emitter(Emitter):
       elif isinstance(value.dtype, Float):
         fspec = self.float_spec(value.dtype)
 
-        mcall = self._mod_call('to_real', value,
+        mcall = self._mod_call('to_real', Real(), value,
                                FPEXP=fspec.exp,
                                FPMANT=fspec.mant)
 
@@ -768,7 +768,7 @@ class Verilog_Emitter(Emitter):
       fspec = self.float_spec(dtype)
       opfn = _FLOAT_OPFNS[pyiu.classof(op)]
 
-      return self._mod_call(opfn, left, right,
+      return self._mod_call(opfn, dtype, left, right,
                             FPEXP=fspec.exp,
                             FPMANT=fspec.mant)
     else:
@@ -826,7 +826,7 @@ class Verilog_Emitter(Emitter):
         if isinstance(op, ast.USub):
           fspec = self.float_spec(arg.dtype)
 
-          result = self._mod_call('neg', arg,
+          result = self._mod_call('neg', arg.dtype, arg,
                                   FPEXP=fspec.exp,
                                   FPMANT=fspec.mant)
         else:
@@ -893,7 +893,7 @@ class Verilog_Emitter(Emitter):
 
     fspec = self.float_spec(value.dtype)
 
-    result = self._mod_call('is_nan', value,
+    result = self._mod_call('is_nan', BOOL, value,
                             FPEXP=fspec.exp,
                             FPMANT=fspec.mant)
 
@@ -905,7 +905,7 @@ class Verilog_Emitter(Emitter):
 
     fspec = self.float_spec(value.dtype)
 
-    result = self._mod_call('is_inf', value,
+    result = self._mod_call('is_inf', BOOL, value,
                             FPEXP=fspec.exp,
                             FPMANT=fspec.mant)
 
