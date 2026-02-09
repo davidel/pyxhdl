@@ -228,11 +228,17 @@ class Emitter:
 
     result = None
     for aname, aref in xlogic.args.items():
-      m = re.match(r'\$!([^=]+)=(.*)$', aref)
-      if m:
+      if m := re.match(r'\$!([^=]+)=(.*)$', aref):
         raname = xlogic.name_remap.get(aname, aname)
         dtype = dtype_from_string(m.group(1))
         mod_args[raname] = self.cast(m.group(2), dtype)
+      elif m := re.match(r'\$#(\d+)=(.*)$', aref):
+        raname = xlogic.name_remap.get(aname, aname)
+        argno = int(m.group(1))
+        mod_args[raname] = self.cast(m.group(2), args[argno].dtype)
+      elif m := re.match(r'\$(\w+)=(.*)$', aref):
+        raname = xlogic.name_remap.get(aname, aname)
+        mod_args[raname] = self.cast(m.group(2), kwargs[m.group(2)].dtype)
       else:
         raname = xlogic.name_remap.get(aref, aref)
         if aname in kwargs:
