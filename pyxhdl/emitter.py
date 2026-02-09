@@ -193,25 +193,34 @@ class Emitter:
         rpname = xlogic.name_remap.get(pname, pname)
         mod_params[rpname] = pvalue
 
+    result = None
     for aname, aref in xlogic.args.items():
+      raname = xlogic.name_remap.get(aref, aref)
       if aname in kwargs:
-        raname = xlogic.name_remap.get(aref, aref)
         mod_args[raname] = kwargs[aname]
       elif m := re.match(r'\$(\d+)$', aname):
         argno = int(m.group(1))
-        raname = xlogic.name_remap.get(aref, aref)
         mod_args[raname] = args[argno]
+      elif aname == '$RESULT':
+        # Lazy import to avoid cycles.
+        from . import xlib
+
+        resname = xlib.generate_name(fnname)
+        xlib.assign(resname, mkwire(dtype, name=resname))
+        mod_args[raname] = result = xlib.load(resname)
 
     mod_args[PARAM_KEY] = mod_params
 
-    iid = self._itor.getid(xlogic.modname, mod_args)
-
     if xlogic.funcname:
+      iid = self._itor.getid(xlogic.modname, mod_args)
+
       mcall = self._module_arg(iid, xlogic.funcname)
 
       return f'{mcall}(' + ', '.join(self.svalue(arg) for arg in args) + ')'
     else:
-      fatal(f'TBD!')
+      iid = self._itor.getid(xlogic.modname, mod_args, force_new=True)
+
+      return result.ref
 
   def float_spec(self, dtype):
     fsenv = os.getenv(f'F{dtype.nbits}_SPEC')
