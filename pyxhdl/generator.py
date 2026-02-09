@@ -58,24 +58,24 @@ def _main(args):
 if __name__ == '__main__':
   parser = argparse.ArgumentParser(description='PyXHDL Code Generator',
                                    formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-  parser.add_argument('--input_file', type=str, required=True,
+  parser.add_argument('--input_file', required=True,
                       help='The path to the Python source file containing the root entity')
-  parser.add_argument('--entity', type=str, required=True,
+  parser.add_argument('--entity', required=True,
                       help='The root entity name')
-  parser.add_argument('--backend', type=str, default='verilog',
+  parser.add_argument('--backend', default='verilog',
                       choices=set(Emitter.available()),
                       help='The backend to generate the code for')
   parser.add_argument('--inputs', action='append',
                       help='The inputs for the root entity')
   parser.add_argument('--kwargs', action='append',
                       help='The keyword arguments for the root entity')
-  parser.add_argument('--emitter_cfgfile', type=str,
+  parser.add_argument('--emitter_cfgfile',
                       help='The path to the YAML file containing the emitter configuration')
   parser.add_argument('--ekwargs', action='append',
                       help='The keyword arguments for the emitter')
-  parser.add_argument('--cfgfile', type=str,
+  parser.add_argument('--cfgfile',
                       help='The path to the YAML file containing the generator configuration')
-  parser.add_argument('--output_file', type=str,
+  parser.add_argument('--output_file',
                       help='The path to the output file for the generated code (default STDOUT)')
   parser.add_argument('--testbench', action='store_true',
                       help='Run the entity with a testbench')

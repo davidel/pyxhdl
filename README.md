@@ -370,6 +370,21 @@ standard libraries.
 Note that this is a very simple library which has been tested, but likely not as
 fully as it would call for a full IEEE754 compliance.
 
+It is possible to map the Verilog FPU library to a different implementation by
+adding the following configuration to the YAML configuration file provided to
+the code generator:
+
+```YAML
+backend:
+  verilog:
+    vfpu_conf: FPU_CONF_PATH
+```
+
+Where *FPU_CONF_PATH* is the path to the YAML configuration file describing the
+mapping between the *PyXHDL* used functions, and the external module implementation.
+The [default configuration](https://github.com/davidel/pyxhdl/blob/main/pyxhdl/hdl_libs/verilog/vfpu.yaml)
+is to use the [Verilog FPU Library](https://github.com/davidel/v_fplib).
+
 Arrays are created using the *X.mkarray()* API.
 
 ```Python

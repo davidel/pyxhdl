@@ -67,7 +67,7 @@ class VHDL_Emitter(Emitter):
     self.kind = 'vhdl'
     self.file_ext = '.vhd'
     self.eol = ';'
-    self._arch = self._cfg.get('entity_arch', 'behavior')
+    self._arch = self._cfg.get('backend/vhdl/entity_arch', 'behavior')
     self._mod_attributes = dict()
     self._proc_indent = 0
     self.module_vars_place = self.emit_placement()
@@ -75,7 +75,7 @@ class VHDL_Emitter(Emitter):
     self._entity_place = self.emit_placement()
 
   def _emit_header(self):
-    hdr = self._cfg.get('header', _STD_HEADER)
+    hdr = self._cfg.get('backend/vhdl/header', _STD_HEADER)
     for ln in hdr.split('\n'):
       self._emit_line(ln)
 
