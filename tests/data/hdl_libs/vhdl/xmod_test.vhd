@@ -9,6 +9,7 @@ entity xmod_test is
   port (
     A : in unsigned(7 downto 0);
     B : in unsigned(7 downto 0);
+    C : in unsigned(7 downto 0);
     XOUT : out unsigned(7 downto 0)
   );
 end entity;
@@ -22,8 +23,8 @@ use work.all;
 
 architecture behavior of xmod_test is
 begin
-  run : process (A, B)
+  run : process (A, B, C)
   begin
-    XOUT <= A + B;
+    XOUT <= A + B - C;
   end process;
 end architecture;

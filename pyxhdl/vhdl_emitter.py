@@ -237,14 +237,13 @@ class VHDL_Emitter(Emitter):
 
   def _to_float(self, value, dtype):
     fspec = self.float_spec(dtype)
-    xvalue = self.svalue(value)
     if isinstance(value, Value):
       if isinstance(value.dtype, Float):
-        return f'resize({xvalue}, {fspec.exp}, {fspec.mant})'
+        return f'resize({self.svalue(value)}, {fspec.exp}, {fspec.mant})'
       elif isinstance(value.dtype, Bool):
-        xvalue = f'pyxhdl.real_ifexp({xvalue}, 1.0, 0.0)'
+        xvalue = f'pyxhdl.real_ifexp({self.svalue(value)}, 1.0, 0.0)'
 
-    return f'to_float({xvalue}, {fspec.exp}, {fspec.mant})'
+    return f'to_float({value}, {fspec.exp}, {fspec.mant})'
 
   def _to_integer(self, value, dtype):
     if isinstance(value, Value):

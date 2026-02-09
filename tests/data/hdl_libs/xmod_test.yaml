@@ -7,5 +7,6 @@ functions:
     args:
       $0: A
       $1: B
+      C: "$!u8=17"
       $RESULT: XOUT
 

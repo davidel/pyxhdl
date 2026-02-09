@@ -214,26 +214,39 @@ class Emitter:
     self._extra_libs.add(xlogic.modname)
 
     mod_params, mod_args = dict(), dict()
-    for pname, pvalue in kwargs.items():
-      if pname in xlogic.params:
+    if isinstance(xlogic.params, (list, tuple)):
+      for pname in xlogic.params:
+        pvalue = kwargs.get(pname)
+        if pvalue is not None:
+          rpname = xlogic.name_remap.get(pname, pname)
+          mod_params[rpname] = pvalue
+    else:
+      for pname, value in xlogic.params.items():
+        pvalue = kwargs.get(pname, value)
         rpname = xlogic.name_remap.get(pname, pname)
         mod_params[rpname] = pvalue
 
     result = None
     for aname, aref in xlogic.args.items():
-      raname = xlogic.name_remap.get(aref, aref)
-      if aname in kwargs:
-        mod_args[raname] = kwargs[aname]
-      elif m := re.match(r'\$(\d+)$', aname):
-        argno = int(m.group(1))
-        mod_args[raname] = args[argno]
-      elif aname == '$RESULT':
-        # Lazy import to avoid cycles.
-        from . import xlib
+      m = re.match(r'\$!([^=]+)=(.*)$', aref)
+      if m:
+        raname = xlogic.name_remap.get(aname, aname)
+        dtype = dtype_from_string(m.group(1))
+        mod_args[raname] = self.cast(m.group(2), dtype)
+      else:
+        raname = xlogic.name_remap.get(aref, aref)
+        if aname in kwargs:
+          mod_args[raname] = kwargs[aname]
+        elif m := re.match(r'\$(\d+)$', aname):
+          argno = int(m.group(1))
+          mod_args[raname] = args[argno]
+        elif aname == '$RESULT':
+          # Lazy import to avoid cycles.
+          from . import xlib
 
-        resname = xlib.generate_name(fnname)
-        xlib.assign(resname, mkreg(dtype, name=resname))
-        mod_args[raname] = result = xlib.load(resname)
+          resname = xlib.generate_name(fnname)
+          xlib.assign(resname, mkreg(dtype, name=resname))
+          mod_args[raname] = result = xlib.load(resname)
 
     mod_args[PARAM_KEY] = mod_params
 
