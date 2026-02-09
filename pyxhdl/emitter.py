@@ -163,8 +163,10 @@ class Emitter:
 
   @staticmethod
   def xmod_resolve(modname, fnname, argref, **kwargs):
-    def resolver(ctx, cargs):
-      return ctx.emitter._xmod_resolve(modname, fnname, cargs, argref, kwargs)
+    def resolver(ctx, cargs, rkwargs):
+      xkwargs = kwargs.copy()
+      xkwargs.update(rkwargs)
+      return ctx.emitter._xmod_resolve(modname, fnname, cargs, argref, xkwargs)
 
     return resolver
 
