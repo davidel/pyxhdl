@@ -69,7 +69,7 @@ class _ExternalFunction:
     # PyXHDL looks for __name__ to emit debug logging when running AST function calls.
     self.__name__ = fnname
 
-  def __call__(self, *args):
+  def __call__(self, *args, **kwargs):
     ctx = CodeGen.current()
 
     cargs = []
@@ -89,7 +89,7 @@ class _ExternalFunction:
     dtype = self._dtype(cargs) if callable(self._dtype) else self._dtype
 
     if callable(fmap):
-      call = fmap(ctx, cargs)
+      call = fmap(ctx, cargs, kwargs)
 
       return Value(dtype, call)
     else:
