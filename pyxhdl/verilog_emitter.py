@@ -83,12 +83,12 @@ class Verilog_Emitter(Emitter):
   def _fpmod_resolve(self, modname, fnname, cargs, argref, kwargs):
     xmod = self._get_extern_module(modname)
 
-    ref_arg = cargs[argref] if isinstance(argref, int) else kwargs[argref]
+    dtype = self._argref_dtype(argref, cargs, kwargs)
 
-    fspec = self.float_spec(ref_arg.dtype)
+    fspec = self.float_spec(dtype)
     kwargs.update(FPEXP=fspec.exp, FPMANT=fspec.mant)
 
-    return self._call_external_module(xmod, fnname, ref_arg.dtype, *cargs, **kwargs)
+    return self._call_external_module(xmod, fnname, dtype, *cargs, **kwargs)
 
   def _init_module_places(self):
     self.module_vars_place = self.emit_placement()

@@ -79,9 +79,12 @@ class _ExternalFunction:
 
       cargs.append(arg)
 
-    fmap = self._fnmap.get(ctx.emitter.kind)
-    if fmap is None:
-      fatal(f'Unable to resolve function {self._fnname}() for {ctx.emitter.kind} backend')
+    if isinstance(self._fnmap, dict):
+      fmap = self._fnmap.get(ctx.emitter.kind)
+      if fmap is None:
+        fatal(f'Unable to resolve function {self._fnname}() for {ctx.emitter.kind} backend')
+    else:
+      fmap = self._fnmap
 
     dtype = self._dtype(cargs) if callable(self._dtype) else self._dtype
 

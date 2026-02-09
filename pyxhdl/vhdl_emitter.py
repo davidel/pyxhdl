@@ -626,7 +626,7 @@ class VHDL_Emitter(Emitter):
 
         self._emit_line(f'port map (')
         with self.indent():
-          self._emit_lines((f'{k} => {v}' for k, v in inst.args.items()), sep=',')
+          self._emit_lines((f'{k} => {self.svalue(v)}' for k, v in inst.args.items()), sep=',')
         self._emit_line(');')
 
     self._emit_line(f'end architecture;')

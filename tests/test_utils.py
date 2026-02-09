@@ -67,6 +67,8 @@ def generate_code(obj, inputs, backend):
   eargs = _BACKEND_ARGS[backend]
   emitter = X.Emitter.create(backend, **eargs)
 
+  emitter.add_libpath(os.path.join(os.path.dirname(__file__), 'data', 'hdl_libs'))
+
   gglobals = X.create_globals(obj)
   codegen = X.CodeGen(emitter, gglobals)
 

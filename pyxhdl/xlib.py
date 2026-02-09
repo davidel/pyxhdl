@@ -140,3 +140,9 @@ def backend():
 
   return ctx.emitter.kind
 
+
+def load_extern_module(path):
+  ctx = CodeGen.current()
+
+  return ctx.emitter.load_extern_module(path)
+

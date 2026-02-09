@@ -116,6 +116,7 @@ class Emitter:
     self._placements = []
     self._code = []
     self._extra_libs = set()
+    self._lib_paths = []
     self._ent_versions = collections.defaultdict(int)
     self._user_modules = collections.defaultdict(dict)
     self._extern_modules = dict()
@@ -154,8 +155,33 @@ class Emitter:
   def glob_register_module(cls, mid, code, replace=None):
     cls._register_module(mid, code, cls._MODULE_REGISTRY, replace=replace)
 
+  def add_libpath(self, path):
+    self._lib_paths.append(path)
+
   def register_module(self, mid, code, replace=None):
     self._register_module(mid, code, self._user_modules, replace=replace)
+
+  @staticmethod
+  def xmod_resolve(modname, fnname, argref, **kwargs):
+    def resolver(ctx, cargs):
+      return ctx.emitter._xmod_resolve(modname, fnname, cargs, argref, kwargs)
+
+    return resolver
+
+  def _argref_dtype(self, argref, cargs, kwargs):
+    if isinstance(argref, Type):
+      return argref
+
+    arg_value = cargs[argref] if isinstance(argref, int) else kwargs[argref]
+
+    return arg_value.dtype
+
+  def _xmod_resolve(self, modname, fnname, cargs, argref, kwargs):
+    xmod = self._get_extern_module(modname)
+
+    dtype = self._argref_dtype(argref, cargs, kwargs)
+
+    return self._call_external_module(xmod, fnname, dtype, *cargs, **kwargs)
 
   def load_extern_module(self, path):
     if os.path.isabs(path):
@@ -206,7 +232,7 @@ class Emitter:
         from . import xlib
 
         resname = xlib.generate_name(fnname)
-        xlib.assign(resname, mkwire(dtype, name=resname))
+        xlib.assign(resname, mkreg(dtype, name=resname))
         mod_args[raname] = result = xlib.load(resname)
 
     mod_args[PARAM_KEY] = mod_params
@@ -530,7 +556,8 @@ class Emitter:
 
     # Loading on-demand ones (always loading certain libraries can cause synthesis
     # failure even when such code is not used).
-    lib_paths = [libdir]
+    lib_paths = [libdir] + [os.path.join(path, self.kind) for path in self._lib_paths]
+
     lpaths = os.getenv(f'PYXHDL_{self.kind.upper()}_LIBPATH')
     if lpaths is not None:
       lib_paths.extend(pyu.resplit(lpaths, ';'))

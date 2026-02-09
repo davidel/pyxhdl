@@ -1,0 +1,11 @@
+name: xmod_test
+
+functions:
+  xmod_test:
+    modname: xmod_test
+    nargs: 2
+    args:
+      $0: A
+      $1: B
+      $RESULT: XOUT
+
