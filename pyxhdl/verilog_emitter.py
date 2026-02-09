@@ -75,8 +75,10 @@ class Verilog_Emitter(Emitter):
 
   @staticmethod
   def fpmod_resolve(modname, fnname, argref, **kwargs):
-    def resolver(ctx, cargs):
-      return ctx.emitter._fpmod_resolve(modname, fnname, cargs, argref, kwargs)
+    def resolver(ctx, cargs, **rkwargs):
+      xkwargs = kwargs.copy()
+      xkwargs.update(kwargs)
+      return ctx.emitter._fpmod_resolve(modname, fnname, cargs, argref, xkwargs)
 
     return resolver
 
