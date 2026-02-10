@@ -1,3 +1,5 @@
+import re
+
 import py_misc_utils.inspect_utils as pyiu
 import py_misc_utils.utils as pyu
 
@@ -22,9 +24,9 @@ class _Marshal:
 
   BITS_CLASSES = {Uint, Sint, Bits}
 
-  def __init__(self, mstr, fnname, argno):
+  def __init__(self, mstr, fnname, argref):
     self._fnname = fnname
-    self._argno = argno
+    self._argref = argref
     self._tmatch = TypeMatcher.parse(mstr)
 
   def _get_tclass_dtype(self, tclass, dtype):
@@ -38,7 +40,7 @@ class _Marshal:
       dtype = self._get_tclass_dtype(tclass, arg.dtype)
       if dtype is None:
         if not isinstance(arg.dtype, tclass):
-          fatal(f'Wrong type for argument {self._argno} of {self._fnname}() ' \
+          fatal(f'Wrong type for argument {self._argref} of {self._fnname}() ' \
                 f'call: {pyiu.cname(tclass)} vs {pyiu.cname(arg.dtype)}')
       else:
         arg = ctx.emitter.cast(arg, dtype)
@@ -57,14 +59,18 @@ class _Marshal:
 class _ExternalFunction:
 
   def __init__(self, fnname, fnmap, fnsig=None, dtype=None):
-    marshals = []
+    marshals, kwmarshals = [], dict()
     if fnsig:
       for sarg in pyu.resplit(fnsig, ','):
-        marshals.append(_Marshal(sarg, fnname, len(marshals)))
+        if m := re.match(r'\s*(\w+)\s*=\s*([^\s]+)', sarg):
+          kwmarshals[m.group(1)] = _Marshal(m.group(2), fnname, m.group(1))
+        else:
+          marshals.append(_Marshal(sarg, fnname, len(marshals)))
 
     self._fnname = fnname
     self._fnmap = fnmap
-    self._marshals = tuple(marshals)
+    self._marshals = marshals
+    self._kwmarshals = kwmarshals
     self._dtype = dtype
     # PyXHDL looks for __name__ to emit debug logging when running AST function calls.
     self.__name__ = fnname
@@ -79,6 +85,14 @@ class _ExternalFunction:
 
       cargs.append(arg)
 
+    ckwargs = dict()
+    for name, arg in kwargs.items():
+      marshal = self._kwmarshals.get(name)
+      if marshal is not None:
+        arg = marshal(ctx, arg)
+
+      ckwargs[name] = arg
+
     if isinstance(self._fnmap, dict):
       fmap = self._fnmap.get(ctx.emitter.kind)
       if fmap is None:
@@ -86,10 +100,10 @@ class _ExternalFunction:
     else:
       fmap = self._fnmap
 
-    dtype = self._dtype(cargs, kwargs) if callable(self._dtype) else self._dtype
+    dtype = self._dtype(cargs, ckwargs) if callable(self._dtype) else self._dtype
 
     if callable(fmap):
-      call = fmap(ctx, cargs, kwargs)
+      call = fmap(ctx, cargs, ckwargs)
 
       return Value(dtype, call)
     else:
