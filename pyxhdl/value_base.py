@@ -1,15 +1,9 @@
 import ast
 
-import py_misc_utils.run_once as pyro
+import py_misc_utils.lazy_import as pyli
 import py_misc_utils.utils as pyu
 
-
-# Avoid dependency cycles ...
-@pyro.run_once
-def _lazy_import():
-  global X
-
-  import pyxhdl as X
+X = pyli.lazy_import('pyxhdl')
 
 
 # This is the Value's base class and implements a Python data model for the Value class.
@@ -26,13 +20,8 @@ def _lazy_import():
 # the datamodel interface is only provided as fallback.
 class ValueBase:
 
-  def __init__(self):
-    _lazy_import()
-
   @staticmethod
   def load(name):
-    _lazy_import()
-
     ctx = X.CodeGen.current()
 
     return ctx.load_var(name)
@@ -209,9 +198,7 @@ class ValueBase:
 
   # Arithmetic Self Assign
   def _ires(self, res):
-    self.__dict__.update(res.__dict__)
-
-    return self
+    return pyu.copy_inplace(self, res)
 
   def __iadd__(self, other):
     ctx = X.CodeGen.current()
@@ -289,9 +276,12 @@ class ValueBase:
   # Allow for Value functions to map directly to emitter eval_*() ones.
   def __getattr__(self, attr):
     ctx = X.CodeGen.current()
+
     emitter_fn = getattr(ctx.emitter, f'eval_{attr}', None)
     if emitter_fn is None:
-      raise AttributeError(f'Not implemented: {attr}')
+      from . import utils
+
+      utils.fatal(f'Not implemented: {attr}', exc=AttributeError)
 
     def fncall(*args, **kwargs):
       return emitter_fn(self, *args, **kwargs)
