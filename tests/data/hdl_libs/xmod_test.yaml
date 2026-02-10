@@ -2,6 +2,8 @@ name: xmod_test
 
 functions:
   xmod_test:
+    # The filename is not necessary if same as modname.
+    filename: xmod_test
     modname: xmod_test
     nargs: 2
     args:

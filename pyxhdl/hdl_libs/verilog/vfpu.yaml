@@ -9,6 +9,8 @@ name_remap:
 
 functions:
   add:
+    # The filename is not necessary if same as modname.
+    filename: fpu
     modname: fpu
     funcname: add
     nargs: 2

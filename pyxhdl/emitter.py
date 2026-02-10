@@ -213,7 +213,7 @@ class Emitter:
     if xlogic.nargs != len(args):
       fatal(f'Number of arguments mismatch for {fnname}: {xlogic.nargs} vs. {len(args)}')
 
-    self._extra_libs.add(xlogic.modname)
+    self._extra_libs.add(xlogic.filename)
 
     mod_params, mod_args = dict(), dict()
     if isinstance(xlogic.params, (list, tuple)):

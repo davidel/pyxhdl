@@ -12,13 +12,15 @@ class ExternLogic:
                nargs=None,
                params=None,
                args=None,
-               name_remap=None):
+               name_remap=None,
+               filename=None):
     self.modname = modname
     self.funcname = funcname
     self.nargs = nargs
     self.params = params or ()
     self.args = args or dict()
     self.name_remap = name_remap or dict()
+    self.filename = filename or modname
 
 
 class ExternModule:
