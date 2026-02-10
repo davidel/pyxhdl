@@ -1,5 +1,6 @@
 import re
 
+import py_misc_utils.alog as alog
 import py_misc_utils.inspect_utils as pyiu
 import py_misc_utils.utils as pyu
 
@@ -107,5 +108,8 @@ class _ExternalFunction:
 
       return Value(dtype, call)
     else:
+      if ckwargs:
+        alog.warning(f'Keyword argument ignored for {self._fnname}() call: {ckwargs}')
+
       return ctx.emit_call(fmap, cargs, dtype)
 
