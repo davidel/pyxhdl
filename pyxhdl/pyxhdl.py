@@ -1239,16 +1239,13 @@ class CodeGen(_ExecVisitor):
             # are emitted after the "if" instruction.
             enodes.extend(enode.body)
 
-        if enode.orelse:
+        if enode.orelse or enodes:
           self.emitter.emit_Else()
           with self.emitter.indent():
-            for insn in enode.orelse:
+            for insn in enodes + enode.orelse:
               self.eval_node(insn)
 
         self.emitter.emit_EndIf()
-
-        for insn in enodes:
-          self.eval_node(insn)
     else:
       alog.debug(lambda: f'Resolving static If test: {asu.dump(node.test)}')
       if test:
