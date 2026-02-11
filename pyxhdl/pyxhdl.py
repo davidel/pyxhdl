@@ -1452,7 +1452,10 @@ class CodeGen(_ExecVisitor):
   def run_code(self, code, args, mode, filename='<string>', lineno=1):
     dcode = textwrap.dedent(code)
 
-    cnode = ast.parse(dcode, filename=filename, mode=mode)
+    try:
+      cnode = ast.parse(dcode, filename=filename, mode=mode)
+    except Exception as ex:
+      raise pycu.rewrited_exception(ex, f'\nCode:\n{dcode}') from None
 
     cnode.lineno = lineno
     ast.fix_missing_locations(cnode)
