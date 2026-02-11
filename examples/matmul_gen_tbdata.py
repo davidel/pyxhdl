@@ -73,21 +73,15 @@ def _main(args):
     gs._wait_expr = 'XL.wait_until(READY == 1)'
     mdata.append(gs)
 
-    gs = obj.Obj()
-    gs.OUTFEED = 1
-    gs._wait_expr = 'XL.wait_rising(CLK)'
-    mdata.append(gs)
-
     for i in range(args.dimsize):
       gs = obj.Obj()
       gs.OUTFEED = 1
       gs.CROW = cmat[i].tolist()
-      gs._wait_expr = 'XL.wait_rising(CLK)'
+      gs._wait_expr = 'XL.wait_rising(CLK)' if i > 0 else 'XL.wait_rising(CLK);XL.wait_rising(CLK)'
       mdata.append(gs)
 
     gs = obj.Obj()
     gs.OUTFEED = 0
-    gs.CROW = cmat[i].tolist()
     gs._wait_expr = 'XL.wait_rising(CLK)'
     mdata.append(gs)
 

@@ -112,8 +112,9 @@ class MMUnit(X.Entity):
       a_row, mmiter, b_col = 0, 0, 0
       mmcompute = 1
     elif OUTFEED == 1:
-      for n in range(CROW.dtype.array_shape[-1]):
-        CROW[n] = cmat[rowidx, n]
+      if rowidx < CROW.dtype.array_shape[-1]:
+        for n in range(CROW.dtype.array_shape[-1]):
+          CROW[n] = cmat[rowidx, n]
 
-      rowidx += 1
+        rowidx += 1
 
