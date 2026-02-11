@@ -12,6 +12,9 @@ MM_VHDL_FILE = ${WORKDIR}/matmul.vhd
 MM_SVL_FILE = ${WORKDIR}/matmul.sv
 VERILATOR_BINDIR ?= ${WORKDIR}/vobj
 VERILATOR_OUTSPLIT ?= 1000
+VERILATOR_OPT ?= -O0
+VERILATOR_TRACE ?= --trace
+VERILATOR_ASSERT ?= --assert
 TARGETS = ${MM_DATA_FILE} ${MM_VHDL_FILE} ${MM_SVL_FILE}
 
 all: ${TARGETS} hdl_generate
@@ -62,10 +65,10 @@ mm_vhdl_test: ${MM_VHDL_FILE}
 
 mm_svl_test: ${MM_SVL_FILE}
 	verilator \
-		--trace \
-		--assert \
+		${VERILATOR_TRACE} \
+		${VERILATOR_ASSERT} \
 		--binary \
-		-O1 \
+		${VERILATOR_OPT} \
 		-j 8 \
 		--output-split ${VERILATOR_OUTSPLIT} \
 		--Mdir ${VERILATOR_BINDIR} \
