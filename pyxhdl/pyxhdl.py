@@ -1242,7 +1242,7 @@ class CodeGen(_ExecVisitor):
         if enode.orelse or enodes:
           self.emitter.emit_Else()
           with self.emitter.indent():
-            for insn in enodes + enode.orelse:
+            for insn in enodes + (enode.orelse or []):
               self.eval_node(insn)
 
         self.emitter.emit_EndIf()
