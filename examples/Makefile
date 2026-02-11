@@ -11,6 +11,7 @@ MM_DATA_FILE = ${WORKDIR}/matmul_data.yaml
 MM_VHDL_FILE = ${WORKDIR}/matmul.vhd
 MM_SVL_FILE = ${WORKDIR}/matmul.sv
 VERILATOR_BINDIR ?= ${WORKDIR}/vobj
+VERILATOR_OUTSPLIT ?= 1000
 TARGETS = ${MM_DATA_FILE} ${MM_VHDL_FILE} ${MM_SVL_FILE}
 
 all: ${TARGETS} hdl_generate
@@ -66,7 +67,7 @@ mm_svl_test: ${MM_SVL_FILE}
 		--binary \
 		-O1 \
 		-j 8 \
-		--output-split 100 \
+		--output-split ${VERILATOR_OUTSPLIT} \
 		--Mdir ${VERILATOR_BINDIR} \
 		-sv \
 		--top-module TestBench \
