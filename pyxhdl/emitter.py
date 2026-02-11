@@ -569,20 +569,15 @@ class Emitter:
     libdir = os.path.join(pkgdir, 'hdl_libs', self.kind)
     alog.debug(f'Using {self.kind} library folder {libdir}')
 
-    libcode, loaded = [], set()
+    libcode = []
 
     # Loading internal libraries by manifest (always load ones).
-    libs_manifest_path = os.path.join(libdir, 'LIBS')
+    xlibs, libs_manifest_path = [], os.path.join(libdir, 'LIBS')
     if os.path.exists(libs_manifest_path):
       with open(libs_manifest_path, mode='r') as mfd:
-        libs = [l.strip() for l in mfd.read().split('\n')]
-
-      for libfname in libs:
-        if libfname and not libfname.startswith('#'):
-          lpath = os.path.join(libdir, libfname)
-          alog.debug(f'Loading {self.kind} library file {lpath}')
-          libcode.extend(self._load_code(lpath).split('\n'))
-          loaded.add(os.path.splitext(libfname)[0])
+        for libname in [l.strip() for l in mfd.read().split('\n')]:
+          if libname and not libname.startswith('#'):
+            xlibs.append(libname)
 
     # Loading on-demand ones (always loading certain libraries can cause synthesis
     # failure even when such code is not used).
@@ -595,31 +590,21 @@ class Emitter:
     if lpaths is not None:
       lib_paths.extend(pyfsu.normpath(x) for x in pyu.resplit(lpaths, ';'))
 
-    xlibs = tuple(sorted(self._extra_libs))
-    for libname in pyu.enum_set(xlibs, loaded, False):
-      libfname = libname + self.file_ext
+    xlibs.extend(sorted(self._extra_libs))
+
+    env_libs = os.getenv(f'PYXHDL_{self.kind.upper()}_LIBS')
+    xlibs.extend(pyu.resplit(env_libs, ';') if env_libs else ())
+    xlibs.extend(self._cfg.get('libs', dict()).get(self.kind, ()))
+
+    for libname in xlibs:
+      libfname = ((libname + self.file_ext)
+                  if not libname.endswith(self.file_ext) else libname)
 
       if lpath := pyfsu.find_path(libfname, lib_paths):
         alog.debug(f'Loading {self.kind} library file {lpath}')
         libcode.extend(self._load_code(lpath).split('\n'))
-        loaded.add(libname)
       else:
-        alog.info(f'Library "{libname}" not found in {lib_paths}, assuming internal')
-
-    # Load user injected external libraries.
-    env_libs = os.getenv(f'PYXHDL_{self.kind.upper()}_LIBS')
-    xlibs = list(pyu.resplit(ulibs, ';')) if env_libs else []
-    xlibs.extend(self._cfg.get('libs', dict()).get(self.kind, []))
-    for path in xlibs:
-      if os.path.isabs(path):
-        lpath = path
-      else:
-        lpath = pyfsu.find_path(path, lib_paths)
-        if lpath is None:
-          fatal(f'Unbale to find library "{path}" in {lib_paths}')
-
-      alog.debug(f'Loading {self.kind} library file {lpath}')
-      libcode.extend(self._load_code(lpath).split('\n'))
+        fatal(f'Library "{libfname}" not found in {lib_paths}')
 
     # Add user defined modules within the PyXHDL code.
     for cid, umod in self._MODULE_REGISTRY[self.kind].items():
