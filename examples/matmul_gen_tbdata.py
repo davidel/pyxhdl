@@ -80,11 +80,16 @@ def _main(args):
 
     for i in range(args.dimsize):
       gs = obj.Obj()
-      gs.OUTFEED = 1 if i + 1 < args.dimsize else 0
+      gs.OUTFEED = 1
       gs.CROW = cmat[i].tolist()
       gs._wait_expr = 'XL.wait_rising(CLK)'
       mdata.append(gs)
 
+    gs = obj.Obj()
+    gs.OUTFEED = 0
+    gs.CROW = cmat[i].tolist()
+    gs._wait_expr = 'XL.wait_rising(CLK)'
+    mdata.append(gs)
 
   data = obj.Obj()
   data.conf = obj.Obj(loaders={fn: dict(kind='numpy', dtype=args.dtype) for fn in _MFIELDS})
