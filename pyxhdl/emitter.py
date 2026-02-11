@@ -584,7 +584,7 @@ class Emitter:
     lib_paths = [libdir] + [os.path.join(path, self.kind) for path in self._lib_paths]
 
     lib_paths.extend(pyfsu.normpath(x)
-                     for x in self._cfg.get('lib_paths', dict()).get(self.kind, []))
+                     for x in self._cfg.get('lib_paths', dict()).get(self.kind, ()))
 
     lpaths = os.getenv(f'PYXHDL_{self.kind.upper()}_LIBPATH')
     if lpaths is not None:
