@@ -219,9 +219,12 @@ class Emitter:
     if isinstance(xlogic.params, (list, tuple)):
       for pname in xlogic.params:
         pvalue = kwargs.get(pname)
-        if pvalue is not None:
-          rpname = xlogic.name_remap.get(pname, pname)
-          mod_params[rpname] = pvalue
+        if pvalue is None:
+          fatal(f'Parameter {pname} missing when using function {fnname} of ' \
+                f'external module {xmod.name}')
+
+        rpname = xlogic.name_remap.get(pname, pname)
+        mod_params[rpname] = pvalue
     else:
       for pname, value in xlogic.params.items():
         pvalue = kwargs.get(pname, value)
@@ -243,9 +246,7 @@ class Emitter:
         mod_args[raname] = self.cast(m.group(2), kwargs[m.group(2)].dtype)
       else:
         raname = xlogic.name_remap.get(aref, aref)
-        if aname in kwargs:
-          mod_args[raname] = kwargs[aname]
-        elif m := re.match(r'\$(\d+)$', aname):
+        if m := re.match(r'\$(\d+)$', aname):
           argno = int(m.group(1))
           mod_args[raname] = args[argno]
         elif aname == '$RESULT':
@@ -255,6 +256,13 @@ class Emitter:
           resname = xlib.generate_name(fnname)
           xlib.assign(resname, mkreg(dtype, name=resname))
           mod_args[raname] = result = xlib.load(resname)
+        else:
+          avalue = kwargs.get(aname)
+          if avalue is None:
+            fatal(f'Argument {aname} missing when using function {fnname} of ' \
+                  f'external module {xmod.name}')
+
+          mod_args[raname] = avalue
 
     mod_args[PARAM_KEY] = mod_params
 
