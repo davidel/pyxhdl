@@ -597,8 +597,9 @@ class Emitter:
     xlibs.extend(self._cfg.get('libs', dict()).get(self.kind, ()))
 
     for libname in xlibs:
-      libfname = ((libname + self.file_ext)
-                  if not libname.endswith(self.file_ext) else libname)
+      _, ext = os.path.splitext(libname)
+      
+      libfname = (libname + self.file_ext) if not ext else libname
 
       if lpath := pyfsu.find_path(libfname, lib_paths):
         alog.debug(f'Loading {self.kind} library file {lpath}')
