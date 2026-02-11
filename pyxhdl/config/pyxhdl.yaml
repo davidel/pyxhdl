@@ -1,0 +1,37 @@
+float_specs:
+  16:
+    exp: 5
+    mant: 10
+  32:
+    exp: 8
+    mant: 23
+  64:
+    exp: 11
+    mant: 52
+  80:
+    exp: 17
+    mant: 63
+  128:
+    exp: 15
+    mant: 112
+
+lib_paths:
+  vhdl:
+    - /one/path/for/vhdl
+
+  verilog:
+    - /one/path/for/verilog
+
+libs:
+  # List of VHDL libraries to be loaded, either by filename (which will be
+  # searched within the configured library folders), or by absolute path.
+  vhdl:
+    - mylib.vhd
+    - /home/$USER/hdl_repo/vhdl/mylib.vhd
+
+  # List of Verilog libraries to be loaded, either by filename (which will be
+  # searched within the configured library folders), or by absolute path.
+  verilog:
+    - mylib.sv
+    - /home/$USER/hdl_repo/verilog/mylib.sv
+

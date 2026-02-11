@@ -363,6 +363,10 @@ It is possible to override that using a configuration file or defining environme
 variables. Example, define the *F16_SPEC* environment varible to "8,7" to map the
 16 bits floating point number to the *BFLOAT16* standard.
 
+It is also possible to configure the floating point type mapping using the "float_specs"
+entry of the configurations file (see [Mock Configuration]
+(https://github.com/davidel/pyxhdl/blob/main/pyxhdl/config/pyxhdl.yaml).
+
 While VHDL (2008) offers a standard HW floating point library, Verilog does not.
 In order for *PyXHDL* to be able to handle the *Float* type, a
 [Verilog FPU Library](https://github.com/davidel/v_fplib) is included within its

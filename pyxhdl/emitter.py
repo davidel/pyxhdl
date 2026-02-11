@@ -8,6 +8,7 @@ import sys
 
 import py_misc_utils.alog as alog
 import py_misc_utils.context_managers as pycm
+import py_misc_utils.fs_utils as pyfsu
 import py_misc_utils.inspect_utils as pyiu
 import py_misc_utils.obj as obj
 import py_misc_utils.template_replace as pytr
@@ -156,7 +157,7 @@ class Emitter:
     cls._register_module(mid, code, cls._MODULE_REGISTRY, replace=replace)
 
   def add_libpath(self, path):
-    self._lib_paths.append(path)
+    self._lib_paths.append(pyfsu.normpath(path))
 
   def register_module(self, mid, code, replace=None):
     self._register_module(mid, code, self._user_modules, replace=replace)
@@ -288,7 +289,7 @@ class Emitter:
       fatal(f'Unknown floating point spec: {dtype.nbits} bits',
             exc=TypeError)
 
-    return fspec
+    return fspec if isinstance(fspec, FSpec) else FSpec(**fspec)
 
   def get_contexts(self, kind):
     all_contexts = []
@@ -587,38 +588,35 @@ class Emitter:
     # failure even when such code is not used).
     lib_paths = [libdir] + [os.path.join(path, self.kind) for path in self._lib_paths]
 
+    lib_paths.extend(pyfsu.normpath(x)
+                     for x in self._cfg.get('lib_paths', dict()).get(self.kind, []))
+
     lpaths = os.getenv(f'PYXHDL_{self.kind.upper()}_LIBPATH')
     if lpaths is not None:
-      lib_paths.extend(pyu.resplit(lpaths, ';'))
+      lib_paths.extend(pyfsu.normpath(x) for x in pyu.resplit(lpaths, ';'))
 
     xlibs = tuple(sorted(self._extra_libs))
     for libname in pyu.enum_set(xlibs, loaded, False):
-      libfname, llsize = libname + self.file_ext, len(loaded)
-      for path in lib_paths:
-        lpath = os.path.join(path, libfname)
-        if os.path.isfile(lpath):
-          alog.debug(f'Loading {self.kind} library file {lpath}')
-          libcode.extend(self._load_code(lpath).split('\n'))
-          loaded.add(libname)
-          break
+      libfname = libname + self.file_ext
 
-      if llsize == len(loaded):
-        alog.info(f'Library "{libname}" not found, assuming internal')
-
-    # Load user injected external libraries.
-    cpath = os.path.dirname(self._cfg_file or __file__)
-    ulibs = os.getenv(f'PYXHDL_{self.kind.upper()}_LIBS')
-    if ulibs:
-      for lpath in pyu.resplit(ulibs, ';'):
-        if not os.path.isabs(lpath):
-          lpath = os.path.abspath(os.path.join(cpath, lpath))
-
+      if lpath := pyfsu.find_path(libfname, lib_paths):
         alog.debug(f'Loading {self.kind} library file {lpath}')
         libcode.extend(self._load_code(lpath).split('\n'))
+        loaded.add(libname)
+      else:
+        alog.info(f'Library "{libname}" not found in {lib_paths}, assuming internal')
 
-    for lpath in self._cfg.get('libs', dict()).get(self.kind, []):
-      if not os.path.isabs(lpath):
-        lpath = os.path.abspath(os.path.join(cpath, lpath))
+    # Load user injected external libraries.
+    env_libs = os.getenv(f'PYXHDL_{self.kind.upper()}_LIBS')
+    xlibs = list(pyu.resplit(ulibs, ';')) if env_libs else []
+    xlibs.extend(self._cfg.get('libs', dict()).get(self.kind, []))
+    for path in xlibs:
+      if os.path.isabs(path):
+        lpath = path
+      else:
+        lpath = pyfsu.find_path(path, lib_paths)
+        if lpath is None:
+          fatal(f'Unbale to find library "{path}" in {lib_paths}')
 
       alog.debug(f'Loading {self.kind} library file {lpath}')
       libcode.extend(self._load_code(lpath).split('\n'))
