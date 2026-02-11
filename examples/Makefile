@@ -4,6 +4,7 @@ SRCDIR ?= $(dir $(realpath $(lastword ${MAKEFILE_LIST})))
 LOG_LEVEL ?= INFO
 MM_DIM_SIZE ?= 32
 MM_TILE_SIZE ?= 8
+MM_NSAMPLES ?= 4
 MM_CLK ?= 10ns
 MM_TOLL ?= 0.01
 MM_DTYPE ?= FLOAT16
@@ -23,6 +24,7 @@ hdl_generate: ${MM_VHDL_FILE} ${MM_SVL_FILE}
 
 ${MM_DATA_FILE}:
 	python ${SRCDIR}/matmul_gen_tbdata.py \
+		--nsamples ${MM_NSAMPLES} \
 		--dimsize ${MM_DIM_SIZE} \
 		--output_file ${MM_DATA_FILE}
 
