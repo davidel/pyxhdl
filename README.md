@@ -364,7 +364,7 @@ variables. Example, define the *F16_SPEC* environment varible to "8,7" to map th
 16 bits floating point number to the *BFLOAT16* standard.
 
 It is also possible to configure the floating point type mapping using the "float_specs"
-entry of the configurations file (see [Mock Configuration](https://github.com/davidel/pyxhdl/blob/main/pyxhdl/config/pyxhdl.yaml).
+entry of the configurations file (see [Mock Configuration](https://github.com/davidel/pyxhdl/blob/main/pyxhdl/config/pyxhdl.yaml)).
 
 While VHDL (2008) offers a standard HW floating point library, Verilog does not.
 In order for *PyXHDL* to be able to handle the *Float* type, a
