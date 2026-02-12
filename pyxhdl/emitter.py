@@ -568,7 +568,7 @@ class Emitter:
 
     return pytr.template_replace(code, lookup_fn=self._cfg_lookup, delim='@')
 
-  def _load_libs(self):
+  def _collect_libpaths(self):
     libdir = os.path.join(os.path.dirname(__file__), 'hdl_libs', self.kind)
 
     lib_paths = [libdir] + [os.path.join(path, self.kind) for path in self._lib_paths]
@@ -581,12 +581,16 @@ class Emitter:
 
     alog.debug(f'Using library folders {lib_paths}')
 
-    libcode = []
+    return lib_paths
+
+  def _load_libs(self):
+    lib_paths = self._collect_libpaths()
+
+    libcode, xlibs = [], []
 
     # Loading internal libraries by manifest (always load ones).
-    xlibs, libs_manifest_path = [], os.path.join(libdir, 'LIBS')
-    if os.path.exists(libs_manifest_path):
-      with open(libs_manifest_path, mode='r') as mfd:
+    if lpath := pyfsu.find_path('LIBS', lib_paths):
+      with open(lpath, mode='r') as mfd:
         for libname in [l.strip() for l in mfd.read().split('\n')]:
           if libname and not libname.startswith('#'):
             xlibs.append(libname)
