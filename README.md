@@ -1129,6 +1129,7 @@ class ExternIP(X.Entity):
 
   PORTS = 'IN_A:u*, IN_B:u*, =OUT_DATA:u*'
   NAME = 'extern_pkg.Entity'
+  LIBNAME = 'my_extern_pkg'
 
 ```
 
@@ -1145,6 +1146,8 @@ ExternIP(IN_A=A,
 
 The *extern_pkg.Entity* will have to be defined in backend specific library files to be
 loaded within *PyXHDL* (see [Loading External Libraries](#loading-external-libraries)).
+The *LIBNAME* setting is optional in case the library containing such entity is force
+loaded (not on demand).
 
 The *_P* argument allow to specify module/entity instantiation parameters/generics.
 

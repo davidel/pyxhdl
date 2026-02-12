@@ -221,7 +221,6 @@ package body pyxhdl is
 end package body;
 
 
-
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
@@ -260,10 +259,10 @@ use std.textio.all;
 library work;
 use work.all;
 
--- Entity "PlaceEntity" is "PlaceEntity" with:
+-- Entity "PlaceLibEntity" is "PlaceLibEntity" with:
 -- 	args={'A': 'uint(8)', 'B': 'uint(8)', 'XOUT': 'uint(8)'}
 -- 	kwargs={}
-entity PlaceEntity is
+entity PlaceLibEntity is
   port (
     A : in unsigned(7 downto 0);
     B : in unsigned(7 downto 0);
@@ -280,10 +279,10 @@ use std.textio.all;
 library work;
 use work.all;
 
--- Entity "PlaceEntity" is "PlaceEntity" with:
+-- Entity "PlaceLibEntity" is "PlaceLibEntity" with:
 -- 	args={'A': 'uint(8)', 'B': 'uint(8)', 'XOUT': 'uint(8)'}
 -- 	kwargs={}
-architecture behavior of PlaceEntity is
+architecture behavior of PlaceLibEntity is
 begin
   ExEntity_1 : entity ExEntity
   generic map (

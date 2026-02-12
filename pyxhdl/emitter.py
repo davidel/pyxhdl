@@ -160,6 +160,9 @@ class Emitter:
   def add_libpath(self, path):
     self._lib_paths.append(pyfsu.normpath(path))
 
+  def add_extra_library(self, name):
+    self._extra_libs.add(name)
+
   def register_module(self, mid, code, replace=None):
     self._register_module(mid, code, self._user_modules, replace=replace)
 
@@ -215,7 +218,7 @@ class Emitter:
     if xlogic.nargs != len(args):
       fatal(f'Number of arguments mismatch for {fnname}: {xlogic.nargs} vs. {len(args)}')
 
-    self._extra_libs.add(xlogic.filename)
+    self.add_extra_library(xlogic.filename)
 
     mod_params, mod_args = dict(), dict()
     if isinstance(xlogic.params, (list, tuple)):

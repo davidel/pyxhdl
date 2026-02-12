@@ -12,8 +12,6 @@ _EXTERN_VHDL = """
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
-use ieee.math_real.all;
-use ieee.float_pkg.all;
 
 entity ExEntity is
   generic (
@@ -30,8 +28,6 @@ end entity;
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
-use ieee.math_real.all;
-use ieee.float_pkg.all;
 
 architecture behavior of ExEntity is
 begin
@@ -62,6 +58,13 @@ class EnternalEntity(X.Entity):
   NAME = 'ExEntity'
 
 
+class EnternalLibEntity(X.Entity):
+
+  PORTS = 'IN_A:u*, IN_B:u*, =OUT_DATA:u*'
+  NAME = 'ExEntity'
+  LIBNAME = 'place_entity'
+
+
 class PlaceEntity(X.Entity):
 
   PORTS = 'A:u*, B:u*, =XOUT:u*'
@@ -81,6 +84,16 @@ class PlaceEntity(X.Entity):
                    _P=dict(NBITS=A.dtype.nbits, DELTA=7))
 
 
+class PlaceLibEntity(X.Entity):
+
+  PORTS = 'A:u*, B:u*, =XOUT:u*'
+
+  @X.hdl_process(sens='A, B', kind=X.ROOT_PROCESS)
+  def run():
+    EnternalLibEntity(IN_A=A, IN_B=B, OUT_DATA=XOUT,
+                      _P=dict(NBITS=A.dtype.nbits, DELTA=7))
+
+
 class TestPlaceEntity(unittest.TestCase):
 
   def test_place_entity(self):
@@ -91,4 +104,13 @@ class TestPlaceEntity(unittest.TestCase):
     )
 
     tu.run(self, tu.test_name(self, pyu.fname()), PlaceEntity, inputs)
+
+  def test_place_lib_entity(self):
+    inputs = dict(
+      A=X.mkwire(X.UINT8),
+      B=X.mkwire(X.UINT8),
+      XOUT=X.mkwire(X.UINT8),
+    )
+
+    tu.run(self, tu.test_name(self, pyu.fname()), PlaceLibEntity, inputs)
 

@@ -34,6 +34,7 @@ class Entity(_CoreEntity):
   PORTS = tuple()
   ARGS = dict()
   NAME = None
+  LIBNAME = None
 
   def __init__(self, **kwargs):
     super().__init__()

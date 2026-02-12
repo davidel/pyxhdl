@@ -722,6 +722,11 @@ class CodeGen(_ExecVisitor):
       self._used_entities.add(erec)
       if generated:
         self._generated_entities.add(erec)
+    else:
+      # External libraries can provide a specific library to be included (where
+      # such entity is defined).
+      if eclass.LIBNAME:
+        self.emitter.add_extra_library(eclass.LIBNAME)
 
     return ename
 
