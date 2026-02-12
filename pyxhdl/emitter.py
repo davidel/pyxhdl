@@ -117,7 +117,7 @@ class Emitter:
     self._indent = 0
     self._placements = []
     self._code = []
-    self._extra_libs = set()
+    self._extra_libs = []
     self._lib_paths = []
     self._ent_versions = collections.defaultdict(int)
     self._user_modules = collections.defaultdict(dict)
@@ -161,7 +161,9 @@ class Emitter:
     self._lib_paths.append(pyfsu.normpath(path))
 
   def add_extra_library(self, name):
-    self._extra_libs.add(name)
+    # This is O(N) but the number of extra libraries is so small, it really is not
+    # worth the effort of handling an ordered set.
+    pycu.append_if_missing(self._extra_libs, name)
 
   def register_module(self, mid, code, replace=None):
     self._register_module(mid, code, self._user_modules, replace=replace)
@@ -595,7 +597,7 @@ class Emitter:
           if libname and not libname.startswith('#'):
             xlibs.append(libname)
 
-    xlibs.extend(sorted(self._extra_libs))
+    xlibs.extend(self._extra_libs)
 
     if env_libs := os.getenv(f'PYXHDL_{self.kind.upper()}_LIBS'):
       xlibs.extend(pyu.resplit(env_libs, ';'))
