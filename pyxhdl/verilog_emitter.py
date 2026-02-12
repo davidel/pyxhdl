@@ -501,10 +501,10 @@ class Verilog_Emitter(Emitter):
 
           base = self._to_integer(ix.start, Integer())
 
-          if i == len(ashape) - 1:
-            coords.append(f'{paren(base)} {"-" if ix.step >= 0 else "+"}: {step}')
+          if (i == len(ashape) - 1) == (ix.step >= 0):
+            coords.append(f'{paren(base)} + {step - 1} -: {step}')
           else:
-            coords.append(f'{paren(base)} {"+" if ix.step >= 0 else "-"}: {step}')
+            coords.append(f'{paren(base)} +: {step}')
 
           shape.append(step)
         else:
