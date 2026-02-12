@@ -247,8 +247,19 @@ def compare_value(var, value, toll=1e-5, debug=None):
 
 @hdl
 def wait_rising(var):
+  # Verilator and GHDL behave differently WRT when the data is available after
+  # the edge. This synchronizes at half clock step, which seems to make both
+  # happy. If one has strict requirements WRT edge timing, and do not care about
+  # compatibility, should use the vanilla XL.wait_rising() API.
   XL.wait_rising(var)
   XL.wait_falling(var)
+
+
+@hdl
+def wait_falling(var):
+  # See wait_rising() comment above for rationale of this API.
+  XL.wait_falling(var)
+  XL.wait_rising(var)
 
 
 class TestBench(Entity):
