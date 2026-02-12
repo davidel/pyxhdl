@@ -20,7 +20,7 @@ class ClkTrigger(X.Entity):
       trigger_count = 0
       counter = 0
     else:
-      if not EN:
+      if EN != 1:
         enabled = 0
         ACTIVE = 0
       elif enabled:

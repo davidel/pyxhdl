@@ -410,7 +410,7 @@ class VHDL_Emitter(Emitter):
           base = self._to_integer(ix.start, Integer())
 
           if i == len(ashape) - 1:
-            coords.append(f'({paren(base)} - {ix.step - 1}) downto {paren(base)}')
+            coords.append(f'({paren(base)} + {ix.step - 1}) downto {paren(base)}')
           else:
             coords.append(f'{paren(base)} to ({paren(base)} + {ix.step - 1})')
 

@@ -258,6 +258,6 @@ architecture behavior of ArrayVarSliceEnt is
 begin
   var_slice : process (A, B)
   begin
-    XOUT <= std_logic_vector(A((to_integer(B + 1) - 3) downto to_integer(B + 1)));
+    XOUT <= std_logic_vector(A((to_integer(B + 1) + 3) downto to_integer(B + 1)));
   end process;
 end architecture;
