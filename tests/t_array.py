@@ -79,7 +79,7 @@ class ArrayVarSliceEnt(X.Entity):
 
   @X.hdl_process(sens='A, B')
   def var_slice():
-    XOUT = A[B + 1::4]
+    XOUT = A[B + 1::4] + A[B + 2::-3]
 
 
 class TestArray(unittest.TestCase):

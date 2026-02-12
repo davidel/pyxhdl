@@ -494,17 +494,19 @@ class Verilog_Emitter(Emitter):
         if isinstance(ix.start, Value):
           if ix.stop is not None:
             fatal(f'Variable part select ({arg} [{i}]) slice stop must be empty: {ix.stop}')
-          if ix.step > ashape[i]:
+
+          step = abs(ix.step)
+          if step > ashape[i]:
             fatal(f'Variable part select ({arg} [{i}]) is too big: {ix.step} ({ashape[i]})')
 
           base = self._to_integer(ix.start, Integer())
 
           if i == len(ashape) - 1:
-            coords.append(f'{paren(base)} -: {ix.step}')
+            coords.append(f'{paren(base)} {"-" if ix.step >= 0 else "+"}: {step}')
           else:
-            coords.append(f'{paren(base)} +: {ix.step}')
+            coords.append(f'{paren(base)} {"+" if ix.step >= 0 else "-"}: {step}')
 
-          shape.append(ix.step)
+          shape.append(step)
         else:
           step = ix.step if ix.step is not None else 1
 
