@@ -1008,13 +1008,22 @@ means:
 
   - List the library files within the configuration file, under the ```libs.{BACKEND}```
     key. Files listed there can be aither absolute paths, or paths relative to the
-    configuration file path folder.
-    ```
+    configuration file path folder
+    (see [Mock Configuration](https://github.com/davidel/pyxhdl/blob/main/pyxhdl/config/pyxhdl.yaml)).
+
+    ```YAML
     libs:
       vhdl:
+        - LIBNAME
         - /PATH/TO/LIB
         - ...
+      verilog:
+        - ...
     ```
+
+The specified libraries will be loaded from the *PyXHDL* *hdl_libs/{BACKEND}* folder,
+from one of the "lib_paths" configuration, or from one of the *PYXHDL_{BACKEND}_LIBPATH*
+(semicolon separated) environment variable.
 
 It is also possible to register HDL specific modules at runtime using the *XL.register_module()*
 API.
