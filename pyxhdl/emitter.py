@@ -8,6 +8,7 @@ import sys
 
 import py_misc_utils.alog as alog
 import py_misc_utils.context_managers as pycm
+import py_misc_utils.core_utils as pycu
 import py_misc_utils.fs_utils as pyfsu
 import py_misc_utils.inspect_utils as pyiu
 import py_misc_utils.obj as obj
@@ -565,9 +566,17 @@ class Emitter:
     return pytr.template_replace(code, lookup_fn=self._cfg_lookup, delim='@')
 
   def _load_libs(self):
-    pkgdir = os.path.dirname(__file__)
-    libdir = os.path.join(pkgdir, 'hdl_libs', self.kind)
-    alog.debug(f'Using {self.kind} library folder {libdir}')
+    libdir = os.path.join(os.path.dirname(__file__), 'hdl_libs', self.kind)
+
+    lib_paths = [libdir] + [os.path.join(path, self.kind) for path in self._lib_paths]
+
+    lib_paths.extend(pyfsu.normpath(x)
+                     for x in self._cfg.get('lib_paths', dict()).get(self.kind, ()))
+
+    if env_paths := os.getenv(f'PYXHDL_{self.kind.upper()}_LIBPATH'):
+      lib_paths.extend(pyfsu.normpath(x) for x in pyu.resplit(env_paths, ';'))
+
+    alog.debug(f'Using library folders {lib_paths}')
 
     libcode = []
 
@@ -579,33 +588,23 @@ class Emitter:
           if libname and not libname.startswith('#'):
             xlibs.append(libname)
 
-    # Loading on-demand ones (always loading certain libraries can cause synthesis
-    # failure even when such code is not used).
-    lib_paths = [libdir] + [os.path.join(path, self.kind) for path in self._lib_paths]
-
-    lib_paths.extend(pyfsu.normpath(x)
-                     for x in self._cfg.get('lib_paths', dict()).get(self.kind, ()))
-
-    lpaths = os.getenv(f'PYXHDL_{self.kind.upper()}_LIBPATH')
-    if lpaths is not None:
-      lib_paths.extend(pyfsu.normpath(x) for x in pyu.resplit(lpaths, ';'))
-
     xlibs.extend(sorted(self._extra_libs))
 
-    env_libs = os.getenv(f'PYXHDL_{self.kind.upper()}_LIBS')
-    xlibs.extend(pyu.resplit(env_libs, ';') if env_libs else ())
+    if env_libs := os.getenv(f'PYXHDL_{self.kind.upper()}_LIBS'):
+      xlibs.extend(pyu.resplit(env_libs, ';'))
+
     xlibs.extend(self._cfg.get('libs', dict()).get(self.kind, ()))
 
-    for libname in xlibs:
+    for libname in pycu.enum_unique(xlibs):
       _, ext = os.path.splitext(libname)
-      
+
       libfname = (libname + self.file_ext) if not ext else libname
 
       if lpath := pyfsu.find_path(libfname, lib_paths):
         alog.debug(f'Loading {self.kind} library file {lpath}')
         libcode.extend(self._load_code(lpath).split('\n'))
       else:
-        fatal(f'Library "{libfname}" not found in {lib_paths}')
+        fatal(f'Library "{libname}" ("{libfname}") not found in {lib_paths}')
 
     # Add user defined modules within the PyXHDL code.
     for cid, umod in self._MODULE_REGISTRY[self.kind].items():
