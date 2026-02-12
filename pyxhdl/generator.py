@@ -1,4 +1,5 @@
 import argparse
+import os
 
 import py_misc_utils.alog as alog
 import py_misc_utils.app_main as app_main
@@ -73,7 +74,7 @@ if __name__ == '__main__':
                       help='The path to the YAML file containing the emitter configuration')
   parser.add_argument('--ekwargs', action='append',
                       help='The keyword arguments for the emitter')
-  parser.add_argument('--cfgfile',
+  parser.add_argument('--cfgfile', default=os.getenv('PYXHDL_CONFIG'),
                       help='The path to the YAML file containing the generator configuration')
   parser.add_argument('--output_file',
                       help='The path to the output file for the generated code (default STDOUT)')
