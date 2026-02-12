@@ -1,5 +1,4 @@
 import pyxhdl as X
-from pyxhdl import xlib as XL
 
 
 class IoctxIfc(X.Interface):
@@ -134,6 +133,7 @@ class Test(X.Entity):
   def init(self):
     import random
 
+    from pyxhdl import xlib as XL
     from pyxhdl import testbench as TB
 
     RST_N = 0
