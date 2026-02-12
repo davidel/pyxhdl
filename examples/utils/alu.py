@@ -1,0 +1,163 @@
+import enum
+
+import py_misc_utils.core_utils as pycu
+
+import pyxhdl as X
+from pyxhdl import xlib as XL
+
+from . import clk_trigger
+
+
+class AluOps(enum.IntEnum):
+  ADD = 0
+  SUB = enum.auto()
+  MUL = enum.auto()
+  DIV = enum.auto()
+  SDIV = enum.auto()
+  AND = enum.auto()
+  OR = enum.auto()
+  XOR = enum.auto()
+  NOT = enum.auto()
+  CMP = enum.auto()
+  SHR = enum.auto()
+  SHL = enum.auto()
+
+
+class AluFlags(enum.IntEnum):
+  ZERO = enum.auto()
+  OVERFLOW = enum.auto()
+
+
+class AluIfc(X.Interface):
+
+  IFC = 'CLK, RST_N, OP, A_VALUE, B_VALUE, IN_VALID, =XOUT, =XOUT_HI, =FLAGS, =OUT_VALID'
+
+  def __init__(self, clk, reset, *, width=8):
+    super().__init__('ALU', width=width)
+    self.mkfield('CLK', clk)
+    self.mkfield('RST_N', reset)
+
+    self.mkfield('OP', X.Uint(pycu.enum_bits(AluOps)))
+    self.mkfield('A_VALUE', X.Uint(width))
+    self.mkfield('B_VALUE', X.Uint(width))
+    self.mkfield('IN_VALID', X.BIT)
+    self.mkfield('XOUT', X.Uint(width))
+    self.mkfield('XOUT_HI', X.Uint(width))
+    self.mkfield('FLAGS', X.Bits(pycu.enum_max(AluFlags) + 1))
+    self.mkfield('OUT_VALID', X.BIT)
+
+
+class Alu(X.Entity):
+
+  PORTS = f'*IFC:{__name__}.AluIfc.IFC'
+
+  @X.hdl_process(kind=X.ROOT_PROCESS)
+  def root(self):
+    delay_count = X.mkreg(X.UINT8)
+    delay_enable = X.mkreg(X.BIT)
+
+    clk_trigger.ClkTrigger(CLK=IFC.CLK,
+                           RST_N=IFC.RST_N,
+                           COUNT=delay_count,
+                           EN=delay_enable,
+                           ACTIVE=IFC.OUT_VALID)
+
+  @X.hdl_process(sens='+IFC.CLK')
+  def run(self):
+    wide_t = X.Uint(IFC.width + 1)
+    xwide_t = X.Uint(2 * IFC.width)
+    res_wide = X.mkwire(wide_t)
+    res_xwide = X.mkwire(xwide_t)
+
+    if IFC.RST_N != 1:
+      delay_count = 0
+      delay_enable = 0
+    elif IFC.IN_VALID == 1:
+      delay_count = 0
+      delay_enable = 1
+      match IFC.OP:
+        case AluOps.ADD:
+          res_wide = XL.cast(IFC.A_VALUE, wide_t) + IFC.B_VALUE
+          IFC.FLAGS[AluFlags.ZERO] = (res_wide == 0)
+          IFC.FLAGS[AluFlags.OVERFLOW] = res_wide[IFC.width]
+          IFC.XOUT = res_wide
+
+        case AluOps.SUB:
+          res_wide = XL.cast(IFC.A_VALUE, wide_t) - IFC.B_VALUE
+          IFC.FLAGS[AluFlags.ZERO] = (res_wide == 0)
+          IFC.FLAGS[AluFlags.OVERFLOW] = res_wide[IFC.width]
+          IFC.XOUT = res_wide
+
+        case AluOps.CMP:
+          res_wide = XL.cast(IFC.A_VALUE, wide_t) - IFC.B_VALUE
+          IFC.FLAGS[AluFlags.ZERO] = (res_wide == 0)
+          IFC.FLAGS[AluFlags.OVERFLOW] = res_wide[IFC.width]
+          IFC.XOUT = res_wide
+
+        case AluOps.MUL:
+          res_xwide = XL.cast(IFC.A_VALUE, xwide_t) * IFC.B_VALUE
+          IFC.FLAGS[AluFlags.ZERO] = (res_xwide == 0)
+          IFC.FLAGS[AluFlags.OVERFLOW] = res_wide[IFC.width]
+          IFC.XOUT = res_xwide
+          delay_count = 5
+
+        case _:
+          pass
+
+
+class Test(X.Entity):
+
+  ARGS = dict(clock_frequency=100e6,
+              num_tests=20,
+              width=8) | Alu.ARGS
+
+  @X.hdl_process(kind=X.ROOT_PROCESS)
+  def root(self):
+    from . import clock
+
+    CLK = X.mkreg(X.BIT)
+
+    clock.Clock(CLK=CLK,
+                frequency=clock_frequency)
+
+    RST_N = X.mkreg(X.BIT)
+
+    self.ifc = AluIfc(CLK, RST_N,
+                      width=width)
+
+    Alu(IFC=self.ifc,
+        **{k: locals()[k] for k in Alu.ARGS.keys()})
+
+  @X.hdl_process()
+  def init(self):
+    import random
+
+    from pyxhdl import xlib as XL
+    from pyxhdl import testbench as TB
+
+    RST_N = 0
+    self.ifc.IN_VALID = 0
+
+    TB.wait_rising(CLK)
+
+    RST_N = 1
+
+    for i in range(num_tests):
+      a_value = random.randint(0, 2**width - 1)
+      b_value = random.randint(0, 2**width - 1)
+
+      self.ifc.OP = random.randint(0, pycu.enum_max(AluOps))
+      self.ifc.A_VALUE = a_value
+      self.ifc.B_VALUE = b_value
+      self.ifc.IN_VALID = 1
+
+      XL.wait_until(self.ifc.OUT_VALID == 1)
+
+      # TB.compare_value(self.ifc.RDATA, data)
+
+      TB.wait_rising(CLK)
+      self.ifc.IN_VALID = 0
+      TB.wait_rising(CLK)
+
+    XL.finish()
+
