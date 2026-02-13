@@ -223,18 +223,15 @@ def fatal(msg, exc=RuntimeError):
 def validate_slice(start, stop, size, step):
   nstart, nstop = pycu.norm_slice(start, stop, size)
 
-  if nstart < 0 or nstart >= size:
-    fatal(f'Invalid slice: start={nstart} size={size}', exc=ValueError)
-
-  if nstop <= 0 or nstop > size:
-    fatal(f'Invalid slice: stop={nstop} size={size}', exc=ValueError)
-
+  # Slices must be at least of size one (empty slices are not allowed).
   if step > 0:
-    if nstart >= nstop:
+    if nstart < 0 or nstart >= nstop or nstop > size:
       fatal(f'Invalid slice: start={nstart} stop={nstop} step={step}', exc=ValueError)
   elif step < 0:
-    if nstop >= nstart:
+    if nstart >= size or nstop >= nstart or nstop < -1:
       fatal(f'Invalid slice: start={nstart} stop={nstop} step={step}', exc=ValueError)
+  else:
+    fatal(f'Invalid slice: start={nstart} stop={nstop} step={step}', exc=ValueError)
 
   return nstart, nstop
 
