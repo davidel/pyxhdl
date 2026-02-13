@@ -99,7 +99,8 @@ class Alu(X.Entity):
           res_xwide = XL.cast(IFC.A_VALUE, xwide_t) * IFC.B_VALUE
           IFC.FLAGS[AluFlags.ZERO] = (res_xwide == 0)
           IFC.FLAGS[AluFlags.OVERFLOW] = (res_xwide[IFC.width: ] != 0)
-          IFC.XOUT = res_xwide
+          IFC.XOUT = res_xwide[: IFC.width]
+          IFC.XOUT_HI = res_xwide[IFC.width:]
           delay_count = 5
 
         case AluOps.DIV:
