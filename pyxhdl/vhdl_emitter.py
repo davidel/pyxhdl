@@ -434,8 +434,11 @@ class VHDL_Emitter(Emitter):
 
           shape.append(abs(stop - start))
       else:
-        if isinstance(ix, Value) and not isinstance(ix.dtype, Integer):
-          ix = self._to_integer(ix, Integer())
+        if isinstance(ix, Value):
+          if not isinstance(ix.dtype, Integer):
+            ix = self._to_integer(ix, Integer())
+        elif isinstance(ix, int) and ix < 0:
+          ix = ashape[i] + ix
 
         coords.append(self.svalue(ix))
         shape.append(1)

@@ -68,6 +68,7 @@ class Alu(X.Entity):
     xwide_t = X.Uint(2 * IFC.width)
     res_wide = X.mkwire(wide_t)
     res_xwide = X.mkwire(xwide_t)
+    res = X.mkwire(IFC.XOUT.dtype)
 
     if IFC.RST_N != 1:
       delay_count = 0
@@ -79,27 +80,77 @@ class Alu(X.Entity):
         case AluOps.ADD:
           res_wide = XL.cast(IFC.A_VALUE, wide_t) + IFC.B_VALUE
           IFC.FLAGS[AluFlags.ZERO] = (res_wide == 0)
-          IFC.FLAGS[AluFlags.OVERFLOW] = res_wide[IFC.width]
+          IFC.FLAGS[AluFlags.OVERFLOW] = res_wide[-1]
           IFC.XOUT = res_wide
 
         case AluOps.SUB:
           res_wide = XL.cast(IFC.A_VALUE, wide_t) - IFC.B_VALUE
           IFC.FLAGS[AluFlags.ZERO] = (res_wide == 0)
-          IFC.FLAGS[AluFlags.OVERFLOW] = res_wide[IFC.width]
+          IFC.FLAGS[AluFlags.OVERFLOW] = res_wide[-1]
           IFC.XOUT = res_wide
 
         case AluOps.CMP:
           res_wide = XL.cast(IFC.A_VALUE, wide_t) - IFC.B_VALUE
           IFC.FLAGS[AluFlags.ZERO] = (res_wide == 0)
-          IFC.FLAGS[AluFlags.OVERFLOW] = res_wide[IFC.width]
+          IFC.FLAGS[AluFlags.OVERFLOW] = res_wide[-1]
           IFC.XOUT = res_wide
 
         case AluOps.MUL:
           res_xwide = XL.cast(IFC.A_VALUE, xwide_t) * IFC.B_VALUE
           IFC.FLAGS[AluFlags.ZERO] = (res_xwide == 0)
-          IFC.FLAGS[AluFlags.OVERFLOW] = res_wide[IFC.width]
+          IFC.FLAGS[AluFlags.OVERFLOW] = (res_xwide[IFC.width: ] != 0)
           IFC.XOUT = res_xwide
           delay_count = 5
+
+        case AluOps.DIV:
+          res = IFC.A_VALUE / IFC.B_VALUE
+          IFC.FLAGS[AluFlags.ZERO] = (res == 0)
+          IFC.FLAGS[AluFlags.OVERFLOW] = 0
+          IFC.XOUT = res
+          delay_count = 10
+
+        case AluOps.SDIV:
+          res = XL.cast(IFC.A_VALUE, X.Sint(IFC.width)) / XL.cast(IFC.B_VALUE, X.Sint(IFC.width))
+          IFC.FLAGS[AluFlags.ZERO] = (res == 0)
+          IFC.FLAGS[AluFlags.OVERFLOW] = 0
+          IFC.XOUT = res
+          delay_count = 10
+
+        case AluOps.AND:
+          res = IFC.A_VALUE & IFC.B_VALUE
+          IFC.FLAGS[AluFlags.ZERO] = (res == 0)
+          IFC.FLAGS[AluFlags.OVERFLOW] = 0
+          IFC.XOUT = res
+
+        case AluOps.OR:
+          res = IFC.A_VALUE | IFC.B_VALUE
+          IFC.FLAGS[AluFlags.ZERO] = (res == 0)
+          IFC.FLAGS[AluFlags.OVERFLOW] = 0
+          IFC.XOUT = res
+
+        case AluOps.XOR:
+          res = IFC.A_VALUE ^ IFC.B_VALUE
+          IFC.FLAGS[AluFlags.ZERO] = (res == 0)
+          IFC.FLAGS[AluFlags.OVERFLOW] = 0
+          IFC.XOUT = res
+
+        case AluOps.NOT:
+          res = ~IFC.A_VALUE
+          IFC.FLAGS[AluFlags.ZERO] = (res == 0)
+          IFC.FLAGS[AluFlags.OVERFLOW] = 0
+          IFC.XOUT = res
+
+        case AluOps.SHR:
+          res = IFC.A_VALUE >> IFC.B_VALUE
+          IFC.FLAGS[AluFlags.ZERO] = (res == 0)
+          IFC.FLAGS[AluFlags.OVERFLOW] = 0
+          IFC.XOUT = res
+
+        case AluOps.SHL:
+          res = IFC.A_VALUE << IFC.B_VALUE
+          IFC.FLAGS[AluFlags.ZERO] = (res == 0)
+          IFC.FLAGS[AluFlags.OVERFLOW] = 0
+          IFC.XOUT = res
 
         case _:
           pass
