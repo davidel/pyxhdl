@@ -426,16 +426,11 @@ class VHDL_Emitter(Emitter):
 
           start, stop = validate_slice(ix.start, ix.stop, ashape[i], step)
 
-          if step == 1:
-            if i == len(ashape) - 1:
-              coords.append(f'{stop - 1} downto {start}')
-            else:
-              coords.append(f'{start} to {stop - 1}')
+          slice_dir = {1: 'downto', -1: 'to'}
+          if i == len(ashape) - 1:
+            coords.append(f'{stop - step} {slice_dir[step]} {start}')
           else:
-            if i == len(ashape) - 1:
-              coords.append(f'{stop + 1} to {start}')
-            else:
-              coords.append(f'{start} downto {stop + 1}')
+            coords.append(f'{start} {slice_dir[step]} {stop - step}')
 
           shape.append(abs(stop - start))
       else:
