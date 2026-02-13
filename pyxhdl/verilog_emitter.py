@@ -494,10 +494,12 @@ class Verilog_Emitter(Emitter):
         if isinstance(ix.start, Value):
           if ix.stop is not None:
             fatal(f'Variable part select ({arg} [{i}]) slice stop must be empty: {ix.stop}')
+          if ix.step is None:
+            fatal(f'Variable part select ({arg} [{i}]) slice step must not be empty')
 
           step = abs(ix.step)
           if step > ashape[i]:
-            fatal(f'Variable part select ({arg} [{i}]) is too big: {ix.step} ({ashape[i]})')
+            fatal(f'Variable part select ({arg} [{i}]) is too big: {step} ({ashape[i]})')
 
           base = self._to_integer(ix.start, Integer())
 
@@ -509,24 +511,15 @@ class Verilog_Emitter(Emitter):
           shape.append(step)
         else:
           step = ix.step if ix.step is not None else 1
-
           if abs(step) != 1:
             fatal(f'Slice step must be 1: {step}')
 
-          start, stop = pycu.norm_slice(ix.start, ix.stop, ashape[i])
-          if start < 0 or start >= ashape[i] or stop < 0 or stop > ashape[i]:
-            fatal(f'Slice ({arg} [{i}]) is out of bounds: {start} ... {stop} ({ashape[i]})')
+          start, stop = validate_slice(ix.start, ix.stop, ashape[i], step)
 
-          if step == 1:
-            if i == len(ashape) - 1:
-              coords.append(f'{stop - 1}: {start}')
-            else:
-              coords.append(f'{start}: {stop - 1}')
+          if i == len(ashape) - 1:
+            coords.append(f'{stop - step}: {start}')
           else:
-            if i == len(ashape) - 1:
-              coords.append(f'{stop + 1}: {start}')
-            else:
-              coords.append(f'{start}: {stop + 1}')
+            coords.append(f'{start}: {stop - step}')
 
           shape.append(abs(stop - start))
       else:

@@ -219,3 +219,22 @@ def parse_time(ts):
 def fatal(msg, exc=RuntimeError):
   pyu.fatal(msg, exc=exc)
 
+
+def validate_slice(start, stop, size, step):
+  nstart, nstop = pycu.norm_slice(start, stop, size)
+
+  if nstart < 0 or nstart >= size:
+    fatal(f'Invalid slice: start={nstart} size={size}', exc=ValueError)
+
+  if nstop <= 0 or nstop > size:
+    fatal(f'Invalid slice: stop={nstop} size={size}', exc=ValueError)
+
+  if step > 0:
+    if nstart >= nstop:
+      fatal(f'Invalid slice: start={nstart} stop={nstop} step={step}', exc=ValueError)
+  elif step < 0:
+    if nstop >= nstart:
+      fatal(f'Invalid slice: start={nstart} stop={nstop} step={step}', exc=ValueError)
+
+  return nstart, nstop
+
