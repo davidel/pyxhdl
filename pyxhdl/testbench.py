@@ -218,7 +218,7 @@ def _values_differ(value, ref_value, toll):
 
 
 @hdl
-def compare_value(var, value, toll=1e-5, debug=None):
+def compare_value(var, value, toll=1e-5, debug=None, msg=''):
   cdebug = int(os.getenv('TB_DEBUG', '0')) != 0 if debug is None else debug
 
   cvar = XL.load(var) if isinstance(var, str) else var
@@ -226,23 +226,23 @@ def compare_value(var, value, toll=1e-5, debug=None):
   if isinstance(value, np.ndarray):
     shape = cvar.dtype.array_shape
     if tuple(shape) != tuple(value.shape):
-      fatal(f'Wrong shape for "{cvar.value}": {tuple(shape)} vs {tuple(value.shape)}')
+      fatal(f'Wrong shape for "{cvar.value}": {tuple(shape)} vs {tuple(value.shape)}{msg}')
 
     for idx in np.ndindex(shape):
       tmp = cvar[idx]
       if _values_differ(tmp, value[idx].item(), toll=toll):
-        XL.report(f'{{NOW}} Output mismatch: {tmp.value} = {{tmp}} (should be {_repr(value[idx], tmp.dtype)})')
+        XL.report(f'{{NOW}} Output mismatch: {tmp.value} = {{tmp}} (should be {_repr(value[idx], tmp.dtype)}){msg}')
       elif cdebug:
-        XL.report(f'{{NOW}} Output match: {tmp.value} = {{tmp}}')
+        XL.report(f'{{NOW}} Output match: {tmp.value} = {{tmp}}{msg}')
 
       # TODO: Fix the fact we end up with HDL variable write, instead of locals
       # assignment, in case we write the same symbol more than once.
       del tmp
   else:
     if _values_differ(cvar, value, toll=toll):
-      XL.report(f'{{NOW}} Output mismatch: {cvar.value} = {{cvar}} (should be {_repr(value, cvar.dtype)})')
+      XL.report(f'{{NOW}} Output mismatch: {cvar.value} = {{cvar}} (should be {_repr(value, cvar.dtype)}){msg}')
     elif cdebug:
-      XL.report(f'{{NOW}} Output match: {cvar.value} = {{cvar}}')
+      XL.report(f'{{NOW}} Output match: {cvar.value} = {{cvar}}{msg}')
 
 
 @hdl
@@ -260,6 +260,12 @@ def wait_falling(var):
   # See wait_rising() comment above for rationale of this API.
   XL.wait_falling(var)
   XL.wait_rising(var)
+
+
+@hdl
+def wait_until(clk, test):
+  XL.wait_until(test)
+  XL.wait_falling(clk)
 
 
 class TestBench(Entity):

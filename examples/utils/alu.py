@@ -1,6 +1,7 @@
 import enum
 
 import py_misc_utils.core_utils as pycu
+import py_misc_utils.num_utils as pynu
 
 import pyxhdl as X
 from pyxhdl import xlib as XL
@@ -208,18 +209,70 @@ class Test(X.Entity):
 
     RST_N = 1
 
-    for i in range(num_tests):
-      a_value = random.randint(0, 2**width - 1)
-      b_value = random.randint(0, 2**width - 1)
+    value_mask = 2**width - 1
 
-      self.ifc.OP = random.randint(0, pycu.enum_max(AluOps))
+    for i in range(num_tests):
+      op = random.randint(0, pycu.enum_max(AluOps))
+      a_value = random.randint(0, value_mask)
+      if op in (AluOps.DIV, AluOps.SDIV):
+        b_value = random.randint(1, value_mask)
+      elif op in (AluOps.SHR, AluOps.SHL):
+        b_value = random.randint(0, width)
+      else:
+        b_value = random.randint(0, value_mask)
+
+      self.ifc.OP = op
       self.ifc.A_VALUE = a_value
       self.ifc.B_VALUE = b_value
       self.ifc.IN_VALID = 1
 
-      XL.wait_until(self.ifc.OUT_VALID == 1)
+      TB.wait_until(CLK, self.ifc.OUT_VALID == 1)
 
-      # TB.compare_value(self.ifc.RDATA, data)
+      match op:
+        case AluOps.ADD:
+          result = a_value + b_value
+
+        case AluOps.SUB:
+          result = a_value - b_value
+
+        case AluOps.CMP:
+          result = None
+
+        case AluOps.MUL:
+          result = a_value * b_value
+
+        case AluOps.DIV:
+          result = a_value // b_value
+
+        case AluOps.SDIV:
+          a_value = pynu.sign_extend(a_value, width)
+          b_value = pynu.sign_extend(b_value, width)
+          result = a_value // b_value
+
+        case AluOps.AND:
+          result = a_value & b_value
+
+        case AluOps.OR:
+          result = a_value | b_value
+
+        case AluOps.XOR:
+          result = a_value ^ b_value
+
+        case AluOps.NOT:
+          result = ~a_value
+
+        case AluOps.SHR:
+          result = a_value >> b_value
+
+        case AluOps.SHL:
+          result = a_value << b_value
+
+        case _:
+          result = None
+
+      if result is not None:
+        TB.compare_value(self.ifc.XOUT, result & value_mask,
+                         msg=f' : op={op}, a={a_value}, b={b_value}')
 
       TB.wait_rising(CLK)
       self.ifc.IN_VALID = 0

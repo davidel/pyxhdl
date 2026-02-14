@@ -86,6 +86,40 @@ class _Storer:
     self.fn(value)
 
 
+class _HdlChecker(ast.NodeVisitor):
+
+  def __init__(self, globs, locs):
+    super().__init__()
+    self._globs = globs
+    self._locs = locs
+    self._scope = 0
+    self._stack = []
+    self.count = 0
+
+  def visit_Attribute(self, node):
+    self._scope += 1
+
+    self.visit(node.value)
+    var = self._stack[-1] if self._stack else NONE
+
+    if var is not NONE:
+      value = getattr(var, node.attr, NONE)
+      if value is not NONE:
+        self._stack.append(value)
+        if isinstance(value, Value):
+          self.count += 1
+
+    self._scope -= 1
+    if self._scope == 0:
+      self._stack = []
+
+  def visit_Name(self, node):
+    value = vload(node.id, self._globs, self._locs)
+    self._stack.append(value)
+    if isinstance(value, Value):
+      self.count += 1
+
+
 class _AstVisitor(ast.NodeVisitor):
 
   def __init__(self):
@@ -479,6 +513,12 @@ class _ExecVisitor(_AstVisitor):
       return result
 
     return self._call_direct(func, args, kwargs)
+
+  def _is_hdl_tree(self, node):
+    checker = _HdlChecker(self.globals, self.locals)
+    checker.visit(node)
+
+    return checker.count > 0
 
 
 class CodeGen(_ExecVisitor):
@@ -1406,19 +1446,22 @@ class CodeGen(_ExecVisitor):
     pass
 
   def visit_Match(self, node):
-    subject = self.eval_node(node.subject)
-    cases = []
-    for mc in node.cases:
-      pattern = self.eval_node(mc.pattern)
-      scope = self.emitter.create_placement(extra_indent=2)
-      with self.emitter.placement(scope):
-        for insn in mc.body:
-          self.eval_node(insn)
+    if self._is_hdl_tree(node):
+      subject = self.eval_node(node.subject)
+      cases = []
+      for mc in node.cases:
+        pattern = self.eval_node(mc.pattern)
+        scope = self.emitter.create_placement(extra_indent=2)
+        with self.emitter.placement(scope):
+          for insn in mc.body:
+            self.eval_node(insn)
 
-      for ptrn in pyu.as_sequence(pattern, t=(tuple, list)):
-        cases.append(_MatchCase(pattern=ptrn, scope=scope))
+        for ptrn in pyu.as_sequence(pattern, t=(tuple, list)):
+          cases.append(_MatchCase(pattern=ptrn, scope=scope))
 
-    self.emitter.emit_match_cases(subject, cases)
+      self.emitter.emit_match_cases(subject, cases)
+    else:
+      self._static_eval(node)
 
   def visit_MatchAs(self, node):
     alog.debug(lambda: asu.dump(node))
