@@ -147,7 +147,6 @@ class _HdlChecker(ast.NodeVisitor):
   def visit_Call(self, node):
     with self._scope_in():
       self.visit(node.func)
-
       if (func := self._pop_value()) is not NONE and needs_hdl_call(func):
         self.count += 1
 
