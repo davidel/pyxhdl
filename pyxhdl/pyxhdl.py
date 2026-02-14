@@ -107,28 +107,28 @@ class _HdlChecker(ast.NodeVisitor):
       if self._scope == 0:
         self._stack = []
 
+  def _pop_value(self):
+    return self._stack.pop() if self._stack else NONE
+
   def visit_Constant(self, node):
     self._stack.append(node.value)
 
   def visit_Attribute(self, node):
     with self._scope_in():
       self.visit(node.value)
-      if self._stack:
-        value = getattr(self._stack.pop(), node.attr, NONE)
-        if value is not NONE:
-          self._stack.append(value)
-          if isinstance(value, Value):
+      if (value := self._pop_value()) is not NONE:
+        if (avalue := getattr(value, node.attr, NONE)) is not NONE:
+          self._stack.append(avalue)
+          if isinstance(avalue, Value):
             self.count += 1
 
   def visit_Subscript(self, node):
     with self._scope_in():
       self.visit(node.value)
-      if self._stack:
-        avalue = self._stack.pop()
+      if (avalue := self._pop_value()) is not NONE:
         if hasattr(avalue, '__getitem__'):
           self.visit(node.slice)
-          if self._stack:
-            idx = self._stack.pop()
+          if (idx := self._pop_value()) is not NONE:
             try:
               value = avalue.__getitem__(idx)
               self._stack.append(value)
@@ -147,7 +147,7 @@ class _HdlChecker(ast.NodeVisitor):
     with self._scope_in():
       self.visit(node.func)
 
-      if self._stack and needs_hdl_call(self._stack.pop()):
+      if (func := self._pop_value()) is not NONE and needs_hdl_call(func):
         self.count += 1
 
 
