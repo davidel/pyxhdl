@@ -25,7 +25,7 @@ class AluOps(enum.IntEnum):
 
 
 class AluFlags(enum.IntEnum):
-  ZERO = enum.auto()
+  ZERO = 0
   OVERFLOW = enum.auto()
   CARRY = enum.auto()
   SIGN = enum.auto()
