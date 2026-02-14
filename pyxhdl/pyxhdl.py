@@ -114,7 +114,7 @@ class _HdlChecker(ast.NodeVisitor):
     with self._scope_in():
       self.visit(node.value)
       if self._stack:
-        value = getattr(self._stack[-1], node.attr, NONE)
+        value = getattr(self._stack.pop(), node.attr, NONE)
         if value is not NONE:
           self._stack.append(value)
           if isinstance(value, Value):
@@ -131,6 +131,7 @@ class _HdlChecker(ast.NodeVisitor):
             idx = self._stack.pop()
             try:
               value = avalue.__getitem__(idx)
+              self._stack.append(value)
               if isinstance(value, Value):
                 self.count += 1
             except KeyError:
@@ -146,7 +147,7 @@ class _HdlChecker(ast.NodeVisitor):
     with self._scope_in():
       self.visit(node.func)
 
-      if self._stack and needs_hdl_call(self._stack[-1]):
+      if self._stack and needs_hdl_call(self._stack.pop()):
         self.count += 1
 
 
