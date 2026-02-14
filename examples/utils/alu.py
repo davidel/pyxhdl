@@ -242,7 +242,7 @@ class Test(X.Entity):
           result = a_value * b_value
 
         case AluOps.DIV:
-          result = a_value // b_value
+          result = int(a_value / b_value)
 
         case AluOps.SDIV:
           a_value = pynu.sign_extend(a_value, width)
