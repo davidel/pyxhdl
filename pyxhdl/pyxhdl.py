@@ -1,5 +1,6 @@
 import ast
 import collections
+import contextlib
 import copy
 import inspect
 import re
@@ -96,28 +97,57 @@ class _HdlChecker(ast.NodeVisitor):
     self._stack = []
     self.count = 0
 
-  def visit_Attribute(self, node):
+  @contextlib.contextmanager
+  def _scope_in(self):
     self._scope += 1
+    try:
+      yield self
+    finally:
+      self._scope -= 1
+      if self._scope == 0:
+        self._stack = []
 
-    self.visit(node.value)
-    var = self._stack[-1] if self._stack else NONE
+  def visit_Constant(self, node):
+    self._stack.append(node.value)
 
-    if var is not NONE:
-      value = getattr(var, node.attr, NONE)
-      if value is not NONE:
-        self._stack.append(value)
-        if isinstance(value, Value):
-          self.count += 1
+  def visit_Attribute(self, node):
+    with self._scope_in():
+      self.visit(node.value)
+      if self._stack:
+        value = getattr(self._stack[-1], node.attr, NONE)
+        if value is not NONE:
+          self._stack.append(value)
+          if isinstance(value, Value):
+            self.count += 1
 
-    self._scope -= 1
-    if self._scope == 0:
-      self._stack = []
+  def visit_Subscript(self, node):
+    with self._scope_in():
+      self.visit(node.value)
+      if self._stack:
+        avalue = self._stack.pop()
+        if hasattr(avalue, '__getitem__'):
+          self.visit(node.slice)
+          if self._stack:
+            idx = self._stack.pop()
+            try:
+              value = avalue.__getitem__(idx)
+              if isinstance(value, Value):
+                self.count += 1
+            except KeyError:
+              pass
 
   def visit_Name(self, node):
     value = vload(node.id, self._globs, self._locs)
     self._stack.append(value)
     if isinstance(value, Value):
       self.count += 1
+
+  def visit_Call(self, node):
+    with self._scope_in():
+      self.visit(node.func)
+
+      if self._stack and needs_hdl_call(self._stack[-1]):
+        self.count += 1
 
 
 class _AstVisitor(ast.NodeVisitor):
@@ -493,17 +523,9 @@ class _ExecVisitor(_AstVisitor):
 
     return eval('__func(*__args, **__kwargs)', self.globals, self.locals)
 
-  def _is_hdl_function(self, func):
-    if is_hdl_function(func):
-      return True
-    elif not inspect.isclass(func):
-      return False
-
-    return is_hdl_function(getattr(func, '__init__', None))
-
   def run_function(self, func, args, kwargs=None):
     kwargs = kwargs or dict()
-    if self._is_hdl_function(func):
+    if needs_hdl_call(func):
       if inspect.isclass(func):
         # Running a function with a class function object, means object creation.
         result = self._run_class_function(func, args, kwargs)
@@ -1562,4 +1584,13 @@ class CodeGen(_ExecVisitor):
 
   def get_frames(self):
     return tuple((f.location.filename, f.location.lineno) for f in self._frames)
+
+
+def needs_hdl_call(func):
+  if is_hdl_function(func):
+    return True
+  elif not inspect.isclass(func):
+    return False
+
+  return is_hdl_function(getattr(func, '__init__', None))
 
