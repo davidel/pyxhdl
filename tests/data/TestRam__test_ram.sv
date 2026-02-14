@@ -53,7 +53,7 @@ module RamTest(CLK, RST_N, RDEN, WREN, ADDR, IN_DATA, OUT_DATA);
   always_ff @(posedge CLK)
   run : begin
     if (&(!RST_N)) begin
-      OUT_DATA <= unsigned'(16'(0));
+      OUT_DATA <= 16'(0);
     end else if (&WREN) begin
       mem[int'(ADDR)] <= IN_DATA;
     end else if (&RDEN) begin

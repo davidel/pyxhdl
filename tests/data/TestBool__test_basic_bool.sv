@@ -54,6 +54,6 @@ module BasicBool(A, B, C, XOUT);
     end else begin
       cc = C + 17;
     end
-    XOUT = (A && B) || (cc > unsigned'(8'(10)));
+    XOUT = (A && B) || (cc > 8'(10));
   end
 endmodule

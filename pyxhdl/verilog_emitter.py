@@ -186,13 +186,13 @@ class Verilog_Emitter(Emitter):
                                INTSIZE=dtype.nbits)
 
         xvalue = f'{dtype.nbits}\'({mcall})'
-        return f'unsigned\'({xvalue})' if not signed else xvalue
+        return f'signed\'({xvalue})' if signed else xvalue
       elif isinstance(value.dtype, Integer):
         xvalue = f'{dtype.nbits}\'({self.svalue(value)})'
-        return f'unsigned\'({xvalue})' if not signed else xvalue
+        return f'signed\'({xvalue})' if signed else xvalue
       elif isinstance(value.dtype, Real):
         xvalue = f'{dtype.nbits}\'($rtoi({self.svalue(value)}))'
-        return f'unsigned\'({xvalue})' if not signed else xvalue
+        return f'signed\'({xvalue})' if signed else xvalue
       elif isinstance(value.dtype, Bool):
         xvalue = f'{dtype.nbits}\'({self.svalue(value)})'
         return f'signed\'({xvalue})' if signed else xvalue
@@ -203,7 +203,7 @@ class Verilog_Emitter(Emitter):
       value = ast.literal_eval(value)
 
     xvalue = f'{dtype.nbits}\'({int(value)})'
-    return f'unsigned\'({xvalue})' if not signed else xvalue
+    return f'signed\'({xvalue})' if signed else xvalue
 
   def _to_uint(self, value, dtype):
     return self._to_int(value, dtype, False)
@@ -248,13 +248,15 @@ class Verilog_Emitter(Emitter):
                                FPMANT=fspec.mant,
                                INTSIZE=dtype.nbits)
 
-        return f'unsigned\'({dtype.nbits}\'({mcall}))'
+        return f'{dtype.nbits}\'({mcall})'
       elif isinstance(value.dtype, Integer):
-        return f'unsigned\'({dtype.nbits}\'({self.svalue(value)}))'
+        return f'{dtype.nbits}\'({self.svalue(value)})'
       elif isinstance(value.dtype, Real):
-        return f'unsigned\'({dtype.nbits}\'($rtoi({self.svalue(value)})))'
+        return f'{dtype.nbits}\'($rtoi({self.svalue(value)}))'
       elif isinstance(value.dtype, Bool):
         return f'{dtype.nbits}\'({self.svalue(value)})'
+      else:
+        fatal(f'Unable to convert to {dtype}: {value.dtype}')
 
     if isinstance(value, str):
       if value.startswith('0b'):
@@ -268,7 +270,7 @@ class Verilog_Emitter(Emitter):
 
       return f'{len(bstr)}\'b{bstr}'
 
-    return f'unsigned\'({dtype.nbits}\'({value}))'
+    return f'{dtype.nbits}\'({value})'
 
   def _to_float(self, value, dtype):
     fspec = self.float_spec(dtype)

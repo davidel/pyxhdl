@@ -47,13 +47,13 @@ module MatchEnt(A, B, XOUT);
   always @(A or B)
   tester : begin
     case (A)
-      unsigned'(8'(17)): begin
+      8'(17): begin
         XOUT = A + 1;
       end
-      unsigned'(8'(21)): begin
+      8'(21): begin
         XOUT = A + B;
       end
-      unsigned'(8'(34)): begin
+      8'(34): begin
         XOUT = A - B;
       end
       default: begin

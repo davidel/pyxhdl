@@ -219,6 +219,8 @@ class VHDL_Emitter(Emitter):
           result = '"' + ('0' * (dtype.nbits - 1)) + '" & ' + result
 
         return result
+      else:
+        fatal(f'Unable to convert to {dtype}: {value.dtype}')
 
     if dtype.nbits == 1:
       return f'\'{value[-1]}\'' if isinstance(value, str) else f'\'{value}\''

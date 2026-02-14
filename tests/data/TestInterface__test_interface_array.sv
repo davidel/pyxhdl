@@ -46,7 +46,7 @@ module InterfaceArrayTest(CLK, RST_N, A, XOUT);
   input logic [7: 0] A[2];
   output logic [7: 0] XOUT[2];
   logic [15: 0] MYIFC_X;
-  logic [15: 0] MYIFC_Y = unsigned'(16'(0));
+  logic [15: 0] MYIFC_Y = 16'(0);
   IfcEnt IfcEnt_1(
     .A(A[0]),
     .B(A[1]),
@@ -58,9 +58,9 @@ module InterfaceArrayTest(CLK, RST_N, A, XOUT);
   always_ff @(posedge CLK)
   run : begin
     if (&(!RST_N)) begin
-      XOUT[1] <= unsigned'(8'(0));
-      MYIFC_X <= unsigned'(16'(17));
-      MYIFC_Y <= unsigned'(16'(21));
+      XOUT[1] <= 8'(0);
+      MYIFC_X <= 16'(17);
+      MYIFC_Y <= 16'(21);
     end else begin
       MYIFC_X <= MYIFC_X - 16'(A[0]);
       MYIFC_Y <= MYIFC_Y + 1;

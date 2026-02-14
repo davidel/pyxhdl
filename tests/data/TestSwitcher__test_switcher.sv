@@ -50,35 +50,35 @@ module Switcher(SEL, DIN, SEL_DOUT, SEL_DIN, DOUT);
   switch : begin
     SEL_DOUT = '{8{16'bxxxxxxxxxxxxxxxx}};
     DOUT = 16'bxxxxxxxxxxxxxxxx;
-    if (SEL == unsigned'(3'(0))) begin
+    if (SEL == 3'(0)) begin
       SEL_DOUT[0] = DIN;
       DOUT = SEL_DIN[0];
     end
-    if (SEL == unsigned'(3'(1))) begin
+    if (SEL == 3'(1)) begin
       SEL_DOUT[1] = DIN;
       DOUT = SEL_DIN[1];
     end
-    if (SEL == unsigned'(3'(2))) begin
+    if (SEL == 3'(2)) begin
       SEL_DOUT[2] = DIN;
       DOUT = SEL_DIN[2];
     end
-    if (SEL == unsigned'(3'(3))) begin
+    if (SEL == 3'(3)) begin
       SEL_DOUT[3] = DIN;
       DOUT = SEL_DIN[3];
     end
-    if (SEL == unsigned'(3'(4))) begin
+    if (SEL == 3'(4)) begin
       SEL_DOUT[4] = DIN;
       DOUT = SEL_DIN[4];
     end
-    if (SEL == unsigned'(3'(5))) begin
+    if (SEL == 3'(5)) begin
       SEL_DOUT[5] = DIN;
       DOUT = SEL_DIN[5];
     end
-    if (SEL == unsigned'(3'(6))) begin
+    if (SEL == 3'(6)) begin
       SEL_DOUT[6] = DIN;
       DOUT = SEL_DIN[6];
     end
-    if (SEL == unsigned'(3'(7))) begin
+    if (SEL == 3'(7)) begin
       SEL_DOUT[7] = DIN;
       DOUT = SEL_DIN[7];
     end

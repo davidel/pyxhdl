@@ -46,7 +46,7 @@ module WhileEnt(A, B, XOUT);
   output logic [7: 0] XOUT;
   always @(A or B)
   run : begin
-    static logic [7: 0] temp = unsigned'(8'(1));
+    static logic [7: 0] temp = 8'(1);
     temp = temp + 1;
     temp = temp + 1;
     temp = temp + 1;

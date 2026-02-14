@@ -57,7 +57,7 @@ module XModCallEnt(A, B, XOUT);
   input logic [7: 0] B;
   output logic [7: 0] XOUT;
   logic [7: 0] xmod_test0;
-  xmod_test #() xmod_test_1(.A(A), .B(B), .C(unsigned'(8'(17))), .XOUT(xmod_test0));
+  xmod_test #() xmod_test_1(.A(A), .B(B), .C(8'(17)), .XOUT(xmod_test0));
   always @(A or B)
   run : begin
     XOUT = xmod_test0;

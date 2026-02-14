@@ -55,7 +55,7 @@ module IfEnt(A, B, XOUT);
     end else if (B == 16'(A)) begin
       temp = 8'(16'(16'(temp) * B));
     end else begin
-      temp = unsigned'(8'(0));
+      temp = 8'(0);
     end
     if (16'(A) > B) begin
       temp = temp - A;

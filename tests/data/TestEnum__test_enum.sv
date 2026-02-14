@@ -47,13 +47,13 @@ module EnumEnt(A, B, XOUT);
   always @(A or B)
   tester : begin
     case (A)
-      unsigned'(8'(17)): begin
+      8'(17): begin
         XOUT = A + 1;
       end
-      unsigned'(8'(18)): begin
+      8'(18): begin
         XOUT = A + B;
       end
-      unsigned'(8'(19)): begin
+      8'(19): begin
         XOUT = A - B;
       end
       default: begin

@@ -46,45 +46,45 @@ module StateMachine(CLK, RST_N, BITLINE, RDEN, RDATA);
   input logic BITLINE;
   output logic RDEN;
   output logic [7: 0] RDATA;
-  logic [2: 0] state = unsigned'(3'(0));
-  logic [3: 0] count = unsigned'(4'(0));
+  logic [2: 0] state = 3'(0);
+  logic [3: 0] count = 4'(0);
   logic [7: 0] value;
   always_ff @(posedge CLK)
   state_machine : begin
     if (&(!RST_N)) begin
-      state <= unsigned'(3'(0));
-      count <= unsigned'(4'(0));
-      RDEN <= unsigned'(1'(0));
+      state <= 3'(0);
+      count <= 4'(0);
+      RDEN <= 1'(0);
       RDATA <= 8'(1'bx);
     end else begin
       case (state)
-        unsigned'(3'(0)): begin
-          if (BITLINE == unsigned'(1'(1))) begin
-            state <= unsigned'(3'(1));
+        3'(0): begin
+          if (BITLINE == 1'(1)) begin
+            state <= 3'(1);
           end
         end
-        unsigned'(3'(1)): begin
-          if (BITLINE == unsigned'(1'(0))) begin
-            state <= unsigned'(3'(2));
-            count <= unsigned'(4'(0));
-            value <= unsigned'(8'(0));
-            RDEN <= unsigned'(1'(0));
+        3'(1): begin
+          if (BITLINE == 1'(0)) begin
+            state <= 3'(2);
+            count <= 4'(0);
+            value <= 8'(0);
+            RDEN <= 1'(0);
           end
         end
-        unsigned'(3'(2)): begin
+        3'(2): begin
           value <= (value << 1) | 8'(BITLINE);
-          if (count == unsigned'(4'(7))) begin
-            state <= unsigned'(3'(4));
+          if (count == 4'(7)) begin
+            state <= 3'(4);
           end else begin
             count <= count + 1;
           end
         end
-        unsigned'(3'(4)): begin
-          if (BITLINE == unsigned'(1'(0))) begin
-            RDEN <= unsigned'(1'(1));
+        3'(4): begin
+          if (BITLINE == 1'(0)) begin
+            RDEN <= 1'(1);
             RDATA <= value;
           end
-          state <= unsigned'(3'(0));
+          state <= 3'(0);
         end
         default: begin
         end

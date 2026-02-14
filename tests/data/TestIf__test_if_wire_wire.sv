@@ -55,7 +55,7 @@ module IfEnt(A, B, XOUT);
     end else if (B == A) begin
       temp = 8'(temp * B);
     end else begin
-      temp = unsigned'(8'(0));
+      temp = 8'(0);
     end
     if (A > B) begin
       temp = temp - A;
