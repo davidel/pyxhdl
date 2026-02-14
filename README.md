@@ -767,7 +767,7 @@ module IfcTest(CLK, RST_N, A, XOUT);
   input logic [15: 0] A;
   output logic [15: 0] XOUT;
   logic [15: 0] TEST_X;
-  logic [15: 0] TEST_Y = unsigned'(16'(0));
+  logic [15: 0] TEST_Y = 16'(0);
   IfcEnt IfcEnt_1(
     .IFC_CLK(CLK),
     .IFC_RST_N(RST_N),
@@ -787,10 +787,10 @@ module IfcEnt(IFC_CLK, IFC_RST_N, IFC_X, IFC_Y, IFC_XOUT, A);
   input logic [15: 0] A;
   always_ff @(posedge IFC_CLK)
   run : begin
-    if (IFC_RST_N != unsigned'(1'(1))) begin
-      IFC_X <= unsigned'(16'(1));
-      IFC_Y <= unsigned'(16'(0));
-      IFC_XOUT <= unsigned'(16'(0));
+    if (IFC_RST_N != 1'(1)) begin
+      IFC_X <= 16'(1);
+      IFC_Y <= 16'(0);
+      IFC_XOUT <= 16'(0);
     end else begin
       IFC_XOUT <= (16'(A * IFC_X) + IFC_Y) - 17;
       IFC_X <= IFC_X + 1;
@@ -878,7 +878,7 @@ module BlockRam(CLK, RST_N, RDEN, WREN, ADDR, IN_DATA, OUT_DATA);
   always_ff @(posedge CLK)
   run : begin
     if (&(!RST_N)) begin
-      OUT_DATA <= unsigned'(16'(0));
+      OUT_DATA <= 16'(0);
     end else if (&WREN) begin
       mem[int'(ADDR)] <= IN_DATA;
     end else if (&RDEN) begin
