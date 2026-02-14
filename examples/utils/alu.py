@@ -272,7 +272,7 @@ class Test(X.Entity):
 
       if result is not None:
         TB.compare_value(self.ifc.XOUT, result & value_mask,
-                         msg=f' : op={op}, a={a_value}, b={b_value}')
+                         msg=f' : op={AluOps(op).name}, a={a_value}, b={b_value}')
 
       TB.wait_rising(CLK)
       self.ifc.IN_VALID = 0
