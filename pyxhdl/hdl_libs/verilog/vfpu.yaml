@@ -1,5 +1,6 @@
 name: vfpu
 
+# Remaps PyXHDL internal parameter names to the external module ones.
 name_remap:
   FPEXP: NX
   FPMANT: NM
