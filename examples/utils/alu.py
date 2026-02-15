@@ -76,100 +76,105 @@ class Alu(X.Entity):
     if IFC.RST_N != 1:
       delay_count = 0
       delay_enable = 0
-    elif IFC.IN_VALID == 1:
-      delay_count = 0
-      delay_enable = 1
+    else:
+      if IFC.IN_VALID == 1:
+        delay_count = 0
+        delay_enable = 1
 
-      IFC.FLAGS = 0
+        IFC.FLAGS = 0
 
-      match IFC.OP:
-        case AluOps.ADD:
-          res_wide = XL.cast(IFC.A_VALUE, wide_t) + IFC.B_VALUE
-          IFC.FLAGS[AluFlags.ZERO] = (res_wide == 0)
-          IFC.FLAGS[AluFlags.CARRY] = res_wide[-1]
-          IFC.FLAGS[AluFlags.SIGN] = res_wide[-2]
-          IFC.FLAGS[AluFlags.OVERFLOW] = ((IFC.A_VALUE[-1] == IFC.B_VALUE[-1]) and
-                                          (res_wide[-2] != IFC.A_VALUE[-1]))
-          IFC.XOUT = res_wide
+        match IFC.OP:
+          case AluOps.ADD:
+            res_wide = XL.cast(IFC.A_VALUE, wide_t) + IFC.B_VALUE
+            IFC.FLAGS[AluFlags.ZERO] = (res_wide == 0)
+            IFC.FLAGS[AluFlags.CARRY] = res_wide[-1]
+            IFC.FLAGS[AluFlags.SIGN] = res_wide[-2]
+            IFC.FLAGS[AluFlags.OVERFLOW] = ((IFC.A_VALUE[-1] == IFC.B_VALUE[-1]) and
+                                            (res_wide[-2] != IFC.A_VALUE[-1]))
+            IFC.XOUT = res_wide
 
-        case AluOps.SUB:
-          res_wide = XL.cast(IFC.A_VALUE, wide_t) - IFC.B_VALUE
-          IFC.FLAGS[AluFlags.ZERO] = (res_wide == 0)
-          IFC.FLAGS[AluFlags.CARRY] = res_wide[-1]
-          IFC.FLAGS[AluFlags.SIGN] = res_wide[-2]
-          IFC.FLAGS[AluFlags.OVERFLOW] = ((IFC.A_VALUE[-1] != IFC.B_VALUE[-1]) and
-                                          (res_wide[-2] != IFC.A_VALUE[-1]))
-          IFC.XOUT = res_wide
+          case AluOps.SUB:
+            res_wide = XL.cast(IFC.A_VALUE, wide_t) - IFC.B_VALUE
+            IFC.FLAGS[AluFlags.ZERO] = (res_wide == 0)
+            IFC.FLAGS[AluFlags.CARRY] = res_wide[-1]
+            IFC.FLAGS[AluFlags.SIGN] = res_wide[-2]
+            IFC.FLAGS[AluFlags.OVERFLOW] = ((IFC.A_VALUE[-1] != IFC.B_VALUE[-1]) and
+                                            (res_wide[-2] != IFC.A_VALUE[-1]))
+            IFC.XOUT = res_wide
 
-        case AluOps.CMP:
-          res_wide = XL.cast(IFC.A_VALUE, wide_t) - IFC.B_VALUE
-          IFC.FLAGS[AluFlags.ZERO] = (res_wide == 0)
-          IFC.FLAGS[AluFlags.CARRY] = res_wide[-1]
-          IFC.FLAGS[AluFlags.SIGN] = res_wide[-2]
-          IFC.FLAGS[AluFlags.OVERFLOW] = ((IFC.A_VALUE[-1] != IFC.B_VALUE[-1]) and
-                                          (res_wide[-2] != IFC.A_VALUE[-1]))
+          case AluOps.CMP:
+            res_wide = XL.cast(IFC.A_VALUE, wide_t) - IFC.B_VALUE
+            IFC.FLAGS[AluFlags.ZERO] = (res_wide == 0)
+            IFC.FLAGS[AluFlags.CARRY] = res_wide[-1]
+            IFC.FLAGS[AluFlags.SIGN] = res_wide[-2]
+            IFC.FLAGS[AluFlags.OVERFLOW] = ((IFC.A_VALUE[-1] != IFC.B_VALUE[-1]) and
+                                            (res_wide[-2] != IFC.A_VALUE[-1]))
 
-        case AluOps.MUL:
-          res_xwide = XL.cast(IFC.A_VALUE, xwide_t) * IFC.B_VALUE
-          IFC.FLAGS[AluFlags.ZERO] = (res_xwide == 0)
-          IFC.FLAGS[AluFlags.SIGN] = res_xwide[IFC.width - 1]
-          IFC.FLAGS[AluFlags.OVERFLOW] = (res_xwide[IFC.width: ] != 0)
-          IFC.XOUT = res_xwide[: IFC.width]
-          IFC.XOUT_HI = res_xwide[IFC.width:]
-          delay_count = 5
+          case AluOps.MUL:
+            res_xwide = XL.cast(IFC.A_VALUE, xwide_t) * IFC.B_VALUE
+            IFC.FLAGS[AluFlags.ZERO] = (res_xwide == 0)
+            IFC.FLAGS[AluFlags.SIGN] = res_xwide[IFC.width - 1]
+            IFC.FLAGS[AluFlags.OVERFLOW] = (res_xwide[IFC.width: ] != 0)
+            IFC.XOUT = res_xwide[: IFC.width]
+            IFC.XOUT_HI = res_xwide[IFC.width:]
+            delay_count = 5
 
-        case AluOps.DIV:
-          res = IFC.A_VALUE / IFC.B_VALUE
-          IFC.FLAGS[AluFlags.ZERO] = (res == 0)
-          IFC.FLAGS[AluFlags.SIGN] = res[-1]
-          IFC.XOUT = res
-          delay_count = 10
+          case AluOps.DIV:
+            res = IFC.A_VALUE / IFC.B_VALUE
+            IFC.FLAGS[AluFlags.ZERO] = (res == 0)
+            IFC.FLAGS[AluFlags.SIGN] = res[-1]
+            IFC.XOUT = res
+            delay_count = 10
 
-        case AluOps.SDIV:
-          res = XL.cast(IFC.A_VALUE, X.Sint(IFC.width)) / XL.cast(IFC.B_VALUE, X.Sint(IFC.width))
-          IFC.FLAGS[AluFlags.ZERO] = (res == 0)
-          IFC.FLAGS[AluFlags.SIGN] = res[-1]
-          IFC.XOUT = res
-          delay_count = 10
+          case AluOps.SDIV:
+            res = XL.cast(IFC.A_VALUE, X.Sint(IFC.width)) / XL.cast(IFC.B_VALUE, X.Sint(IFC.width))
+            IFC.FLAGS[AluFlags.ZERO] = (res == 0)
+            IFC.FLAGS[AluFlags.SIGN] = res[-1]
+            IFC.XOUT = res
+            delay_count = 10
 
-        case AluOps.AND:
-          res = IFC.A_VALUE & IFC.B_VALUE
-          IFC.FLAGS[AluFlags.ZERO] = (res == 0)
-          IFC.FLAGS[AluFlags.SIGN] = res[-1]
-          IFC.XOUT = res
+          case AluOps.AND:
+            res = IFC.A_VALUE & IFC.B_VALUE
+            IFC.FLAGS[AluFlags.ZERO] = (res == 0)
+            IFC.FLAGS[AluFlags.SIGN] = res[-1]
+            IFC.XOUT = res
 
-        case AluOps.OR:
-          res = IFC.A_VALUE | IFC.B_VALUE
-          IFC.FLAGS[AluFlags.ZERO] = (res == 0)
-          IFC.FLAGS[AluFlags.SIGN] = res[-1]
-          IFC.XOUT = res
+          case AluOps.OR:
+            res = IFC.A_VALUE | IFC.B_VALUE
+            IFC.FLAGS[AluFlags.ZERO] = (res == 0)
+            IFC.FLAGS[AluFlags.SIGN] = res[-1]
+            IFC.XOUT = res
 
-        case AluOps.XOR:
-          res = IFC.A_VALUE ^ IFC.B_VALUE
-          IFC.FLAGS[AluFlags.ZERO] = (res == 0)
-          IFC.FLAGS[AluFlags.SIGN] = res[-1]
-          IFC.XOUT = res
+          case AluOps.XOR:
+            res = IFC.A_VALUE ^ IFC.B_VALUE
+            IFC.FLAGS[AluFlags.ZERO] = (res == 0)
+            IFC.FLAGS[AluFlags.SIGN] = res[-1]
+            IFC.XOUT = res
 
-        case AluOps.NOT:
-          res = ~IFC.A_VALUE
-          IFC.FLAGS[AluFlags.ZERO] = (res == 0)
-          IFC.FLAGS[AluFlags.SIGN] = res[-1]
-          IFC.XOUT = res
+          case AluOps.NOT:
+            res = ~IFC.A_VALUE
+            IFC.FLAGS[AluFlags.ZERO] = (res == 0)
+            IFC.FLAGS[AluFlags.SIGN] = res[-1]
+            IFC.XOUT = res
 
-        case AluOps.SHR:
-          res = IFC.A_VALUE >> IFC.B_VALUE
-          IFC.FLAGS[AluFlags.ZERO] = (res == 0)
-          IFC.FLAGS[AluFlags.SIGN] = res[-1]
-          IFC.XOUT = res
+          case AluOps.SHR:
+            res = IFC.A_VALUE >> IFC.B_VALUE
+            IFC.FLAGS[AluFlags.ZERO] = (res == 0)
+            IFC.FLAGS[AluFlags.SIGN] = res[-1]
+            IFC.XOUT = res
 
-        case AluOps.SHL:
-          res = IFC.A_VALUE << IFC.B_VALUE
-          IFC.FLAGS[AluFlags.ZERO] = (res == 0)
-          IFC.FLAGS[AluFlags.SIGN] = res[-1]
-          IFC.XOUT = res
+          case AluOps.SHL:
+            res = IFC.A_VALUE << IFC.B_VALUE
+            IFC.FLAGS[AluFlags.ZERO] = (res == 0)
+            IFC.FLAGS[AluFlags.SIGN] = res[-1]
+            IFC.XOUT = res
 
-        case _:
-          pass
+          case _:
+            pass
+
+      else:
+        delay_count = 0
+        delay_enable = 0
 
 
 class Test(X.Entity):
@@ -282,8 +287,8 @@ class Test(X.Entity):
         TB.compare_value(self.ifc.XOUT, mresult,
                          msg=f' : op={AluOps(op).name}, a={avs}, b={bvs}, res={rvs}')
 
-      TB.wait_rising(CLK)
       self.ifc.IN_VALID = 0
+      TB.wait_rising(CLK)
       TB.wait_rising(CLK)
 
     XL.finish()
