@@ -289,7 +289,6 @@ class Test(X.Entity):
 
       self.ifc.IN_VALID = 0
       TB.wait_rising(CLK)
-      TB.wait_rising(CLK)
 
     XL.finish()
 

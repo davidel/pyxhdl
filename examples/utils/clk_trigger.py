@@ -20,21 +20,23 @@ class ClkTrigger(X.Entity):
       trigger_count = 0
       counter = 0
     else:
-      if EN != 1:
-        enabled = 0
+      if ACTIVE == 1:
         ACTIVE = 0
-      elif enabled:
-        if not ACTIVE:
+        enabled = 0
+
+      if EN == 1:
+        if enabled == 1:
           if counter + 1 == trigger_count:
             ACTIVE = 1
           else:
             counter += 1
-      else:
-        trigger_count = COUNT
-        counter = 0
-        enabled = 1
-        if COUNT == 0:
-          ACTIVE = 1
+        else:
+          trigger_count = COUNT
+          counter = 0
+          if COUNT == 0:
+            ACTIVE = 1
+          else:
+            enabled = 1
 
 
 class Test(X.Entity):
