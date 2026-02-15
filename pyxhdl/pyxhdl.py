@@ -110,7 +110,8 @@ class _HdlChecker(ast.NodeVisitor):
   def _pop_value(self):
     return self._stack.pop() if self._stack else NONE
 
-  def _check_value(self, value):
+  def _push_value(self, value):
+    self._stack.append(value)
     if isinstance(value, Value):
       self.count += 1
 
@@ -122,8 +123,7 @@ class _HdlChecker(ast.NodeVisitor):
       self.visit(node.value)
       if (value := self._pop_value()) is not NONE:
         if (avalue := getattr(value, node.attr, NONE)) is not NONE:
-          self._stack.append(avalue)
-          self._check_value(avalue)
+          self._push_value(avalue)
 
   def visit_Subscript(self, node):
     with self._scope_in():
@@ -134,15 +134,13 @@ class _HdlChecker(ast.NodeVisitor):
           if (idx := self._pop_value()) is not NONE:
             try:
               value = avalue.__getitem__(idx)
-              self._stack.append(value)
-              self._check_value(value)
+              self._push_value(value)
             except KeyError:
               pass
 
   def visit_Name(self, node):
     value = vload(node.id, self._globs, self._locs)
-    self._stack.append(value)
-    self._check_value(value)
+    self._push_value(value)
 
   def visit_Call(self, node):
     with self._scope_in():
