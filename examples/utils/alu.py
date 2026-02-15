@@ -202,6 +202,11 @@ class Test(X.Entity):
     from pyxhdl import xlib as XL
     from pyxhdl import testbench as TB
 
+    def vstr(v, n):
+      sv = pynu.sign_extend(v, n)
+      return f'{v} ({sv})' if sv < 0 else f'{sv}'
+
+
     RST_N = 0
     self.ifc.IN_VALID = 0
 
@@ -271,8 +276,11 @@ class Test(X.Entity):
           result = None
 
       if result is not None:
-        TB.compare_value(self.ifc.XOUT, result & value_mask,
-                         msg=f' : op={AluOps(op).name}, a={a_value}, b={b_value}')
+        mresult = result & value_mask
+        avs, bvs, rvs = [vstr(x, width) for x in (a_value, b_value, mresult)]
+
+        TB.compare_value(self.ifc.XOUT, mresult,
+                         msg=f' : op={AluOps(op).name}, a={avs}, b={bvs}, res={rvs}')
 
       TB.wait_rising(CLK)
       self.ifc.IN_VALID = 0
