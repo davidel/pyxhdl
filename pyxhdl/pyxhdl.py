@@ -115,27 +115,12 @@ class _HdlChecker(ast.NodeVisitor):
     if isinstance(value, Value):
       self.count += 1
 
-  def visit_Constant(self, node):
-    self._stack.append(node.value)
-
   def visit_Attribute(self, node):
     with self._scope_in():
       self.visit(node.value)
       if (value := self._pop_value()) is not NONE:
         if (avalue := getattr(value, node.attr, NONE)) is not NONE:
           self._push_value(avalue)
-
-  def visit_Subscript(self, node):
-    with self._scope_in():
-      self.visit(node.value)
-      if (avalue := self._pop_value()) is not NONE:
-        if item_get := getattr(avalue, '__getitem__', None):
-          self.visit(node.slice)
-          if (idx := self._pop_value()) is not NONE:
-            try:
-              self._push_value(item_get(idx))
-            except KeyError:
-              pass
 
   def visit_Name(self, node):
     value = vload(node.id, self._globs, self._locs)
