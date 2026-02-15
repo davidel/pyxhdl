@@ -129,12 +129,11 @@ class _HdlChecker(ast.NodeVisitor):
     with self._scope_in():
       self.visit(node.value)
       if (avalue := self._pop_value()) is not NONE:
-        if hasattr(avalue, '__getitem__'):
+        if item_get := getattr(avalue, '__getitem__', None):
           self.visit(node.slice)
           if (idx := self._pop_value()) is not NONE:
             try:
-              value = avalue.__getitem__(idx)
-              self._push_value(value)
+              self._push_value(item_get(idx))
             except KeyError:
               pass
 
