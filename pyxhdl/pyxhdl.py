@@ -91,6 +91,8 @@ class _Storer:
 
 class _HdlChecker(ast.NodeVisitor):
 
+  HDL_TYPES = (Value, Interface, InterfaceView)
+
   def __init__(self, globs, locs, hdl_required=('Yield', 'YieldFrom')):
     super().__init__()
     self._globs = globs
@@ -120,7 +122,7 @@ class _HdlChecker(ast.NodeVisitor):
   def _push_value(self, value):
     if self._scope > 0:
       self._stack.append(value)
-    if isinstance(value, Value):
+    if isinstance(value, self.HDL_TYPES):
       self.count += 1
 
   def visit_Attribute(self, node):
@@ -1600,16 +1602,15 @@ class CodeGen(_ExecVisitor):
 
 
 def needs_hdl_call(func, generators=False):
-  hdl_types = (Value, Interface, InterfaceView)
-
   if is_hdl_function(func) or pyiu.is_subclass(func, Entity):
     return True
   if generators and inspect.isfunction(func):
     sig = inspect.signature(func)
-    if sig.return_annotation in hdl_types:
+    if sig.return_annotation in _HdlChecker.HDL_TYPES:
       return True
   if not inspect.isclass(func):
     return False
 
-  return func in hdl_types or is_hdl_function(getattr(func, '__init__', None))
+  return (func in _HdlChecker.HDL_TYPES or
+          is_hdl_function(getattr(func, '__init__', None)))
 
