@@ -111,16 +111,16 @@ class _HdlChecker(ast.NodeVisitor):
     return self._stack.pop() if self._stack else NONE
 
   def _push_value(self, value):
-    self._stack.append(value)
+    if self._scope > 0:
+      self._stack.append(value)
     if isinstance(value, Value):
       self.count += 1
 
   def visit_Attribute(self, node):
     with self._scope_in():
       self.visit(node.value)
-      if (value := self._pop_value()) is not NONE:
-        if (avalue := getattr(value, node.attr, NONE)) is not NONE:
-          self._push_value(avalue)
+      if (avalue := getattr(self._pop_value(), node.attr, NONE)) is not NONE:
+        self._push_value(avalue)
 
   def visit_Name(self, node):
     value = vload(node.id, self._globs, self._locs)
@@ -129,7 +129,7 @@ class _HdlChecker(ast.NodeVisitor):
   def visit_Call(self, node):
     with self._scope_in():
       self.visit(node.func)
-      if (func := self._pop_value()) is not NONE and needs_hdl_call(func):
+      if needs_hdl_call(self._pop_value()):
         self.count += 1
 
 
