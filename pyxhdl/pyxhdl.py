@@ -9,7 +9,6 @@ import textwrap
 
 import py_misc_utils.alog as alog
 import py_misc_utils.ast_utils as asu
-import py_misc_utils.context_managers as pycm
 import py_misc_utils.core_utils as pycu
 import py_misc_utils.inspect_utils as pyiu
 import py_misc_utils.thread_context as pytc
@@ -242,43 +241,36 @@ class _ExecVisitor(_AstVisitor):
   def results(self):
     return self._results[-1] if self._results else None
 
+  @contextlib.contextmanager
   def _frame(self, frame):
-    def infn():
-      self._frames.append(frame)
-      return self
-
-    def outfn(*exc):
+    self._frames.append(frame)
+    try:
+      yield self
+    finally:
       self._frames.pop()
-      return False
 
-    return pycm.CtxManager(infn, outfn)
-
+  @contextlib.contextmanager
   def _hdl_branch(self):
     frame = self.frame
-
-    def infn():
-      frame.in_hdl_branch += 1
-      return self
-
-    def outfn(*exc):
+    frame.in_hdl_branch += 1
+    try:
+      yield self
+    finally:
       frame.in_hdl_branch -= 1
-      return False
 
-    return pycm.CtxManager(infn, outfn)
-
+  @contextlib.contextmanager
   def _exec_locals(self, tmp_values):
     # Override temporary values, but keep the changes to the locals.
     save_dict = dict()
 
-    def infn():
-      ref_dict = self.locals
-      for k, v in tmp_values.items():
-        save_dict[k] = ref_dict.get(k, NONE)
-        ref_dict[k] = v
+    ref_dict = self.locals
+    for k, v in tmp_values.items():
+      save_dict[k] = ref_dict.get(k, NONE)
+      ref_dict[k] = v
 
-      return self
-
-    def outfn(*exc):
+    try:
+      yield self
+    finally:
       ref_dict = self.locals
       for k, v in save_dict.items():
         if v is NONE:
@@ -286,29 +278,21 @@ class _ExecVisitor(_AstVisitor):
         else:
           ref_dict[k] = v
 
-      return False
-
-    return pycm.CtxManager(infn, outfn)
-
+  @contextlib.contextmanager
   def _eval_locals(self, tmp_values):
     # Apply temporary changes during the eval operation, but revert to previous
     # status afterwards (do not persist eventual changes).
     save_dict = self.locals.copy()
 
-    def infn():
-      ref_dict = self.locals
-      for k, v in tmp_values.items():
-        ref_dict[k] = v
+    ref_dict = self.locals
+    for k, v in tmp_values.items():
+      ref_dict[k] = v
 
-      return self
-
-    def outfn(*exc):
+    try:
+      yield self
+    finally:
       self.locals.clear()
       self.locals.update(save_dict)
-
-      return False
-
-    return pycm.CtxManager(infn, outfn)
 
   def _store_value(self, name, value):
     if name in self.global_names:
