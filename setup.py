@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 
 setup(name='pyxhdl',
-      version='0.26',
+      version='0.30',
       description='Python HDL',
       author='Davide Libenzi',
       packages=find_packages(),
