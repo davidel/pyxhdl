@@ -1,5 +1,6 @@
 import ast
 import collections
+import contextlib
 import functools
 import inspect
 import os
@@ -627,42 +628,31 @@ class Emitter:
 
     return f'{name}_{self._ent_versions[name]}'
 
+  @contextlib.contextmanager
   def context(self, ctx):
-    def infn():
-      self._contexts.append(ctx)
-      return self
-
-    def outfn(*exc):
+    self._contexts.append(ctx)
+    try:
+      yield self
+    finally:
       self._contexts.pop()
-      return False
 
-    return pycm.CtxManager(infn, outfn)
-
+  @contextlib.contextmanager
   def placement(self, place):
-    ctx = obj.Obj()
-
-    def infn():
-      self._placements.append(place)
-      ctx.indent, self._indent = self._indent, place.indent
-      return self
-
-    def outfn(*exc):
-      self._indent = ctx.indent
+    self._placements.append(place)
+    indent, self._indent = self._indent, place.indent
+    try:
+      yield self
+    finally:
+      self._indent = indent
       self._placements.pop()
-      return False
 
-    return pycm.CtxManager(infn, outfn)
-
+  @contextlib.contextmanager
   def indent(self):
-    def infn():
-      self._indent += 1
-      return self
-
-    def outfn(*exc):
+    self._indent += 1
+    try:
+      yield self
+    finally:
       self._indent -= 1
-      return False
-
-    return pycm.CtxManager(infn, outfn)
 
   def emit_code(self, code):
     for ln in code.split('\n'):

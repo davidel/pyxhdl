@@ -1,5 +1,6 @@
 # Cannot depend of local modules!
 import collections
+import contextlib
 import copy
 import inspect
 import os
@@ -7,7 +8,6 @@ import re
 import sys
 import textwrap
 
-import py_misc_utils.context_managers as pycm
 import py_misc_utils.core_utils as pycu
 import py_misc_utils.utils as pyu
 
@@ -168,26 +168,21 @@ def subscript_setter(arr, idx):
   return setfn
 
 
+@contextlib.contextmanager
 def temp_attributes(obj, **attrs):
   saved = dict()
+  for k, v in attrs.items():
+    saved[k] = getattr(obj, k, NONE)
+    setattr(obj, k, v)
 
-  def infn():
-    for k, v in attrs.items():
-      saved[k] = getattr(obj, k, NONE)
-      setattr(obj, k, v)
-
-    return obj
-
-  def outfn(*exc):
+  try:
+    yield obj
+  finally:
     for k, v in saved.items():
       if v is NONE:
         delattr(obj, k)
       else:
         setattr(obj, k, v)
-
-    return False
-
-  return pycm.CtxManager(infn, outfn)
 
 
 def subname(*path):
