@@ -56,6 +56,12 @@ def no_hdl():
   return ctx.no_hdl()
 
 
+def force_hdl():
+  ctx = CodeGen.current()
+
+  return ctx.force_hdl()
+
+
 def finish():
   ctx = CodeGen.current()
   ctx.emitter.emit_finish()

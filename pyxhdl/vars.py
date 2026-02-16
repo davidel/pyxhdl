@@ -184,27 +184,27 @@ def _init_value(name, iargs):
           else Init(vspec=vspec))
 
 
-def mkwire(dtype, name=None, **iargs):
+def mkwire(dtype, name=None, **iargs) -> Value:
   return Wire(dtype, _init_value(name, iargs))
 
 
-def mkreg(dtype, name=None, **iargs):
+def mkreg(dtype, name=None, **iargs) -> Value:
   return Register(dtype, _init_value(name, iargs))
 
 
-def mkvwire(dtype, value, name=None, **iargs):
+def mkvwire(dtype, value, name=None, **iargs) -> Value:
   vspec = VSpec(**(iargs or dict()))
 
   return Wire(dtype, Init(value=value, vspec=vspec, name=name))
 
 
-def mkvreg(dtype, value, name=None, **iargs):
+def mkvreg(dtype, value, name=None, **iargs) -> Value:
   vspec = VSpec(**(iargs or dict()))
 
   return Register(dtype, Init(value=value, vspec=vspec, name=name))
 
 
-def mknone(dtype):
+def mknone(dtype) -> Value:
   return Register(dtype, None)
 
 
@@ -229,7 +229,7 @@ def has_hdl_vars(v):
   return False
 
 
-def bitstring(value, remap=None):
+def bitstring(value, remap=None) -> Value:
   # 0b0010 -> dtype=Bits(4), value="0010"
   m = re.match(r'0b([01XUZWHL]+)$', value)
   if m:

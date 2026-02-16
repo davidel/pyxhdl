@@ -2,6 +2,7 @@ import ast
 import collections
 import contextlib
 import copy
+import functools
 import inspect
 import re
 import textwrap
@@ -18,6 +19,7 @@ from .ast_utils import *
 from .common_defs import *
 from .decorators import *
 from .entity import *
+from .interface import *
 from .types import *
 from .vars import *
 from .utils import *
@@ -89,13 +91,18 @@ class _Storer:
 
 class _HdlChecker(ast.NodeVisitor):
 
-  def __init__(self, globs, locs):
+  def __init__(self, globs, locs, hdl_required=('Yield', 'YieldFrom')):
     super().__init__()
     self._globs = globs
     self._locs = locs
     self._scope = 0
     self._stack = []
     self.count = 0
+    for name in pyu.expand_strings(hdl_required):
+      setattr(self, f'visit_{name}', self._checker)
+
+  def _checker(self, node):
+    self.count += 1
 
   @contextlib.contextmanager
   def _scope_in(self):
@@ -129,7 +136,7 @@ class _HdlChecker(ast.NodeVisitor):
   def visit_Call(self, node):
     with self._scope_in():
       self.visit(node.func)
-      if needs_hdl_call(self._pop_value()):
+      if needs_hdl_call(self._pop_value(), generators=True):
         self.count += 1
 
 
@@ -139,15 +146,26 @@ class _AstVisitor(ast.NodeVisitor):
     super().__init__()
     self._default_visitor = getattr(self, 'visit_default', self.generic_visit)
     self._catchall_visitors = []
+    self._in_hdl = 0
 
-  def add_catchall(self, visitor):
+  @contextlib.contextmanager
+  def _no_hdl(self, visitor):
     self._catchall_visitors.append(visitor)
+    try:
+      yield self
+    finally:
+      self._catchall_visitors.pop()
 
-  def pop_catchall(self):
-    self._catchall_visitors.pop()
+  @contextlib.contextmanager
+  def _force_hdl(self):
+    self._in_hdl += 1
+    try:
+      yield self
+    finally:
+      self._in_hdl -= 1
 
   def visit(self, node):
-    if self._catchall_visitors:
+    if self._catchall_visitors and self._in_hdl == 0:
       visitor = self._catchall_visitors[-1]
     else:
       method = 'visit_' + pyiu.cname(node)
@@ -539,6 +557,26 @@ class CodeGen(_ExecVisitor):
     self._root_vars = dict()
     self._process_kind = None
     self._process_args = None
+    self._setup_handlers()
+
+  def _setup_handlers(self):
+    self.visit_IfExp = functools.partial(self._hdl_visitor, 'IfExp', pushres=True)
+    self.visit_If = functools.partial(self._hdl_visitor, 'If')
+    self.visit_For = functools.partial(self._hdl_visitor, 'For')
+    self.visit_While = functools.partial(self._hdl_visitor, 'While')
+    self.visit_Match = functools.partial(self._hdl_visitor, 'Match')
+    self.visit_Try = functools.partial(self._hdl_visitor, 'Try')
+    self.visit_With = functools.partial(self._hdl_visitor, 'With')
+    self.visit_Call = functools.partial(self._hdl_visitor, 'Call', pushres=True)
+
+  def _hdl_visitor(self, name, node, pushres=False):
+    if self._in_hdl or self._is_hdl_tree(node):
+      handler = getattr(self, f'_handle_{name}')
+      handler(node)
+    else:
+      result = self._static_eval(node)
+      if pushres:
+        self.push_result(result)
 
   def _get_format_parts(self, fmt, kwargs):
 
@@ -1071,7 +1109,7 @@ class CodeGen(_ExecVisitor):
 
     self.push_result(lambda_runner)
 
-  def visit_Call(self, node):
+  def _handle_Call(self, node):
     func = self.eval_node(node.func)
 
     args = []
@@ -1251,7 +1289,7 @@ class CodeGen(_ExecVisitor):
     # being processed).
     self.eval_node(node, visit_node=False)
 
-  def visit_IfExp(self, node):
+  def _handle_IfExp(self, node):
     test = self.eval_node(node.test)
     if has_hdl_vars(test):
       body = self.eval_node(node.body)
@@ -1265,7 +1303,7 @@ class CodeGen(_ExecVisitor):
 
     self.push_result(result)
 
-  def visit_If(self, node):
+  def _handle_If(self, node):
     test = self.eval_node(node.test)
 
     if has_hdl_vars(test):
@@ -1305,7 +1343,7 @@ class CodeGen(_ExecVisitor):
         for insn in node.orelse:
           self.eval_node(insn)
 
-  def visit_For(self, node):
+  def _handle_For(self, node):
     alog.debug(lambda: asu.dump(node))
 
     for_iter = self.eval_node(node.iter)
@@ -1325,7 +1363,7 @@ class CodeGen(_ExecVisitor):
       if got_break:
         break
 
-  def visit_While(self, node):
+  def _handle_While(self, node):
     alog.debug(lambda: asu.dump(node))
 
     while True:
@@ -1357,7 +1395,7 @@ class CodeGen(_ExecVisitor):
     alog.debug(lambda: asu.dump(node))
     raise _ContinueException()
 
-  def visit_Try(self, node):
+  def _handle_Try(self, node):
     try:
       for bnode in node.body:
         self.visit(bnode)
@@ -1379,7 +1417,7 @@ class CodeGen(_ExecVisitor):
       for fnode in node.finalbody:
         self.visit(fnode)
 
-  def visit_With(self, node):
+  def _handle_With(self, node):
     items, names = [], []
     for inode in node.items:
       item = self.eval_node(inode.context_expr)
@@ -1450,23 +1488,20 @@ class CodeGen(_ExecVisitor):
   def visit_Pass(self, node):
     pass
 
-  def visit_Match(self, node):
-    if self._is_hdl_tree(node):
-      subject = self.eval_node(node.subject)
-      cases = []
-      for mc in node.cases:
-        pattern = self.eval_node(mc.pattern)
-        scope = self.emitter.create_placement(extra_indent=2)
-        with self.emitter.placement(scope):
-          for insn in mc.body:
-            self.eval_node(insn)
+  def _handle_Match(self, node):
+    subject = self.eval_node(node.subject)
+    cases = []
+    for mc in node.cases:
+      pattern = self.eval_node(mc.pattern)
+      scope = self.emitter.create_placement(extra_indent=2)
+      with self.emitter.placement(scope):
+        for insn in mc.body:
+          self.eval_node(insn)
 
-        for ptrn in pyu.as_sequence(pattern, t=(tuple, list)):
-          cases.append(_MatchCase(pattern=ptrn, scope=scope))
+      for ptrn in pyu.as_sequence(pattern, t=(tuple, list)):
+        cases.append(_MatchCase(pattern=ptrn, scope=scope))
 
-      self.emitter.emit_match_cases(subject, cases)
-    else:
-      self._static_eval(node)
+    self.emitter.emit_match_cases(subject, cases)
 
   def visit_MatchAs(self, node):
     alog.debug(lambda: asu.dump(node))
@@ -1552,15 +1587,10 @@ class CodeGen(_ExecVisitor):
     return self.emitter.context(kwargs)
 
   def no_hdl(self):
-    def infn():
-      self.add_catchall(self._static_eval)
-      return self
+    return self._no_hdl(self._static_eval)
 
-    def outfn(*exc):
-      self.pop_catchall()
-      return False
-
-    return pycm.CtxManager(infn, outfn)
+  def force_hdl(self):
+    return self._force_hdl()
 
   def generate_name(self, name, shortzero=False):
     return self._revgen.newname(name, shortzero=shortzero)
@@ -1569,11 +1599,17 @@ class CodeGen(_ExecVisitor):
     return tuple((f.location.filename, f.location.lineno) for f in self._frames)
 
 
-def needs_hdl_call(func):
-  if is_hdl_function(func):
+def needs_hdl_call(func, generators=False):
+  hdl_types = (Value, Interface, InterfaceView)
+
+  if is_hdl_function(func) or pyiu.is_subclass(func, Entity):
     return True
-  elif not inspect.isclass(func):
+  if generators and inspect.isfunction(func):
+    sig = inspect.signature(func)
+    if sig.return_annotation in hdl_types:
+      return True
+  if not inspect.isclass(func):
     return False
 
-  return is_hdl_function(getattr(func, '__init__', None))
+  return func in hdl_types or is_hdl_function(getattr(func, '__init__', None))
 
