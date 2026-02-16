@@ -26,13 +26,13 @@ def register_module(mid, code, replace=None, global_reg=None):
     ctx.emitter.register_module(mid, code, replace=replace)
 
 
-def cast(value, dtype):
+def cast(value, dtype) -> Value:
   ctx = CodeGen.current()
 
   return ctx.emitter.cast(value, dtype)
 
 
-def load(name):
+def load(name) -> Value:
   ctx = CodeGen.current()
 
   return ctx.load_var(name)
