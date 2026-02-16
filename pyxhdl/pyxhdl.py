@@ -141,6 +141,11 @@ class _HdlChecker(ast.NodeVisitor):
       if needs_hdl_call(self._pop_value(), generators=True):
         self.count += 1
 
+    for carg in node.args:
+      self.visit(carg)
+    for kwarg in node.keywords:
+      self.visit(kwarg)
+
 
 class _AstVisitor(ast.NodeVisitor):
 
