@@ -124,6 +124,19 @@ class _HdlChecker(ast.NodeVisitor):
     if isinstance(value, self.HDL_TYPES):
       self.count += 1
 
+  def _needs_hdl_call(self, func):
+    if is_hdl_function(func):
+      return True
+    if inspect.isfunction(func):
+      sig = inspect.signature(func)
+      if sig.return_annotation in self.HDL_TYPES:
+        return True
+    if not inspect.isclass(func):
+      return False
+
+    return (pyiu.is_subclass(func, Entity) or func in self.HDL_TYPES or
+            is_hdl_function(getattr(func, '__init__', None)))
+
   def visit_Attribute(self, node):
     with self._scope_in():
       self.visit(node.value)
@@ -137,7 +150,7 @@ class _HdlChecker(ast.NodeVisitor):
   def visit_Call(self, node):
     with self._scope_in():
       self.visit(node.func)
-      if needs_hdl_call(self._pop_value(), generators=True):
+      if self._needs_hdl_call(self._pop_value()):
         self.count += 1
 
     for carg in node.args:
@@ -499,9 +512,17 @@ class _ExecVisitor(ast.NodeVisitor):
 
     return eval('__func(*__args, **__kwargs)', self.globals, self.locals)
 
+  def _needs_hdl_processing(self, func):
+    if is_hdl_function(func):
+      return True
+    elif not inspect.isclass(func):
+      return False
+
+    return is_hdl_function(getattr(func, '__init__', None))
+
   def run_function(self, func, args, kwargs=None):
     kwargs = kwargs or dict()
-    if needs_hdl_call(func):
+    if self._needs_hdl_processing(func):
       if inspect.isclass(func):
         # Running a function with a class function object, means object creation.
         result = self._run_class_function(func, args, kwargs)
@@ -1572,18 +1593,4 @@ class CodeGen(_ExecVisitor):
 
   def get_frames(self):
     return tuple((f.location.filename, f.location.lineno) for f in self._frames)
-
-
-def needs_hdl_call(func, generators=False):
-  if is_hdl_function(func) or pyiu.is_subclass(func, Entity):
-    return True
-  if generators and inspect.isfunction(func):
-    sig = inspect.signature(func)
-    if sig.return_annotation in _HdlChecker.HDL_TYPES:
-      return True
-  if not inspect.isclass(func):
-    return False
-
-  return (func in _HdlChecker.HDL_TYPES or
-          is_hdl_function(getattr(func, '__init__', None)))
 
