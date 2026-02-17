@@ -171,7 +171,6 @@ class _ExecVisitor(ast.NodeVisitor):
 
   def __init__(self, vglobals, vlocals=None):
     super().__init__()
-    self._default_visitor = getattr(self, 'visit_default', self.generic_visit)
     self._frames = [_Frame(vglobals, vlocals or dict(), _SourceLocation('NOFILE', 0))]
     self._variables = []
     self._results = []
@@ -212,7 +211,7 @@ class _ExecVisitor(ast.NodeVisitor):
   def visit(self, node):
     if self.frame.in_hdl >= 0:
       method = 'visit_' + pyiu.cname(node)
-      visitor = getattr(self, method, self._default_visitor)
+      visitor = getattr(self, method, self._visit_default)
     else:
       visitor = self._static_eval
 
@@ -585,7 +584,7 @@ class CodeGen(_ExecVisitor):
 
     return pyu.sreplace(_CODEFMT_RX, code, mapfn)
 
-  def visit_default(self, node):
+  def _visit_default(self, node):
     # This is the default handler when a specific visit_XXX() method does not exist.
     # If something is not working, look for 'FAST STATIC' within the logs, which will
     # tell which node is escaping from the PyXHDL interpreter.
