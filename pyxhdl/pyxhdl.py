@@ -209,14 +209,6 @@ class _ExecVisitor(ast.NodeVisitor):
   def results(self):
     return self._results[-1] if self._results else None
 
-  @contextlib.contextmanager
-  def _force_hdl(self, step):
-    self.frame.in_hdl += step
-    try:
-      yield self
-    finally:
-      self.frame.in_hdl -= step
-
   def visit(self, node):
     in_hdl = self.frame.in_hdl
     if in_hdl >= 0:
@@ -234,6 +226,14 @@ class _ExecVisitor(ast.NodeVisitor):
       yield self
     finally:
       self._frames.pop()
+
+  @contextlib.contextmanager
+  def _force_hdl(self, step):
+    self.frame.in_hdl += step
+    try:
+      yield self
+    finally:
+      self.frame.in_hdl -= step
 
   @contextlib.contextmanager
   def _hdl_branch(self):
