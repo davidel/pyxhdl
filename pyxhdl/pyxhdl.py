@@ -146,40 +146,6 @@ class _HdlChecker(ast.NodeVisitor):
       self.visit(kwarg)
 
 
-class _AstVisitor(ast.NodeVisitor):
-
-  def __init__(self):
-    super().__init__()
-    self._default_visitor = getattr(self, 'visit_default', self.generic_visit)
-    self._catchall_visitors = []
-    self._in_hdl = 0
-
-  @contextlib.contextmanager
-  def _no_hdl(self, visitor):
-    self._catchall_visitors.append(visitor)
-    try:
-      yield self
-    finally:
-      self._catchall_visitors.pop()
-
-  @contextlib.contextmanager
-  def _force_hdl(self):
-    self._in_hdl += 1
-    try:
-      yield self
-    finally:
-      self._in_hdl -= 1
-
-  def visit(self, node):
-    if self._catchall_visitors and self._in_hdl == 0:
-      visitor = self._catchall_visitors[-1]
-    else:
-      method = 'visit_' + pyiu.cname(node)
-      visitor = getattr(self, method, self._default_visitor)
-
-    return visitor(node)
-
-
 class _Frame:
 
   def __init__(self, fglobals, flocals, location):
@@ -189,6 +155,7 @@ class _Frame:
     self.yields = []
     self.global_names = set()
     self.in_hdl_branch = 0
+    self.in_hdl = 0
     self.return_values = []
     self.retval = None
 
@@ -200,10 +167,11 @@ class _VoidResult:
   pass
 
 
-class _ExecVisitor(_AstVisitor):
+class _ExecVisitor(ast.NodeVisitor):
 
   def __init__(self, vglobals, vlocals=None):
     super().__init__()
+    self._default_visitor = getattr(self, 'visit_default', self.generic_visit)
     self._frames = [_Frame(vglobals, vlocals or dict(), _SourceLocation('NOFILE', 0))]
     self._variables = []
     self._results = []
@@ -240,6 +208,24 @@ class _ExecVisitor(_AstVisitor):
   @property
   def results(self):
     return self._results[-1] if self._results else None
+
+  @contextlib.contextmanager
+  def _force_hdl(self, step):
+    self.frame.in_hdl += step
+    try:
+      yield self
+    finally:
+      self.frame.in_hdl -= step
+
+  def visit(self, node):
+    in_hdl = self.frame.in_hdl
+    if in_hdl >= 0:
+      method = 'visit_' + pyiu.cname(node)
+      visitor = getattr(self, method, self._default_visitor)
+    else:
+      visitor = self._static_eval
+
+    visitor(node)
 
   @contextlib.contextmanager
   def _frame(self, frame):
@@ -560,7 +546,7 @@ class CodeGen(_ExecVisitor):
     self.visit_Call = functools.partial(self._hdl_visitor, 'Call', pushres=True)
 
   def _hdl_visitor(self, name, node, pushres=False):
-    if self._in_hdl or self._is_hdl_tree(node):
+    if self.frame.in_hdl > 0 or self._is_hdl_tree(node):
       handler = getattr(self, f'_handle_{name}')
       handler(node)
     else:
@@ -1577,10 +1563,10 @@ class CodeGen(_ExecVisitor):
     return self.emitter.context(kwargs)
 
   def no_hdl(self):
-    return self._no_hdl(self._static_eval)
+    return self._force_hdl(-1)
 
   def force_hdl(self):
-    return self._force_hdl()
+    return self._force_hdl(1)
 
   def generate_name(self, name, shortzero=False):
     return self._revgen.newname(name, shortzero=shortzero)
