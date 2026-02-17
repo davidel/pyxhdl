@@ -271,7 +271,6 @@ class _ExecVisitor(_AstVisitor):
     try:
       yield self
     finally:
-      ref_dict = self.locals
       for k, v in save_dict.items():
         if v is NONE:
           ref_dict.pop(k, None)
