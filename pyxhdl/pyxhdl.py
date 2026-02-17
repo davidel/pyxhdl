@@ -210,8 +210,7 @@ class _ExecVisitor(ast.NodeVisitor):
     return self._results[-1] if self._results else None
 
   def visit(self, node):
-    in_hdl = self.frame.in_hdl
-    if in_hdl >= 0:
+    if self.frame.in_hdl >= 0:
       method = 'visit_' + pyiu.cname(node)
       visitor = getattr(self, method, self._default_visitor)
     else:
