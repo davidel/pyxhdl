@@ -53,6 +53,7 @@ class AluIfc(X.Interface):
 class Alu(X.Entity):
 
   PORTS = f'*IFC:{__name__}.AluIfc.IFC'
+  ARGS = dict(mul_cycles=5, div_cycles=10)
 
   @X.hdl_process(kind=X.ROOT_PROCESS)
   def root(self):
@@ -117,21 +118,21 @@ class Alu(X.Entity):
             IFC.FLAGS[AluFlags.OVERFLOW] = (res_xwide[IFC.width: ] != 0)
             IFC.XOUT = res_xwide[: IFC.width]
             IFC.XOUT_HI = res_xwide[IFC.width:]
-            delay_count = 5
+            delay_count = mul_cycles
 
           case AluOps.DIV:
             res = IFC.A_VALUE / IFC.B_VALUE
             IFC.FLAGS[AluFlags.ZERO] = (res == 0)
             IFC.FLAGS[AluFlags.SIGN] = res[-1]
             IFC.XOUT = res
-            delay_count = 10
+            delay_count = div_cycles
 
           case AluOps.SDIV:
             res = XL.cast(IFC.A_VALUE, X.Sint(IFC.width)) / XL.cast(IFC.B_VALUE, X.Sint(IFC.width))
             IFC.FLAGS[AluFlags.ZERO] = (res == 0)
             IFC.FLAGS[AluFlags.SIGN] = res[-1]
             IFC.XOUT = res
-            delay_count = 10
+            delay_count = div_cycles
 
           case AluOps.AND:
             res = IFC.A_VALUE & IFC.B_VALUE
