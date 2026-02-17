@@ -229,11 +229,12 @@ class _ExecVisitor(ast.NodeVisitor):
 
   @contextlib.contextmanager
   def _force_hdl(self, step):
-    self.frame.in_hdl += step
+    frame = self.frame
+    frame.in_hdl += step
     try:
       yield self
     finally:
-      self.frame.in_hdl -= step
+      frame.in_hdl -= step
 
   @contextlib.contextmanager
   def _hdl_branch(self):
