@@ -15,9 +15,9 @@ classifiers = [
   "Intended Audience :: Developers",
   "Topic :: Scientific/Engineering",
   "Topic :: Scientific/Engineering :: Electronic Design Automation (EDA)",
-  "License :: OSI Approved :: Apache Software License",
 ]
 license-files = ["LICEN[CS]E*"]
+license = "Apache-2.0"
 
 [project.urls]
 Homepage = "https://github.com/davidel/pyxhdl"
