@@ -239,5 +239,7 @@ def bitstring(value, remap=None) -> Value:
 
 
 def bitfill(bitval, n):
-  return '0b' + bitval * n
+  bitstr = str(bitval) if not isinstance(bitval, str) else bitval
+
+  return '0b' + bitstr * n
 
