@@ -202,7 +202,7 @@ class Test(X.Entity):
         **{k: locals()[k] for k in Alu.ARGS.keys()})
 
   @X.hdl_process()
-  def init(self):
+  def run(self):
     import random
 
     from pyxhdl import xlib as XL

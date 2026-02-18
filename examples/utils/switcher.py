@@ -41,7 +41,7 @@ class Test(X.Entity):
              **{k: locals()[k] for k in Switcher.ARGS.keys()})
 
   @X.hdl_process()
-  def init(self):
+  def run(self):
     import random
 
     from pyxhdl import testbench as TB

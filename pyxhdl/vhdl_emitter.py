@@ -527,6 +527,8 @@ class VHDL_Emitter(Emitter):
     vspec = var.vspec
     if (vspec is not None and vspec.port is not None and vspec.port.is_wr()):
       asop = '<='
+    elif self._proc.kind == ROOT_PROCESS:
+      asop = '<='
     else:
       asop = ':=' if var.isreg is False else '<='
 
