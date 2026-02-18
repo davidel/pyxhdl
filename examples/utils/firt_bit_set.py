@@ -50,7 +50,7 @@ class Test(X.Entity):
       data = random.randint(0, 2**width - 1)
       ref_result = ffs(data, width)
 
-      DATA = data
+      DATA = XL.int2bits(data, n=width)
 
       XL.wait_for(1e-9)
 
