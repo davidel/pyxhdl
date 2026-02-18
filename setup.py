@@ -4,14 +4,14 @@ from setuptools import setup, find_packages
 
 
 setup(name='pyxhdl',
-      version='0.30',
-      description='Python HDL',
+      version='0.31',
+      description='Use Python as HDL language, and generate equivalent SystemVerilog and VHDL code',
       author='Davide Libenzi',
       packages=find_packages(),
       package_data={
           'pyxhdl': ['hdl_libs/**', ],
       },
-      python_requires='>=3.5',
+      python_requires='>=3.9',
       install_requires=[
           'numpy',
           'py_misc_utils @ git+https://github.com/davidel/py_misc_utils@main',

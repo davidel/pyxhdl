@@ -1,5 +1,29 @@
-# pyproject.toml
+[project]
+name = "pyxhdl"
+dynamic = [
+  "authors",
+  "description",
+  "version",
+  "dependencies",
+  "optional-dependencies",
+]
+readme = "README.md"
+requires-python = ">=3.9"
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Operating System :: OS Independent",
+  "Intended Audience :: Developers",
+  "Topic :: Scientific/Engineering",
+  "Topic :: Scientific/Engineering :: Electronic Design Automation (EDA)",
+  "License :: OSI Approved :: Apache Software License",
+]
+license-files = ["LICEN[CS]E*"]
+
+[project.urls]
+Homepage = "https://github.com/davidel/pyxhdl"
+Issues = "https://github.com/davidel/pyxhdl/issues"
+Repository = "https://github.com/davidel/pyxhdl.git"
+
 [build-system]
-# XXX: If your project needs other packages to build properly, add them to this list.
 requires = ["setuptools >= 42.0.0"]
 build-backend = "setuptools.build_meta"
