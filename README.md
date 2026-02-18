@@ -6,7 +6,13 @@ and instead appreciate the simplicity and flexibility of using Python for their 
 
 ## Install
 
-The easiest way to install *PyXHDL* is using PIP from the direct Github repo.
+The easiest way to install *PyXHDL* is using PIP from the *PyPi* repo:
+
+```Shell
+$ pip install pyxhdl
+```
+
+Otherwise it can be installed directly from the Github repo.
 
 ```Shell
 $ pip install git+https://github.com/davidel/pyxhdl.git
