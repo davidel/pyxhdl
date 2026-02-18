@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 
 setup(name='pyxhdl',
-      version='0.31',
+      version='0.32',
       description='Use Python as HDL language, and generate equivalent SystemVerilog and VHDL code',
       author='Davide Libenzi',
       packages=find_packages(),
