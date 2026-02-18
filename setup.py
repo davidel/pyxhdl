@@ -14,6 +14,6 @@ setup(name='pyxhdl',
       python_requires='>=3.9',
       install_requires=[
           'numpy',
-          'python_misc_utils @ git+https://github.com/davidel/py_misc_utils@main',
+          'python_misc_utils',
       ],
       )
