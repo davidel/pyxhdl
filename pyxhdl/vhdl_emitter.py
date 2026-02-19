@@ -729,12 +729,16 @@ class VHDL_Emitter(Emitter):
 
     self._emit_line(f'end case;')
 
-  def _build_op(self, op, left, right):
+  def _build_op(self, op, *args):
     sop = _OPSYMS[pyiu.classof(op)]
     if sop.isfn:
-      return f'{sop.sym}({paren(left)}, {paren(right)})'
+      arglist = ', '.join(paren(arg) for arg in args)
+
+      return f'{sop.sym}({arglist})'
     else:
-      return f'{paren(left)} {sop.sym} {paren(right)}'
+      opsep = f' {sop.sym} '
+
+      return opsep.join(paren(arg) for arg in args)
 
   def eval_BinOp(self, op, left, right):
     if isinstance(op, (ast.Add, ast.Sub, ast.Mult, ast.Div, ast.Mod)):
