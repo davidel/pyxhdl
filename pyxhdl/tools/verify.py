@@ -127,7 +127,7 @@ class GhdlVerifier(Verifier):
 class VerilatorVerifier(Verifier):
 
   BINARY = 'verilator'
-  CMDLINE = '--lint-only -Wall --timing -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -sv --top $TOP'
+  CMDLINE = '--lint-only --timing -sv --top $TOP'
 
   def __init__(self, cmdline_args):
     super().__init__(self.BINARY, cmdline_args)
