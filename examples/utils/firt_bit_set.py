@@ -42,7 +42,7 @@ class Test(X.Entity):
 
     for i in range(num_tests):
       data = random.randint(0, 2**width - 1)
-      ref_result = pynu.ffs(data, width)
+      ref_result = pynu.ffs(data)
 
       DATA = data
 
