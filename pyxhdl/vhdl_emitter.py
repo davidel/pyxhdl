@@ -234,7 +234,7 @@ class VHDL_Emitter(Emitter):
         bvalue = value[-dtype.nbits: ]
 
       return f'"{bvalue.upper()}"'
-    elif isinstance(value, int) and abs(value) > 2**31:
+    elif isinstance(value, int) and abs(value) >= 2**31:
       return f'"{self._int2bits(value, dtype.nbits)}"'
 
     return f'std_logic_vector(to_unsigned({value}, {dtype.nbits}))'

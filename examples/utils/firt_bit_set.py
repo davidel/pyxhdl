@@ -42,13 +42,17 @@ class Test(X.Entity):
 
     for i in range(num_tests):
       data = random.randint(0, 2**width - 1)
-      ref_result = pynu.ffs(data)
+      nbit = random.randint(0, width - 1)
+      if nbit != 0:
+        data &= ~((1 << nbit) - 1)
+
+      data |= 1 << nbit
 
       DATA = data
 
       XL.wait_for(1e-9)
 
-      TB.compare_value(BITIDX, ref_result, msg=f' : data={data}')
+      TB.compare_value(BITIDX, nbit, msg=f' : data={data:b}')
 
     XL.finish()
 
