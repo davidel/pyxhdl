@@ -96,6 +96,9 @@ class _Placement:
     self.code = []
     self.indent = indent
 
+  def append(self, code):
+    self.code.append(code)
+
   def __len__(self):
     count = 0
     for c in self.code:
@@ -316,7 +319,7 @@ class Emitter:
 
   def emit_placement(self, placement=None, extra_indent=0):
     place = self.create_placement(extra_indent=extra_indent)
-    self._emit(place, placement=placement)
+    self._emit(place, placement=placement or self.curr_placement())
 
     return place
 
@@ -335,7 +338,7 @@ class Emitter:
     if placement is None:
       self._code.append(obj)
     else:
-      placement.code.append(obj)
+      placement.append(obj)
 
   def _emit_line(self, line):
     spaces = ' ' * (self._indent_spaces * self._indent)
@@ -361,6 +364,8 @@ class Emitter:
         self._expand_helper(ent.code, lines)
       elif isinstance(ent, (list, tuple)):
         self._expand_helper(ent, lines)
+      elif callable(ent):
+        lines.extend(ent(size=len(code)))
       else:
         lines.append(ent)
 
@@ -632,6 +637,9 @@ class Emitter:
     self._ent_versions[name] += 1
 
     return f'{name}_{self._ent_versions[name]}'
+
+  def curr_placement(self):
+    return self._placements[-1] if self._placements else None
 
   @contextlib.contextmanager
   def context(self, ctx):

@@ -709,6 +709,11 @@ class VHDL_Emitter(Emitter):
     else:
       self._emit_line(f'assert {xtest};')
 
+  def _null_pad(self, indent=None, size=None, **kwargs):
+    spaces = ' ' * (self._indent_spaces * indent)
+
+    return () if size > 1 else (f'{spaces}null;',)
+
   def emit_match_cases(self, subject, cases):
     xsubject = self.svalue(subject)
     self._emit_line(f'case {paren(xsubject)} is')
@@ -722,8 +727,7 @@ class VHDL_Emitter(Emitter):
           self._emit_line(f'when others =>')
 
         if len(mc.scope) == 0:
-          with self.placement(mc.scope):
-            self._emit_line(f'null;')
+          mc.scope.append(functools.partial(self._null_pad, indent=mc.scope.indent))
 
         self._emit(mc.scope)
 

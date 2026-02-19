@@ -1487,15 +1487,16 @@ class CodeGen(_ExecVisitor):
   def _handle_Match(self, node):
     subject = self.eval_node(node.subject)
     cases = []
-    for mc in node.cases:
-      pattern = self.eval_node(mc.pattern)
-      scope = self.emitter.create_placement(extra_indent=2)
-      with self.emitter.placement(scope):
-        for insn in mc.body:
-          self.eval_node(insn)
+    with self._hdl_branch():
+      for mc in node.cases:
+        pattern = self.eval_node(mc.pattern)
+        scope = self.emitter.create_placement(extra_indent=2)
+        with self.emitter.placement(scope):
+          for insn in mc.body:
+            self.eval_node(insn)
 
-      for ptrn in pyu.as_sequence(pattern, t=(tuple, list)):
-        cases.append(_MatchCase(pattern=ptrn, scope=scope))
+        for ptrn in pyu.as_sequence(pattern, t=(tuple, list)):
+          cases.append(_MatchCase(pattern=ptrn, scope=scope))
 
     self.emitter.emit_match_cases(subject, cases)
 
