@@ -380,6 +380,11 @@ class Emitter:
     self._itor = Instanciator(param_key=PARAM_KEY)
     self._process_reset()
 
+  def _int2bits(self, intval, n):
+    value = intval & ((1 << n) - 1)
+
+    return f'{value:0{n}b}'
+
   def _paren_join(self, joiner, args):
     return joiner.join(paren(x) for x in args) if len(args) > 1 else args[0]
 

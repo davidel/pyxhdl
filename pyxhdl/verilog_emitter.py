@@ -269,6 +269,8 @@ class Verilog_Emitter(Emitter):
       bstr = ''.join(_LOGIC_REMAP[x] for x in bvalue.upper())
 
       return f'{len(bstr)}\'b{bstr}'
+    elif isinstance(value, int) and abs(value) > 2**31:
+      return f'{dtype.nbits}\'b{self._int2bits(value, dtype.nbits)}'
 
     return f'{dtype.nbits}\'({value})'
 

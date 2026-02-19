@@ -243,12 +243,3 @@ def bitfill(bitval, n):
 
   return '0b' + bitstr * n
 
-
-def int2bits(intval, n=None):
-  if intval < 0:
-    if n is None:
-      intval += 1 << abs(intval).bit_lenght()
-    else:
-      intval += 1 << n
-
-  return f'0b{intval:0b}' if n is None else f'0b{intval:0{n}b}'

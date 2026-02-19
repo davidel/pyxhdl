@@ -21,7 +21,7 @@ class FirstBitSet(X.Entity):
 class Test(X.Entity):
 
   ARGS = dict(num_tests=20,
-              width=31) | FirstBitSet.ARGS
+              width=32) | FirstBitSet.ARGS
 
   @X.hdl_process(kind=X.ROOT_PROCESS)
   def root(self):
@@ -50,7 +50,7 @@ class Test(X.Entity):
       data = random.randint(0, 2**width - 1)
       ref_result = ffs(data, width)
 
-      DATA = XL.int2bits(data, n=width)
+      DATA = data
 
       XL.wait_for(1e-9)
 
