@@ -46,7 +46,7 @@ module MatchReturnEnt(A, B, XOUT);
   output logic [7: 0] XOUT;
   always @(A or B)
   tester : begin
-    logic [7: 0] match_return0;
+    automatic logic [7: 0] match_return0;
     case (A)
       8'(17): begin
         match_return0 = A + 1;

@@ -8,16 +8,27 @@ class FirstBitSet(X.Entity):
 
   PORTS = 'DATA, =BITIDX'
 
-  @X.hdl_process(kind=X.ROOT_PROCESS)
+  @X.hdl_process(sens='DATA')
   def run():
-    FSTAGE = X.mkwire(X.mkarray(X.Sint(DATA.dtype.nbits.bit_length() + 1),
-                                DATA.dtype.nbits + 1))
+    nbits = max(DATA.dtype.nbits // 8, 4)
+    nparts = int(DATA.dtype.nbits / nbits)
 
-    FSTAGE[DATA.dtype.nbits] = -1
-    for i in range(DATA.dtype.nbits - 1, -1, -1):
-      FSTAGE[i] = i if DATA[i] == 1 else FSTAGE[i + 1]
+    BITIDX = -1
 
-    BITIDX = FSTAGE[0]
+    for i in range(nparts):
+      part_size = min(nbits, DATA.dtype.nbits - i * nbits)
+      mask = ((1 << part_size) - 1) << (i * nbits)
+
+      if (DATA & mask) != 0:
+        found = X.mkwire(X.BIT, name=f'found_{i}')
+        found = 0
+
+        for j in range(part_size):
+          if found == 0 and DATA[i * nbits + j] == 1:
+            BITIDX = i * nbits + j
+            found = 1
+
+        del found
 
 
 class Test(X.Entity):

@@ -47,7 +47,7 @@ module NamedInit(CLK, A, B, XOUT);
   output logic [7: 0] XOUT;
   always_ff @(posedge CLK)
   named_init : begin
-    static logic [7: 0] named = 8'(0);
+    automatic logic [7: 0] named = 8'(0);
     named = named + 1;
     XOUT = (A + B) - named;
   end

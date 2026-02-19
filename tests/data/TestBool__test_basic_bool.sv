@@ -48,7 +48,7 @@ module BasicBool(A, B, C, XOUT);
   logic [7: 0] cc;
   always @(A or B or C)
   run : begin
-    static logic [3: 0] xx = 4'b1001;
+    automatic logic [3: 0] xx = 4'b1001;
     if (xx == 4'(A)) begin
       cc = C - 3;
     end else begin

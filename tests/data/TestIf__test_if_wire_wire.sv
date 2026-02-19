@@ -46,7 +46,7 @@ module IfEnt(A, B, XOUT);
   output logic [7: 0] XOUT;
   always @(A or B)
   run : begin
-    logic [7: 0] temp;
+    automatic logic [7: 0] temp;
     temp = A;
     if (A > B) begin
       temp = temp + A;

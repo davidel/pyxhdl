@@ -76,7 +76,7 @@ module InitProcess(A, B, XOUT);
   end
   always @(A or B)
   run_initwire : begin
-    static logic [7: 0] wtemp = 8'(21);
+    automatic logic [7: 0] wtemp = 8'(21);
     wtemp = wtemp - (A - B);
     XOUT = ((A - 8'(7 * B)) - 8'(wtemp * arr[2][1])) + 8'(17 * zarr[2][3]);
   end

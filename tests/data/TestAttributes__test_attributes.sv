@@ -47,11 +47,11 @@ module AttributesTest(A, B, XOUT);
   always @(A or B)
   run : begin
     (* common_string = "a string", common_int = 17, common_float = 17.21 *)
-    logic [7: 0] wcomm;
+    automatic logic [7: 0] wcomm;
     (* common_int = 21 *)
-    logic [7: 0] wcomm_vhd;
+    automatic logic [7: 0] wcomm_vhd;
     (* common_string = "another string", verilog_string = "a SV string", verilog_int = 3, verilog_float = 11.65 *)
-    logic [7: 0] wcomm_ver;
+    automatic logic [7: 0] wcomm_ver;
     wcomm = A + B;
     wcomm_vhd = A - B;
     wcomm_ver = 8'(A * B);

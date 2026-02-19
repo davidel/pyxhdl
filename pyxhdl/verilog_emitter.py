@@ -571,8 +571,10 @@ class Verilog_Emitter(Emitter):
     vinit = ''
     if var.init is not None:
       vinit = f' = {self._cast(var.init, var.dtype)}'
-      if not self.is_root_variable(var) and self._proc.kind != ROOT_PROCESS:
-        vprefix = f'static {vprefix}'
+
+    # Wires with process scope are always automatic (never should latch).
+    if not self.is_root_variable(var) and self._proc.kind != ROOT_PROCESS:
+      vprefix = f'automatic {vprefix}'
 
     ntype = self._type_of(var.dtype).format(name)
 

@@ -47,7 +47,7 @@ module BasicBits(A, B, XOUT);
   logic [3: 0] z;
   always @(A or B)
   run : begin
-    logic [3: 0] w;
+    automatic logic [3: 0] w;
     z = 4'((2'(A) + 2'(B)) + 3);
     w = z;
     XOUT = 4'(z * 17) - w;
