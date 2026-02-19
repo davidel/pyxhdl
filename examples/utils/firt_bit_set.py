@@ -1,3 +1,5 @@
+import py_misc_utils.num_utils as pynu
+
 import pyxhdl as X
 from pyxhdl import xlib as XL
 
@@ -38,17 +40,9 @@ class Test(X.Entity):
 
     from pyxhdl import testbench as TB
 
-    def ffs(n, nmax):
-      for i in range(0, nmax):
-        if n & (1 << i):
-          return i
-
-      return -1
-
-
     for i in range(num_tests):
       data = random.randint(0, 2**width - 1)
-      ref_result = ffs(data, width)
+      ref_result = pynu.ffs(data, width)
 
       DATA = data
 
