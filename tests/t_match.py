@@ -8,6 +8,23 @@ from pyxhdl import xlib as XL
 import test_utils as tu
 
 
+@X.hdl
+def match_return_result(v, a, b):
+  result = X.mkwire(a.dtype)
+
+  match v:
+    case 17:
+      result = a + 1
+    case 21:
+      result = a + b
+    case 34:
+      result = a - b
+    case _:
+      result = a * b
+
+  return result
+
+
 class MatchEnt(X.Entity):
 
   PORTS = (
@@ -29,6 +46,15 @@ class MatchEnt(X.Entity):
         XOUT = A * B
 
 
+class MatchReturnResultEnt(X.Entity):
+
+  PORTS = 'A, B, =XOUT'
+
+  @X.hdl_process(sens='A, B')
+  def tester():
+    XOUT = match_return_result(A, A, B)
+
+
 class TestMatch(unittest.TestCase):
 
   def test_match(self):
@@ -39,4 +65,13 @@ class TestMatch(unittest.TestCase):
     )
 
     tu.run(self, tu.test_name(self, pyu.fname()), MatchEnt, inputs)
+
+  def test_match_return_result(self):
+    inputs = dict(
+      A=X.mkwire(X.UINT8),
+      B=X.mkwire(X.UINT8),
+      XOUT=X.mkwire(X.UINT8),
+    )
+
+    tu.run(self, tu.test_name(self, pyu.fname()), MatchReturnResultEnt, inputs)
 
