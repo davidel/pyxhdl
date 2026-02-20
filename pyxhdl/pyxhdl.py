@@ -167,7 +167,7 @@ class _Frame:
     self.location = location
     self.yields = []
     self.global_names = set()
-    self.in_hdl_branch = 0
+    self.return_capture = 0
     self.in_hdl = 0
     self.return_values = []
     self.retval = None
@@ -248,13 +248,13 @@ class _ExecVisitor(ast.NodeVisitor):
       frame.in_hdl -= step
 
   @contextlib.contextmanager
-  def _hdl_branch(self):
+  def _return_capture(self):
     frame = self.frame
-    frame.in_hdl_branch += 1
+    frame.return_capture += 1
     try:
       yield self
     finally:
-      frame.in_hdl_branch -= 1
+      frame.return_capture -= 1
 
   @contextlib.contextmanager
   def _exec_locals(self, tmp_values):
@@ -1303,7 +1303,7 @@ class CodeGen(_ExecVisitor):
     test = self.eval_node(node.test)
 
     if has_hdl_vars(test):
-      with self._hdl_branch():
+      with self._return_capture():
         self.emitter.emit_If(test)
         with self.emitter.indent():
           for insn in node.body:
@@ -1454,7 +1454,7 @@ class CodeGen(_ExecVisitor):
   def visit_Return(self, node):
     alog.debug(lambda: asu.dump(node))
     value = self.eval_node(node.value) if node.value is not None else None
-    if self.frame.in_hdl_branch:
+    if self.frame.return_capture:
       retval = _Return(value=value, placement=self.emitter.emit_placement())
       self.frame.return_values.append(retval)
     else:
@@ -1487,7 +1487,7 @@ class CodeGen(_ExecVisitor):
   def _handle_Match(self, node):
     subject = self.eval_node(node.subject)
     cases = []
-    with self._hdl_branch():
+    with self._return_capture():
       for mc in node.cases:
         pattern = self.eval_node(mc.pattern)
         scope = self.emitter.create_placement(extra_indent=2)
