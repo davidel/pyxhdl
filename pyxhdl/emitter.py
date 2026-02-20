@@ -383,6 +383,7 @@ class Emitter:
   def _module_reset(self):
     self._mod_comment = None
     self._itor = Instanciator(param_key=PARAM_KEY)
+    self._revgen = pycu.RevGen(fmt='{name}{ver}')
     self._process_reset()
 
   def _int2bits(self, intval, n):

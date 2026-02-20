@@ -62,6 +62,18 @@ def force_hdl():
   return ctx.force_hdl()
 
 
+def loop_mode_hdl():
+  ctx = CodeGen.current()
+
+  return ctx.set_loop_mode('hdl')
+
+
+def loop_mode_unrolled():
+  ctx = CodeGen.current()
+
+  return ctx.set_loop_mode('unrolled')
+
+
 def finish():
   ctx = CodeGen.current()
   ctx.emitter.emit_finish()

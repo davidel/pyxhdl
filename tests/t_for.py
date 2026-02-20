@@ -21,7 +21,7 @@ class ForEnt(X.Entity):
   @X.hdl_process(sens='A, B')
   def run():
     temp = XL.mkvreg(A.dtype, 1)
-    for _ in range(count):
+    for i in range(count):
       temp += 1
 
     XOUT = temp * A - B
@@ -55,6 +55,17 @@ class GenForEnt(X.Entity):
     XOUT = temp - 17
 
 
+class HdlForEnt(X.Entity):
+
+  PORTS = 'A, B, =XOUT'
+
+  @X.hdl_process(sens='A, B')
+  def run():
+    with XL.loop_mode_hdl():
+      for i in range(A.dtype.nbits):
+        XOUT[i] = A[i] ^ B[i]
+
+
 class TestFor(unittest.TestCase):
 
   def test_for(self):
@@ -78,4 +89,13 @@ class TestFor(unittest.TestCase):
     )
 
     tu.run(self, tu.test_name(self, pyu.fname()), GenForEnt, inputs)
+
+  def test_hdl_for(self):
+    inputs = dict(
+      A=X.mkwire(X.UINT8),
+      B=X.mkwire(X.UINT8),
+      XOUT=X.mkwire(X.UINT8),
+    )
+
+    tu.run(self, tu.test_name(self, pyu.fname()), HdlForEnt, inputs)
 

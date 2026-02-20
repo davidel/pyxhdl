@@ -702,6 +702,27 @@ class VHDL_Emitter(Emitter):
   def emit_EndIf(self):
     self._emit_line(f'end if;')
 
+  def emit_For(self, vname, start, end, step):
+    loop_dir = 'to' if step > 0 else 'downto'
+
+    if self._proc.kind == ROOT_PROCESS:
+      gname = self._revgen.newname('genfor')
+      self._emit_line(f'{gname}: for {vname} in {start} {loop_dir} {end} generate')
+    else:
+      self._emit_line(f'for {vname} in {start} {loop_dir} {end} loop')
+
+  def emit_EndFor(self):
+    if self._proc.kind == ROOT_PROCESS:
+      self._emit_line(f'end generate;')
+    else:
+      self._emit_line(f'end loop;')
+
+  def emit_Break(self):
+    self._emit_line(f'exit;')
+
+  def emit_Continue(self):
+    self._emit_line(f'next;')
+
   def emit_Assert(self, test, parts):
     xtest = self.svalue(test)
     if parts:

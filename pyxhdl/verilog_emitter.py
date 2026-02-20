@@ -737,6 +737,26 @@ class Verilog_Emitter(Emitter):
   def emit_EndIf(self):
     self._emit_line(f'end')
 
+  def emit_For(self, vname, start, end, step):
+    if step > 0:
+      loop_cmp, loop_incr = '<=', '+='
+    else:
+      loop_cmp, loop_incr = '>=', '-='
+
+    vtype = 'genvar' if self._proc.kind == ROOT_PROCESS else 'int'
+
+    self._emit_line(f'for ({vtype} {vname} = {start}; {vname} {loop_cmp} {end}; ' \
+                    f'{vname} {loop_incr} {abs(step)}) begin')
+
+  def emit_EndFor(self):
+    self._emit_line(f'end')
+
+  def emit_Break(self):
+    self._emit_line(f'break;')
+
+  def emit_Continue(self):
+    self._emit_line(f'continue;')
+
   def emit_Assert(self, test, parts):
     xtest = self.svalue(test)
     if parts:

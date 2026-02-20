@@ -2,6 +2,7 @@ import ast
 import collections
 import contextlib
 import copy
+import enum
 import functools
 import inspect
 import re
@@ -25,6 +26,9 @@ from .utils import *
 from .wrap import *
 
 
+_LoopContext = collections.namedtuple('LoopContext', 'mode')
+_ForLoop = collections.namedtuple('ForLoop', 'data, ivar, start, end, step',
+                                  defaults=(None, None, None, None))
 _Return = collections.namedtuple('Return', 'value, placement')
 _MatchCase = collections.namedtuple('MatchCase', 'pattern, scope')
 
@@ -47,6 +51,11 @@ class Variable:
 
   def __repr__(self):
     return f'{pyiu.cname(self)}({self.dtype}, {self.isreg}, {self.init}, {self.vspec})'
+
+
+class _LoopModes(enum.IntEnum):
+  UNROLLED = enum.auto()
+  HDL = enum.auto()
 
 
 class _Exception(Exception):
@@ -171,6 +180,8 @@ class _Frame:
     self.in_hdl = 0
     self.return_values = []
     self.retval = None
+    self.loops = []
+    self.loop_modes = []
 
   def new_locals(self, flocals):
     return pycu.new_with(self, flocals=flocals)
@@ -221,6 +232,15 @@ class _ExecVisitor(ast.NodeVisitor):
   def results(self):
     return self._results[-1] if self._results else None
 
+  @property
+  def loop(self):
+    return self.frame.loops[-1]
+
+  @property
+  def loop_mode(self):
+    frame = self.frame
+    return frame.loop_modes[-1] if frame.loop_modes else _LoopModes.UNROLLED
+
   def visit(self, node):
     if self.frame.in_hdl >= 0:
       method = 'visit_' + pyiu.cname(node)
@@ -255,6 +275,24 @@ class _ExecVisitor(ast.NodeVisitor):
       yield self
     finally:
       frame.return_capture -= 1
+
+  @contextlib.contextmanager
+  def _loop(self, loop):
+    frame = self.frame
+    frame.loops.append(loop)
+    try:
+      yield self
+    finally:
+      frame.loops.pop()
+
+  @contextlib.contextmanager
+  def _loop_mode(self, mode):
+    frame = self.frame
+    frame.loop_modes.append(mode)
+    try:
+      yield self
+    finally:
+      frame.loop_modes.pop()
 
   @contextlib.contextmanager
   def _exec_locals(self, tmp_values):
@@ -1339,35 +1377,27 @@ class CodeGen(_ExecVisitor):
         for insn in node.orelse:
           self.eval_node(insn)
 
-  def _handle_For(self, node):
-    alog.debug(lambda: asu.dump(node))
+  def _decode_for_loop(self, node):
+    idata = self.eval_node(node.iter)
 
-    for_iter = self.eval_node(node.iter)
-    for t in for_iter:
-      self._unpack_value(node.target, t, self.locals)
+    if isinstance(node.target, ast.Name):
+      idata = tuple(idata)
+      if idata and all(isinstance(x, int) for x in idata):
+        steps = set(idata[i + 1] - idata[i] for i in range(len(idata) - 1))
+        if len(steps) <= 1:
+          return _ForLoop(data=idata,
+                          ivar=node.target.id,
+                          start=idata[0],
+                          end=idata[-1],
+                          step=steps.pop() if steps else 1)
 
-      got_break = False
-      for insn in node.body:
-        try:
-          self.eval_node(insn)
-        except _BreakException:
-          got_break = True
-          break
-        except _ContinueException:
-          break
+    return _ForLoop(data=idata)
 
-      if got_break:
-        break
+  def _unrolled_For(self, node, floop):
+    with self._loop(_LoopContext(mode=_LoopModes.UNROLLED)):
+      for t in floop.data:
+        self._unpack_value(node.target, t, self.locals)
 
-  def _handle_While(self, node):
-    alog.debug(lambda: asu.dump(node))
-
-    while True:
-      test = self.eval_node(node.test)
-      if has_hdl_vars(test):
-        fatal(f'While test cannot have HDL vars: {asu.dump(node.test)}')
-
-      if test:
         got_break = False
         for insn in node.body:
           try:
@@ -1380,16 +1410,71 @@ class CodeGen(_ExecVisitor):
 
         if got_break:
           break
-      else:
-        break
+
+  def _hdl_For(self, node, floop):
+    with self._loop(_LoopContext(mode=_LoopModes.HDL)):
+
+      self.locals[floop.ivar] = mkwire(INT, name=floop.ivar, const=True)
+
+      self.emitter.emit_For(floop.ivar, floop.start, floop.end, floop.step)
+      with self.emitter.indent():
+        for insn in node.body:
+          self.eval_node(insn)
+
+      self.emitter.emit_EndFor()
+
+  def _handle_For(self, node):
+    alog.debug(lambda: asu.dump(node))
+
+    floop = self._decode_for_loop(node)
+
+    if floop.ivar is None or self.loop_mode != _LoopModes.HDL:
+      self._unrolled_For(node, floop)
+    else:
+      self._hdl_For(node, floop)
+
+  def _handle_While(self, node):
+    alog.debug(lambda: asu.dump(node))
+
+    with self._loop(_LoopContext(mode=_LoopModes.UNROLLED)):
+      while True:
+        test = self.eval_node(node.test)
+        if has_hdl_vars(test):
+          fatal(f'While test cannot have HDL vars: {asu.dump(node.test)}')
+
+        if test:
+          got_break = False
+          for insn in node.body:
+            try:
+              self.eval_node(insn)
+            except _BreakException:
+              got_break = True
+              break
+            except _ContinueException:
+              break
+
+          if got_break:
+            break
+        else:
+          break
 
   def visit_Break(self, node):
     alog.debug(lambda: asu.dump(node))
-    raise _BreakException()
+
+    loop = self.loop
+    if loop.mode == _LoopModes.UNROLLED:
+      raise _BreakException()
+    else:
+      self.emitter.emit_Break()
 
   def visit_Continue(self, node):
     alog.debug(lambda: asu.dump(node))
-    raise _ContinueException()
+
+    loop = self.loop
+    if loop.mode == _LoopModes.UNROLLED:
+      raise _ContinueException()
+    else:
+      self.emitter.emit_Continue()
 
   def _handle_Try(self, node):
     try:
@@ -1588,6 +1673,19 @@ class CodeGen(_ExecVisitor):
 
   def force_hdl(self):
     return self._force_hdl(1)
+
+  def set_loop_mode(self, mode):
+    match mode:
+      case 'hdl':
+        lmode = _LoopModes.HDL
+
+      case 'unrolled':
+        lmode = _LoopModes.UNROLLED
+
+      case _:
+        fatal(f'Invalid loop mode: {mode}')
+
+    return self._loop_mode(lmode)
 
   def generate_name(self, name, shortzero=False):
     return self._revgen.newname(name, shortzero=shortzero)

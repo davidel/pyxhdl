@@ -11,8 +11,13 @@ class FirstBitSet(X.Entity):
   @X.hdl_process(sens='DATA')
   def run():
     nbits = max(DATA.dtype.nbits // 8, 4)
-    nparts = int(DATA.dtype.nbits / nbits)
+    nparts = (DATA.dtype.nbits + nbits - 1) // nbits
 
+    found = X.mkwire(X.Bits(nparts))
+    indices = X.mkwire(X.mkarray(BITIDX.dtype, nparts))
+
+    found = 0
+    indices = -1
     BITIDX = -1
 
     for i in range(nparts):
@@ -20,15 +25,18 @@ class FirstBitSet(X.Entity):
       mask = ((1 << part_size) - 1) << (i * nbits)
 
       if (DATA & mask) != 0:
-        found = X.mkwire(X.BIT, name=f'found_{i}')
-        found = 0
+        with XL.loop_mode_hdl():
+          for j in range(part_size):
+            if DATA[i * nbits + j] == 1:
+              indices[i] = i * nbits + j
+              found[i] = 1
+              break
 
-        for j in range(part_size):
-          if found == 0 and DATA[i * nbits + j] == 1:
-            BITIDX = i * nbits + j
-            found = 1
-
-        del found
+    with XL.loop_mode_hdl():
+      for i in range(nparts):
+        if found[i] == 1:
+          BITIDX = indices[i]
+          break
 
 
 class Test(X.Entity):
