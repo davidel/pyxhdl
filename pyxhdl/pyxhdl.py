@@ -195,6 +195,7 @@ class _ExecVisitor(ast.NodeVisitor):
 
   def __init__(self, vglobals, vlocals=None):
     super().__init__()
+    self._default_loop_mode = _LoopModes.UNROLLED
     self._frames = [_Frame(vglobals, vlocals or dict(), _SourceLocation('NOFILE', 0))]
     self._variables = []
     self._results = []
@@ -239,7 +240,7 @@ class _ExecVisitor(ast.NodeVisitor):
   @property
   def loop_mode(self):
     frame = self.frame
-    return frame.loop_modes[-1] if frame.loop_modes else _LoopModes.UNROLLED
+    return frame.loop_modes[-1] if frame.loop_modes else self._default_loop_mode
 
   def visit(self, node):
     if self.frame.in_hdl >= 0:
