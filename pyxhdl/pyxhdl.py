@@ -1416,7 +1416,7 @@ class CodeGen(_ExecVisitor):
     loop_var = mkwire(INT, name=floop.ivar, const=True)
 
     with (self._loop(_LoopContext(mode=_LoopModes.HDL)),
-          self._eval_locals({floop.ivar: loop_var})):
+          self._exec_locals({floop.ivar: loop_var})):
       self.emitter.emit_For(floop.ivar, floop.start, floop.end, floop.step)
       with self.emitter.indent():
         for insn in node.body:
