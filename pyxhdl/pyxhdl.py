@@ -1413,10 +1413,10 @@ class CodeGen(_ExecVisitor):
           break
 
   def _hdl_For(self, node, floop):
-    with self._loop(_LoopContext(mode=_LoopModes.HDL)):
+    loop_var = mkwire(INT, name=floop.ivar, const=True)
 
-      self.locals[floop.ivar] = mkwire(INT, name=floop.ivar, const=True)
-
+    with (self._loop(_LoopContext(mode=_LoopModes.HDL)),
+          self._eval_locals({floop.ivar: loop_var})):
       self.emitter.emit_For(floop.ivar, floop.start, floop.end, floop.step)
       with self.emitter.indent():
         for insn in node.body:
