@@ -93,6 +93,24 @@ class ArrayMultiSliceEnt(X.Entity):
     XOUT = a[1] & b[2]
 
 
+class ArrayIntSliceEnt(X.Entity):
+
+  PORTS = 'A, B, =XOUT'
+
+  @X.hdl_process(sens='A, B')
+  def int_slice():
+    XOUT = A[0: 1] + B[1: 2]
+
+
+class ArrayIntBitSliceEnt(X.Entity):
+
+  PORTS = 'A, B, =XOUT'
+
+  @X.hdl_process(sens='A, B')
+  def int_bit_slice():
+    XOUT = A[0: 1] + B[1: 2]
+
+
 class TestArray(unittest.TestCase):
 
   def test_matmul(self):
@@ -148,4 +166,40 @@ class TestArray(unittest.TestCase):
     )
 
     tu.run(self, tu.test_name(self, pyu.fname()), ArrayMultiSliceEnt, inputs)
+
+  def test_uint_slice(self):
+    inputs = dict(
+      A=X.mkwire(X.UINT8),
+      B=X.mkwire(X.UINT8),
+      XOUT=X.mkwire(X.UINT4),
+    )
+
+    tu.run(self, tu.test_name(self, pyu.fname()), ArrayIntSliceEnt, inputs)
+
+  def test_sint_slice(self):
+    inputs = dict(
+      A=X.mkwire(X.INT8),
+      B=X.mkwire(X.INT8),
+      XOUT=X.mkwire(X.INT4),
+    )
+
+    tu.run(self, tu.test_name(self, pyu.fname()), ArrayIntSliceEnt, inputs)
+
+  def test_uint_bit_slice(self):
+    inputs = dict(
+      A=X.mkwire(X.UINT4),
+      B=X.mkwire(X.UINT4),
+      XOUT=X.mkwire(X.Uint(1)),
+    )
+
+    tu.run(self, tu.test_name(self, pyu.fname()), ArrayIntBitSliceEnt, inputs)
+
+  def test_sint_bit_slice(self):
+    inputs = dict(
+      A=X.mkwire(X.INT4),
+      B=X.mkwire(X.INT4),
+      XOUT=X.mkwire(X.Sint(1)),
+    )
+
+    tu.run(self, tu.test_name(self, pyu.fname()), ArrayIntBitSliceEnt, inputs)
 

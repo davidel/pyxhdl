@@ -565,10 +565,6 @@ class Emitter:
   def _is_nocast(self, arg, dtype, ctype_nocast):
     return type(dtype) in ctype_nocast.get(type(arg), {}) if ctype_nocast else False
 
-  def _slice_type(self, dtype, shape):
-    # A single bit slice of a signed/unsigned downgrades to Bits(1).
-    return Bits(*shape) if dtype.has_bits and shape[-1] == 1 else dtype.new_shape(*shape)
-
   def _cfg_lookup(self, k, defval=None):
     v = pyu.dict_rget(self._cfg, f'env/{k}')
     if v is None:
