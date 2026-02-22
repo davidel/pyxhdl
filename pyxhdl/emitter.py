@@ -5,7 +5,6 @@ import inspect
 import os
 import re
 import sys
-import yaml
 
 import py_misc_utils.alog as alog
 import py_misc_utils.context_managers as pycm
@@ -247,16 +246,16 @@ class Emitter:
       if m := re.match(r'\$!([^=]+)=(.*)$', aref):
         raname = xlogic.name_remap.get(aname, aname)
         dtype = dtype_from_string(m.group(1))
-        avalue = yaml.safe_load(m.group(2))
+        avalue = pycu.infer_value(m.group(2))
         mod_args[raname] = self.cast(avalue, dtype)
       elif m := re.match(r'\$#(\d+)=(.*)$', aref):
         raname = xlogic.name_remap.get(aname, aname)
         argno = int(m.group(1))
-        avalue = yaml.safe_load(m.group(2))
+        avalue = pycu.infer_value(m.group(2))
         mod_args[raname] = self.cast(avalue, args[argno].dtype)
       elif m := re.match(r'\$(\w+)=(.*)$', aref):
         raname = xlogic.name_remap.get(aname, aname)
-        avalue = yaml.safe_load(m.group(2))
+        avalue = pycu.infer_value(m.group(2))
         mod_args[raname] = self.cast(avalue, kwargs[m.group(1)].dtype)
       else:
         raname = xlogic.name_remap.get(aref, aref)
@@ -407,7 +406,7 @@ class Emitter:
     m = re.match(r'([us])(\d+)`(.*)$', value)
     if m:
       nbits = int(m.group(2))
-      ivalue = yaml.safe_load(m.group(3))
+      ivalue = pycu.infer_value(m.group(3))
       if not isinstance(ivalue, int):
         fatal(f'Invalid literal value: {value}')
 

@@ -3,7 +3,6 @@ import functools
 import inspect
 import os
 import re
-import yaml
 
 import numpy as np
 
@@ -165,7 +164,7 @@ class Verilog_Emitter(Emitter):
       return f'{paren(xvalue)} != {zero}'
 
     if isinstance(value, str):
-      value = yaml.safe_load(value)
+      value = pycu.infer_value(value)
 
     return '1' if value else '0'
 
@@ -201,7 +200,7 @@ class Verilog_Emitter(Emitter):
         fatal(f'Unknown type: {value.dtype}', exc=TypeError)
 
     if isinstance(value, str):
-      value = yaml.safe_load(value)
+      value = pycu.infer_value(value)
 
     xvalue = f'{dtype.nbits}\'({int(value)})'
     return f'signed\'({xvalue})' if signed else xvalue
@@ -314,7 +313,7 @@ class Verilog_Emitter(Emitter):
         return f'{paren(xvalue)} ? {mcall_one}() : {mcall_zero}()'
 
     if isinstance(value, str):
-      value = yaml.safe_load(value)
+      value = pycu.infer_value(value)
 
     fbits = pyf.real_to_packedbits(float(value), fspec.exp, fspec.mant)
 

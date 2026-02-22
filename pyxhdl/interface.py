@@ -1,5 +1,4 @@
 import re
-import yaml
 
 import py_misc_utils.core_utils as pycu
 import py_misc_utils.inspect_utils as pyiu
@@ -131,7 +130,7 @@ class Interface(_InterfaceBase):
       name, fvtype = re.split(r'\s*:\s*', fs, maxsplit=1)
       ftype, *fvalue = re.split(r'\s*=\s*', fvtype, maxsplit=1)
 
-      self.mkfield(name, ftype, init=yaml.safe_load(fvalue[0]) if fvalue else None)
+      self.mkfield(name, ftype, init=pycu.infer_value(fvalue[0]) if fvalue else None)
 
   @hdl
   def reset(self):

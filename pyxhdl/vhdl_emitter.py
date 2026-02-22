@@ -4,7 +4,6 @@ import functools
 import inspect
 import os
 import re
-import yaml
 
 import numpy as np
 
@@ -144,7 +143,7 @@ class VHDL_Emitter(Emitter):
       return f'{paren(xvalue)} /= {zero}'
 
     if isinstance(value, str):
-      value = yaml.safe_load(value)
+      value = pycu.infer_value(value)
 
     return 'true' if value else 'false'
 
