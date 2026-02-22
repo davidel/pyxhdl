@@ -4,6 +4,7 @@ import functools
 import inspect
 import os
 import re
+import yaml
 
 import numpy as np
 
@@ -143,9 +144,24 @@ class VHDL_Emitter(Emitter):
       return f'{paren(xvalue)} /= {zero}'
 
     if isinstance(value, str):
-      value = ast.literal_eval(value)
+      value = yaml.safe_load(value)
 
     return 'true' if value else 'false'
+
+  def _literal_bits(self, value, dtype):
+    if isinstance(value, str):
+      if value.startswith('0b'):
+        value = value[2: ]
+      if dtype.nbits > len(value):
+        bvalue = ('0' * (dtype.nbits - len(value))) + value
+      else:
+        bvalue = value[-dtype.nbits: ]
+
+      return bvalue.upper()
+    elif isinstance(value, int) and abs(value) >= 2**31:
+      return self._int2bits(value, dtype.nbits)
+
+    return self.svalue(value)
 
   def _to_int(self, value, dtype, itype):
     if isinstance(value, Value):
@@ -166,8 +182,10 @@ class VHDL_Emitter(Emitter):
         xvalue = self.svalue(value)
         return f'pyxhdl.{dtype.name}_ifexp({xvalue}, {one}, {zero})'
 
-    xvalue = self.svalue(value)
-    return f'to_{itype}({xvalue}, {dtype.nbits})'
+    value = self._literal_bits(value, dtype)
+
+    return (f'to_{itype}({value}, {dtype.nbits})' if dtype.nbits != 1
+            else f'\'{value}\'')
 
   def _to_uint(self, value, dtype):
     return self._to_int(value, dtype, 'unsigned')
@@ -222,22 +240,10 @@ class VHDL_Emitter(Emitter):
       else:
         fatal(f'Unable to convert to {dtype}: {value.dtype}')
 
-    if dtype.nbits == 1:
-      return f'\'{value[-1]}\'' if isinstance(value, str) else f'\'{value}\''
+    value = self._literal_bits(value, dtype)
 
-    if isinstance(value, str):
-      if value.startswith('0b'):
-        value = value[2: ]
-      if dtype.nbits > len(value):
-        bvalue = ('0' * (dtype.nbits - len(value))) + value
-      else:
-        bvalue = value[-dtype.nbits: ]
-
-      return f'"{bvalue.upper()}"'
-    elif isinstance(value, int) and abs(value) >= 2**31:
-      return f'"{self._int2bits(value, dtype.nbits)}"'
-
-    return f'std_logic_vector(to_unsigned({value}, {dtype.nbits}))'
+    return (f'std_logic_vector(to_unsigned({value}, {dtype.nbits}))'
+            if dtype.nbits != 1 else f'\'{value}\'')
 
   def _to_float(self, value, dtype):
     fspec = self.float_spec(dtype)

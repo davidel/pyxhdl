@@ -232,12 +232,12 @@ library work;
 use work.all;
 
 -- Entity "HdlForEnt" is "HdlForEnt" with:
--- 	args={'A': 'bits(8)', 'B': 'bits(8)', 'XOUT': 'bits(8)'}
+-- 	args={'A': 'uint(8)', 'B': 'uint(8)', 'XOUT': 'bits(8)'}
 -- 	kwargs={}
 entity HdlForEnt is
   port (
-    A : in std_logic_vector(7 downto 0);
-    B : in std_logic_vector(7 downto 0);
+    A : in unsigned(7 downto 0);
+    B : in unsigned(7 downto 0);
     XOUT : out std_logic_vector(7 downto 0)
   );
 end entity;
@@ -252,7 +252,7 @@ library work;
 use work.all;
 
 -- Entity "HdlForEnt" is "HdlForEnt" with:
--- 	args={'A': 'bits(8)', 'B': 'bits(8)', 'XOUT': 'bits(8)'}
+-- 	args={'A': 'uint(8)', 'B': 'uint(8)', 'XOUT': 'bits(8)'}
 -- 	kwargs={}
 architecture behavior of HdlForEnt is
 begin

@@ -38,7 +38,7 @@ endpackage
 
 
 // Entity "HdlForEnt" is "HdlForEnt" with:
-// 	args={'A': 'bits(8)', 'B': 'bits(8)', 'XOUT': 'bits(8)'}
+// 	args={'A': 'uint(8)', 'B': 'uint(8)', 'XOUT': 'bits(8)'}
 // 	kwargs={}
 module HdlForEnt(A, B, XOUT);
   input logic [7: 0] A;

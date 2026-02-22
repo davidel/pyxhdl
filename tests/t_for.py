@@ -95,8 +95,8 @@ class TestFor(unittest.TestCase):
 
   def test_hdl_for(self):
     inputs = dict(
-      A=X.mkwire(X.Bits(8)),
-      B=X.mkwire(X.Bits(8)),
+      A=X.mkwire(X.UINT8),
+      B=X.mkwire(X.UINT8),
       XOUT=X.mkwire(X.Bits(8)),
     )
 
