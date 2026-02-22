@@ -80,6 +80,7 @@ _IFEXP_TYPE_PREC = {
 _CTYPES_ALLOWED = {
   float: 1,
   int: 2,
+  str: 3,
 }
 
 _FLOAT_SPECS = {
@@ -536,7 +537,8 @@ class Emitter:
         ytype = type(arg)
         yind = ctype_allowed.get(ytype, -1)
         if yind < 0:
-          fatal(f'Type {ytype} not allowed, should be one of {ctype_allowed.keys()}')
+          fatal(f'Type {ytype} not allowed, should be one of ' \
+                f'{tuple(pyiu.cname(t) for t in ctype_allowed.keys())}')
         if ctype is None or ctype_allowed[ctype] > yind:
           ctype = ytype
 

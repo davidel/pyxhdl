@@ -38,7 +38,7 @@ endpackage
 
 
 // Entity "HdlForEnt" is "HdlForEnt" with:
-// 	args={'A': 'uint(8)', 'B': 'uint(8)', 'XOUT': 'uint(8)'}
+// 	args={'A': 'bits(8)', 'B': 'bits(8)', 'XOUT': 'bits(8)'}
 // 	kwargs={}
 module HdlForEnt(A, B, XOUT);
   input logic [7: 0] A;
@@ -46,8 +46,12 @@ module HdlForEnt(A, B, XOUT);
   output logic [7: 0] XOUT;
   always @(A or B)
   run : begin
+    XOUT = 8'(0);
     for (int i = 0; i <= 7; i += 1) begin
       XOUT[i] = A[i] ^ B[i];
+      if (A[i] == 1'(1)) begin
+        break;
+      end
     end
   end
 endmodule

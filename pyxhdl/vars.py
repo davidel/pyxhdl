@@ -147,15 +147,18 @@ class Value(ValueBase):
     return (self.dtype == other.dtype and self._value == other._value and
             self.isreg == other.isreg)
 
-  def new_value(self, value, shape=None, keepref=False):
-    dtype = self.dtype.new_shape(*shape) if shape is not None else self.dtype
+  def new_value(self, value, shape=None, dtype=None, keepref=False):
+    if dtype is None:
+      vdtype = self.dtype.new_shape(*shape) if shape is not None else self.dtype
+    else:
+      vdtype = dtype if shape is None else dtype.new_shape(shape)
 
     if keepref and not isinstance(value, Ref):
       ref = self.ref
       if ref is not None:
         value = ref.new_name(value)
 
-    return pycu.new_with(self, _value=value, dtype=dtype)
+    return pycu.new_with(self, _value=value, dtype=vdtype)
 
   def new_isreg(self, isreg):
     return pycu.new_with(self, isreg=isreg)

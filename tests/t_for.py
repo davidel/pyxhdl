@@ -62,8 +62,11 @@ class HdlForEnt(X.Entity):
   @X.hdl_process(sens='A, B')
   def run():
     with XL.loop_mode_hdl():
+      XOUT = 0
       for i in range(A.dtype.nbits):
         XOUT[i] = A[i] ^ B[i]
+        if A[i] == 1:
+          break
 
 
 class TestFor(unittest.TestCase):
@@ -92,9 +95,9 @@ class TestFor(unittest.TestCase):
 
   def test_hdl_for(self):
     inputs = dict(
-      A=X.mkwire(X.UINT8),
-      B=X.mkwire(X.UINT8),
-      XOUT=X.mkwire(X.UINT8),
+      A=X.mkwire(X.Bits(8)),
+      B=X.mkwire(X.Bits(8)),
+      XOUT=X.mkwire(X.Bits(8)),
     )
 
     tu.run(self, tu.test_name(self, pyu.fname()), HdlForEnt, inputs)

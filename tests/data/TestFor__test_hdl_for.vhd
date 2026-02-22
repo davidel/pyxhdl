@@ -232,13 +232,13 @@ library work;
 use work.all;
 
 -- Entity "HdlForEnt" is "HdlForEnt" with:
--- 	args={'A': 'uint(8)', 'B': 'uint(8)', 'XOUT': 'uint(8)'}
+-- 	args={'A': 'bits(8)', 'B': 'bits(8)', 'XOUT': 'bits(8)'}
 -- 	kwargs={}
 entity HdlForEnt is
   port (
-    A : in unsigned(7 downto 0);
-    B : in unsigned(7 downto 0);
-    XOUT : out unsigned(7 downto 0)
+    A : in std_logic_vector(7 downto 0);
+    B : in std_logic_vector(7 downto 0);
+    XOUT : out std_logic_vector(7 downto 0)
   );
 end entity;
 library ieee;
@@ -252,14 +252,18 @@ library work;
 use work.all;
 
 -- Entity "HdlForEnt" is "HdlForEnt" with:
--- 	args={'A': 'uint(8)', 'B': 'uint(8)', 'XOUT': 'uint(8)'}
+-- 	args={'A': 'bits(8)', 'B': 'bits(8)', 'XOUT': 'bits(8)'}
 -- 	kwargs={}
 architecture behavior of HdlForEnt is
 begin
   run : process (A, B)
   begin
+    XOUT <= std_logic_vector(to_unsigned(0, 8));
     for i in 0 to 7 loop
       XOUT(i) <= A(i) xor B(i);
+      if A(i) = '1' then
+        exit;
+      end if;
     end loop;
   end process;
 end architecture;
