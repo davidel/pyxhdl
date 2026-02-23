@@ -23,13 +23,6 @@ from .wrap import *
 
 _LOGIC_REMAP = dict(zip('01XUZWHL', '01xxzx10'))
 
-# Describe which Python types can be fed directly to Verilog operators on the
-# types in the dictionary values set.
-_ARITH_CTYPE_NOCAST = {
-  int: {Uint, Sint, Real, Integer},
-  float: {Real},
-}
-
 _OPSYMS = {
   ast.Add: OpSym('+'),
   ast.Sub: OpSym('-'),
@@ -800,10 +793,20 @@ class Verilog_Emitter(Emitter):
     else:
       return self._build_op(op, left, right)
 
+  def _arith_ctype_cast(self, arg, dtype):
+    if isinstance(arg, int):
+      if abs(arg) >= 2**31 or type(dtype) not in {Uint, Sint, Real, Integer}:
+        return Value(dtype, self._cast(arg, dtype))
+    elif isinstance(arg, float):
+      if type(dtype) not in {Real}:
+        return Value(dtype, self._cast(arg, dtype))
+
+    return Value(dtype, dtype.ctype(arg))
+
   def eval_BinOp(self, op, left, right):
     if isinstance(op, (ast.Add, ast.Sub, ast.Mult, ast.Div, ast.Mod)):
       left, right = self._marshal_arith_op([left, right],
-                                           ctype_nocast=_ARITH_CTYPE_NOCAST)
+                                           ctype_cast=self._arith_ctype_cast)
       xleft, xright = self.svalue(left), self.svalue(right)
 
       alog.debug(lambda: f'\tBinOp: {xleft}\t{pyiu.cname(op)}\t{xright}')

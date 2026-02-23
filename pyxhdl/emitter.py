@@ -456,9 +456,9 @@ class Emitter:
 
     return dtype
 
-  def _marshal_arith_op(self, args, ctype_allowed=None, ctype_nocast=None):
+  def _marshal_arith_op(self, args, ctype_allowed=None, ctype_cast=None):
     return self._gen_marshal(args, _ARITH_TYPE_PREC, ctype_allowed or _CTYPES_ALLOWED,
-                             ctype_nocast=ctype_nocast)
+                             ctype_cast=ctype_cast)
 
   def _marshal_concat_op(self, args):
     dtype, margs, nbits = None, [], 0
@@ -519,15 +519,15 @@ class Emitter:
 
     return left, right
 
-  def _marshal_compare_op(self, args, ctype_allowed=None, ctype_nocast=None):
+  def _marshal_compare_op(self, args, ctype_allowed=None, ctype_cast=None):
     return self._gen_marshal(args, _COMPARE_TYPE_PREC, ctype_allowed or _CTYPES_ALLOWED,
-                             ctype_nocast=ctype_nocast)
+                             ctype_cast=ctype_cast)
 
-  def _marshal_ifexp_op(self, args, ctype_allowed=None, ctype_nocast=None):
+  def _marshal_ifexp_op(self, args, ctype_allowed=None, ctype_cast=None):
     return self._gen_marshal(args, _IFEXP_TYPE_PREC, ctype_allowed or _CTYPES_ALLOWED,
-                             ctype_nocast=ctype_nocast)
+                             ctype_cast=ctype_cast)
 
-  def _gen_marshal(self, args, type_prec, ctype_allowed, ctype_nocast=None):
+  def _gen_marshal(self, args, type_prec, ctype_allowed, ctype_cast=None):
     cargs, dtype, ctype = [], None, None
     for arg in args:
       if not isinstance(arg, Value):
@@ -557,15 +557,14 @@ class Emitter:
       if isinstance(arg, Value):
         if dtype != arg.dtype:
           cargs[i] = Value(dtype, self._cast(arg, dtype))
-      elif self._is_nocast(arg, dtype, ctype_nocast):
-        cargs[i] = Value(dtype, dtype.ctype(arg))
       else:
-        cargs[i] = Value(dtype, self._cast(arg, dtype))
+        cargs[i] = self._arg_cast(arg, dtype, ctype_cast)
 
     return cargs
 
-  def _is_nocast(self, arg, dtype, ctype_nocast):
-    return type(dtype) in ctype_nocast.get(type(arg), {}) if ctype_nocast else False
+  def _arg_cast(self, arg, dtype, ctype_cast):
+    return (Value(dtype, self._cast(arg, dtype)) if ctype_cast is None else
+            ctype_cast(arg, dtype))
 
   def _cfg_lookup(self, k, defval=None):
     v = pyu.dict_rget(self._cfg, f'env/{k}')
