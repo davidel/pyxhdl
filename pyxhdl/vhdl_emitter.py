@@ -160,8 +160,6 @@ class VHDL_Emitter(Emitter):
     elif isinstance(value, int) and abs(value) >= 2**31:
       return self._int2bits(value, dtype.nbits)
 
-    return self.svalue(value)
-
   def _to_int(self, value, dtype, itype):
     if isinstance(value, Value):
       if isinstance(value.dtype, (Uint, Sint)):
@@ -181,10 +179,12 @@ class VHDL_Emitter(Emitter):
         xvalue = self.svalue(value)
         return f'pyxhdl.{dtype.name}_ifexp({xvalue}, {one}, {zero})'
 
-    value = self._literal_bits(value, dtype)
+    if bvalue := self._literal_bits(value, dtype):
+      return (f'to_{itype}("{bvalue}", {dtype.nbits})' if dtype.nbits != 1
+              else f'\'{bvalue}\'')
 
-    return (f'to_{itype}({value}, {dtype.nbits})' if dtype.nbits != 1
-            else f'\'{value}\'')
+    return (f'to_{itype}({self.svalue(value)}, {dtype.nbits})' if dtype.nbits != 1
+            else f'\'{self.svalue(value)}\'')
 
   def _to_uint(self, value, dtype):
     return self._to_int(value, dtype, 'unsigned')
@@ -239,10 +239,11 @@ class VHDL_Emitter(Emitter):
       else:
         fatal(f'Unable to convert to {dtype}: {value.dtype}')
 
-    value = self._literal_bits(value, dtype)
+    if bvalue := self._literal_bits(value, dtype):
+      return f'"{bvalue}"' if dtype.nbits != 1 else f'\'{bvalue}\''
 
-    return (f'std_logic_vector(to_unsigned({value}, {dtype.nbits}))'
-            if dtype.nbits != 1 else f'\'{value}\'')
+    return (f'std_logic_vector(to_unsigned({self.svalue(value)}, {dtype.nbits}))'
+            if dtype.nbits != 1 else f'\'{self.svalue(value)}\'')
 
   def _to_float(self, value, dtype):
     fspec = self.float_spec(dtype)
