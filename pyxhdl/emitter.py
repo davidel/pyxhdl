@@ -401,7 +401,7 @@ class Emitter:
     return dtype_from_string(os.getenv('FLOAT_TYPE', 'f32'))
 
   def _match_intstring(self, value):
-    dtype, ivalue = None, None
+    dtype = ivalue = None
     # u16`1234 -> dtype=Uint(16), ivalue=1234
     m = re.match(r'([us])(\d+)`(.*)$', value)
     if m:
