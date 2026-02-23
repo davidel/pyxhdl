@@ -180,7 +180,7 @@ class VHDL_Emitter(Emitter):
         return f'pyxhdl.{dtype.name}_ifexp({xvalue}, {one}, {zero})'
 
     if bvalue := self._literal_bits(value, dtype):
-      return (f'to_{itype}("{bvalue}", {dtype.nbits})' if dtype.nbits != 1
+      return (f'pyxhdl.cvt_{itype}("{bvalue}", {dtype.nbits})' if dtype.nbits != 1
               else f'\'{bvalue}\'')
 
     return (f'to_{itype}({self.svalue(value)}, {dtype.nbits})' if dtype.nbits != 1
