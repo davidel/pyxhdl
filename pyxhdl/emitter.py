@@ -558,13 +558,10 @@ class Emitter:
         if dtype != arg.dtype:
           cargs[i] = Value(dtype, self._cast(arg, dtype))
       else:
-        cargs[i] = self._arg_cast(arg, dtype, ctype_cast)
+        cargs[i] = (Value(dtype, self._cast(arg, dtype)) if ctype_cast is None else
+                    ctype_cast(arg, dtype))
 
     return cargs
-
-  def _arg_cast(self, arg, dtype, ctype_cast):
-    return (Value(dtype, self._cast(arg, dtype)) if ctype_cast is None else
-            ctype_cast(arg, dtype))
 
   def _cfg_lookup(self, k, defval=None):
     v = pyu.dict_rget(self._cfg, f'env/{k}')
