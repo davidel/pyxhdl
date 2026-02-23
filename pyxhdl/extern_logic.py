@@ -47,9 +47,7 @@ class ExternModule:
 
     name_remap = mdata.get('name_remap')
 
-    for fname in mdata.get('functions', []):
-      fdata = mdata['functions'][fname]
-
+    for fname, fdata in mdata.get('functions', dict()).items():
       xlogic = pycu.obj_from_dict(ExternLogic, fdata)
       if not xlogic.name_remap and name_remap:
         xlogic.name_remap = name_remap
