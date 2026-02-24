@@ -94,18 +94,12 @@ class Interface(_InterfaceBase):
       self.create_fields(fstr)
 
   def _mkvalue(self, name, value, init=None):
-    if isinstance(value, Type):
-      if init is not None:
-        return mkvreg(value, init, name=name)
-      else:
-        return mkreg(value, name=name)
-    elif isinstance(value, str):
-      if init is not None:
-        return mkvreg(dtype_from_string(value), init, name=name)
-      else:
-        return mkreg(dtype_from_string(value), name=name)
+    dtype = dtype_from_string(value) if isinstance(value, str) else value
+
+    if init is not None:
+      return mkvreg(dtype, init, name=name)
     else:
-      fatal(f'Invalid interface value: {value}')
+      return mkreg(dtype, name=name)
 
   def mkfield(self, name, value, init=None):
     if isinstance(value, Value):
