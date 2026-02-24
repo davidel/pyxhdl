@@ -29,7 +29,7 @@ class _InterfaceBase:
     return getattr(self, 'origin_ifc', self)
 
   def __hash__(self):
-    hargs = tuple((getattr(self, name) for name in self.args))
+    hargs = tuple(getattr(self, name) for name in self.args)
     hfields = tuple((name, getattr(self, name).dtype) for name in
                     sorted(self.fields.keys()))
 
