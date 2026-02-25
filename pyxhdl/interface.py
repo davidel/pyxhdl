@@ -93,13 +93,13 @@ class Interface(_InterfaceBase):
     if fstr := getattr(self, 'FIELDS', None):
       self.create_fields(fstr)
 
-  def _mkvalue(self, name, value, init=None):
-    dtype = dtype_from_string(value) if isinstance(value, str) else value
+  def _mkvalue(self, name, dtype, init=None):
+    vtype = dtype_from_string(dtype) if isinstance(dtype, str) else dtype
 
     if init is not None:
-      return mkvreg(dtype, init, name=name)
+      return mkvreg(vtype, init, name=name)
     else:
-      return mkreg(dtype, name=name)
+      return mkreg(vtype, name=name)
 
   def mkfield(self, name, value, init=None):
     if isinstance(value, Value):
