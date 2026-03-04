@@ -508,7 +508,7 @@ class _ExecVisitor(ast.NodeVisitor):
 
     func_body = self._get_function_body(pyiu.func_name(func), func_node)
 
-    frame = _Frame(get_obj_globals(func),
+    frame = _Frame(get_obj_globals(func, defval=dict()),
                    func_locals,
                    _SourceLocation(fninfo.filename, fninfo.lineno))
     with self._frame(frame):
