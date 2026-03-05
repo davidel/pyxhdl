@@ -33,13 +33,69 @@ wihtout explicit parametrization.
 The function calls, and the modules/entities instantiations automatically capture the
 call/instantiation site types, similarly to what C++ template programming allows.
 
-Even though user HDL code in Python can use loops and functions, everything will be unrolled
-in the final VHDL/Verilog code (this is what the synthesis will do anyway, since there are
-no loops or function calls in HW).
+Even though user HDL code in Python can use loops and functions, by default everything
+will be unrolled in the final VHDL/Verilog code (this is what the synthesis will do anyway,
+since there are no loops or function calls in HW).
 
-*PyXHDL* does not try to map Python loops to VHDL/Verilog ones, as those are too limited
-when compared to the power of the Python ones, but instead unrolls them like the OEM HDL
-compiler will.
+*PyXHDL* also supports mapping *FOR* loops to HDL ones (assuming a contiguous range of
+integer indices), by using the proper context manager:
+
+```Python
+class HdlForEnt(X.Entity):
+
+  PORTS = 'A, B, =XOUT'
+
+  @X.hdl_process(sens='A, B')
+  def run():
+    with XL.loop_mode_hdl():
+      XOUT = 0
+      for i in range(A.dtype.nbits):
+        XOUT[i] = A[i] ^ B[i]
+        if A[i] == 1:
+          break
+```
+
+This will generate for following Verilog code:
+
+```Verilog
+module HdlForEnt(A, B, XOUT);
+  input logic [7: 0] A;
+  input logic [7: 0] B;
+  output logic [7: 0] XOUT;
+  always @(A or B)
+  run : begin
+    XOUT = 8'(0);
+    for (int i = 0; i <= 7; i += 1) begin
+      XOUT[i] = A[i] ^ B[i];
+      if (A[i] == 1'(1)) begin
+        break;
+      end
+    end
+  end
+endmodule
+```
+
+And the following VHDL code:
+
+```VHDL
+architecture behavior of HdlForEnt is
+begin
+  run : process (A, B)
+  begin
+    XOUT <= std_logic_vector(to_unsigned(0, 8));
+    for i in 0 to 7 loop
+      XOUT(i) <= A(i) xor B(i);
+      if A(i) = '1' then
+        exit;
+      end if;
+    end loop;
+  end process;
+end architecture;
+```
+
+Mapping directly the HDL loops can be useful in certain designs (ie, priority encoders)
+where only having access to unrolled loops would require manual handling of the result
+propagation.
 
 The workflow with *PyXHDL* is not meant as to generate code to be manually edited, but
 to be directly fed into OEM HDL synthesis (and testing, when using the *testbench* code
