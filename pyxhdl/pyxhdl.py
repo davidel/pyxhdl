@@ -1133,7 +1133,7 @@ class CodeGen(_ExecVisitor):
       for p, arg in zip(node.args.args, args):
         func_locals[p.arg] = arg
 
-      func_locals.update(**kwargs)
+      func_locals.update(kwargs)
 
       with self._frame(self.frame.new_locals(func_locals)):
         result = self.eval_node(node.body)
