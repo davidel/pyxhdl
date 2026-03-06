@@ -104,16 +104,6 @@ def set_function_info(func, filename, lineno, source):
   setattr(func, _FN_INFO, _FuncInfo(filename=filename, lineno=lineno, source=source))
 
 
-def needs_self(func):
-  sig = inspect.signature(func)
-  if sig.parameters:
-    name, param = next(iter(sig.parameters.items()))
-
-    return name == 'self'
-
-  return False
-
-
 def flat2shape(parts, shape, opar, cpar):
   sparts = parts
   for dim in reversed(shape):

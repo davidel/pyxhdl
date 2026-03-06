@@ -1,4 +1,5 @@
 import collections
+import inspect
 
 import py_misc_utils.inspect_utils as pyiu
 import py_misc_utils.utils as pyu
@@ -76,7 +77,7 @@ class Entity(_CoreEntity):
   def enum_processes(self):
     for name, func in self.__class__.__dict__.items():
       if is_hdl_function(func):
-        if needs_self(func):
+        if inspect.ismethod(func):
           func = getattr(self, name)
 
         yield func
