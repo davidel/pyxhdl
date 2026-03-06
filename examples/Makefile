@@ -2,15 +2,20 @@
 WORKDIR ?= /tmp
 SRCDIR ?= $(dir $(realpath $(lastword ${MAKEFILE_LIST})))
 LOG_LEVEL ?= INFO
-MM_DIM_SIZE ?= 32
-MM_TILE_SIZE ?= 8
-MM_NSAMPLES ?= 4
+
+# Keep the matmul dimension, tile size and number of samples low, as Verilator
+# gets really slow otherwise compiling the testbench. GHDL seems fine though
+# even with higher values.
+MM_DIM_SIZE ?= 16
+MM_TILE_SIZE ?= 4
+MM_NSAMPLES ?= 1
+MM_DTYPE ?= REAL
 MM_CLK ?= 10ns
-MM_TOLL ?= 0.01
-MM_DTYPE ?= FLOAT16
+MM_TOLL ?= 1e-3
 MM_DATA_FILE = ${WORKDIR}/matmul_data.yaml
 MM_VHDL_FILE = ${WORKDIR}/matmul.vhd
 MM_SVL_FILE = ${WORKDIR}/matmul.sv
+
 VERILATOR_BINDIR ?= ${WORKDIR}/vobj
 VERILATOR_OUTSPLIT ?= 1000
 VERILATOR_OPT ?= -O0
