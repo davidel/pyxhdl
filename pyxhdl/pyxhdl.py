@@ -101,10 +101,9 @@ class _HdlChecker(ast.NodeVisitor):
 
   HDL_TYPES = (Value, Interface, InterfaceView)
 
-  def __init__(self, globs, locs, hdl_required=('Yield', 'YieldFrom')):
+  def __init__(self, vloader, hdl_required=('Yield', 'YieldFrom')):
     super().__init__()
-    self._globs = globs
-    self._locs = locs
+    self._vloader = vloader
     self._scope = 0
     self._stack = []
     self.count = 0
@@ -153,7 +152,7 @@ class _HdlChecker(ast.NodeVisitor):
         self._push_value(avalue)
 
   def visit_Name(self, node):
-    value = vload(node.id, self._globs, self._locs)
+    value = self._vloader(node.id)
     self._push_value(value)
 
   def visit_Call(self, node):
@@ -572,12 +571,6 @@ class _ExecVisitor(ast.NodeVisitor):
 
     return self._call_direct(func, args, kwargs)
 
-  def _is_hdl_tree(self, node):
-    checker = _HdlChecker(self.globals, self.locals)
-    checker.visit(node)
-
-    return checker.count > 0
-
 
 class CodeGen(_ExecVisitor):
 
@@ -603,6 +596,15 @@ class CodeGen(_ExecVisitor):
     self.visit_Try = functools.partial(self._hdl_visitor, 'Try')
     self.visit_With = functools.partial(self._hdl_visitor, 'With')
     self.visit_Call = functools.partial(self._hdl_visitor, 'Call', pushres=True)
+
+  def _is_hdl_tree(self, node):
+    def vloader(name):
+      return self.load_var(name, ctx=ast.Store())
+
+    checker = _HdlChecker(vloader)
+    checker.visit(node)
+
+    return checker.count > 0
 
   def _hdl_visitor(self, name, node, pushres=False):
     if self.frame.in_hdl > 0 or self._is_hdl_tree(node):

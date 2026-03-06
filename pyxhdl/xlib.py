@@ -117,8 +117,7 @@ def xeval(code, **args):
 
   filename, lineno = pyiu.parent_coords()
 
-  with ctx.force_hdl():
-    return ctx.run_code(code, args, 'eval', filename=filename, lineno=lineno)
+  return ctx.run_code(code, args, 'eval', filename=filename, lineno=lineno)
 
 
 def xexec(code, **args):
@@ -126,8 +125,7 @@ def xexec(code, **args):
 
   filename, lineno = pyiu.parent_coords()
 
-  with ctx.force_hdl():
-    ctx.run_code(code, args, 'exec', filename=filename, lineno=lineno)
+  ctx.run_code(code, args, 'exec', filename=filename, lineno=lineno)
 
 
 ## External Functions
