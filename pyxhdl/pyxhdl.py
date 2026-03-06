@@ -661,7 +661,7 @@ class CodeGen(_ExecVisitor):
         var = Value(shvar.dtype, Ref(name, vspec=shvar.vspec, vname=name),
                     isreg=shvar.isreg)
       elif isinstance(ctx, ast.Load):
-        fatal(f'Undefined variable: {name}')
+        fatal(f'Undefined variable: {name}', exc=NameError)
 
     return self.emitter.var_remap(var, isinstance(ctx, ast.Store))
 
