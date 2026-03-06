@@ -116,14 +116,18 @@ def xeval(code, **args):
   ctx = CodeGen.current()
 
   filename, lineno = pyiu.parent_coords()
-  return ctx.run_code(code, args, 'eval', filename=filename, lineno=lineno)
+
+  with ctx.force_hdl():
+    return ctx.run_code(code, args, 'eval', filename=filename, lineno=lineno)
 
 
 def xexec(code, **args):
   ctx = CodeGen.current()
 
   filename, lineno = pyiu.parent_coords()
-  ctx.run_code(code, args, 'exec', filename=filename, lineno=lineno)
+
+  with ctx.force_hdl():
+    ctx.run_code(code, args, 'exec', filename=filename, lineno=lineno)
 
 
 ## External Functions
