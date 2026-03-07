@@ -483,7 +483,7 @@ class _ExecVisitor(ast.NodeVisitor):
         rvalue, _ = self._generate_retval_result(fname, retval.value, 0, tmp_names)
         results.append(rvalue)
 
-    return results[0]
+    return results[-1]
 
   def _run_function_helper(self, func, args, kwargs):
     func_self = getattr(func, '__self__', None)
