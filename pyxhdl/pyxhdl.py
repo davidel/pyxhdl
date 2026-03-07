@@ -817,7 +817,7 @@ class CodeGen(_ExecVisitor):
           alog.debug(lambda: f'ROOT VARIABLE: {valkind(var.isreg)} {var.dtype} {name}')
           emt.emit_declare_variable(name, var)
 
-    self._root_vars.update(**root_vars)
+    self._root_vars.update(root_vars)
 
   def _register_entity(self, eclass, kwargs, generated=False):
     pargs, rkwargs = dict(), kwargs.copy()
