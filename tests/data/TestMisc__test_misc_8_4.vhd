@@ -266,8 +266,8 @@ begin
     variable branchy1 : unsigned(7 downto 0);
     variable branchy_tuple0 : unsigned(7 downto 0);
     variable branchy_tuple1 : unsigned(7 downto 0);
-    variable branchy_tuple2 : unsigned(7 downto 0);
-    variable branchy_tuple3 : unsigned(7 downto 0);
+    variable branchy_tuple4 : unsigned(7 downto 0);
+    variable branchy_tuple5 : unsigned(7 downto 0);
     variable zz : unsigned(7 downto 0);
     variable branchy_dict0 : unsigned(7 downto 0);
     variable branchy_dict1 : unsigned(7 downto 0);
@@ -305,11 +305,11 @@ begin
       branchy_tuple1 := A + resize(B, 8);
     end if;
     if A > resize(B, 8) then
-      branchy_tuple2 := A + resize(B, 8);
-      branchy_tuple3 := A;
+      branchy_tuple4 := A + resize(B, 8);
+      branchy_tuple5 := A;
     else
-      branchy_tuple2 := A - resize(B, 8);
-      branchy_tuple3 := A + resize(B, 8);
+      branchy_tuple4 := A - resize(B, 8);
+      branchy_tuple5 := A + resize(B, 8);
     end if;
     if branchy_tuple0 > branchy_tuple1 then
       branchy_dict0 := branchy_tuple0 + branchy_tuple1;

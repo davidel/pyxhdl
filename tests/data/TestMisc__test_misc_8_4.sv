@@ -55,8 +55,8 @@ module Misc(A, B, C, XOUT1, XOUT2);
     automatic logic [7: 0] branchy1;
     automatic logic [7: 0] branchy_tuple0;
     automatic logic [7: 0] branchy_tuple1;
-    automatic logic [7: 0] branchy_tuple2;
-    automatic logic [7: 0] branchy_tuple3;
+    automatic logic [7: 0] branchy_tuple4;
+    automatic logic [7: 0] branchy_tuple5;
     automatic logic [7: 0] zz;
     automatic logic [7: 0] branchy_dict0;
     automatic logic [7: 0] branchy_dict1;
@@ -93,11 +93,11 @@ module Misc(A, B, C, XOUT1, XOUT2);
       branchy_tuple1 = A + 8'(B);
     end
     if (A > 8'(B)) begin
-      branchy_tuple2 = A + 8'(B);
-      branchy_tuple3 = A;
+      branchy_tuple4 = A + 8'(B);
+      branchy_tuple5 = A;
     end else begin
-      branchy_tuple2 = A - 8'(B);
-      branchy_tuple3 = A + 8'(B);
+      branchy_tuple4 = A - 8'(B);
+      branchy_tuple5 = A + 8'(B);
     end
     if (branchy_tuple0 > branchy_tuple1) begin
       branchy_dict0 = branchy_tuple0 + branchy_tuple1;

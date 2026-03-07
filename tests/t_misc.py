@@ -38,9 +38,9 @@ def compose(a, b):
 @X.hdl
 def branchy_tuple(a, b):
   if a > b:
-    return a + b, a
+    return a + b, a, 17, 3.14
 
-  return a - b, a + b
+  return a - b, a + b, 21, 2.78
 
 
 @X.hdl
@@ -94,7 +94,7 @@ class Misc(X.Entity):
     br = branchy(A, B)
     comp = compose(A, B)
 
-    tbr0, tbr1 = branchy_tuple(A, B)
+    tbr0, tbr1, extra1, extra2 = branchy_tuple(A, B)
     comp0, comp1 = compose_tuple(A, B)
 
     zz = X.mkwire(A.dtype)
