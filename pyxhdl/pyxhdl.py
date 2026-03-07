@@ -505,7 +505,7 @@ class _ExecVisitor(ast.NodeVisitor):
       args = [func_self] + args
 
     kwargs = self._populate_args_locals(sig, args, kwargs, func_locals)
-    func_locals.update(**kwargs)
+    func_locals.update(kwargs)
 
     func_body = self._get_function_body(pyiu.func_name(func), func_node)
 
