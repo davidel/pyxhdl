@@ -10,7 +10,7 @@ import test_utils as tu
 
 @X.hdl
 def tuple_fn(x, y):
-  return x + y, x - y
+  return x + y, x - y, 17
 
 
 @X.hdl
@@ -18,6 +18,7 @@ def dict_fn(x, y):
   d = dict()
   d['q'] = x * y - 1
   d['w'] = x + y * 3
+  d['z'] = 21
 
   return d
 
@@ -38,9 +39,9 @@ def compose(a, b):
 @X.hdl
 def branchy_tuple(a, b):
   if a > b:
-    return a + b, a, 17, 3.14
+    return a + b, a
 
-  return a - b, a + b, 21, 2.78
+  return a - b, a + b
 
 
 @X.hdl
@@ -78,10 +79,14 @@ class Misc(X.Entity):
   @X.hdl_process(sens='A, B, C')
   def run():
     na = nb = br = X.mkwire(A.dtype)
-    nb, na = tuple_fn(A, B)
+    nb, na, extra = tuple_fn(A, B)
+
+    assert extra == 17
 
     dv = dict_fn(na, nb)
     dr = dv['q'] - dv['w']
+
+    assert dv['z'] == 21
 
     sb = XL.cast(na[2], X.BIT)
     if sb == '0bX':

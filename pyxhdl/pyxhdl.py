@@ -451,6 +451,8 @@ class _ExecVisitor(ast.NodeVisitor):
         rdict[k] = rvalue
 
       return rdict, vindex
+    elif not isinstance(value, Value):
+      return value, vindex
 
     if vindex == len(tmp_names):
       rvname = self._revgen.newname(fname)
@@ -461,7 +463,7 @@ class _ExecVisitor(ast.NodeVisitor):
       fatal(f'Value index out of range: {vindex} vs {len(tmp_names)}')
 
     var = self.load_var(rvname, ctx=ast.Store())
-    if var is NONE and isinstance(value, Value):
+    if var is NONE:
       var = self._new_variable(rvname, value)
 
     self._assign_value(var, value, rvname)
