@@ -28,6 +28,13 @@ class _InterfaceBase:
   def origin(self):
     return getattr(self, 'origin_ifc', self)
 
+  def _get_port(self, port_name):
+    ports_spec = getattr(self, port_name, None)
+    if ports_spec is None:
+      fatal(f'Invalid port name: {port_name}')
+
+    return Port.parse_list(ports_spec)
+
   def __hash__(self):
     hargs = tuple(getattr(self, name) for name in self.args)
     hfields = tuple((name, getattr(self, name).dtype) for name in
@@ -131,11 +138,7 @@ class Interface(_InterfaceBase):
     pass
 
   def create_port_view(self, name, port_name):
-    ports_spec = getattr(self, port_name, None)
-    if ports_spec is None:
-      fatal(f'Invalid port name: {port_name}')
-
-    ports = Port.parse_list(ports_spec)
+    ports = self._get_port(port_name)
 
     view = InterfaceView(self, name)
     for pin in ports:
@@ -146,11 +149,8 @@ class Interface(_InterfaceBase):
     return view
 
   def expand_port(self, name, port_name):
-    ports_spec = getattr(self, port_name, None)
-    if ports_spec is None:
-      fatal(f'Invalid port name: {port_name}')
+    ports = self._get_port(port_name)
 
-    ports = Port.parse_list(ports_spec)
     expanded = []
     for pin in ports:
       expanded.append((pycu.new_with(pin, name=subname(name, pin.name)),
