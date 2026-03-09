@@ -82,7 +82,7 @@ class Port:
 
         if not isinstance(arg.origin, pcls):
           fatal(f'Invalid argument of type {pyiu.cname(arg.origin)} ' \
-                'when {ifc_class} is required')
+                f'when {ifc_class} is required')
       else:
         tmatch = TypeMatcher.parse(self.type)
         tmatch.check_value(arg, msg=f' for entity port "{self.name}"')
