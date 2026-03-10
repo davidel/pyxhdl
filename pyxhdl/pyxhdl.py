@@ -363,8 +363,7 @@ class _ExecVisitor(ast.NodeVisitor):
     return results[0] if len(results) == 1 else results if results else _VoidResult()
 
   def _annotated_exception(self, ex):
-    noted = getattr(ex, '_noted', False)
-    if not noted:
+    if not getattr(ex, '_noted', False):
       # Discard the 0-th entry as it is the NOFILE dummy one.
       locs = []
       for f in self._frames[1: ]:
