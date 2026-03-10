@@ -547,9 +547,8 @@ class _ExecVisitor(ast.NodeVisitor):
 
     # We cannot call func(*args, **kwargs) directly as we need to insert the current
     # locals and globals.
-    self.locals.update(__func=func, __args=args, __kwargs=kwargs)
-
-    return eval('__func(*__args, **__kwargs)', self.globals, self.locals)
+    with self._exec_locals(dict(__func=func, __args=args, __kwargs=kwargs)):
+      return eval('__func(*__args, **__kwargs)', self.globals, self.locals)
 
   def _needs_hdl_processing(self, func):
     if is_hdl_function(func):
