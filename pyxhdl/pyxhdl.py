@@ -667,13 +667,12 @@ class CodeGen(_ExecVisitor):
 
   def _new_variable(self, name, value):
     isreg = value.isreg if value.isreg is not None else False
-    base_name = None
 
     vinit = value.init
     if vinit is not None:
       init, vspec, base_name = vinit.value, vinit.vspec, vinit.name
     else:
-      init, vspec = None, None
+      init = vspec = base_name = None
 
       vref = value.ref
       if vref is not None:
