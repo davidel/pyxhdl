@@ -1,7 +1,8 @@
 
+WORKDIR ?= /tmp
 SRCDIR ?= $(dir $(realpath $(lastword ${MAKEFILE_LIST})))
 LOG_LEVEL ?= INFO
-DATA_SOURCE ?= tb_generator.py
+DATA_SOURCE ?= ${SRCDIR}/tb_generator.py
 CLK_FREQ ?= 100000000
 BAUD_RATE ?= 115200
 NUM_TESTS ?= 100
@@ -9,13 +10,16 @@ SOURCES = ${SRCDIR}/uart_echo.py ${DATA_SOURCE}
 
 CLK = $(shell expr 1000000000 / ${CLK_FREQ})ns
 
-TARGETS = uart_tb.vhd uart_tb.sv
+VHDL_TARGET = ${WORKDIR}/uart_tb.vhd
+SV_TARGET = ${WORKDIR}/uart_tb.sv
+
+TARGETS = ${VHDL_TARGET} ${SV_TARGET}
 
 
 all: ${TARGETS}
 
 
-uart_tb.vhd: ${SOURCES}
+${VHDL_TARGET}: ${SOURCES}
 	python -m pyxhdl.generator \
 		--input_file ${SRCDIR}/uart_echo.py \
 		--entity UartEcho \
@@ -28,9 +32,9 @@ uart_tb.vhd: ${SOURCES}
 		--tb_clock CLK,${CLK} \
 		--tb_input_file ${DATA_SOURCE} \
 		--log_level ${LOG_LEVEL} \
-		--output_file uart_tb.vhd
+		--output_file ${VHDL_TARGET}
 
-uart_tb.sv: ${SOURCES}
+${SV_TARGET}: ${SOURCES}
 	python -m pyxhdl.generator \
 		--input_file ${SRCDIR}/uart_echo.py \
 		--entity UartEcho \
@@ -43,7 +47,7 @@ uart_tb.sv: ${SOURCES}
 		--tb_clock CLK,${CLK} \
 		--tb_input_file ${DATA_SOURCE} \
 		--log_level ${LOG_LEVEL} \
-		--output_file uart_tb.sv
+		--output_file ${SV_TARGET}
 
 clean:
 	rm -f ${TARGETS}
