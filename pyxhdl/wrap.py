@@ -1,6 +1,8 @@
 # Cannot depend of local modules!
 import numpy as np
 
+import py_misc_utils.np_utils as pyn
+
 
 class Wrapper:
   pass
@@ -19,8 +21,7 @@ class _NumpyWrapper(Wrapper):
     return str(self.value.tolist())
 
   def __hash__(self):
-    return hash((str(self.value.dtype), tuple(self.value.shape), self.value.tobytes()))
-
+    return pyn.hasher(self.value)
 
 
 def unwrap(value):

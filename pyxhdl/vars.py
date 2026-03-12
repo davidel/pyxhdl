@@ -23,7 +23,7 @@ class VSpec:
     return f'{pyiu.cname(self)}({rfmt})'
 
   def __hash__(self):
-    return hash((self.const, self.port, self.attributes))
+    return pycu.genhash((self.const, self.port, self.attributes))
 
   def __eq__(self, other):
     return (self.const == other.const and self.port == other.port and

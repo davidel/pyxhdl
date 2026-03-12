@@ -17,7 +17,7 @@ class Type:
 
   def __init__(self, name, shape, ctype):
     self.name = name
-    self.full_shape = tuple(shape[:])
+    self.full_shape = tuple(shape)
     self.ctype = ctype
 
   @property
