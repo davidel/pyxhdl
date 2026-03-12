@@ -217,6 +217,21 @@ def is_ro_ref(v):
   return vref is not None and vref.mode == Ref.RO
 
 
+def minor_mode(cur_mode, new_mode):
+  match cur_mode:
+    case Ref.RO:
+      return cur_mode
+
+    case Ref.WO:
+      return new_mode if new_mode == Ref.RO else cur_mode
+
+    case Ref.RW:
+      return new_mode
+
+    case _:
+      fatal(f'Unknow mode: {cur_mode}')
+
+
 def has_hdl_vars(v):
   if isinstance(v, Value):
     return True

@@ -37,6 +37,20 @@ class Port:
     return (self.name == other.name and self.idir == other.idir and
             self.type == other.type and self.default == other.default)
 
+  def get_mode(self):
+    match self.idir:
+      case self.IN:
+        return Ref.RO
+
+      case self.OUT:
+        return Ref.WO
+
+      case self.INOUT:
+        return Ref.RW
+
+      case _:
+        fatal(f'Unrecognized Port direction: {self.idir}')
+
   def is_ro(self):
     return self.idir == self.IN
 
@@ -125,18 +139,5 @@ class Port:
 
 
 def make_port_ref(pin):
-  match pin.idir:
-    case Port.IN:
-      mode = Ref.RO
-
-    case Port.OUT:
-      mode = Ref.WO
-
-    case Port.INOUT:
-      mode = Ref.RW
-
-    case _:
-      fatal(f'Unrecognized Port direction: {pin.idir}')
-
-  return Ref(pin.name, mode=mode, vspec=VSpec(port=pin), vname=pin.name)
+  return Ref(pin.name, mode=pin.get_mode(), vspec=VSpec(port=pin), vname=pin.name)
 

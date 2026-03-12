@@ -82,7 +82,7 @@ class InterfaceView(_InterfaceBase):
 
     xname = subname(self.name, name)
 
-    vref = vref.new_mode(vref.mode if vref.mode == Ref.RO else mode)
+    vref = vref.new_mode(minor_mode(vref.mode, mode))
     vref = vref.new_name(xname, vname=xname)
 
     xvalue = value.new_value(vref)
@@ -142,9 +142,7 @@ class Interface(_InterfaceBase):
 
     view = InterfaceView(self, name)
     for pin in ports:
-      mode = Ref.RO if pin.idir == Port.IN else Ref.RW
-
-      view.add_field(pin.name, getattr(self, pin.name), mode)
+      view.add_field(pin.name, getattr(self, pin.name), pin.get_mode())
 
     return view
 
