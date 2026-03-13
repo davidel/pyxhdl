@@ -1,4 +1,3 @@
-import inspect
 import re
 import traceback
 
@@ -142,6 +141,12 @@ REAL = Real()
 VOID = Void()
 
 
+def mkarray(base_type, *shape):
+  ashape = shape + base_type.full_shape
+
+  return base_type.new_shape(*ashape)
+
+
 _TYPE_CLASS = dict(s=Sint,
                    u=Uint,
                    b=Bits,
@@ -158,42 +163,42 @@ def has_bits(tclass):
   return tclass in _HAS_BITS
 
 
-def tclass_from_string(tcls):
-  tclass = _TYPE_CLASS.get(tcls)
+def tclass_from_string(tstr):
+  tclass = _TYPE_CLASS.get(tstr)
   if tclass is None:
-    fatal(f'Unknown type class: {tcls}')
+    fatal(f'Unknown type class: {tstr}')
 
   return tclass
 
 
-def dtype_from_string(s):
+def dtype_from_string(dstr):
   # Accepted formats:
   #
   #   u32
   #   real
   #   u16(4, 4)
   #   f32(12)
-  ls = s.lower()
+  ldstr = dstr.lower()
 
-  m = re.match(r'(' + '|'.join(_TYPE_CLASS.keys()) + r')(\d+)', ls)
+  m = re.match(r'(' + '|'.join(_TYPE_CLASS.keys()) + r')(\d+)', ldstr)
   if m:
     dtype = _TYPE_CLASS[m.group(1)](int(m.group(2)))
-    ls = ls[m.end(): ]
+    ldstr = ldstr[m.end(): ]
   else:
-    m = re.match(r'(' + '|'.join(_TYPE_NMAP.keys()) + r')', ls)
+    m = re.match(r'(' + '|'.join(_TYPE_NMAP.keys()) + r')', ldstr)
     if m:
       dtype = _TYPE_NMAP[m.group(1)]
-      ls = ls[m.end(): ]
+      ldstr = ldstr[m.end(): ]
     else:
-      fatal(f'Unknown type string: {ls}')
+      fatal(f'Unknown type string: {dstr}')
 
-  m = re.match(r'\((\d+(,\d+)*)\)$', ls)
+  m = re.match(r'\((\d+(,\d+)*)\)$', ldstr)
   if m:
     shape = tuple(int(x) for x in m.group(1).split(','))
-  elif not ls:
+  elif not ldstr:
     shape = None
   else:
-    fatal(f'Unknown type string: {ls}')
+    fatal(f'Unknown type string: {dstr}')
 
   return mkarray(dtype, *shape) if shape else dtype
 
@@ -262,10 +267,4 @@ class TypeMatcher:
       fatal('\n'.join(xmsgs), exc=ValueError)
 
     return arg
-
-
-def mkarray(base_type, *shape):
-  ashape = shape + base_type.full_shape
-
-  return base_type.new_shape(*ashape)
 
