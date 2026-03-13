@@ -196,24 +196,28 @@ interface fpu;
     logic signed [NR - 1: 0]              m;
     logic signed [NX - 1: 0]              x;
     begin
-      if (v < 0) begin
-        m = -v;
-        sign = 1;
+      if (v == 0) begin
+        from_integer = '0;
       end else begin
-        m = v;
-        sign = 0;
-      end
+        if (v < 0) begin
+          m = -v;
+          sign = 1;
+        end else begin
+          m = v;
+          sign = 0;
+        end
 
-      nclz = from_integer_clz.clz(m);
-      sh = NR - NM - 1 - nclz;
-      if (sh >= 0) begin
-        m = m >> sh;
-      end else begin
-        m = m << (-sh);
-      end
-      x = XOFF + NM + sh;
+        nclz = from_integer_clz.clz(m);
+        sh = NR - NM - 1 - nclz;
+        if (sh >= 0) begin
+          m = m >> sh;
+        end else begin
+          m = m << (-sh);
+        end
+        x = XOFF + NM + sh;
 
-      from_integer = {sign, x, m[NM - 1: 0]};
+        from_integer = {sign, x, m[NM - 1: 0]};
+      end
     end
   endfunction
 
