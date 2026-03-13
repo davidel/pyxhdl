@@ -400,9 +400,12 @@ class Emitter:
     if any(b not in '01XZ' for b in evalue):
       fatal(f'Invalid bit string: {value}')
 
-    if nbits > len(evalue):
-      return ('0' * (nbits - len(evalue))) + evalue
+    pad = nbits - len(evalue)
+    if pad >= 0:
+      return ('0' * pad) + evalue
     else:
+      alog.warning(f'Dropping the high {-pad} bits from "{evalue}"')
+
       return evalue[-nbits: ]
 
   def _paren_join(self, joiner, args):
