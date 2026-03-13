@@ -394,6 +394,17 @@ class Emitter:
 
     return f'{value:0{n}b}'
 
+  def _parse_bits(self, value, nbits):
+    evalue = value[2: ] if value.startswith('0b') else value
+
+    if any(b not in '01XZ' for b in evalue):
+      fatal(f'Invalid bit string: {value}')
+
+    if nbits > len(evalue):
+      return ('0' * (nbits - len(evalue))) + evalue
+    else:
+      return evalue[-nbits: ]
+
   def _paren_join(self, joiner, args):
     return joiner.join(paren(x) for x in args) if len(args) > 1 else args[0]
 

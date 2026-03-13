@@ -250,12 +250,7 @@ class Verilog_Emitter(Emitter):
         fatal(f'Unable to convert to {dtype}: {value.dtype}')
 
     if isinstance(value, str):
-      if value.startswith('0b'):
-        value = value[2: ]
-      if dtype.nbits > len(value):
-        bvalue = ('0' * (dtype.nbits - len(value))) + value
-      else:
-        bvalue = value[-dtype.nbits: ]
+      bvalue = self._parse_bits(value, dtype.nbits)
 
       return f'{len(bvalue)}\'b{bvalue.lower()}'
     elif isinstance(value, int) and abs(value) >= 2**31:
