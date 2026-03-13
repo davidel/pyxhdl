@@ -185,7 +185,7 @@ def dtype_from_string(s):
       dtype = _TYPE_NMAP[m.group(1)]
       ls = ls[m.end(): ]
     else:
-      fatal(f'Unknown type string: {s}')
+      fatal(f'Unknown type string: {ls}')
 
   m = re.match(r'\((\d+(,\d+)*)\)$', ls)
   if m:
@@ -193,7 +193,7 @@ def dtype_from_string(s):
   elif not ls:
     shape = None
   else:
-    fatal(f'Unknown type string: {s}')
+    fatal(f'Unknown type string: {ls}')
 
   return mkarray(dtype, *shape) if shape else dtype
 
