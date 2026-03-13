@@ -37,9 +37,10 @@ class Ref:
 
   __slots__ = ('name', 'mode', 'vspec', 'cname', 'vname')
 
-  RW = 'RW'
   RO = 'RO'
   WO = 'WO'
+  RW = 'RW'
+  MODES = {RO, WO, RW}
 
   def __init__(self, name, mode=None, vspec=None, cname=None, vname=None):
     self.name = name
@@ -52,6 +53,8 @@ class Ref:
   def _mode(cls, mode, vspec):
     if mode is None:
       mode = cls.RW if vspec is None or not vspec.const else cls.RO
+    elif mode not in cls.MODES:
+      fatal(f'Unknow mode: {mode}')
 
     return mode
 
