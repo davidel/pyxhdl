@@ -283,7 +283,7 @@ begin
     na := A - B;
     if na(2) = 'X' then
       na := na + nb;
-    elsif na(2) = 'U' then
+    elsif na(2) = '1' then
       na := na - nb;
     end if;
     if A > B then

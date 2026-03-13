@@ -55,7 +55,7 @@ module StateMachine(CLK, RST_N, BITLINE, RDEN, RDATA);
       state <= 3'(0);
       count <= 4'(0);
       RDEN <= 1'(0);
-      RDATA <= 8'(1'bx);
+      RDATA <= 8'(1'bX);
     end else begin
       case (state)
         3'(0): begin

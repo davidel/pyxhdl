@@ -91,7 +91,7 @@ class Misc(X.Entity):
     sb = XL.cast(na[2], X.BIT)
     if sb == '0bX':
       na = na + nb
-    elif sb == '0bU':
+    elif sb == '0b1':
       na = na - nb
 
     # This is broken ATM because of RETURN handling within HDL dependent IF

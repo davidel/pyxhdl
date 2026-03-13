@@ -250,11 +250,11 @@ def has_hdl_vars(v):
   return False
 
 
-def bitstring(value, remap=None) -> Value:
+def bitstring(value) -> Value:
   # 0b0010 -> dtype=Bits(4), value="0010"
-  m = re.match(r'0b([01XUZWHL]+)$', value)
+  m = re.match(r'0b([01XZ]+)$', value)
   if m:
-    bstr = ''.join(remap(x) for x in m.group(1)) if remap is not None else m.group(1)
+    bstr = m.group(1)
 
     return Value(Bits(len(bstr)), bstr)
 

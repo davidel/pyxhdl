@@ -60,7 +60,7 @@ module Misc(A, B, C, XOUT1, XOUT2);
     automatic logic [7: 0] zz;
     automatic logic [7: 0] branchy_dict0;
     automatic logic [7: 0] branchy_dict1;
-    automatic logic [7: 0] rbits = 8'b1101x0x0;
+    automatic logic [7: 0] rbits = 8'b1101X0X0;
     automatic logic [7: 0] tw1;
     automatic logic [7: 0] tw2;
     automatic logic [7: 0] twd1;
@@ -69,9 +69,9 @@ module Misc(A, B, C, XOUT1, XOUT2);
     automatic logic [7: 0] twdecl1;
     nb = A + B;
     na = A - B;
-    if (na[2] == 1'bx) begin
+    if (na[2] == 1'bX) begin
       na = na + nb;
-    end else if (na[2] == 1'bx) begin
+    end else if (na[2] == 1'b1) begin
       na = na - nb;
     end
     if (A > B) begin
@@ -107,7 +107,7 @@ module Misc(A, B, C, XOUT1, XOUT2);
       branchy_dict1 = branchy_tuple0 + branchy_tuple1;
     end
     zz = 8'(branchy_dict0 * branchy_dict1);
-    if (C == 8'b0110x110) begin
+    if (C == 8'b0110X110) begin
     end
     if (C != rbits) begin
     end

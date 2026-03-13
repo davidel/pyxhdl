@@ -21,8 +21,6 @@ from .vars import *
 from .wrap import *
 
 
-_LOGIC_REMAP = dict(zip('01XUZWHL', '01xxzx10'))
-
 _OPSYMS = {
   ast.Add: OpSym('+'),
   ast.Sub: OpSym('-'),
@@ -213,7 +211,7 @@ class Verilog_Emitter(Emitter):
     if value is None:
       return Value(VOID)
     if isinstance(value, str):
-      bvalue = bitstring(value, remap=lambda x: _LOGIC_REMAP[x])
+      bvalue = bitstring(value)
       if bvalue is not None:
         return bvalue.new_value(f'{bvalue.dtype.nbits}\'b{bvalue.value}')
 
@@ -259,9 +257,7 @@ class Verilog_Emitter(Emitter):
       else:
         bvalue = value[-dtype.nbits: ]
 
-      bstr = ''.join(_LOGIC_REMAP[x] for x in bvalue.upper())
-
-      return f'{len(bstr)}\'b{bstr}'
+      return f'{len(bvalue)}\'b{bvalue.lower()}'
     elif isinstance(value, int) and abs(value) >= 2**31:
       return f'{dtype.nbits}\'b{self._int2bits(value, dtype.nbits)}'
 

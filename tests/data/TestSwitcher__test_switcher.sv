@@ -48,8 +48,8 @@ module Switcher(SEL, DIN, SEL_DOUT, SEL_DIN, DOUT);
   output logic [15: 0] DOUT;
   always_comb
   switch : begin
-    SEL_DOUT = '{8{16'bxxxxxxxxxxxxxxxx}};
-    DOUT = 16'bxxxxxxxxxxxxxxxx;
+    SEL_DOUT = '{8{16'bXXXXXXXXXXXXXXXX}};
+    DOUT = 16'bXXXXXXXXXXXXXXXX;
     if (SEL == 3'(0)) begin
       SEL_DOUT[0] = DIN;
       DOUT = SEL_DIN[0];
