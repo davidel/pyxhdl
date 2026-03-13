@@ -238,7 +238,7 @@ def minor_mode(cur_mode, new_mode):
 def has_hdl_vars(v):
   if isinstance(v, Value):
     return True
-  elif isinstance(v, (list, tuple, set)):
+  elif pycu.is_sequence(v):
     for e in v:
       if has_hdl_vars(e):
         return True
