@@ -17,9 +17,9 @@ class _InterfaceBase:
     from . import xlib
 
     self.name = name
-    self.args = tuple(sorted(kwargs.keys()))
-    self.fields = dict()
-    self.xlib = xlib
+    self._args = tuple(sorted(kwargs.keys()))
+    self._fields = dict()
+    self._xlib = xlib
 
     for k, v in kwargs.items():
       setattr(self, k, v)
@@ -36,40 +36,44 @@ class _InterfaceBase:
     return Port.parse_list(ports_spec)
 
   def __hash__(self):
-    hargs = tuple(getattr(self, name) for name in self.args)
+    hargs = tuple(getattr(self, name) for name in self._args)
     hfields = tuple((name, getattr(self, name).dtype) for name in
-                    sorted(self.fields.keys()))
+                    sorted(self._fields.keys()))
 
     return hash(hargs + hfields)
 
   def __eq__(self, other):
-    if self.args != other.args:
+    if self._args != other._args:
       return False
 
-    if self.fields != other.fields:
+    if self._fields != other._fields:
       return False
 
-    for name in self.args:
+    for name in self._args:
       if getattr(self, name) != getattr(other, name):
         return False
 
-    for name in self.fields.keys():
+    for name in self._fields.keys():
       if getattr(self, name).dtype != getattr(other, name).dtype:
         return False
 
     return True
 
   def __repr__(self):
-    parts = [f'{name}:{getattr(self, name)}' for name in self.args]
-    parts += [f'{name}:{getattr(self, name).dtype}' for name in self.fields.keys()]
+    parts = [f'{name}:{getattr(self, name)}' for name in self._args]
+    parts += [f'{name}:{getattr(self, name).dtype}' for name in self._fields.keys()]
 
     return pyiu.cname(self) + '(' + ', '.join(parts) + ')'
+
+  def _set_field(self, name, iname, ivalue):
+    setattr(self, name, ivalue)
+    self._fields[name] = iname
 
 
 class InterfaceView(_InterfaceBase):
 
   def __init__(self, origin, name):
-    super().__init__(name, **{k: getattr(origin, k) for k in origin.args})
+    super().__init__(name, **{k: getattr(origin, k) for k in origin._args})
     self.origin_ifc = origin
 
   def add_field(self, name, value, mode):
@@ -85,18 +89,14 @@ class InterfaceView(_InterfaceBase):
     vref = vref.new_mode(minor_mode(vref.mode, mode))
     vref = vref.new_name(xname, vname=xname)
 
-    xvalue = value.new_value(vref)
-
-    setattr(self, name, xvalue)
-
-    self.fields[name] = xname
+    self._set_field(name, xname, value.new_value(vref))
 
 
 class Interface(_InterfaceBase):
 
   def __init__(self, name, **kwargs):
     super().__init__(name, **kwargs)
-    self._uname = self.xlib.generate_name(name, shortzero=True)
+    self._uname = self._xlib.generate_name(name, shortzero=True)
     if fstr := getattr(self, 'FIELDS', None):
       self.create_fields(fstr)
 
@@ -115,16 +115,14 @@ class Interface(_InterfaceBase):
       else:
         xname, fvalue = subname(self._uname, name), value
 
-        self.xlib.assign(xname, fvalue)
+        self._xlib.assign(xname, fvalue)
     else:
       xname = subname(self._uname, name)
       fvalue = self._mkvalue(xname, value, init=init)
 
-      self.xlib.assign(xname, fvalue)
+      self._xlib.assign(xname, fvalue)
 
-    setattr(self, name, self.xlib.load(xname))
-
-    self.fields[name] = xname
+    self._set_field(name, xname, self._xlib.load(xname))
 
   def create_fields(self, fstr):
     for fs in pyu.comma_split(fstr):
