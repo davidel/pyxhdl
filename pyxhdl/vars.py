@@ -4,6 +4,7 @@ import py_misc_utils.core_utils as pycu
 import py_misc_utils.inspect_utils as pyiu
 import py_misc_utils.utils as pyu
 
+from .common_defs import *
 from .types import *
 from .value_base import *
 
@@ -252,7 +253,7 @@ def has_hdl_vars(v):
 
 def bitstring(value) -> Value:
   # 0b0010 -> dtype=Bits(4), value="0010"
-  m = re.match(r'0b([01XZ]+)$', value)
+  m = re.match(rf'0b([{VALID_BITS}]+)$', value)
   if m:
     bstr = m.group(1)
 

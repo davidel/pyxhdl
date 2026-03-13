@@ -4,3 +4,4 @@ INIT_PROCESS = '$INIT'
 
 PARAM_KEY = '_P'
 
+VALID_BITS = '01XZ'

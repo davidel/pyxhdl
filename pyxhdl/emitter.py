@@ -397,7 +397,7 @@ class Emitter:
   def _parse_bits(self, value, nbits):
     evalue = value[2: ] if value.startswith('0b') else value
 
-    if any(b not in '01XZ' for b in evalue):
+    if any(b not in VALID_BITS for b in evalue):
       fatal(f'Invalid bit string: {value}')
 
     pad = nbits - len(evalue)
