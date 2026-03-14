@@ -18,8 +18,12 @@ class Port:
   OUT = 'OUT'
   INOUT = 'INOUT'
   IFC = 'IFC'
+  DIRS = {IN, OUT, INOUT, IFC}
 
   def __init__(self, name, idir, type=None, default=None):
+    if idir not in self.DIRS:
+      fatal(f'Unrecognized Port direction: {idir}')
+
     self.name = name
     self.idir = idir
     self.type = type
