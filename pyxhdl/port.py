@@ -101,6 +101,9 @@ class Port:
         tmatch = TypeMatcher.parse(self.type)
         tmatch.check_value(arg, msg=f' for entity port "{self.name}"')
 
+  def make_ref(self):
+    return Ref(self.name, mode=self.get_mode(), vspec=VSpec(port=self), vname=self.name)
+
   @classmethod
   def parse(cls, pdecl):
     m = re.match(r'(=|\+|\*)?(\w+)(:([^\s]*))?(\s*=\s*(\w+))?$', pdecl)
@@ -136,8 +139,4 @@ class Port:
       return tuple(ports)
     else:
       fatal(f'Unrecognized ports value: {cports}')
-
-
-def make_port_ref(pin):
-  return Ref(pin.name, mode=pin.get_mode(), vspec=VSpec(port=pin), vname=pin.name)
 

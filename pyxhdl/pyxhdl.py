@@ -827,7 +827,7 @@ class CodeGen(_ExecVisitor):
       if pin.is_ifc():
         pargs[pin.name] = pin.ifc_view(arg)
       else:
-        pargs[pin.name] = arg.new_value(make_port_ref(pin))
+        pargs[pin.name] = arg.new_value(pin.make_ref())
 
     for kwarg_name, arg in eclass.ARGS.items():
       rkwargs[kwarg_name] = rkwargs.get(kwarg_name, arg)
@@ -916,7 +916,7 @@ class CodeGen(_ExecVisitor):
       if pin.is_ifc():
         cargs[pin.name] = pin.ifc_view(arg)
       else:
-        ref = make_port_ref(pin)
+        ref = pin.make_ref()
         if isinstance(arg, Value):
           port_arg = arg.new_value(ref)
         else:
