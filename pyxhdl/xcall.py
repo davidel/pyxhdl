@@ -1,6 +1,7 @@
 import re
 
 import py_misc_utils.alog as alog
+import py_misc_utils.core_utils as pycu
 import py_misc_utils.inspect_utils as pyiu
 import py_misc_utils.utils as pyu
 
@@ -94,7 +95,7 @@ class _ExternalFunction:
 
       ckwargs[name] = arg
 
-    if isinstance(self._fnmap, dict):
+    if pycu.isdict(self._fnmap):
       fmap = self._fnmap.get(ctx.emitter.kind)
       if fmap is None:
         fatal(f'Unable to resolve function {self._fnname}() for {ctx.emitter.kind} backend')
