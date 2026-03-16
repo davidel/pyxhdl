@@ -251,6 +251,14 @@ class _ExecVisitor(ast.NodeVisitor):
     visitor(node)
 
   @contextlib.contextmanager
+  def _active_results(self, results):
+    self._results.append(results)
+    try:
+      yield self
+    finally:
+      self._results.pop()
+
+  @contextlib.contextmanager
   def _frame(self, frame):
     self._frames.append(frame)
     try:
@@ -350,15 +358,12 @@ class _ExecVisitor(ast.NodeVisitor):
     self.location.set_lineno(node.lineno)
 
     results = []
-    self._results.append(results)
-    try:
+    with self._active_results(results):
       if visit_node:
         self.visit(node)
       else:
         alog.debug(lambda: asu.dump(node))
         self.generic_visit(node)
-    finally:
-      self._results.pop()
 
     return results[0] if len(results) == 1 else results if results else _VoidResult()
 
