@@ -106,6 +106,7 @@ class _HdlChecker(ast.NodeVisitor):
     self._vloader = vloader
     self._scope = 0
     self._stack = []
+    self._in_loop = 0
     self.count = 0
     for name in pyu.expand_strings(hdl_required):
       setattr(self, f'visit_{name}', self._checker)
@@ -151,9 +152,17 @@ class _HdlChecker(ast.NodeVisitor):
       if (avalue := getattr(self._pop_value(), node.attr, NONE)) is not NONE:
         self._push_value(avalue)
 
+  def visit_Subscript(self, node):
+    with self._scope_in():
+      self.visit(node.value)
+
   def visit_Name(self, node):
     value = self._vloader(node.id)
     self._push_value(value)
+
+  def visit_AugAssign(self, node):
+    with self._scope_in():
+      self.visit(node.target)
 
   def visit_Call(self, node):
     with self._scope_in():
@@ -165,6 +174,24 @@ class _HdlChecker(ast.NodeVisitor):
       self.visit(carg)
     for kwarg in node.keywords:
       self.visit(kwarg)
+
+  def visit_For(self, node):
+    self._in_loop += 1
+    self.generic_visit(node)
+    self._in_loop -= 1
+
+  def visit_While(self, node):
+    self._in_loop += 1
+    self.generic_visit(node)
+    self._in_loop -= 1
+
+  def visit_Break(self, node):
+    if self._in_loop == 0:
+      self.count += 1
+
+  def visit_Continue(self, node):
+    if self._in_loop == 0:
+      self.count += 1
 
 
 class _Frame:

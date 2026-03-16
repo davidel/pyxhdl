@@ -29,6 +29,25 @@ class WhileEnt(X.Entity):
     XOUT = temp * A - B
 
 
+class WhileBreakEnt(X.Entity):
+
+  PORTS = 'A, B, =XOUT'
+
+  ARGS = dict(count=1)
+
+  @X.hdl_process(sens='A, B')
+  def run():
+    temp = X.mkvwire(A.dtype, 1)
+    i = 0
+    while i < count:
+      temp += 1
+      i += 1
+      if i > 2:
+        break
+
+    XOUT = temp * A - B
+
+
 class TestWhile(unittest.TestCase):
 
   def test_while(self):
@@ -41,4 +60,15 @@ class TestWhile(unittest.TestCase):
     )
 
     tu.run(self, tu.test_name(self, pyu.fname()), WhileEnt, inputs)
+
+  def test_while_break(self):
+    inputs = dict(
+      A=X.mkwire(X.UINT8),
+      B=X.mkwire(X.UINT8),
+      XOUT=X.mkwire(X.UINT8),
+
+      count=8,
+    )
+
+    tu.run(self, tu.test_name(self, pyu.fname()), WhileBreakEnt, inputs)
 
