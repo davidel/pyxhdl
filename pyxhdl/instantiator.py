@@ -9,9 +9,10 @@ class _Instance:
     self.name = name
     self.params = params
     self.args = args
+    self._hash = pycu.genhash((name, params, args))
 
   def __hash__(self):
-    return pycu.genhash((self.name, self.params, self.args))
+    return self._hash
 
   def __eq__(self, other):
     return (self.name == other.name and self.params == other.params and
