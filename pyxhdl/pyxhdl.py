@@ -152,17 +152,9 @@ class _HdlChecker(ast.NodeVisitor):
       if (avalue := getattr(self._pop_value(), node.attr, NONE)) is not NONE:
         self._push_value(avalue)
 
-  def visit_Subscript(self, node):
-    with self._scope_in():
-      self.visit(node.value)
-
   def visit_Name(self, node):
     value = self._vloader(node.id)
     self._push_value(value)
-
-  def visit_AugAssign(self, node):
-    with self._scope_in():
-      self.visit(node.target)
 
   def visit_Call(self, node):
     with self._scope_in():
@@ -186,10 +178,13 @@ class _HdlChecker(ast.NodeVisitor):
     self._in_loop -= 1
 
   def visit_Break(self, node):
+    # A Break while not in a loop, refers to an outer loop handled in HDL mode,
+    # so it requires HDL handling.
     if self._in_loop == 0:
       self.count += 1
 
   def visit_Continue(self, node):
+    # Same consideration as the Break above.
     if self._in_loop == 0:
       self.count += 1
 
