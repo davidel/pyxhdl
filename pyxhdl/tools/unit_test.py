@@ -59,6 +59,7 @@ class GhdlTester(Tester):
                                  WORKDIR=tmp_path)
 
       cmdline = [self._xpath] + re.split(r'\s+', string.Template(self.CMDLINE).substitute(**sctx))
+      alog.debug(f'Running GHDL Tester: {cmdline}')
       try:
         output = subprocess.check_output(cmdline, stderr=subprocess.STDOUT)
       except subprocess.CalledProcessError as ex:
@@ -90,6 +91,7 @@ class VerilatorTester(Tester):
                                  WORKDIR=tmp_path)
 
       cmdline = [self._xpath] + re.split(r'\s+', string.Template(self.CMDLINE).substitute(**sctx))
+      alog.debug(f'Running Verilator Tester: {cmdline}')
       try:
         gen_output = subprocess.check_output(cmdline, stderr=subprocess.STDOUT)
       except subprocess.CalledProcessError as ex:
@@ -148,6 +150,7 @@ def generate_code(source_file, args, ouput_path):
     for arg in args.args or ():
       cmdline.extend(['--kwargs', arg])
 
+    alog.debug(f'Running Code Generator: {cmdline}')
     try:
       output = subprocess.check_output(cmdline, stderr=subprocess.STDOUT)
     except subprocess.CalledProcessError as ex:
