@@ -135,11 +135,13 @@ def generate_code(source_file, args, ouput_path):
 
   backends = re.split(r'\s*,\s*', args.backend)
 
+  python_path = shutil.which('python') or shutil.which('python3')
+
   code = []
   for backend in backends:
     output_file = os.path.join(ouput_path, f'{test_name}.{backend}')
     cmdline = [
-      'python',
+      python_path,
       '-m', 'pyxhdl.generator',
       '--backend', backend,
       '--input_file', source_file,
