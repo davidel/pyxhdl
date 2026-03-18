@@ -14,15 +14,14 @@ import py_misc_utils.utils as pyu
 
 class Tester:
 
-  def __init__(self, binary, cmdline_args):
-    xpath = shutil.which(binary)
+  def __init__(self, cmdline_args):
+    xpath = shutil.which(self.BINARY)
     if not xpath:
-      alog.debug(f'Unable to find binary "{binary}" for {self.NAME} tester')
-      raise NotImplementedError(f'Unable to find binary "{binary}" for {self.NAME} tester')
+      alog.debug(f'Unable to find binary "{self.BINARY}" for {self.NAME} tester')
+      raise NotImplementedError(f'Unable to find binary "{self.BINARY}" for {self.NAME} tester')
 
     alog.info(f'Found {self.NAME} tester at {xpath}')
 
-    self._binary = binary
     self._xpath = xpath
     self._args = cmdline_args
 
@@ -51,9 +50,6 @@ class GhdlTester(Tester):
   BINARY = 'ghdl'
   CMDLINE = '-c --std=08 --workdir=$WORKDIR -frelaxed -Wno-shared $ARGS $INPUT -r $TOP'
 
-  def __init__(self, cmdline_args):
-    super().__init__(self.BINARY, cmdline_args)
-
   @property
   def backends(self):
     return ('vhdl',)
@@ -77,9 +73,6 @@ class VerilatorTester(Tester):
   NAME = 'verilator'
   BINARY = 'verilator'
   CMDLINE = '--binary --timing --trace --assert -sv --Mdir $WORKDIR $ARGS -o VTest --top-module $TOP $INPUT'
-
-  def __init__(self, cmdline_args):
-    super().__init__(self.BINARY, cmdline_args)
 
   @property
   def backends(self):
