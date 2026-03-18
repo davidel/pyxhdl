@@ -5,6 +5,7 @@ import re
 import shutil
 import string
 import subprocess
+import sys
 import tempfile
 
 import py_misc_utils.alog as alog
@@ -160,6 +161,16 @@ def generate_code(source_file, args, ouput_path):
   return code
 
 
+def filter_errors(soutput):
+  lines = []
+  for line in soutput.split('\n'):
+    m = re.search(r'(\d+(\s*[^\s]+)? Output mismatch:.*)', line)
+    if m:
+      lines.append(m.group(1))
+
+  return lines
+
+
 def main(args):
   testers = load_testers(args)
 
@@ -171,6 +182,7 @@ def main(args):
     for source_file in args.inputs:
       code.extend(generate_code(source_file, args, tmp_path))
 
+    failed = []
     for tester in testers:
       for gcode in code:
         if gcode.backend in tester.backends:
@@ -178,7 +190,19 @@ def main(args):
 
           output = tester.test(gcode.output, gcode.backend, args.entity)
 
-          alog.debug(output.decode())
+          soutput = output.decode()
+          alog.debug(soutput)
+
+          mmlines = filter_errors(soutput)
+          if mmlines:
+            failed.append((gcode, tester.NAME, mmlines))
+
+    if failed:
+      for gcode, tname, lines in failed:
+        elines = '    ' + '\n    '.join(lines)
+        alog.error(f'Failed test for {tname} tool: source={gcode.input} backend={gcode.backend}\n{elines}')
+
+      sys.exit(1)
 
 
 if __name__ == '__main__':
