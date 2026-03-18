@@ -23,9 +23,18 @@ VERILATOR_TRACE ?= --trace
 VERILATOR_ASSERT ?= --assert
 TARGETS = ${MM_DATA_FILE} ${MM_VHDL_FILE} ${MM_SVL_FILE}
 
-all: ${TARGETS} hdl_generate
+UNIT_FILES = $(shell grep -l -r "class Test(X.Entity):" --include "*.py" ${SRCDIR})
+
+
+all: ${TARGETS} hdl_generate unit_test
 
 hdl_generate: ${MM_VHDL_FILE} ${MM_SVL_FILE}
+
+unit_test:
+	python -m pyxhdl.tools.unit_test \
+		--log_level ${LOG_LEVEL} \
+		${UNIT_ARGS} \
+		--inputs ${UNIT_FILES}
 
 ${MM_DATA_FILE}:
 	python ${SRCDIR}/matmul_gen_tbdata.py \
