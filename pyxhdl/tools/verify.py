@@ -12,7 +12,7 @@ import py_misc_utils.app_main as app_main
 import py_misc_utils.utils as pyu
 
 
-class Verifier(object):
+class Verifier:
 
   def __init__(self, binary, cmdline_args):
     xpath = shutil.which(binary)
@@ -286,7 +286,7 @@ VERIFY_TOOLS = {
   'Yosys': YosysVerifier,
 }
 
-def _load_verifiers(args):
+def load_verifiers(args):
   verifiers, exclude = [], set(args.exclude or [])
 
   for name, vclass in VERIFY_TOOLS.items():
@@ -303,8 +303,8 @@ def _load_verifiers(args):
   return verifiers
 
 
-def _main(args):
-  verifiers = _load_verifiers(args)
+def main(args):
+  verifiers = load_verifiers(args)
 
   if not verifiers:
     pyu.fatal(f'Unable to find any valid HDL verification tools')
@@ -329,5 +329,5 @@ if __name__ == '__main__':
                       choices=set(t.lower() for t in VERIFY_TOOLS.keys()),
                       help='The list of verifiers to be excluded')
 
-  app_main.main(parser, _main)
+  app_main.main(parser, main)
 
