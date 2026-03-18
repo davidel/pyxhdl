@@ -17,41 +17,42 @@ class Tester:
   def __init__(self, binary, cmdline_args):
     xpath = shutil.which(binary)
     if not xpath:
-      alog.debug(f'Unable to find binary "{binary}" for {self.name} tester')
-      raise NotImplementedError(f'Unable to find binary "{binary}" for {self.name} tester')
+      alog.debug(f'Unable to find binary "{binary}" for {self.NAME} tester')
+      raise NotImplementedError(f'Unable to find binary "{binary}" for {self.NAME} tester')
 
-    alog.info(f'Found {self.name} tester at {xpath}')
+    alog.info(f'Found {self.NAME} tester at {xpath}')
 
     self._binary = binary
     self._xpath = xpath
     self._args = cmdline_args
 
-  def _make_subs_ctx(self, source_file, backend, top_entity, **kwargs):
+  def _expand_cmdline(self, cmdline, source_file, backend, top_entity, **kwargs):
+    args = getattr(self._args, f'{self.NAME}_args', None) or []
+
     sctx = {
       'INPUT': source_file,
       'TOP': top_entity,
       'BACKEND': backend,
+      'ARGS': ' '.join(args),
     }
     sctx.update(kwargs)
 
-    return sctx
+    return re.split(r'\s+', string.Template(cmdline).substitute(**sctx))
 
   @classmethod
   def add_args(cls, parser):
-    pass
+    parser.add_argument(f'--{cls.NAME}_args', nargs='+',
+                        help=f'The arguments for the {cls.NAME} tester')
 
 
 class GhdlTester(Tester):
 
+  NAME = 'ghdl'
   BINARY = 'ghdl'
-  CMDLINE = '-c --std=08 --workdir=$WORKDIR -frelaxed -Wno-shared $INPUT -r $TOP'
+  CMDLINE = '-c --std=08 --workdir=$WORKDIR -frelaxed -Wno-shared $ARGS $INPUT -r $TOP'
 
   def __init__(self, cmdline_args):
     super().__init__(self.BINARY, cmdline_args)
-
-  @property
-  def name(self):
-    return 'GHDL'
 
   @property
   def backends(self):
@@ -59,10 +60,8 @@ class GhdlTester(Tester):
 
   def test(self, source_file, backend, top_entity):
     with tempfile.TemporaryDirectory() as tmp_path:
-      sctx = self._make_subs_ctx(source_file, backend, top_entity,
-                                 WORKDIR=tmp_path)
-
-      cmdline = [self._xpath] + re.split(r'\s+', string.Template(self.CMDLINE).substitute(**sctx))
+      cmdline = [self._xpath] + self._expand_cmdline(self.CMDLINE, source_file, backend,
+                                                     top_entity, WORKDIR=tmp_path)
       alog.debug(f'Running GHDL Tester: {cmdline}')
       try:
         output = subprocess.check_output(cmdline, stderr=subprocess.STDOUT)
@@ -75,15 +74,12 @@ class GhdlTester(Tester):
 
 class VerilatorTester(Tester):
 
+  NAME = 'verilator'
   BINARY = 'verilator'
-  CMDLINE = '--binary --timing --trace --assert -sv --Mdir $WORKDIR -o VTest --top-module $TOP $INPUT'
+  CMDLINE = '--binary --timing --trace --assert -sv --Mdir $WORKDIR $ARGS -o VTest --top-module $TOP $INPUT'
 
   def __init__(self, cmdline_args):
     super().__init__(self.BINARY, cmdline_args)
-
-  @property
-  def name(self):
-    return 'Verilator'
 
   @property
   def backends(self):
@@ -91,22 +87,20 @@ class VerilatorTester(Tester):
 
   def test(self, source_file, backend, top_entity):
     with tempfile.TemporaryDirectory() as tmp_path:
-      sctx = self._make_subs_ctx(source_file, backend, top_entity,
-                                 WORKDIR=tmp_path)
-
-      cmdline = [self._xpath] + re.split(r'\s+', string.Template(self.CMDLINE).substitute(**sctx))
-      alog.debug(f'Running Verilator Tester: {cmdline}')
+      gen_cmdline = [self._xpath] + self._expand_cmdline(self.CMDLINE, source_file, backend,
+                                                         top_entity, WORKDIR=tmp_path)
+      alog.debug(f'Running Verilator Tester: {gen_cmdline}')
       try:
-        gen_output = subprocess.check_output(cmdline, stderr=subprocess.STDOUT)
+        gen_output = subprocess.check_output(gen_cmdline, stderr=subprocess.STDOUT)
       except subprocess.CalledProcessError as ex:
-        pyu.fatal(f'Test process exited with {ex.returncode} code: {cmdline}\n' \
+        pyu.fatal(f'Test process exited with {ex.returncode} code: {gen_cmdline}\n' \
                   f'Error output:\n' + ex.output.decode())
 
-      cmdline = [os.path.join(tmp_path, 'VTest')]
+      run_cmdline = [os.path.join(tmp_path, 'VTest')]
       try:
-        run_output = subprocess.check_output(cmdline, stderr=subprocess.STDOUT)
+        run_output = subprocess.check_output(run_cmdline, stderr=subprocess.STDOUT)
       except subprocess.CalledProcessError as ex:
-        pyu.fatal(f'Test process exited with {ex.returncode} code: {cmdline}\n' \
+        pyu.fatal(f'Test process exited with {ex.returncode} code: {run_cmdline}\n' \
                   f'Error output:\n' + ex.output.decode())
 
       return gen_output + run_output
@@ -129,7 +123,7 @@ def load_testers(args):
     try:
       tester = tclass(args)
 
-      alog.info(f'Adding {tester.name} tester')
+      alog.info(f'Adding {tester.NAME} tester')
       testers.append(tester)
     except NotImplementedError:
       pass
@@ -187,7 +181,7 @@ def main(args):
     for tester in testers:
       for gcode in code:
         if gcode.backend in tester.backends:
-          alog.info(f'Running {tester.name} tester on {gcode.backend} file {gcode.output}')
+          alog.info(f'Running {tester.NAME} tester on {gcode.backend} file {gcode.output}')
 
           output = tester.test(gcode.output, gcode.backend, args.entity)
 
