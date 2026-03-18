@@ -36,6 +36,10 @@ class Tester:
 
     return sctx
 
+  @classmethod
+  def add_args(cls, parser):
+    pass
+
 
 class GhdlTester(Tester):
 
@@ -112,6 +116,11 @@ TEST_TOOLS = {
   'GHDL': GhdlTester,
   'Verilator': VerilatorTester,
 }
+
+def add_tests_args(parser):
+  for tclass in TEST_TOOLS.values():
+    tclass.add_args(parser)
+
 
 def load_testers(args):
   testers = []
@@ -196,6 +205,8 @@ if __name__ == '__main__':
                       help='The backends to test for')
   parser.add_argument('--args', nargs='+',
                       help='The input arguments with NAME=VALUE format')
+
+  add_tests_args(parser)
 
   app_main.main(parser, main)
 
