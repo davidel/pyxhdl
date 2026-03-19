@@ -126,10 +126,13 @@ class Interface(_InterfaceBase):
 
   def create_fields(self, fstr):
     for fs in pyu.comma_split(fstr):
-      name, fvtype = re.split(r'\s*:\s*', fs, maxsplit=1)
-      ftype, *fvalue = re.split(r'\s*=\s*', fvtype, maxsplit=1)
+      m = re.match(r'(\w+)\s*:\s*([^=]+)(\s*=\s*(.+))?', fs)
+      if not m:
+        fatal(f'Invalid field format: {fs}')
 
-      self.mkfield(name, ftype, init=pycu.infer_value(fvalue[0]) if fvalue else None)
+      name, ftype, fvalue = m.group(1), m.group(2), m.group(4)
+
+      self.mkfield(name, ftype, init=pycu.infer_value(fvalue) if fvalue else None)
 
   @hdl
   def reset(self):
