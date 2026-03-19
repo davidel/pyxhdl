@@ -14,37 +14,45 @@ import py_misc_utils.utils as pyu
 
 class Verifier:
 
-  def __init__(self, binary, cmdline_args):
-    xpath = shutil.which(binary)
+  def __init__(self, cmdline_args):
+    xpath = shutil.which(self.BINARY)
     if not xpath:
-      alog.debug(f'Unable to find binary "{binary}" for {self.name} verifier')
-      raise NotImplementedError(f'Unable to find binary "{binary}" for {self.name} verifier')
+      alog.debug(f'Unable to find binary "{self.BINARY}" for {self.NAME} verifier')
+      raise NotImplementedError(f'Unable to find binary "{self.BINARY}" for {self.NAME} verifier')
 
-    alog.info(f'Found {self.name} verifier at {xpath}')
+    alog.info(f'Found {self.NAME} verifier at {xpath}')
 
-    self._binary = binary
     self._xpath = xpath
     self._args = cmdline_args
 
   def _make_subs_ctx(self, files, backend, top_entity, **kwargs):
+    args = getattr(self._args, f'{self.NAME.lower()}_args', None) or []
+
     sctx = {
       'CSFILES': ', '.join(files),
       'SFILES': ' '.join(files),
       'TOP': top_entity,
       'BACKEND': backend,
+      'ARGS': ' '.join(args),
     }
     sctx.update(kwargs)
 
     return sctx
 
+  @classmethod
+  def add_args(cls, parser):
+    parser.add_argument(f'--{cls.NAME.lower()}_args', nargs='+',
+                        help=f'The arguments for the {cls.NAME} tester')
+
 
 class VivadoVerifier(Verifier):
 
+  NAME = 'Vivado'
   BINARY = 'vivado'
-  CMDLINE = '-mode batch -nolog -nojournal -source'
+  CMDLINE = '-mode batch $ARGS -nolog -nojournal -source'
 
   def __init__(self, cmdline_args):
-    super().__init__(self.BINARY, cmdline_args)
+    super().__init__(cmdline_args)
     self._backend_read = {
       'verilog': ['read_verilog -sv {{ $CSFILES }}'],
       'vhdl': ['read_vhdl -vhdl2008 {{ $CSFILES }}'],
@@ -58,10 +66,6 @@ class VivadoVerifier(Verifier):
     return '\n'.join(script)
 
   @property
-  def name(self):
-    return 'Vivado'
-
-  @property
   def backends(self):
     return ('verilog', 'vhdl')
 
@@ -69,7 +73,8 @@ class VivadoVerifier(Verifier):
     with tempfile.TemporaryDirectory() as tmp_path:
       script = self._create_script(files, backend)
 
-      sctx = self._make_subs_ctx(files, backend, top_entity)
+      sctx = self._make_subs_ctx(files, backend, top_entity,
+                                 WORKDIR=tmp_path)
 
       script = string.Template(script).substitute(**sctx)
 
@@ -93,15 +98,9 @@ class VivadoVerifier(Verifier):
 
 class GhdlVerifier(Verifier):
 
+  NAME = 'GHDL'
   BINARY = 'ghdl'
-  CMDLINE = '-a --std=08 --workdir=$WORKDIR -frelaxed -Wno-shared'
-
-  def __init__(self, cmdline_args):
-    super().__init__(self.BINARY, cmdline_args)
-
-  @property
-  def name(self):
-    return 'GHDL'
+  CMDLINE = '-a --std=08 --workdir=$WORKDIR $ARGS -frelaxed -Wno-shared'
 
   @property
   def backends(self):
@@ -126,15 +125,9 @@ class GhdlVerifier(Verifier):
 
 class VerilatorVerifier(Verifier):
 
+  NAME = 'Verilator'
   BINARY = 'verilator'
-  CMDLINE = '--lint-only --timing -sv --top $TOP'
-
-  def __init__(self, cmdline_args):
-    super().__init__(self.BINARY, cmdline_args)
-
-  @property
-  def name(self):
-    return 'Verilator'
+  CMDLINE = '--lint-only --timing -sv $ARGS --top $TOP'
 
   @property
   def backends(self):
@@ -142,7 +135,8 @@ class VerilatorVerifier(Verifier):
 
   def verify(self, files, backend, top_entity):
     with tempfile.TemporaryDirectory() as tmp_path:
-      sctx = self._make_subs_ctx(files, backend, top_entity)
+      sctx = self._make_subs_ctx(files, backend, top_entity,
+                                 WORKDIR=tmp_path)
 
       cmdline = re.split(r'\s+', string.Template(self.CMDLINE).substitute(**sctx))
 
@@ -158,15 +152,9 @@ class VerilatorVerifier(Verifier):
 
 class SlangVerifier(Verifier):
 
+  NAME = 'Slang'
   BINARY = 'slang'
-  CMDLINE = '-q --std 1800-2017 --top $TOP'
-
-  def __init__(self, cmdline_args):
-    super().__init__(self.BINARY, cmdline_args)
-
-  @property
-  def name(self):
-    return 'Slang'
+  CMDLINE = '-q --std 1800-2017 $ARGS --top $TOP'
 
   @property
   def backends(self):
@@ -174,7 +162,8 @@ class SlangVerifier(Verifier):
 
   def verify(self, files, backend, top_entity):
     with tempfile.TemporaryDirectory() as tmp_path:
-      sctx = self._make_subs_ctx(files, backend, top_entity)
+      sctx = self._make_subs_ctx(files, backend, top_entity,
+                                 WORKDIR=tmp_path)
 
       cmdline = re.split(r'\s+', string.Template(self.CMDLINE).substitute(**sctx))
 
@@ -190,11 +179,12 @@ class SlangVerifier(Verifier):
 
 class YosysVerifier(Verifier):
 
+  NAME = 'Yosys'
   BINARY = 'yosys'
-  CMDLINE = '-q -s'
+  CMDLINE = '-q $ARGS -s'
 
   def __init__(self, cmdline_args):
-    super().__init__(self.BINARY, cmdline_args)
+    super().__init__(cmdline_args)
     self._backends = ['verilog']
     self._plugins = []
     self._backend_read = {
@@ -239,10 +229,6 @@ class YosysVerifier(Verifier):
     return '\n'.join(script)
 
   @property
-  def name(self):
-    return 'Yosys'
-
-  @property
   def backends(self):
     return tuple(sorted(self._backends))
 
@@ -250,7 +236,8 @@ class YosysVerifier(Verifier):
     with tempfile.TemporaryDirectory() as tmp_path:
       script = self._create_script(files, backend)
 
-      sctx = self._make_subs_ctx(files, backend, top_entity)
+      sctx = self._make_subs_ctx(files, backend, top_entity,
+                                 WORKDIR=tmp_path)
 
       script = string.Template(script).substitute(**sctx)
 
@@ -286,6 +273,11 @@ VERIFY_TOOLS = {
   'Yosys': YosysVerifier,
 }
 
+def add_verifiers_args(parser):
+  for vclass in VERIFY_TOOLS.values():
+    vclass.add_args(parser)
+
+
 def load_verifiers(args):
   verifiers, exclude = [], set(args.exclude or [])
 
@@ -295,7 +287,7 @@ def load_verifiers(args):
         verifier = vclass(args)
 
         if args.backend in verifier.backends:
-          alog.info(f'Adding {verifier.name} verifier')
+          alog.info(f'Adding {verifier.NAME} verifier')
           verifiers.append(verifier)
       except NotImplementedError:
         pass
@@ -310,7 +302,7 @@ def main(args):
     pyu.fatal(f'Unable to find any valid HDL verification tools')
 
   for verifier in verifiers:
-    alog.info(f'Running {verifier.name} verifier on {args.backend} files {args.inputs}')
+    alog.info(f'Running {verifier.NAME} verifier on {args.backend} files {args.inputs}')
 
     verifier.verify(args.inputs, args.backend.lower(), args.entity)
 
@@ -328,6 +320,8 @@ if __name__ == '__main__':
   parser.add_argument('--exclude', action='append',
                       choices=set(t.lower() for t in VERIFY_TOOLS.keys()),
                       help='The list of verifiers to be excluded')
+
+  add_verifiers_args(parser)
 
   app_main.main(parser, main)
 
