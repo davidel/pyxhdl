@@ -223,6 +223,8 @@ def compare_value(var, value, toll=1e-5, debug=None, msg=''):
 
   cvar = XL.load(var) if isinstance(var, str) else var
 
+  # NOTE: The unit_test.py module parses the "{{NOW}} Output mismatch:" string to
+  # detect mismatches during unit testing. If changed here, must be reflected there.
   if isinstance(value, np.ndarray):
     shape = cvar.dtype.array_shape
     if tuple(shape) != tuple(value.shape):
