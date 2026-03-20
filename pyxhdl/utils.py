@@ -179,7 +179,9 @@ def subname(*path):
 
 
 def varname(name):
-  return re.sub(r'\W+', '_', name)
+  vname = re.sub(r'\W+', '_', name)
+
+  return '_' + vname if vname[0].isdigit() else vname
 
 
 _TIME_SCALES = {'s': 1.0, 'ms': 1e3, 'us': 1e6, 'ns': 1e9, 'ps': 1e12}
