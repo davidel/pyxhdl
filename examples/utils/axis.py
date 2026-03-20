@@ -1,5 +1,4 @@
 import pyxhdl as X
-from pyxhdl import xlib as XL
 
 
 class AxisMaster(X.Entity):
@@ -34,4 +33,81 @@ class AxisSlave(X.Entity):
         TREADY = 1
       else:
         RDEN = 0
+
+
+class Test(X.Entity):
+
+  ARGS = dict(clock_frequency=100e6,
+              num_tests=20,
+              width=8)
+
+  @X.hdl_process(kind=X.ROOT_PROCESS)
+  def root(self):
+    from . import clock
+
+    CLK = X.mkreg(X.BIT)
+
+    clock.Clock(CLK=CLK,
+                frequency=clock_frequency)
+
+    RST_N = X.mkreg(X.BIT)
+
+    TVALID = X.mkreg(X.BIT)
+    TREADY = X.mkreg(X.BIT)
+
+    WDATA = X.mkreg(X.Bits(width))
+    WREN = X.mkreg(X.BIT)
+    RDATA = X.mkreg(X.Bits(width))
+    RDEN = X.mkreg(X.BIT)
+
+    DATA = X.mkreg(X.Bits(width))
+
+    AxisMaster(CLK=CLK,
+               RST_N=RST_N,
+               WREN=WREN,
+               DATA=WDATA,
+               TREADY=TREADY,
+               TDATA=DATA,
+               TVALID=TVALID)
+
+    AxisSlave(CLK=CLK,
+              RST_N=RST_N,
+              TDATA=DATA,
+              TVALID=TVALID,
+              TREADY=TREADY,
+              DATA=RDATA,
+              RDEN=RDEN)
+
+  @X.hdl_process()
+  def run(self):
+    import random
+
+    from pyxhdl import xlib as XL
+    from pyxhdl import testbench as TB
+
+    RST_N = 0
+
+    TB.wait_rising(CLK)
+    TB.wait_rising(CLK)
+
+    RST_N = 1
+
+    TB.wait_rising(CLK)
+
+    value_mask = 2**width - 1
+
+    for i in range(num_tests):
+      value = random.randint(0, value_mask)
+
+      WDATA = value
+      WREN = 1
+
+      TB.wait_rising(CLK)
+      TB.wait_until(CLK, RDEN == 1)
+
+      TB.compare_value(RDATA, value)
+
+      TB.wait_rising(CLK)
+
+    XL.finish()
 
