@@ -1,6 +1,6 @@
-import re
-
 import py_misc_utils.core_utils as pycu
+
+from .utils import *
 
 
 class _Instance:
@@ -27,23 +27,18 @@ class Instanciator:
     self._instances = []
     self._revgen = pycu.RevGen(revbase=revbase if revbase is not None else 1)
 
-  def _cname(self, name):
-    cname = re.sub(r'\W+', '_', name)
-
-    return cname
-
   def getid(self, name, kwargs, force_new=False):
     params = kwargs.pop(self._param_key, dict()) if self._param_key else dict()
     inst = _Instance(name, params, kwargs)
     if force_new:
-      cname = self._cname(name)
+      cname = varname(name)
       iid = self._revgen.newname(cname)
 
       self._instances.append((iid, inst))
     else:
       iid = self._instdb.get(inst)
       if iid is None:
-        cname = self._cname(name)
+        cname = varname(name)
         iid = self._revgen.newname(cname)
 
         self._instdb[inst] = iid

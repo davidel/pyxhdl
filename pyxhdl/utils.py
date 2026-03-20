@@ -178,6 +178,10 @@ def subname(*path):
   return '_'.join(path)
 
 
+def varname(name):
+  return re.sub(r'\W+', '_', name)
+
+
 _TIME_SCALES = {'s': 1.0, 'ms': 1e3, 'us': 1e6, 'ns': 1e9, 'ps': 1e12}
 _TIME_UNITS = '|'.join(_TIME_SCALES.keys())
 _TIME_REX = re.compile(rf'([+\-]?\d+(\.(\d*))?([eE][+\-]?\d+)?)\s*({_TIME_UNITS})?$')
