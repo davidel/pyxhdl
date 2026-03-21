@@ -10,7 +10,7 @@ def hdl(func):
   def wrapper(*args, **kwargs):
     return func(*args, **kwargs)
 
-  setattr(wrapper, _IS_HDL, True)
+  set_hdl_function(wrapper)
 
   return wrapper
 
@@ -21,12 +21,16 @@ def hdl_process(**hwargs):
     def wrapper(*args, **kwargs):
       return func(*args, **kwargs)
 
-    setattr(wrapper, _IS_HDL, True)
+    set_hdl_function(wrapper)
     setattr(wrapper, _HDL_ARGS, hwargs)
 
     return wrapper
 
   return decorator
+
+
+def set_hdl_function(func):
+  setattr(func, _IS_HDL, True)
 
 
 def is_hdl_function(func):

@@ -12,7 +12,8 @@ import py_misc_utils.core_utils as pycu
 import py_misc_utils.utils as pyu
 
 
-_FuncInfo = collections.namedtuple('FuncInfo', 'filename, lineno, source')
+_FuncInfo = collections.namedtuple('FuncInfo', 'filename, lineno, source, ast',
+                                   defaults=(None, None))
 
 class _None:
 
@@ -100,8 +101,9 @@ def get_function_info(func):
   return fninfo
 
 
-def set_function_info(func, filename, lineno, source):
-  setattr(func, _FN_INFO, _FuncInfo(filename=filename, lineno=lineno, source=source))
+def set_function_info(func, filename, lineno, source=None, ast=None):
+  fninfo = _FuncInfo(filename=filename, lineno=lineno, source=source, ast=ast)
+  setattr(func, _FN_INFO, fninfo)
 
 
 def flat2shape(parts, shape, opar, cpar):

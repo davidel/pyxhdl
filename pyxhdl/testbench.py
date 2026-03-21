@@ -371,7 +371,7 @@ class TestBench(Entity):
 
       # The inspect API is not able to find the source code information required
       # by the pyxhdl module when using exec(), so we need to provide them here.
-      set_function_info(pfn.__wrapped__, __file__, 1, scode)
+      set_function_info(pfn.__wrapped__, __file__, 1, source=scode)
 
       yield pfn
 

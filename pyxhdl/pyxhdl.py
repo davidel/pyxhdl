@@ -425,6 +425,8 @@ class _ExecVisitor(ast.NodeVisitor):
       for mnode in node.body:
         if isinstance(mnode, ast.FunctionDef) and mnode.name == name:
           return mnode.body
+    elif isinstance(node, ast.FunctionDef) and node.name == name:
+      return node.body
 
     alog.warning(f'Function "{name}" body not found in node: {asu.dump(node)}')
 
@@ -511,6 +513,23 @@ class _ExecVisitor(ast.NodeVisitor):
 
     return results[-1]
 
+  def _capture_closure(self, func):
+    closure = dict()
+    if code := getattr(func, '__code__', None):
+      all_vars = (getattr(code, 'co_freevars', ()) +
+                  getattr(code, 'co_cellvars', ()) +
+                  getattr(code, 'co_names', ()))
+
+      clocals = self.locals
+      for vname in all_vars:
+        value = clocals.get(vname, NONE)
+        if value is not NONE:
+          closure[vname] = value
+
+    alog.debug(lambda: f'Closure: {closure}')
+
+    return closure
+
   def _run_function_helper(self, func, args, kwargs):
     func_self = getattr(func, '__self__', None)
     func = getattr(func, '__wrapped__', func)
@@ -519,9 +538,19 @@ class _ExecVisitor(ast.NodeVisitor):
     alog.debug(lambda: f'Signature: {sig}')
 
     fninfo = get_function_info(func)
-    alog.debug(lambda: f'Source: {fninfo.filename} @ {fninfo.lineno}\n{fninfo.source}')
+    if fninfo.source is not None:
+      alog.debug(lambda: f'Source: {fninfo.filename} @ {fninfo.lineno}\n{fninfo.source}')
 
-    func_node = ast.parse(fninfo.source, filename=fninfo.filename, mode='exec')
+      func_node = ast.parse(fninfo.source, filename=fninfo.filename, mode='exec')
+
+      func_body = self._get_function_body(pyiu.func_name(func), func_node)
+    elif fninfo.ast is not None:
+      alog.debug(lambda: f'Source: {fninfo.filename} @ {fninfo.lineno}\n' \
+                 f'{ast.unparse(fninfo.ast)}')
+
+      func_node, func_body = fninfo.ast, fninfo.ast.body
+    else:
+      fatal(f'Missing function info: {func}')
 
     func_node = ast_hdl_transform(func_node)
     alog.debug(lambda: f'FUNC AST: {asu.dump(func_node)}')
@@ -530,10 +559,10 @@ class _ExecVisitor(ast.NodeVisitor):
     if func_self is not None:
       args = [func_self] + args
 
+    func_locals.update(self._capture_closure(func))
+
     kwargs = self._populate_args_locals(sig, args, kwargs, func_locals)
     func_locals.update(kwargs)
-
-    func_body = self._get_function_body(pyiu.func_name(func), func_node)
 
     frame = _Frame(get_obj_globals(func, defval=dict()),
                    func_locals,
@@ -574,7 +603,10 @@ class _ExecVisitor(ast.NodeVisitor):
 
     # We cannot call func(*args, **kwargs) directly as we need to insert the current
     # locals and globals.
-    with self._exec_locals(dict(__func=func, __args=args, __kwargs=kwargs)):
+    call_locals = self._capture_closure(func)
+    call_locals.update(__func=func, __args=args, __kwargs=kwargs)
+
+    with self._exec_locals(call_locals):
       return eval('__func(*__args, **__kwargs)', self.globals, self.locals)
 
   def _needs_hdl_processing(self, func):
@@ -1351,6 +1383,12 @@ class CodeGen(_ExecVisitor):
     # generic_visit() API (after some logging we do to make sense of what is
     # being processed).
     self.eval_node(node, visit_node=False)
+
+  def visit_FunctionDef(self, node):
+    self._static_eval(node)
+    if func := self.locals.get(node.name):
+      set_hdl_function(func)
+      set_function_info(func, self.location.filename, node.lineno, ast=node)
 
   def _handle_IfExp(self, node):
     test = self.eval_node(node.test)
