@@ -549,11 +549,9 @@ class _ExecVisitor(ast.NodeVisitor):
     func_node = ast_hdl_transform(func_node)
     alog.debug(lambda: f'FUNC AST: {asu.dump(func_node)}')
 
-    func_locals = dict()
+    func_locals = self._capture_closure(func)
     if func_self is not None:
       args = [func_self] + args
-
-    func_locals.update(self._capture_closure(func))
 
     kwargs = self._populate_args_locals(sig, args, kwargs, func_locals)
     func_locals.update(kwargs)
