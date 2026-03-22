@@ -536,6 +536,7 @@ class _ExecVisitor(ast.NodeVisitor):
       alog.debug(lambda: f'Source: {fninfo.filename} @ {fninfo.lineno}\n{fninfo.source}')
 
       func_node = ast.parse(fninfo.source, filename=fninfo.filename, mode='exec')
+      func_node = ast_hdl_transform(func_node, inplace=True)
 
       func_body = self._get_function_body(pyiu.func_name(func), func_node)
     elif fninfo.ast is not None:
@@ -543,10 +544,10 @@ class _ExecVisitor(ast.NodeVisitor):
                  f'{ast.unparse(fninfo.ast)}')
 
       func_node, func_body = fninfo.ast, fninfo.ast.body
+      func_node = ast_hdl_transform(func_node)
     else:
       fatal(f'Missing function info: {func}')
 
-    func_node = ast_hdl_transform(func_node)
     alog.debug(lambda: f'FUNC AST: {asu.dump(func_node)}')
 
     func_locals = self._capture_closure(func)

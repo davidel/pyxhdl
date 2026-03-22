@@ -6,10 +6,12 @@ import py_misc_utils.ast_utils as asu
 from .utils import *
 
 
-def ast_hdl_transform(node):
-  asu.ifize(node)
+def ast_hdl_transform(node, inplace=False):
+  tnode = node if inplace else copy.deepcopy(node)
 
-  return node
+  asu.ifize(tnode)
+
+  return tnode
 
 
 def elements(c):
@@ -27,7 +29,7 @@ def as_loading(node, inplace=False):
       return ast.Load()
 
 
-  cnode = node if inplace else copy.deepcopy(node)
+  tnode = node if inplace else copy.deepcopy(node)
 
-  return Transformer().visit(cnode)
+  return Transformer().visit(tnode)
 
