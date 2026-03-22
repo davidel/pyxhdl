@@ -35,6 +35,8 @@ _MatchCase = collections.namedtuple('MatchCase', 'pattern, scope')
 _CGENCTX = 'pyxhdl.CodeGen'
 _CODEFMT_RX = r'(?<!\{)\{([^{][^}]*(\}\}[^}]+)*)\}'
 
+_FUNC_LOCALS = '_func_locals'
+
 
 class Variable:
 
@@ -134,7 +136,7 @@ class _HdlChecker(ast.NodeVisitor):
       self.count += 1
 
   def _needs_hdl_call(self, func):
-    if is_hdl_function(func):
+    if self.hdl_function(func):
       return True
     if inspect.isfunction(func):
       sig = inspect.signature(func)
@@ -144,7 +146,11 @@ class _HdlChecker(ast.NodeVisitor):
       return False
 
     return (pyiu.is_subclass(func, self.HDL_TYPES) or
-            is_hdl_function(getattr(func, '__init__', None)))
+            self.hdl_function(getattr(func, '__init__', None)))
+
+  @classmethod
+  def hdl_function(cls, func):
+    return is_hdl_function(func) or getattr(func, _FUNC_LOCALS, None) is not None
 
   def visit_Attribute(self, node):
     with self._scope_in():
@@ -514,21 +520,9 @@ class _ExecVisitor(ast.NodeVisitor):
     return results[-1]
 
   def _capture_closure(self, func):
-    closure = dict()
-    if code := getattr(func, '__code__', None):
-      all_vars = (getattr(code, 'co_freevars', ()) +
-                  getattr(code, 'co_cellvars', ()) +
-                  getattr(code, 'co_names', ()))
+    closure = getattr(func, _FUNC_LOCALS, None)
 
-      clocals = self.locals
-      for vname in all_vars:
-        value = clocals.get(vname, NONE)
-        if value is not NONE:
-          closure[vname] = value
-
-    alog.debug(lambda: f'Closure: {closure}')
-
-    return closure
+    return closure.copy() if closure is not None else dict()
 
   def _run_function_helper(self, func, args, kwargs):
     func_self = getattr(func, '__self__', None)
@@ -610,12 +604,12 @@ class _ExecVisitor(ast.NodeVisitor):
       return eval('__func(*__args, **__kwargs)', self.globals, self.locals)
 
   def _needs_hdl_processing(self, func):
-    if is_hdl_function(func):
+    if _HdlChecker.hdl_function(func):
       return True
     elif not inspect.isclass(func):
       return False
 
-    return is_hdl_function(getattr(func, '__init__', None))
+    return _HdlChecker.hdl_function(getattr(func, '__init__', None))
 
   def run_function(self, func, args, kwargs=None):
     kwargs = kwargs or dict()
@@ -1387,7 +1381,7 @@ class CodeGen(_ExecVisitor):
   def visit_FunctionDef(self, node):
     self._static_eval(node)
     if func := self.locals.get(node.name):
-      set_hdl_function(func)
+      setattr(func, _FUNC_LOCALS, self.locals.copy())
       set_function_info(func, self.location.filename, node.lineno, ast=node)
 
   def _handle_IfExp(self, node):
