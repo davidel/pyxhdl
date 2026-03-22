@@ -33,6 +33,7 @@ class AxisSlave(X.Entity):
         TREADY = 1
       else:
         RDEN = 0
+        TREADY = 0
 
 
 class Test(X.Entity):

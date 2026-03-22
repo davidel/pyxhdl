@@ -47,6 +47,7 @@ class AxisSlave(X.Entity):
         IFC.TREADY = 1
       else:
         RDEN = 0
+        IFC.TREADY = 0
 
 
 class Test(X.Entity):
