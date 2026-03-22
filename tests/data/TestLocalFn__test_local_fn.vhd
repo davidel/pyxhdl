@@ -256,5 +256,5 @@ use work.all;
 -- 	kwargs={}
 architecture behavior of LocalFn is
 begin
-  XOUT <= (A + B) + 38;
+  XOUT <= ((A + B) + 38) + (21 - resize(A * B, 8));
 end architecture;

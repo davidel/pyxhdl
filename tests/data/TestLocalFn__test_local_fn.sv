@@ -44,5 +44,5 @@ module LocalFn(A, B, XOUT);
   input logic [7: 0] A;
   input logic [7: 0] B;
   output logic [7: 0] XOUT;
-  assign XOUT = (A + B) + 38;
+  assign XOUT = ((A + B) + 38) + (21 - 8'(A * B));
 endmodule

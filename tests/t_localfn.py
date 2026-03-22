@@ -19,7 +19,10 @@ class LocalFn(X.Entity):
     def testfn(a):
       return a + random.randint(21, 21)
 
-    XOUT = A + B + testfn(17)
+    def testfn2(a):
+      return a - A * B
+
+    XOUT = A + B + testfn(17) + testfn2(21)
 
 
 class TestLocalFn(unittest.TestCase):
