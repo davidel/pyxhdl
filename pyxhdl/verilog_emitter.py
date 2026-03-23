@@ -530,7 +530,7 @@ class Verilog_Emitter(Emitter):
     return self._load_libs() + self._expand()
 
   def is_root_variable(self, var):
-    return var.isreg or var.is_const()
+    return var.isreg or var.is_const() or self._proc.kind == ROOT_PROCESS
 
   def var_remap(self, var, is_store):
     return var
