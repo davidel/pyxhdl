@@ -1382,6 +1382,8 @@ class CodeGen(_ExecVisitor):
     if func := self.locals.get(node.name):
       setattr(func, _FUNC_LOCALS, self.locals.copy())
       set_function_info(func, self.location.filename, node.lineno, ast=node)
+    else:
+      alog.warning(f'Unable to find function object: {node.name}')
 
   def _handle_IfExp(self, node):
     test = self.eval_node(node.test)
