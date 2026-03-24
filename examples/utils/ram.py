@@ -67,7 +67,7 @@ class Ram(X.Entity):
       IFC.READY = 1
     elif IFC.WREN == 1:
       waddr = IFC.ADDR / IFC.word_units
-      if waddr == 0:
+      if IFC.ADDR % IFC.word_units == 0:
         mem[waddr] = IFC.WDATA
         IFC.READY = 1
       else:
@@ -148,7 +148,8 @@ class Test(X.Entity):
 
       TB.wait_until(CLK, self.ifc.READY == 1)
 
-      TB.compare_value(self.ifc.RDATA, value)
+      TB.compare_value(self.ifc.RDATA, value,
+                       msg=f' : addr={addr}')
 
       self.ifc.RDEN = 0
       TB.wait_rising(CLK)
