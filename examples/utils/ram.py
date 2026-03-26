@@ -1,6 +1,7 @@
 import math
 
 import py_misc_utils.assert_checks as tas
+import py_misc_utils.core_utils as pycu
 import py_misc_utils.num_utils as pynu
 
 import pyxhdl as X
@@ -38,12 +39,14 @@ class Ram(X.Entity):
 
   PORTS = f'*IFC:{__name__}.RamIfc.PORT'
 
+  WR_STATE = pycu.make_enum('WR_STATE', 'IDLE, WR_LOW, WR_HIGH')
+
   @X.hdl_process(kind=X.ROOT_PROCESS)
   def root(self):
     mem = X.mkreg(X.mkarray(IFC.RDATA.dtype, IFC.size))
 
     rddata = X.mkreg(X.Bits(2 * IFC.width))
-    unawr = X.mkreg(X.BIT)
+    wr_state = X.mkreg(X.Uint(self.WR_STATE._last.bit_length()))
 
     baddr = X.mkwire(IFC.ADDR.dtype)
     baddr = (IFC.ADDR % IFC.word_units) * IFC.unit_size
@@ -58,7 +61,7 @@ class Ram(X.Entity):
     if IFC.RST_N != 1:
       IFC.READY = 0
       rddata = X.bitfill('X', rddata.dtype.nbits)
-      unawr = 0
+      wr_state = self.WR_STATE.IDLE
     elif IFC.RDEN == 1:
       waddr = IFC.ADDR / IFC.word_units
       rddata[0: IFC.width] = mem[waddr]
@@ -70,23 +73,35 @@ class Ram(X.Entity):
       if IFC.ADDR % IFC.word_units == 0:
         mem[waddr] = IFC.WDATA
         IFC.READY = 1
+        wr_state = self.WR_STATE.IDLE
       else:
-        rddata[0: IFC.width] = mem[waddr]
-        rddata[IFC.width: ] = mem[waddr + 1]
+        wbaddr = (IFC.ADDR % IFC.word_units) * IFC.unit_size
 
-        if unawr == 0:
-          IFC.READY = 0
-          unawr = 1
-        else:
-          wrdata = rddata
-          wbaddr = (IFC.ADDR % IFC.word_units) * IFC.unit_size
-          wrdata[baddr:: IFC.width] = IFC.WDATA
-          mem[waddr] = wrdata[0: IFC.width]
-          mem[waddr + 1] = wrdata[IFC.width: ]
-          IFC.READY = 1
+        match wr_state:
+          case self.WR_STATE.IDLE:
+            rddata[0: IFC.width] = mem[waddr]
+            rddata[IFC.width: ] = mem[waddr + 1]
+            IFC.READY = 0
+            wr_state = self.WR_STATE.WR_LOW
+
+          case self.WR_STATE.WR_LOW:
+            wrdata = rddata
+            wrdata[wbaddr:: IFC.width] = IFC.WDATA
+            mem[waddr] = wrdata[0: IFC.width]
+            wr_state = self.WR_STATE.WR_HIGH
+
+          case self.WR_STATE.WR_HIGH:
+            wrdata = rddata
+            wrdata[wbaddr:: IFC.width] = IFC.WDATA
+            mem[waddr + 1] = wrdata[IFC.width: ]
+            wr_state = self.WR_STATE.IDLE
+            IFC.READY = 1
+
+          case _:
+            pass
     else:
       IFC.READY = 0
-      unawr = 0
+      wr_state = self.WR_STATE.IDLE
 
 
 class Test(X.Entity):
