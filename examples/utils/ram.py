@@ -75,6 +75,7 @@ class Ram(X.Entity):
         rddata[IFC.width: ] = mem[waddr + 1]
 
         if unawr == 0:
+          IFC.READY = 0
           unawr = 1
         else:
           wrdata = rddata
