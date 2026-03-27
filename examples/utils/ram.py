@@ -12,7 +12,8 @@ class RamIfc(X.Interface):
   PORT = 'CLK, RST_N, WREN, RDEN, =READY, ADDR, WDATA, =RDATA'
 
   def __init__(self, clk, reset, width, size,
-               unit_size=8):
+               unit_size=8,
+               tdp_ram=False):
     tas.check_eq(width % unit_size, 0,
                  msg=f'Word size ({width}) must be multiple of unit size ({unit_size})')
 
@@ -22,7 +23,8 @@ class RamIfc(X.Interface):
                      width=width,
                      size=size,
                      unit_size=unit_size,
-                     word_units=word_units)
+                     word_units=word_units,
+                     tdp_ram=tdp_ram)
     self.mkfield('CLK', clk)
     self.mkfield('RST_N', reset)
     self.mkfield('WREN', X.Uint(word_units.bit_length()))
@@ -89,7 +91,12 @@ class Ram(X.Entity):
 
         case self.WR_STATE.WR_LOW:
           mem[waddr] = out_data[0: IFC.width]
-          wr_state = self.WR_STATE.WR_HIGH
+          if IFC.tdp_ram:
+            mem[waddr + 1] = out_data[IFC.width: ]
+            wr_state = self.WR_STATE.IDLE
+            IFC.READY = 1
+          else:
+            wr_state = self.WR_STATE.WR_HIGH
 
         case self.WR_STATE.WR_HIGH:
           mem[waddr + 1] = out_data[IFC.width: ]
