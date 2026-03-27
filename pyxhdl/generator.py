@@ -23,7 +23,9 @@ def _main(args):
     parse_args(args.cfgfile, args)
 
   mod = pymu.load_module(args.input_file)
-  ent_class = getattr(mod, args.entity)
+  ent_class = getattr(mod, args.entity, None)
+  if ent_class is None:
+    fatal(f'Entity {args.entity} not found in {args.input_file}')
 
   gglobals = create_globals(mod, source_globals=globals())
 
