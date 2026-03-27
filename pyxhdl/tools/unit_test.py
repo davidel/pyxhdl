@@ -146,8 +146,14 @@ def generate_code(source_file, args, ouput_path):
       '--entity', args.entity,
       '--log_level', args.log_level,
     ]
-    for arg in args.args or ():
-      cmdline.extend(['--kwargs', arg])
+
+    test_args = args.args or []
+    if env_args := os.getenv(f'{test_name.upper()}_ARGS'):
+      test_args.extend(pyu.comma_split(env_args))
+
+    if test_args:
+      cmdline.append('--kwargs')
+      cmdline.extend(test_args)
 
     alog.debug(f'Running Code Generator: {cmdline}')
     try:
