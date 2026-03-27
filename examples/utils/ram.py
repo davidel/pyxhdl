@@ -17,22 +17,34 @@ class RamIfc(X.Interface):
                  msg=f'Word size ({width}) must be multiple of unit size ({unit_size})')
 
     word_units = width // unit_size
-    addr_size = pynu.address_bits(size)
 
     super().__init__('RAM',
                      width=width,
                      size=size,
-                     addr_size=addr_size,
                      unit_size=unit_size,
                      word_units=word_units)
     self.mkfield('CLK', clk)
     self.mkfield('RST_N', reset)
-    self.mkfield('WREN', X.BIT)
+    self.mkfield('WREN', X.Uint(word_units.bit_length()))
     self.mkfield('RDEN', X.BIT)
     self.mkfield('READY', X.BIT)
-    self.mkfield('ADDR', X.Uint(addr_size))
+    self.mkfield('ADDR', X.Uint(pynu.address_bits(size)))
     self.mkfield('WDATA', X.Bits(width))
     self.mkfield('RDATA', X.Bits(width))
+
+
+@X.hdl
+def bitmux(orig, base, value, nr, usize) -> X.Value:
+  bmres = X.mkwire(orig.dtype)
+
+  bmres = orig
+
+  nsteps = value.dtype.nbits // usize
+  for i in range(1, nsteps + 1):
+    if nr == i:
+      bmres[base:: i * usize] = value[0: i * usize]
+
+  return bmres
 
 
 class Ram(X.Entity):
@@ -44,61 +56,48 @@ class Ram(X.Entity):
   @X.hdl_process(kind=X.ROOT_PROCESS)
   def root(self):
     mem = X.mkreg(X.mkarray(IFC.RDATA.dtype, IFC.size))
-
     rddata = X.mkreg(X.Bits(2 * IFC.width))
+    wrdata = X.mkreg(X.Bits(2 * IFC.width))
     wr_state = X.mkreg(X.Uint(self.WR_STATE._last.bit_length()))
-
+    waddr = X.mkwire(IFC.ADDR.dtype)
     baddr = X.mkwire(IFC.ADDR.dtype)
+
+    waddr = IFC.ADDR / IFC.word_units
     baddr = (IFC.ADDR % IFC.word_units) * IFC.unit_size
     IFC.RDATA = rddata[baddr:: IFC.width]
 
   @X.hdl_process(sens='+IFC.CLK')
   def run(self):
-    waddr = X.mkwire(IFC.ADDR.dtype)
-    wbaddr = X.mkwire(IFC.ADDR.dtype)
-    wrdata = X.mkwire(X.Bits(2 * IFC.width))
-
     if IFC.RST_N != 1:
       IFC.READY = 0
       rddata = X.bitfill('X', rddata.dtype.nbits)
       wr_state = self.WR_STATE.IDLE
     elif IFC.RDEN == 1:
-      waddr = IFC.ADDR / IFC.word_units
       rddata[0: IFC.width] = mem[waddr]
       rddata[IFC.width: ] = mem[waddr + 1]
 
       IFC.READY = 1
-    elif IFC.WREN == 1:
-      waddr = IFC.ADDR / IFC.word_units
-      if IFC.ADDR % IFC.word_units == 0:
-        mem[waddr] = IFC.WDATA
-        IFC.READY = 1
-        wr_state = self.WR_STATE.IDLE
-      else:
-        wbaddr = (IFC.ADDR % IFC.word_units) * IFC.unit_size
+    elif IFC.WREN != 0:
+      out_data = bitmux(wrdata, baddr, IFC.WDATA, IFC.WREN, IFC.unit_size)
 
-        match wr_state:
-          case self.WR_STATE.IDLE:
-            rddata[0: IFC.width] = mem[waddr]
-            rddata[IFC.width: ] = mem[waddr + 1]
-            IFC.READY = 0
-            wr_state = self.WR_STATE.WR_LOW
+      match wr_state:
+        case self.WR_STATE.IDLE:
+          wrdata[0: IFC.width] = mem[waddr]
+          wrdata[IFC.width: ] = mem[waddr + 1]
+          IFC.READY = 0
+          wr_state = self.WR_STATE.WR_LOW
 
-          case self.WR_STATE.WR_LOW:
-            wrdata = rddata
-            wrdata[wbaddr:: IFC.width] = IFC.WDATA
-            mem[waddr] = wrdata[0: IFC.width]
-            wr_state = self.WR_STATE.WR_HIGH
+        case self.WR_STATE.WR_LOW:
+          mem[waddr] = out_data[0: IFC.width]
+          wr_state = self.WR_STATE.WR_HIGH
 
-          case self.WR_STATE.WR_HIGH:
-            wrdata = rddata
-            wrdata[wbaddr:: IFC.width] = IFC.WDATA
-            mem[waddr + 1] = wrdata[IFC.width: ]
-            wr_state = self.WR_STATE.IDLE
-            IFC.READY = 1
+        case self.WR_STATE.WR_HIGH:
+          mem[waddr + 1] = out_data[IFC.width: ]
+          wr_state = self.WR_STATE.IDLE
+          IFC.READY = 1
 
-          case _:
-            pass
+        case _:
+          pass
     else:
       IFC.READY = 0
       wr_state = self.WR_STATE.IDLE
@@ -149,9 +148,11 @@ class Test(X.Entity):
 
     for i in range(num_tests):
       addr = random.randint(0, size - width // unit_size)
-      value = random.randint(0, 2 ** width - 1)
+      nunits = random.randint(1, width // unit_size)
+      mask = (1 << (nunits * unit_size)) - 1
+      value = random.randint(0, mask)
 
-      self.ifc.WREN = 1
+      self.ifc.WREN = nunits
       self.ifc.ADDR = addr
       self.ifc.WDATA = value
 
@@ -164,7 +165,7 @@ class Test(X.Entity):
 
       TB.wait_until(CLK, self.ifc.READY == 1)
 
-      TB.compare_value(self.ifc.RDATA, value,
+      TB.compare_value(self.ifc.RDATA & mask, value,
                        msg=f' : addr={addr}')
 
       self.ifc.RDEN = 0
