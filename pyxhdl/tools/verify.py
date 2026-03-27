@@ -310,14 +310,14 @@ def main(args):
 if __name__ == '__main__':
   parser = argparse.ArgumentParser(description='VHDL/Verilog Code Verifier',
                                    formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-  parser.add_argument('--inputs', nargs='+', required=True,
+  parser.add_argument('--inputs', nargs='+', action='extend', required=True,
                       help='The input files to be analyzed')
   parser.add_argument('--entity', type=str, required=True,
                       help='The root entity name')
   parser.add_argument('--backend', type=str, default='vhdl',
                       choices={'vhdl', 'verilog'},
                       help='The backend to generate the code for')
-  parser.add_argument('--exclude', action='append',
+  parser.add_argument('--exclude', nargs='+', action='extend',
                       choices=set(t.lower() for t in VERIFY_TOOLS.keys()),
                       help='The list of verifiers to be excluded')
 

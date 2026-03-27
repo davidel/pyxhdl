@@ -116,7 +116,8 @@ class Test(X.Entity):
               num_tests=50,
               width=32,
               size=4096,
-              unit_size=8)
+              unit_size=8,
+              tdp_ram=False)
 
   @X.hdl_process(kind=X.ROOT_PROCESS)
   def root(self):
@@ -130,7 +131,8 @@ class Test(X.Entity):
     RST_N = X.mkreg(X.BIT)
 
     self.ifc = RamIfc(CLK, RST_N, width, size,
-                      unit_size=unit_size)
+                      unit_size=unit_size,
+                      tdp_ram=tdp_ram)
 
     Ram(IFC=self.ifc)
 

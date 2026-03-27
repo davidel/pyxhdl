@@ -208,13 +208,13 @@ def main(args):
 if __name__ == '__main__':
   parser = argparse.ArgumentParser(description='PyXHDL Unit Tester',
                                    formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-  parser.add_argument('--inputs', nargs='+', required=True,
+  parser.add_argument('--inputs', nargs='+', action='extend', required=True,
                       help='The PyXHDL input files to be tested')
   parser.add_argument('--entity', type=str, default='Test',
                       help='The root entity name')
   parser.add_argument('--backend', type=str, default='verilog,vhdl',
                       help='The backends to test for')
-  parser.add_argument('--args', nargs='+',
+  parser.add_argument('--args', nargs='+', action='extend',
                       help='The input arguments with NAME=VALUE format')
 
   add_tests_args(parser)

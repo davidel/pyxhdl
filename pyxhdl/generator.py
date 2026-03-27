@@ -66,13 +66,13 @@ if __name__ == '__main__':
   parser.add_argument('--backend', default='verilog',
                       choices=set(Emitter.available()),
                       help='The backend to generate the code for')
-  parser.add_argument('--inputs', action='append',
+  parser.add_argument('--inputs', nargs='+', action='extend',
                       help='The inputs for the root entity')
-  parser.add_argument('--kwargs', action='append',
+  parser.add_argument('--kwargs', nargs='+', action='extend',
                       help='The keyword arguments for the root entity')
   parser.add_argument('--emitter_cfgfile',
                       help='The path to the YAML file containing the emitter configuration')
-  parser.add_argument('--ekwargs', action='append',
+  parser.add_argument('--ekwargs', nargs='+', action='extend',
                       help='The keyword arguments for the emitter')
   parser.add_argument('--cfgfile', default=os.getenv('PYXHDL_CONFIG'),
                       help='The path to the YAML file containing the generator configuration')
