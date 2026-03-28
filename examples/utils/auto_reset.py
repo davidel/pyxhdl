@@ -43,8 +43,8 @@ class Test(X.Entity):
               RST=RST,
               **{k: locals()[k] for k in AutoReset.ARGS.keys()})
 
-  @X.hdl_process()
-  def init(self):
+  @X.hdl_process(kind=X.INIT_PROCESS)
+  def test_run(self):
     from pyxhdl import testbench as TB
 
     period = 1 / clock_frequency

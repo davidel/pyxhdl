@@ -53,8 +53,8 @@ class Test(X.Entity):
                 BITIDX=BITIDX,
                 **{k: locals()[k] for k in FirstBitSet.ARGS.keys()})
 
-  @X.hdl_process()
-  def run(self):
+  @X.hdl_process(kind=X.INIT_PROCESS)
+  def test_run(self):
     import random
 
     from pyxhdl import testbench as TB

@@ -136,8 +136,8 @@ class Test(X.Entity):
 
     Ram(IFC=self.ifc)
 
-  @X.hdl_process()
-  def run(self):
+  @X.hdl_process(kind=X.INIT_PROCESS)
+  def test_run(self):
     import random
 
     from pyxhdl import xlib as XL
@@ -179,6 +179,29 @@ class Test(X.Entity):
 
       self.ifc.RDEN = 0
       TB.wait_rising(CLK)
+
+    self.ifc.WREN = width // unit_size
+    for i in range(num_tests):
+      self.ifc.ADDR = i * width // unit_size
+      self.ifc.WDATA = i
+
+      TB.wait_until(CLK, self.ifc.READY == 1)
+      TB.wait_rising(CLK)
+
+    self.ifc.WREN = 0
+    TB.wait_rising(CLK)
+
+    self.ifc.RDEN = 1
+    for i in range(num_tests):
+      self.ifc.ADDR = i * width // unit_size
+
+      TB.wait_until(CLK, self.ifc.READY == 1)
+
+      TB.compare_value(self.ifc.RDATA, i,
+                       msg=f' : addr={i * width // unit_size}')
+
+    self.ifc.RDEN = 0
+    TB.wait_rising(CLK)
 
     XL.finish()
 

@@ -79,8 +79,8 @@ class Test(X.Entity):
               DATA=RDATA,
               RDEN=RDEN)
 
-  @X.hdl_process()
-  def run(self):
+  @X.hdl_process(kind=X.INIT_PROCESS)
+  def test_run(self):
     import random
 
     from pyxhdl import xlib as XL

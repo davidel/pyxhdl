@@ -45,8 +45,8 @@ class Test(X.Entity):
           NOUT=NOUT,
           **{k: locals()[k] for k in Edger.ARGS.keys()})
 
-  @X.hdl_process()
-  def init(self):
+  @X.hdl_process(kind=X.INIT_PROCESS)
+  def test_run(self):
     from pyxhdl import testbench as TB
 
     RST_N = 0

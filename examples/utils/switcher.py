@@ -40,8 +40,8 @@ class Test(X.Entity):
              DOUT=DOUT,
              **{k: locals()[k] for k in Switcher.ARGS.keys()})
 
-  @X.hdl_process()
-  def run(self):
+  @X.hdl_process(kind=X.INIT_PROCESS)
+  def test_run(self):
     import random
 
     from pyxhdl import testbench as TB
