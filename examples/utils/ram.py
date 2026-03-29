@@ -185,8 +185,8 @@ class Test(X.Entity):
       self.ifc.ADDR = i * width // unit_size
       self.ifc.WDATA = i
 
-      TB.wait_until(CLK, self.ifc.READY == 1)
       TB.wait_rising(CLK)
+      TB.wait_until(CLK, self.ifc.READY == 1)
 
     self.ifc.WREN = 0
     TB.wait_rising(CLK)
