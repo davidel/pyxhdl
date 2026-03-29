@@ -2,6 +2,7 @@ import math
 
 import py_misc_utils.assert_checks as tas
 import py_misc_utils.core_utils as pycu
+import py_misc_utils.enum as pyen
 import py_misc_utils.num_utils as pynu
 
 import pyxhdl as X
@@ -53,7 +54,7 @@ class Ram(X.Entity):
 
   PORTS = f'*IFC:{__name__}.RamIfc.PORT'
 
-  WR_STATE = pycu.make_enum('WR_STATE', 'IDLE, WR_LOW, WR_HIGH')
+  WR_STATE = pyen.make_enum('WR_STATE', 'IDLE, WR_LOW, WR_HIGH')
 
   @X.hdl_process(kind=X.ROOT_PROCESS)
   def root(self):
