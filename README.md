@@ -268,8 +268,9 @@ def hdl_handler(hdl_v1, hdl_v2):
 The Python matrix multiplication operator "@" has been repurposed to mean concatenation
 of bits sequences.
 
-The Python slice works with a base that is an HDL variable. The slice *stop* must be left
-empty, and the *step* must be constant.
+The Python slice also works with a base that is an HDL variable. The slice *stop* must be
+left empty, and the *step* must be constant (either a literal constant, like in the
+following example, or a non-HDL Python variable).
 
 ```Python
 class VarSlice(X.Entity):
