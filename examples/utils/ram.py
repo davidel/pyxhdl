@@ -63,7 +63,9 @@ class Ram(X.Entity):
     wr_state = X.mkreg(X.Uint(self.WR_STATE._last.bit_length()))
     waddr = X.mkwire(IFC.ADDR.dtype)
     baddr = X.mkwire(IFC.ADDR.dtype)
+    ovfl = X.mkwire(X.BIT)
 
+    ovfl = '0b1' if (IFC.ADDR % IFC.word_units) + IFC.WREN >= IFC.word_units else '0b0'
     waddr = IFC.ADDR / IFC.word_units
     baddr = (IFC.ADDR % IFC.word_units) * IFC.unit_size
     IFC.RDATA = rddata[baddr:: IFC.width]
@@ -96,7 +98,11 @@ class Ram(X.Entity):
             wr_state = self.WR_STATE.IDLE
             IFC.READY = 1
           else:
-            wr_state = self.WR_STATE.WR_HIGH
+            if ovfl:
+              wr_state = self.WR_STATE.WR_HIGH
+            else:
+              wr_state = self.WR_STATE.IDLE
+              IFC.READY = 1
 
         case self.WR_STATE.WR_HIGH:
           mem[waddr + 1] = out_data[IFC.width: ]
