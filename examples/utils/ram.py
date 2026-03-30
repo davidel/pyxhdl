@@ -10,7 +10,7 @@ import pyxhdl as X
 
 class RamIfc(X.Interface):
 
-  PORT = 'CLK, RST_N, WREN, RDEN, =READY, ADDR, WDATA, =RDATA'
+  PORT = 'CLK, RST_N, WREN, RDEN, WRCOUNT, ADDR, WDATA, =READY, =RDATA'
 
   def __init__(self, clk, reset, width, size,
                unit_size=8,
@@ -28,11 +28,12 @@ class RamIfc(X.Interface):
                      tdp_ram=tdp_ram)
     self.mkfield('CLK', clk)
     self.mkfield('RST_N', reset)
-    self.mkfield('WREN', X.Uint(word_units.bit_length()))
+    self.mkfield('WREN', X.BIT)
     self.mkfield('RDEN', X.BIT)
-    self.mkfield('READY', X.BIT)
+    self.mkfield('WRCOUNT', X.Uint(word_units.bit_length()))
     self.mkfield('ADDR', X.Uint(pynu.address_bits(size)))
     self.mkfield('WDATA', X.Bits(width))
+    self.mkfield('READY', X.BIT)
     self.mkfield('RDATA', X.Bits(width))
 
 
@@ -66,7 +67,7 @@ class Ram(X.Entity):
     baddr = X.mkwire(IFC.ADDR.dtype)
     ovfl = X.mkwire(X.BIT)
 
-    ovfl = '0b1' if (IFC.ADDR % IFC.word_units) + IFC.WREN >= IFC.word_units else '0b0'
+    ovfl = '0b1' if (IFC.ADDR % IFC.word_units) + IFC.WRCOUNT >= IFC.word_units else '0b0'
     waddr = IFC.ADDR / IFC.word_units
     baddr = (IFC.ADDR % IFC.word_units) * IFC.unit_size
     IFC.RDATA = rddata[baddr:: IFC.width]
@@ -82,8 +83,8 @@ class Ram(X.Entity):
       rddata[IFC.width: ] = mem[waddr + 1]
 
       IFC.READY = 1
-    elif IFC.WREN != 0:
-      out_data = bitmux(wrdata, baddr, IFC.WDATA, IFC.WREN, IFC.unit_size)
+    elif IFC.WREN == 1:
+      out_data = bitmux(wrdata, baddr, IFC.WDATA, IFC.WRCOUNT, IFC.unit_size)
 
       match wr_state:
         case self.WR_STATE.IDLE:
@@ -152,6 +153,7 @@ class Test(X.Entity):
 
     RST_N = 0
     self.ifc.WREN = 0
+    self.ifc.WRCOUNT = 0
     self.ifc.RDEN = 0
     self.ifc.ADDR = 0
 
@@ -168,7 +170,8 @@ class Test(X.Entity):
       mask = (1 << (nunits * unit_size)) - 1
       value = random.randint(0, mask)
 
-      self.ifc.WREN = nunits
+      self.ifc.WREN = 1
+      self.ifc.WRCOUNT = nunits
       self.ifc.ADDR = addr
       self.ifc.WDATA = value
 
@@ -187,7 +190,8 @@ class Test(X.Entity):
       self.ifc.RDEN = 0
       TB.wait_rising(CLK)
 
-    self.ifc.WREN = width // unit_size
+    self.ifc.WREN = 1
+    self.ifc.WRCOUNT = width // unit_size
     for i in range(num_tests):
       self.ifc.ADDR = i * width // unit_size
       self.ifc.WDATA = i
