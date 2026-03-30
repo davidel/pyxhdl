@@ -21,14 +21,14 @@ class Flopper(X.Entity):
           if '+' in sides:
             prev_din = prev_din[: -1] @ DIN if stages > 1 else 1
           else:
-            prev_din = X.bitfill(1, stages) if stages > 1 else 1
+            prev_din = X.bitfill(1, stages)
             DOUT = 1
 
         case 0:
           if '-' in sides:
             prev_din = prev_din[: -1] @ DIN if stages > 1 else 0
           else:
-            prev_din = X.bitfill(0, stages) if stages > 1 else 0
+            prev_din = X.bitfill(0, stages)
             DOUT = 0
 
         case _:
