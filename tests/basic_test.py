@@ -8,7 +8,7 @@ import pyxhdl as X
 from pyxhdl import xlib as XL
 
 
-class Test(object):
+class Test:
 
   def __init__(self, x):
     self.xyz = x
@@ -135,9 +135,9 @@ def _test_gen(args):
 class And(X.Entity):
 
   PORTS = (
-    X.Port('a', X.IN),
-    X.Port('b', X.IN),
-    X.Port('c', X.OUT),
+    X.Port('a', X.Port.IN),
+    X.Port('b', X.Port.IN),
+    X.Port('c', X.Port.OUT),
   )
 
   @X.hdl_process(
@@ -153,9 +153,9 @@ class And(X.Entity):
 class MyEntity(X.Entity):
 
   PORTS = (
-    X.Port('a', X.IN),
-    X.Port('b', X.IN),
-    X.Port('c', X.OUT),
+    X.Port('a', X.Port.IN),
+    X.Port('b', X.Port.IN),
+    X.Port('c', X.Port.OUT),
   )
 
   ARGS = dict(kwd='????')
@@ -181,10 +181,8 @@ class MyEntity(X.Entity):
       j = 3
       arr[a + 1, j, 3: 17] = 0
     if a > c:
-      d = c
       e = b[1: 5]
       f = e[1: 2]
-      f = e[1: 4]
     ar = a + b
 
   @X.hdl_process(
@@ -224,7 +222,7 @@ class MyEntity(X.Entity):
 
     c, n = rtuple(a, b + 165)
 
-    XL.wait_rising(a, b)
+    XL.wait_rising(a)
     XL.wait_for(17)
 
     bx = X.mkwire(X.Bits(16))
@@ -256,7 +254,7 @@ class MyEntity(X.Entity):
 
 
 def _test_entity(args):
-  emitter = X.Emitter.create(args.backend)
+  emitter = X.Emitter.create(args.backend.lower())
   codegen = X.CodeGen(emitter, X.create_globals(MyEntity, source_globals=globals()))
 
   with codegen.context():
@@ -281,7 +279,7 @@ def _main(args):
 if __name__ == '__main__':
   parser = argparse.ArgumentParser(description='PyXHDL Basic Tests',
                                    formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-  parser.add_argument('--backend', type=str, default='VHDL',
+  parser.add_argument('--backend', type=str, default='vhdl',
                       choices=set(X.Emitter.available()),
                       help='The backend to generate the code for')
 
