@@ -39,6 +39,15 @@ class Recast(X.Entity):
     XOUT = auto / 4
 
 
+class Degen(X.Entity):
+
+  PORTS = 'A, B, =XOUT'
+
+  @X.hdl_process(sens='A, B')
+  def run():
+    XOUT = A[0] ^ B
+
+
 class TestBits(unittest.TestCase):
 
   def test_basic_bits(self):
@@ -58,4 +67,13 @@ class TestBits(unittest.TestCase):
     )
 
     tu.run(self, tu.test_name(self, pyu.fname()), Recast, inputs)
+
+  def test_degen(self):
+    inputs = dict(
+      A=X.mkwire(X.Bits(1)),
+      B=X.mkwire(X.BIT),
+      XOUT=X.mkwire(X.BIT),
+    )
+
+    tu.run(self, tu.test_name(self, pyu.fname()), Degen, inputs)
 

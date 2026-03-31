@@ -12,12 +12,13 @@ from .utils import *
 
 class Type:
 
-  __slots__ = ('name', 'full_shape', 'ctype')
+  __slots__ = ('name', 'full_shape', 'ctype', 'degen')
 
-  def __init__(self, name, shape, ctype):
+  def __init__(self, name, shape, ctype, degen=False):
     self.name = name
     self.full_shape = tuple(shape)
     self.ctype = ctype
+    self.degen = degen
 
   @property
   def has_bits(self):
@@ -44,11 +45,11 @@ class Type:
     return np.prod(self.full_shape[: -1])
 
   def __hash__(self):
-    return hash((self.name, self.full_shape, self.ctype))
+    return hash((self.name, self.full_shape, self.ctype, self.degen))
 
   def __eq__(self, other):
     return (self.name == other.name and self.full_shape == other.full_shape and
-            self.ctype == other.ctype)
+            self.ctype == other.ctype and self.degen == other.degen)
 
   def __str__(self):
     return f'{self.name}(' + ', '.join(str(x) for x in self.shape) + ')'
@@ -68,50 +69,50 @@ class Type:
 
 class Sint(Type):
 
-  def __init__(self, *shape):
-    super().__init__('sint', shape, int)
+  def __init__(self, *shape, **kwargs):
+    super().__init__('sint', shape, int, **kwargs)
 
 
 class Uint(Type):
 
-  def __init__(self, *shape):
-    super().__init__('uint', shape, int)
+  def __init__(self, *shape, **kwargs):
+    super().__init__('uint', shape, int, **kwargs)
 
 
 class Bits(Type):
 
-  def __init__(self, *shape):
-    super().__init__('bits', shape, int)
+  def __init__(self, *shape, **kwargs):
+    super().__init__('bits', shape, int, **kwargs)
 
 
 class Float(Type):
 
-  def __init__(self, *shape):
-    super().__init__('float', shape, float)
+  def __init__(self, *shape, **kwargs):
+    super().__init__('float', shape, float, **kwargs)
 
 
 class Bool(Type):
 
-  def __init__(self, *shape):
-    super().__init__('bool', shape + (None,), bool)
+  def __init__(self, *shape, **kwargs):
+    super().__init__('bool', shape + (None,), bool, **kwargs)
 
 
 class Integer(Type):
 
-  def __init__(self, *shape):
-    super().__init__('integer', shape + (None,), int)
+  def __init__(self, *shape, **kwargs):
+    super().__init__('integer', shape + (None,), int, **kwargs)
 
 
 class Real(Type):
 
-  def __init__(self, *shape):
-    super().__init__('real', shape + (None,), float)
+  def __init__(self, *shape, **kwargs):
+    super().__init__('real', shape + (None,), float, **kwargs)
 
 
 class Void(Type):
 
-  def __init__(self):
-    super().__init__('void', (None,), None.__class__)
+  def __init__(self, **kwargs):
+    super().__init__('void', (None,), None.__class__, **kwargs)
 
 
 INT4 = Sint(4)
@@ -135,7 +136,7 @@ FLOAT80 = Float(80)
 FLOAT128 = Float(128)
 
 BOOL = Bool()
-BIT = Bits(1)
+BIT = Bits(1, degen=True)
 INT = Integer()
 REAL = Real()
 VOID = Void()

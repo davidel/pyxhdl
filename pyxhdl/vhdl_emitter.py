@@ -91,7 +91,7 @@ class VHDL_Emitter(Emitter):
       else:
         return f'signed({nbits - 1} downto 0)'
     elif isinstance(dtype, Bits):
-      if nbits == 1:
+      if nbits == 1 and dtype.degen:
         return f'pyxhdl.slv_array{len(shape)}d{adims}' if shape else 'std_logic'
 
       if shape:
