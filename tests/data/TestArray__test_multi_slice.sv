@@ -38,7 +38,7 @@ endpackage
 
 
 // Entity "ArrayMultiSliceEnt" is "ArrayMultiSliceEnt" with:
-// 	args={'A': 'uint(8)', 'B': 'uint(8)', 'XOUT': 'bits(0)'}
+// 	args={'A': 'uint(8)', 'B': 'uint(8)', 'XOUT': 'bits(1)'}
 // 	kwargs={}
 module ArrayMultiSliceEnt(A, B, XOUT);
   input logic [7: 0] A;

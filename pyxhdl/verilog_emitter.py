@@ -111,7 +111,7 @@ class Verilog_Emitter(Emitter):
       else:
         return f'{kind} signed [{nbits - 1}: 0] {{}}'
     elif isinstance(dtype, Bits):
-      if dtype.degen:
+      if dtype.nbits == 1:
         return f'{kind} {{}}{adims}' if shape else f'{kind} {{}}'
 
       if shape:

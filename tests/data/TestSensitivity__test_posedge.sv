@@ -38,7 +38,7 @@ endpackage
 
 
 // Entity "PosEdge" is "PosEdge" with:
-// 	args={'CLK': 'bits(0)', 'RESET': 'bits(0)', 'XOUT': 'uint(8)'}
+// 	args={'CLK': 'bits(1)', 'RESET': 'bits(1)', 'XOUT': 'uint(8)'}
 // 	kwargs={}
 module PosEdge(CLK, RESET, XOUT);
   input logic CLK;

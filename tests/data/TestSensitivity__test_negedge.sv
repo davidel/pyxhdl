@@ -38,7 +38,7 @@ endpackage
 
 
 // Entity "NegEdge" is "NegEdge" with:
-// 	args={'CLK': 'bits(0)', 'RESET': 'bits(0)', 'XOUT': 'uint(8)'}
+// 	args={'CLK': 'bits(1)', 'RESET': 'bits(1)', 'XOUT': 'uint(8)'}
 // 	kwargs={}
 module NegEdge(CLK, RESET, XOUT);
   input logic CLK;

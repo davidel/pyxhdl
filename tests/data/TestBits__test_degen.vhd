@@ -232,11 +232,11 @@ library work;
 use work.all;
 
 -- Entity "Degen" is "Degen" with:
--- 	args={'A': 'bits(1)', 'B': 'bits(0)', 'XOUT': 'bits(0)'}
+-- 	args={'A': 'bits(2)', 'B': 'bits(1)', 'XOUT': 'bits(1)'}
 -- 	kwargs={}
 entity Degen is
   port (
-    A : in std_logic_vector(0 downto 0);
+    A : in std_logic_vector(1 downto 0);
     B : in std_logic;
     XOUT : out std_logic
   );
@@ -252,7 +252,7 @@ library work;
 use work.all;
 
 -- Entity "Degen" is "Degen" with:
--- 	args={'A': 'bits(1)', 'B': 'bits(0)', 'XOUT': 'bits(0)'}
+-- 	args={'A': 'bits(2)', 'B': 'bits(1)', 'XOUT': 'bits(1)'}
 -- 	kwargs={}
 architecture behavior of Degen is
 begin

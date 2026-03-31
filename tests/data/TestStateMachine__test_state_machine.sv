@@ -38,7 +38,7 @@ endpackage
 
 
 // Entity "StateMachine" is "StateMachine" with:
-// 	args={'CLK': 'bits(0)', 'RST_N': 'bits(0)', 'BITLINE': 'bits(0)', 'RDEN': 'bits(0)', 'RDATA': 'uint(8)'}
+// 	args={'CLK': 'bits(1)', 'RST_N': 'bits(1)', 'BITLINE': 'bits(1)', 'RDEN': 'bits(1)', 'RDATA': 'uint(8)'}
 // 	kwargs={}
 module StateMachine(CLK, RST_N, BITLINE, RDEN, RDATA);
   input logic CLK;

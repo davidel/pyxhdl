@@ -258,7 +258,7 @@ library work;
 use work.all;
 
 -- Entity "XLib" is "XLib" with:
--- 	args={'CLK': 'bits(0)', 'A': 'uint(8)', 'B': 'uint(8)', 'XOUT': 'uint(8)'}
+-- 	args={'CLK': 'bits(1)', 'A': 'uint(8)', 'B': 'uint(8)', 'XOUT': 'uint(8)'}
 -- 	kwargs={arg1=17, arg2="PyXHDL"}
 entity XLib is
   port (
@@ -279,7 +279,7 @@ library work;
 use work.all;
 
 -- Entity "XLib" is "XLib" with:
--- 	args={'CLK': 'bits(0)', 'A': 'uint(8)', 'B': 'uint(8)', 'XOUT': 'uint(8)'}
+-- 	args={'CLK': 'bits(1)', 'A': 'uint(8)', 'B': 'uint(8)', 'XOUT': 'uint(8)'}
 -- 	kwargs={arg1=17, arg2="PyXHDL"}
 architecture behavior of XLib is
   signal e : unsigned(7 downto 0);

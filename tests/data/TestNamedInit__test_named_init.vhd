@@ -232,7 +232,7 @@ library work;
 use work.all;
 
 -- Entity "NamedInit" is "NamedInit" with:
--- 	args={'CLK': 'bits(0)', 'A': 'uint(8)', 'B': 'uint(8)', 'XOUT': 'uint(8)'}
+-- 	args={'CLK': 'bits(1)', 'A': 'uint(8)', 'B': 'uint(8)', 'XOUT': 'uint(8)'}
 -- 	kwargs={}
 entity NamedInit is
   port (
@@ -253,7 +253,7 @@ library work;
 use work.all;
 
 -- Entity "NamedInit" is "NamedInit" with:
--- 	args={'CLK': 'bits(0)', 'A': 'uint(8)', 'B': 'uint(8)', 'XOUT': 'uint(8)'}
+-- 	args={'CLK': 'bits(1)', 'A': 'uint(8)', 'B': 'uint(8)', 'XOUT': 'uint(8)'}
 -- 	kwargs={}
 architecture behavior of NamedInit is
 begin

@@ -38,7 +38,7 @@ endpackage
 
 
 // Entity "InterfaceTest" is "InterfaceTest" with:
-// 	args={'CLK': 'bits(0)', 'RST_N': 'bits(0)', 'A': 'uint(8)', 'B': 'uint(8)', 'XOUT': 'uint(8)'}
+// 	args={'CLK': 'bits(1)', 'RST_N': 'bits(1)', 'A': 'uint(8)', 'B': 'uint(8)', 'XOUT': 'uint(8)'}
 // 	kwargs={}
 module InterfaceTest(CLK, RST_N, A, B, XOUT);
   input logic CLK;

@@ -38,7 +38,7 @@ endpackage
 
 
 // Entity "EdgeTrig" is "EdgeTrig" with:
-// 	args={'CLK': 'bits(0)', 'A': 'uint(8)', 'B': 'uint(8)', 'XOUT': 'uint(8)'}
+// 	args={'CLK': 'bits(1)', 'A': 'uint(8)', 'B': 'uint(8)', 'XOUT': 'uint(8)'}
 // 	kwargs={}
 module EdgeTrig(CLK, A, B, XOUT);
   input logic CLK;

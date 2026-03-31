@@ -37,13 +37,7 @@ class Type:
 
   @property
   def nbits(self):
-    nbits = self.full_shape[-1]
-
-    return max(nbits, 1) if nbits is not None else None
-
-  @property
-  def degen(self):
-    return self.full_shape[-1] == 0
+    return self.full_shape[-1]
 
   @property
   def size(self):
@@ -141,7 +135,7 @@ FLOAT80 = Float(80)
 FLOAT128 = Float(128)
 
 BOOL = Bool()
-BIT = Bits(0)
+BIT = Bits(1)
 INT = Integer()
 REAL = Real()
 VOID = Void()

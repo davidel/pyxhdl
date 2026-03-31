@@ -70,7 +70,7 @@ class TestBits(unittest.TestCase):
 
   def test_degen(self):
     inputs = dict(
-      A=X.mkwire(X.Bits(1)),
+      A=X.mkwire(X.Bits(2)),
       B=X.mkwire(X.BIT),
       XOUT=X.mkwire(X.BIT),
     )
