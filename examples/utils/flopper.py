@@ -9,7 +9,7 @@ class Flopper(X.Entity):
 
   @X.hdl_process(sens='+CLK')
   def run(self):
-    prev_din = X.mkreg(X.Bits(stages))
+    prev_din = X.mkreg(X.Bits(stages) if stages > 1 else X.BIT)
 
     if RST_N != 1:
       prev_din = 0
