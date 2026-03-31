@@ -4,7 +4,7 @@ from pyxhdl import xlib as XL
 
 class Flopper(X.Entity):
 
-  PORTS = 'CLK, RST_N, DIN:b1, =DOUT:b1'
+  PORTS = 'CLK, RST_N, DIN:b0, =DOUT:b0'
   ARGS = dict(stages=1, sides='+-')
 
   @X.hdl_process(sens='+CLK')
