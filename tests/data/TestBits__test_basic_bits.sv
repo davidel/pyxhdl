@@ -38,7 +38,7 @@ endpackage
 
 
 // Entity "BasicBits" is "BasicBits" with:
-// 	args={'A': 'bits(1)', 'B': 'bits(1)', 'XOUT': 'bits(4)'}
+// 	args={'A': 'bits(0)', 'B': 'bits(0)', 'XOUT': 'bits(4)'}
 // 	kwargs={}
 module BasicBits(A, B, XOUT);
   input logic A;

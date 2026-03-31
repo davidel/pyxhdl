@@ -232,7 +232,7 @@ library work;
 use work.all;
 
 -- Entity "Degen" is "Degen" with:
--- 	args={'A': 'bits(1)', 'B': 'bits(1)', 'XOUT': 'bits(1)'}
+-- 	args={'A': 'bits(1)', 'B': 'bits(0)', 'XOUT': 'bits(0)'}
 -- 	kwargs={}
 entity Degen is
   port (
@@ -252,7 +252,7 @@ library work;
 use work.all;
 
 -- Entity "Degen" is "Degen" with:
--- 	args={'A': 'bits(1)', 'B': 'bits(1)', 'XOUT': 'bits(1)'}
+-- 	args={'A': 'bits(1)', 'B': 'bits(0)', 'XOUT': 'bits(0)'}
 -- 	kwargs={}
 architecture behavior of Degen is
 begin

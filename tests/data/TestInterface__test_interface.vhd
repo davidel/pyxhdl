@@ -232,7 +232,7 @@ library work;
 use work.all;
 
 -- Entity "InterfaceTest" is "InterfaceTest" with:
--- 	args={'CLK': 'bits(1)', 'RST_N': 'bits(1)', 'A': 'uint(8)', 'B': 'uint(8)', 'XOUT': 'uint(8)'}
+-- 	args={'CLK': 'bits(0)', 'RST_N': 'bits(0)', 'A': 'uint(8)', 'B': 'uint(8)', 'XOUT': 'uint(8)'}
 -- 	kwargs={}
 entity InterfaceTest is
   port (
@@ -277,7 +277,7 @@ library work;
 use work.all;
 
 -- Entity "InterfaceTest" is "InterfaceTest" with:
--- 	args={'CLK': 'bits(1)', 'RST_N': 'bits(1)', 'A': 'uint(8)', 'B': 'uint(8)', 'XOUT': 'uint(8)'}
+-- 	args={'CLK': 'bits(0)', 'RST_N': 'bits(0)', 'A': 'uint(8)', 'B': 'uint(8)', 'XOUT': 'uint(8)'}
 -- 	kwargs={}
 architecture behavior of InterfaceTest is
   signal MYIFC_X : unsigned(15 downto 0);

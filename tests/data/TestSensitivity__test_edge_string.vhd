@@ -232,7 +232,7 @@ library work;
 use work.all;
 
 -- Entity "EdgeString" is "EdgeString" with:
--- 	args={'CLK': 'bits(1)', 'RESET': 'bits(1)', 'XOUT': 'uint(8)'}
+-- 	args={'CLK': 'bits(0)', 'RESET': 'bits(0)', 'XOUT': 'uint(8)'}
 -- 	kwargs={}
 entity EdgeString is
   port (
@@ -252,7 +252,7 @@ library work;
 use work.all;
 
 -- Entity "EdgeString" is "EdgeString" with:
--- 	args={'CLK': 'bits(1)', 'RESET': 'bits(1)', 'XOUT': 'uint(8)'}
+-- 	args={'CLK': 'bits(0)', 'RESET': 'bits(0)', 'XOUT': 'uint(8)'}
 -- 	kwargs={}
 architecture behavior of EdgeString is
 begin

@@ -55,7 +55,7 @@ package dummy;
 endpackage
 
 // Entity "XLib" is "XLib" with:
-// 	args={'CLK': 'bits(1)', 'A': 'uint(8)', 'B': 'uint(8)', 'XOUT': 'uint(8)'}
+// 	args={'CLK': 'bits(0)', 'A': 'uint(8)', 'B': 'uint(8)', 'XOUT': 'uint(8)'}
 // 	kwargs={arg1=17, arg2="PyXHDL"}
 module XLib(CLK, A, B, XOUT);
   input logic CLK;

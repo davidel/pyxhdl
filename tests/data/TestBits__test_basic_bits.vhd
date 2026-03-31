@@ -232,7 +232,7 @@ library work;
 use work.all;
 
 -- Entity "BasicBits" is "BasicBits" with:
--- 	args={'A': 'bits(1)', 'B': 'bits(1)', 'XOUT': 'bits(4)'}
+-- 	args={'A': 'bits(0)', 'B': 'bits(0)', 'XOUT': 'bits(4)'}
 -- 	kwargs={}
 entity BasicBits is
   port (
@@ -252,7 +252,7 @@ library work;
 use work.all;
 
 -- Entity "BasicBits" is "BasicBits" with:
--- 	args={'A': 'bits(1)', 'B': 'bits(1)', 'XOUT': 'bits(4)'}
+-- 	args={'A': 'bits(0)', 'B': 'bits(0)', 'XOUT': 'bits(4)'}
 -- 	kwargs={}
 architecture behavior of BasicBits is
   signal z : unsigned(3 downto 0);

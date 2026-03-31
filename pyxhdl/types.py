@@ -12,13 +12,12 @@ from .utils import *
 
 class Type:
 
-  __slots__ = ('name', 'full_shape', 'ctype', 'degen')
+  __slots__ = ('name', 'full_shape', 'ctype')
 
-  def __init__(self, name, shape, ctype, degen=False):
+  def __init__(self, name, shape, ctype):
     self.name = name
     self.full_shape = tuple(shape)
     self.ctype = ctype
-    self.degen = degen
 
   @property
   def has_bits(self):
@@ -38,18 +37,24 @@ class Type:
 
   @property
   def nbits(self):
-    return self.full_shape[-1] if self.has_bits else None
+    nbits = self.full_shape[-1]
+
+    return max(nbits, 1) if nbits is not None else None
+
+  @property
+  def degen(self):
+    return self.full_shape[-1] == 0
 
   @property
   def size(self):
     return np.prod(self.full_shape[: -1])
 
   def __hash__(self):
-    return hash((self.name, self.full_shape, self.ctype, self.degen))
+    return hash((self.name, self.full_shape, self.ctype))
 
   def __eq__(self, other):
     return (self.name == other.name and self.full_shape == other.full_shape and
-            self.ctype == other.ctype and self.degen == other.degen)
+            self.ctype == other.ctype)
 
   def __str__(self):
     return f'{self.name}(' + ', '.join(str(x) for x in self.shape) + ')'
@@ -136,7 +141,7 @@ FLOAT80 = Float(80)
 FLOAT128 = Float(128)
 
 BOOL = Bool()
-BIT = Bits(1, degen=True)
+BIT = Bits(0)
 INT = Integer()
 REAL = Real()
 VOID = Void()

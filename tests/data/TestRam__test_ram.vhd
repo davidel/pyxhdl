@@ -232,7 +232,7 @@ library work;
 use work.all;
 
 -- Entity "RamTest" is "RamTest" with:
--- 	args={'CLK': 'bits(1)', 'RST_N': 'bits(1)', 'RDEN': 'bits(1)', 'WREN': 'bits(1)', 'ADDR': 'bits(12)', 'IN_DATA': 'bits(16)', 'OUT_DATA': 'bits(16)'}
+-- 	args={'CLK': 'bits(0)', 'RST_N': 'bits(0)', 'RDEN': 'bits(0)', 'WREN': 'bits(0)', 'ADDR': 'bits(12)', 'IN_DATA': 'bits(16)', 'OUT_DATA': 'bits(16)'}
 -- 	kwargs={RAM_SIZE=3072}
 entity RamTest is
   port (
@@ -256,7 +256,7 @@ library work;
 use work.all;
 
 -- Entity "RamTest" is "RamTest" with:
--- 	args={'CLK': 'bits(1)', 'RST_N': 'bits(1)', 'RDEN': 'bits(1)', 'WREN': 'bits(1)', 'ADDR': 'bits(12)', 'IN_DATA': 'bits(16)', 'OUT_DATA': 'bits(16)'}
+-- 	args={'CLK': 'bits(0)', 'RST_N': 'bits(0)', 'RDEN': 'bits(0)', 'WREN': 'bits(0)', 'ADDR': 'bits(12)', 'IN_DATA': 'bits(16)', 'OUT_DATA': 'bits(16)'}
 -- 	kwargs={RAM_SIZE=3072}
 architecture behavior of RamTest is
   signal mem : pyxhdl.bits_array1d(0 to 3071)(15 downto 0);

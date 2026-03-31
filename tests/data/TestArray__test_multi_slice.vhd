@@ -232,7 +232,7 @@ library work;
 use work.all;
 
 -- Entity "ArrayMultiSliceEnt" is "ArrayMultiSliceEnt" with:
--- 	args={'A': 'uint(8)', 'B': 'uint(8)', 'XOUT': 'bits(1)'}
+-- 	args={'A': 'uint(8)', 'B': 'uint(8)', 'XOUT': 'bits(0)'}
 -- 	kwargs={}
 entity ArrayMultiSliceEnt is
   port (
@@ -252,7 +252,7 @@ library work;
 use work.all;
 
 -- Entity "ArrayMultiSliceEnt" is "ArrayMultiSliceEnt" with:
--- 	args={'A': 'uint(8)', 'B': 'uint(8)', 'XOUT': 'bits(1)'}
+-- 	args={'A': 'uint(8)', 'B': 'uint(8)', 'XOUT': 'bits(0)'}
 -- 	kwargs={}
 architecture behavior of ArrayMultiSliceEnt is
 begin

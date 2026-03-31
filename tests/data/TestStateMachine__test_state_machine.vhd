@@ -232,7 +232,7 @@ library work;
 use work.all;
 
 -- Entity "StateMachine" is "StateMachine" with:
--- 	args={'CLK': 'bits(1)', 'RST_N': 'bits(1)', 'BITLINE': 'bits(1)', 'RDEN': 'bits(1)', 'RDATA': 'uint(8)'}
+-- 	args={'CLK': 'bits(0)', 'RST_N': 'bits(0)', 'BITLINE': 'bits(0)', 'RDEN': 'bits(0)', 'RDATA': 'uint(8)'}
 -- 	kwargs={}
 entity StateMachine is
   port (
@@ -254,7 +254,7 @@ library work;
 use work.all;
 
 -- Entity "StateMachine" is "StateMachine" with:
--- 	args={'CLK': 'bits(1)', 'RST_N': 'bits(1)', 'BITLINE': 'bits(1)', 'RDEN': 'bits(1)', 'RDATA': 'uint(8)'}
+-- 	args={'CLK': 'bits(0)', 'RST_N': 'bits(0)', 'BITLINE': 'bits(0)', 'RDEN': 'bits(0)', 'RDATA': 'uint(8)'}
 -- 	kwargs={}
 architecture behavior of StateMachine is
   signal state : unsigned(2 downto 0) := to_unsigned(0, 3);

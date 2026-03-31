@@ -38,7 +38,7 @@ endpackage
 
 
 // Entity "RamTest" is "RamTest" with:
-// 	args={'CLK': 'bits(1)', 'RST_N': 'bits(1)', 'RDEN': 'bits(1)', 'WREN': 'bits(1)', 'ADDR': 'bits(12)', 'IN_DATA': 'bits(16)', 'OUT_DATA': 'bits(16)'}
+// 	args={'CLK': 'bits(0)', 'RST_N': 'bits(0)', 'RDEN': 'bits(0)', 'WREN': 'bits(0)', 'ADDR': 'bits(12)', 'IN_DATA': 'bits(16)', 'OUT_DATA': 'bits(16)'}
 // 	kwargs={RAM_SIZE=3072}
 module RamTest(CLK, RST_N, RDEN, WREN, ADDR, IN_DATA, OUT_DATA);
   input logic CLK;

@@ -38,7 +38,7 @@ endpackage
 
 
 // Entity "InterfaceArrayTest" is "InterfaceArrayTest" with:
-// 	args={'CLK': 'bits(1)', 'RST_N': 'bits(1)', 'A': 'uint(2, 8)', 'XOUT': 'uint(2, 8)'}
+// 	args={'CLK': 'bits(0)', 'RST_N': 'bits(0)', 'A': 'uint(2, 8)', 'XOUT': 'uint(2, 8)'}
 // 	kwargs={}
 module InterfaceArrayTest(CLK, RST_N, A, XOUT);
   input logic CLK;
