@@ -3,8 +3,6 @@ import py_misc_utils.module_utils as pymu
 import pyxhdl as X
 from pyxhdl import xlib as XL
 
-uart = pymu.rel_import_module('../utils/uart', __file__)
-
 
 class UartEcho(X.Entity):
 
@@ -18,6 +16,8 @@ class UartEcho(X.Entity):
 
   @X.hdl_process(kind=X.ROOT_PROCESS)
   def root(self):
+    uart = pymu.rel_import_module('../utils/uart', __file__)
+
     self.uifc = uart.UartIfc(CLK, RST_N, UIN, UOUT, CTS, RTS,
                              **self.kwargs)
 
