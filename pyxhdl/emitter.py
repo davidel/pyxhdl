@@ -382,7 +382,8 @@ class Emitter:
         coords.append(self.svalue(ix))
         shape.append(1)
 
-    shape = pyu.squeeze(shape + list(value.dtype.full_shape[len(sidx): ]), keep_dims=1,
+    shape = pyu.squeeze(shape + list(value.dtype.full_shape[len(sidx): ]),
+                        keep_dims=1,
                         sdir=pyu.MAJOR)
 
     # If the last access of a bits type is not a slice, than it is a single bit,
