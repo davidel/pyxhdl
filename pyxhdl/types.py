@@ -14,7 +14,7 @@ class Type:
 
   __slots__ = ('name', 'full_shape', 'ctype', 'degen')
 
-  def __init__(self, name, shape, ctype, degen=None):
+  def __init__(self, name, shape, ctype, degen=False):
     self.name = name
     self.full_shape = tuple(shape)
     self.ctype = ctype
@@ -63,7 +63,9 @@ class Type:
     if not self.has_bits and (not shape or shape[-1] is not None):
       shape = shape + (None,)
 
-    return pycu.new_with(self, full_shape=shape, degen=degen or self.degen)
+    return pycu.new_with(self,
+                         full_shape=shape, 
+                         degen=degen if degen is not None else self.degen)
 
   def element_type(self):
     return self.new_shape(*self.full_shape[-1: ])
