@@ -482,7 +482,7 @@ class Verilog_Emitter(Emitter):
     else:
       return f'{start}: {stop - step}'
 
-  def _gen_coords(self, value, coords):
+  def _gen_slice_access(self, value, coords):
     return paren(self.svalue(value), kind='{}') + ''.join(f'[{x}]' for x in coords)
 
   def flush(self):

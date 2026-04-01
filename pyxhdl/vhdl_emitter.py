@@ -401,7 +401,7 @@ class VHDL_Emitter(Emitter):
     else:
       return f'{start} {slice_dir[step]} {stop - step}'
 
-  def _gen_coords(self, value, coords):
+  def _gen_slice_access(self, value, coords):
     return self.svalue(value) + ''.join(f'({x})' for x in coords)
 
   def flush(self):
