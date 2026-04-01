@@ -47,6 +47,11 @@ package pyxhdl is
   type real_array3d is array(natural range <>) of real_array2d;
   type real_array4d is array(natural range <>) of real_array3d;
 
+  function ident(value : in std_logic) return std_logic;
+  function ident(value : in std_logic_vector) return std_logic_vector;
+  function ident(value : in unsigned) return unsigned;
+  function ident(value : in signed) return signed;
+
   function sint_ifexp(test : in boolean; texp : in signed; fexp : in signed) return signed;
   function uint_ifexp(test : in boolean; texp : in unsigned; fexp : in unsigned) return unsigned;
   function bool_ifexp(test : in boolean; texp : in boolean; fexp : in boolean) return boolean;
@@ -76,6 +81,26 @@ package pyxhdl is
 end package;
 
 package body pyxhdl is
+  function ident(value : in std_logic) return std_logic is
+  begin
+    return value;
+  end function;
+
+  function ident(value : in std_logic_vector) return std_logic_vector is
+  begin
+    return value;
+  end function;
+
+  function ident(value : in unsigned) return unsigned is
+  begin
+    return value;
+  end function;
+
+  function ident(value : in signed) return signed is
+  begin
+    return value;
+  end function;
+
   function sint_ifexp(test : in boolean; texp : in signed; fexp : in signed) return signed is
   begin
     if test then

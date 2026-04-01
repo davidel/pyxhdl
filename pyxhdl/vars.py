@@ -251,13 +251,11 @@ def has_hdl_vars(v):
   return False
 
 
-def bitstring(value) -> Value:
+def bitstring(value):
   # 0b0010 -> dtype=Bits(4), value="0010"
   m = re.match(rf'0b([{VALID_BITS}]+)$', value)
-  if m:
-    bstr = m.group(1)
 
-    return Value(Bits(len(bstr)), bstr)
+  return m.group(1) if m else None
 
 
 def bitfill(bitval, n):

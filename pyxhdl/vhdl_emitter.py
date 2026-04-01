@@ -113,17 +113,31 @@ class VHDL_Emitter(Emitter):
 
     fatal(f'Unknown type: {dtype}', exc=TypeError)
 
-  def _resize_bits(self, value, nbits):
-    if value.dtype.nbits == nbits:
-      return value
+  def _resize_bits(self, value, dtype):
+    shape = list(value.dtype.shape)
+    shape[-1] = dtype.nbits
+
+    rdtype = value.dtype.new_shape(*shape, degen=dtype.degen)
 
     xvalue = self.svalue(value)
-    result = f'pyxhdl.bits_resize({xvalue}, {nbits})'
 
-    shape = list(value.dtype.shape)
-    shape[-1] = nbits
+    if dtype.degen:
+      # Select LSB if degenerate type.
+      m = re.match(rf'"([{VALID_BITS}]+)"$', xvalue)
+      if m:
+        return Value(rdtype, f'\'{m.group(1)[-1]}\'')
+      else:
+        def paren_fn(value):
+          return f'pyxhdl.ident({value})'
 
-    return value.new_value(result, shape=shape)
+        return value.new_value(f'{paren(xvalue, kind=paren_fn)}(0)', dtype=rdtype)
+
+    if value.dtype.nbits == dtype.nbits:
+      return value
+
+    result = f'pyxhdl.bits_resize({xvalue}, {rdtype.nbits})'
+
+    return value.new_value(result, dtype=rdtype)
 
   def _to_bool(self, value, dtype):
     if isinstance(value, Value):
@@ -189,8 +203,7 @@ class VHDL_Emitter(Emitter):
     if isinstance(value, str):
       bvalue = bitstring(value)
       if bvalue is not None:
-        return bvalue.new_value(f'"{bvalue.value}"' if bvalue.dtype.nbits > 1
-                                else f'\'{bvalue.value}\'')
+        return Value(Bits(len(bvalue)), f'"{bvalue}"')
 
       dtype, ivalue = self._match_intstring(value)
       if dtype is not None:
@@ -209,8 +222,8 @@ class VHDL_Emitter(Emitter):
           xvalue = f'resize({xvalue}, {dtype.nbits})'
         return f'std_logic_vector({xvalue})' if dtype.nbits > 1 else xvalue
       elif isinstance(value.dtype, Bits):
-        value = self._resize_bits(value, dtype.nbits)
-        return self.svalue(value)
+        rvalue = self._resize_bits(value, dtype)
+        return self.svalue(rvalue)
       elif isinstance(value.dtype, Integer):
         return f'std_logic_vector(to_unsigned({self.svalue(value)}, {dtype.nbits}))'
       elif isinstance(value.dtype, Real):

@@ -82,7 +82,7 @@ def paren(sx, kind='()'):
       levch.append(_BOUNDS[c])
       level += 1
     elif level == 0 and _NEEDSPAR_RX.match(c):
-      return f'{kind[0]}{sx}{kind[1]}'
+      return kind(sx) if callable(kind) else f'{kind[0]}{sx}{kind[1]}'
 
   return sx
 

@@ -213,7 +213,7 @@ class Verilog_Emitter(Emitter):
     if isinstance(value, str):
       bvalue = bitstring(value)
       if bvalue is not None:
-        return bvalue.new_value(f'{bvalue.dtype.nbits}\'b{bvalue.value}')
+        return Value(Bits(len(bvalue)), f'{len(bvalue)}\'b{bvalue}')
 
       dtype, ivalue = self._match_intstring(value)
       if dtype is not None:
