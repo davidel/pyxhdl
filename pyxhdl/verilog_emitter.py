@@ -851,10 +851,8 @@ class Verilog_Emitter(Emitter):
 
     return Value(BOOL, result)
 
-  def eval_Subscript(self, arg, idx):
-    result, shape = self._gen_array_access(arg, idx)
-
-    return arg.new_value(result, shape=shape, keepref=True)
+  def eval_Subscript(self, value, idx):
+    return self._gen_array_access(value, idx)
 
   def eval_IfExp(self, test, body, orelse):
     xtest = self.svalue(test)

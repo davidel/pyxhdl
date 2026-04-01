@@ -383,7 +383,9 @@ class Emitter:
     shape = pyu.squeeze(shape + list(value.dtype.full_shape[len(sidx): ]), keep_dims=1,
                         sdir=pyu.MAJOR)
 
-    return self._gen_slice_access(value, coords), shape
+    svalue = self._gen_slice_access(value, coords)
+
+    return value.new_value(svalue, shape=shape, keepref=True)
 
   def _emit(self, obj, placement=None):
     if placement is None:
