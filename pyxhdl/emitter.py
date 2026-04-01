@@ -337,6 +337,54 @@ class Emitter:
 
     return xvalue
 
+  def _gen_array_access(self, value, idx):
+    sidx = pyu.as_sequence(idx)
+
+    ashape = value.dtype.shape
+    if len(sidx) > len(ashape):
+      fatal(f'Wrong indexing for shape: {sidx} vs. {ashape}')
+
+    shape, coords = [], []
+    for i, ix in enumerate(sidx):
+      if isinstance(ix, slice):
+        if isinstance(ix.start, Value):
+          if ix.stop is not None:
+            fatal(f'Variable part select ({value} [{i}]) slice stop must be empty: {ix.stop}')
+          if ix.step is None:
+            fatal(f'Variable part select ({value} [{i}]) slice step must not be empty')
+
+          step = abs(ix.step)
+          if step > ashape[i]:
+            fatal(f'Variable part select ({value} [{i}]) is too big: {step} ({ashape[i]})')
+
+          shape.append(step)
+          base = self._to_integer(ix.start, Integer())
+
+          coords.append(self._gen_based_slice(i, ashape, base, ix.step))
+        else:
+          step = ix.step if ix.step is not None else 1
+          if abs(step) != 1:
+            fatal(f'Slice step must be 1: {step}')
+
+          start, stop = validate_slice(ix.start, ix.stop, ashape[i], step)
+          shape.append(abs(stop - start))
+
+          coords.append(self._gen_std_slice(i, ashape, start, stop, step))
+      else:
+        if isinstance(ix, Value):
+          if not isinstance(ix.dtype, Integer):
+            ix = self._to_integer(ix, Integer())
+        elif isinstance(ix, int) and ix < 0:
+          ix = ashape[i] + ix
+
+        coords.append(self.svalue(ix))
+        shape.append(1)
+
+    shape = pyu.squeeze(shape + list(value.dtype.full_shape[len(sidx): ]), keep_dims=1,
+                        sdir=pyu.MAJOR)
+
+    return self._gen_coords(value, coords), shape
+
   def _emit(self, obj, placement=None):
     if placement is None:
       self._code.append(obj)

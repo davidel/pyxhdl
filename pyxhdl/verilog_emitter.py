@@ -469,62 +469,21 @@ class Verilog_Emitter(Emitter):
   def emit_write(self, parts):
     self._emit_line('$display("' + ('%s' * len(parts)) + '", ' + ', '.join(parts) + ');')
 
-  def _gen_array_access(self, arg, idx):
-    idx = pyu.as_sequence(idx)
+  def _gen_based_slice(self, idx, shape, base, step):
+    astep = abs(step)
+    if (idx == len(shape) - 1) == (step >= 0):
+      return f'{paren(base)} + {astep - 1} -: {astep}'
+    else:
+      return f'{paren(base)} +: {astep}'
 
-    ashape = arg.dtype.shape
-    if len(idx) > len(ashape):
-      fatal(f'Wrong indexing for shape: {idx} vs. {ashape}')
+  def _gen_std_slice(self, idx, shape, start, stop, step):
+    if idx == len(shape) - 1:
+      return f'{stop - step}: {start}'
+    else:
+      return f'{start}: {stop - step}'
 
-    shape, coords = [], []
-    for i, ix in enumerate(idx):
-      if isinstance(ix, slice):
-        if isinstance(ix.start, Value):
-          if ix.stop is not None:
-            fatal(f'Variable part select ({arg} [{i}]) slice stop must be empty: {ix.stop}')
-          if ix.step is None:
-            fatal(f'Variable part select ({arg} [{i}]) slice step must not be empty')
-
-          step = abs(ix.step)
-          if step > ashape[i]:
-            fatal(f'Variable part select ({arg} [{i}]) is too big: {step} ({ashape[i]})')
-
-          base = self._to_integer(ix.start, Integer())
-
-          if (i == len(ashape) - 1) == (ix.step >= 0):
-            coords.append(f'{paren(base)} + {step - 1} -: {step}')
-          else:
-            coords.append(f'{paren(base)} +: {step}')
-
-          shape.append(step)
-        else:
-          step = ix.step if ix.step is not None else 1
-          if abs(step) != 1:
-            fatal(f'Slice step must be 1: {step}')
-
-          start, stop = validate_slice(ix.start, ix.stop, ashape[i], step)
-
-          if i == len(ashape) - 1:
-            coords.append(f'{stop - step}: {start}')
-          else:
-            coords.append(f'{start}: {stop - step}')
-
-          shape.append(abs(stop - start))
-      else:
-        if isinstance(ix, Value):
-          if not isinstance(ix.dtype, Integer):
-            ix = self._to_integer(ix, Integer())
-        elif isinstance(ix, int) and ix < 0:
-          ix = ashape[i] + ix
-
-        coords.append(self.svalue(ix))
-        shape.append(1)
-
-    shape = pyu.squeeze(shape + list(arg.dtype.full_shape[len(idx): ]), keep_dims=1,
-                        sdir=pyu.MAJOR)
-    avalue = paren(self.svalue(arg), kind='{}') + ''.join(f'[{x}]' for x in coords)
-
-    return avalue, shape
+  def _gen_coords(self, value, coords):
+    return paren(self.svalue(value), kind='{}') + ''.join(f'[{x}]' for x in coords)
 
   def flush(self):
     return self._load_libs() + self._expand()
