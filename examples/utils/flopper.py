@@ -4,21 +4,17 @@ from pyxhdl import xlib as XL
 
 class Flopper(X.Entity):
 
-  PORTS = 'CLK, RST_N, DIN:b1, =DOUT:b1'
+  PORTS = 'CLK, RST_N, DIN:bit, =DOUT:bit'
   ARGS = dict(stages=1, sides='+-')
 
   @X.hdl_process(sens='+CLK')
   def run(self):
-    # Single bit types have special meaning for PyXHDL, and are not indexable
-    # (they map to std_logic in VHDL an logic in SystemVerilog), but since we
-    # want and indexable bit vector we size up by one, and handle that by
-    # selecting prev_din[-2] below, instead of prev_din[-1].
-    prev_din = X.mkreg(X.Bits(stages + 1))
+    prev_din = X.mkreg(X.Bits(stages))
 
     if RST_N != 1:
       prev_din = 0
     else:
-      DOUT = prev_din[-2]
+      DOUT = prev_din[-1]
 
       match DIN:
         case 1:

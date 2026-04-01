@@ -12,12 +12,13 @@ from .utils import *
 
 class Type:
 
-  __slots__ = ('name', 'full_shape', 'ctype')
+  __slots__ = ('name', 'full_shape', 'ctype', 'degen')
 
-  def __init__(self, name, shape, ctype):
+  def __init__(self, name, shape, ctype, degen=None):
     self.name = name
     self.full_shape = tuple(shape)
     self.ctype = ctype
+    self.degen = degen
 
   @property
   def has_bits(self):
@@ -44,23 +45,25 @@ class Type:
     return np.prod(self.full_shape[: -1])
 
   def __hash__(self):
-    return hash((self.name, self.full_shape, self.ctype))
+    return hash((self.name, self.full_shape, self.ctype, self.degen))
 
   def __eq__(self, other):
     return (self.name == other.name and self.full_shape == other.full_shape and
-            self.ctype == other.ctype)
+            self.ctype == other.ctype and self.degen == other.degen)
 
   def __str__(self):
     return f'{self.name}(' + ', '.join(str(x) for x in self.shape) + ')'
 
   def __repr__(self):
-    return f'{pyiu.cname(self)}({self.name}, {self.full_shape}, {self.ctype})'
+    rfmt = pyu.repr_fmt(self, 'name=,full_shape=,ctype=,degen')
 
-  def new_shape(self, *shape):
+    return f'{pyiu.cname(self)}({rfmt})'
+
+  def new_shape(self, *shape, degen=None):
     if not self.has_bits and (not shape or shape[-1] is not None):
       shape = shape + (None,)
 
-    return pycu.new_with(self, full_shape=shape)
+    return pycu.new_with(self, full_shape=shape, degen=degen or self.degen)
 
   def element_type(self):
     return self.new_shape(*self.full_shape[-1: ])
@@ -135,7 +138,7 @@ FLOAT80 = Float(80)
 FLOAT128 = Float(128)
 
 BOOL = Bool()
-BIT = Bits(1)
+BIT = Bits(1, degen=True)
 INT = Integer()
 REAL = Real()
 VOID = Void()

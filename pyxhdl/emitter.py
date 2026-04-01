@@ -383,9 +383,17 @@ class Emitter:
     shape = pyu.squeeze(shape + list(value.dtype.full_shape[len(sidx): ]), keep_dims=1,
                         sdir=pyu.MAJOR)
 
+    # If the last access of a bits type is not a slice, than it is a single bit,
+    # which should be marked as degenerated. It is still one bit, but it is an
+    # std_logic/logic instead of std_logic_vector(0 downto 0)/logic[0: 0].
+    degen = (True if value.dtype.has_bits and len(sidx) == len(ashape) and
+             not isinstance(sidx[-1], slice) else None)
+
+    dtype = value.dtype.new_shape(*shape, degen=degen)
+
     svalue = self._gen_slice_access(value, coords)
 
-    return value.new_value(svalue, shape=shape, keepref=True)
+    return value.new_value(svalue, dtype=dtype, keepref=True)
 
   def _emit(self, obj, placement=None):
     if placement is None:
