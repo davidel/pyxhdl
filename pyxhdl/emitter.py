@@ -343,6 +343,8 @@ class Emitter:
     ashape = value.dtype.shape
     if len(sidx) > len(ashape):
       fatal(f'Wrong indexing for shape: {sidx} vs. {ashape}')
+    elif value.dtype.degen and len(sidx) == len(ashape):
+      fatal(f'Degenerate array type cannot be sliced: {sidx} slice of {value.dtype}')
 
     shape, coords = [], []
     for i, ix in enumerate(sidx):
