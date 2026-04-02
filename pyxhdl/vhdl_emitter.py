@@ -127,8 +127,11 @@ class VHDL_Emitter(Emitter):
       if m:
         return Value(rdtype, f'\'{m.group(1)[-1]}\'')
       else:
-        def paren_fn(value):
-          return f'pyxhdl.ident({value})'
+        # If the input value is an expression, we need to use the ident() hack, since
+        # things like `(A and B)(0)` (bit-selecting an expression) are illegal, while
+        # `ident(A and B)(0)` are.
+        def paren_fn(expr):
+          return f'pyxhdl.ident({expr})'
 
         return value.new_value(f'{paren(xvalue, kind=paren_fn)}(0)', dtype=rdtype)
 
