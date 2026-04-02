@@ -68,8 +68,8 @@ _BOUNDS = {
 }
 _NEEDSPAR_RX = re.compile(r'[ +\-*/%!~&|^]')
 
-def paren(sx, kind='()'):
-  level, levch, skip = 0, [None], False
+def paren(sx, kind='({})'):
+  levch, skip = [None], False
   for c in sx:
     if skip:
       skip = False
@@ -77,12 +77,10 @@ def paren(sx, kind='()'):
       skip = True
     elif c == levch[-1]:
       levch.pop()
-      level -= 1
-    elif c in _BOUNDS:
-      levch.append(_BOUNDS[c])
-      level += 1
-    elif level == 0 and _NEEDSPAR_RX.match(c):
-      return kind(sx) if callable(kind) else f'{kind[0]}{sx}{kind[1]}'
+    elif mc := _BOUNDS.get(c):
+      levch.append(mc)
+    elif len(levch) == 1 and _NEEDSPAR_RX.match(c):
+      return kind(sx) if callable(kind) else kind.format(sx)
 
   return sx
 
