@@ -16,7 +16,7 @@ class UartEcho(X.Entity):
 
   @X.hdl_process(kind=X.ROOT_PROCESS)
   def root(self):
-    uart = pymu.rel_import_module('../utils/uart', __file__)
+    uart = pymu.rel_import_module('../../utils/uart', __file__)
 
     self.uifc = uart.UartIfc(CLK, RST_N, UIN, UOUT, CTS, RTS,
                              **self.kwargs)

@@ -10,7 +10,7 @@ class AxisEcho(X.Entity):
   def root():
     import py_misc_utils.module_utils as pymu
 
-    axis = pymu.rel_import_module('../utils/axis', __file__)
+    axis = pymu.rel_import_module('../../utils/axis', __file__)
 
     TVALID = X.mkreg(X.BIT)
     TREADY = X.mkreg(X.BIT)

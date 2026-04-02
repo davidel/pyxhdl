@@ -1,16 +1,20 @@
 
+WORKDIR ?= /tmp
 SRCDIR ?= $(dir $(realpath $(lastword ${MAKEFILE_LIST})))
 LOG_LEVEL ?= INFO
 SOURCES = ${SRCDIR}/axis_echo.py ${SRCDIR}/axis_tb.yaml
 IFC_SOURCES = ${SRCDIR}/axis_echo_ifc.py ${SRCDIR}/axis_tb.yaml
 
-TARGETS = axis_tb.vhd axis_tb.sv axis_tb_ifc.vhd axis_tb_ifc.sv
+TARGETS = ${WORKDIR}/axis_tb.vhd \
+	${WORKDIR}/axis_tb.sv \
+	${WORKDIR}/axis_tb_ifc.vhd \
+	${WORKDIR}/axis_tb_ifc.sv
 
 
 all: ${TARGETS}
 
 
-axis_tb.vhd: ${SOURCES}
+${WORKDIR}/axis_tb.vhd: ${SOURCES}
 	python -m pyxhdl.generator \
 		--input_file ${SRCDIR}/axis_echo.py \
 		--entity AxisEcho \
@@ -21,9 +25,9 @@ axis_tb.vhd: ${SOURCES}
 		--tb_clock "CLK,10ns" \
 		--tb_input_file ${SRCDIR}/axis_tb.yaml \
 		--log_level ${LOG_LEVEL} \
-		--output_file axis_tb.vhd
+		--output_file ${WORKDIR}/axis_tb.vhd
 
-axis_tb.sv: ${SOURCES}
+${WORKDIR}/axis_tb.sv: ${SOURCES}
 	python -m pyxhdl.generator \
 		--input_file ${SRCDIR}/axis_echo.py \
 		--entity AxisEcho \
@@ -34,9 +38,9 @@ axis_tb.sv: ${SOURCES}
 		--tb_clock "CLK,10ns" \
 		--tb_input_file ${SRCDIR}/axis_tb.yaml \
 		--log_level ${LOG_LEVEL} \
-		--output_file axis_tb.sv
+		--output_file ${WORKDIR}/axis_tb.sv
 
-axis_tb_ifc.vhd: ${IFC_SOURCES}
+${WORKDIR}/axis_tb_ifc.vhd: ${IFC_SOURCES}
 	python -m pyxhdl.generator \
 		--input_file ${SRCDIR}/axis_echo_ifc.py \
 		--entity AxisEcho \
@@ -47,9 +51,9 @@ axis_tb_ifc.vhd: ${IFC_SOURCES}
 		--tb_clock "CLK,10ns" \
 		--tb_input_file ${SRCDIR}/axis_tb.yaml \
 		--log_level ${LOG_LEVEL} \
-		--output_file axis_tb_ifc.vhd
+		--output_file ${WORKDIR}/axis_tb_ifc.vhd
 
-axis_tb_ifc.sv: ${IFC_SOURCES}
+${WORKDIR}/axis_tb_ifc.sv: ${IFC_SOURCES}
 	python -m pyxhdl.generator \
 		--input_file ${SRCDIR}/axis_echo_ifc.py \
 		--entity AxisEcho \
@@ -60,7 +64,7 @@ axis_tb_ifc.sv: ${IFC_SOURCES}
 		--tb_clock "CLK,10ns" \
 		--tb_input_file ${SRCDIR}/axis_tb.yaml \
 		--log_level ${LOG_LEVEL} \
-		--output_file axis_tb_ifc.sv
+		--output_file ${WORKDIR}/axis_tb_ifc.sv
 
 clean:
 	rm -f ${TARGETS}

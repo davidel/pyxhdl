@@ -92,8 +92,7 @@ class Test(X.Entity):
     import py_misc_utils.module_utils as pymu
 
     from . import clock
-
-    axis = pymu.rel_import_module('../utils/axis', __file__)
+    from . import axis
 
     CLK = X.mkreg(X.BIT)
 
