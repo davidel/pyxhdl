@@ -634,8 +634,6 @@ class CodeGen(_ExecVisitor):
     self._ent_versions = EntityVersions()
     self._vars_places = []
     self._root_vars = dict()
-    self._process_kind = None
-    self._process_args = None
     self._setup_handlers()
 
   def _setup_handlers(self):
@@ -834,11 +832,14 @@ class CodeGen(_ExecVisitor):
 
     return result
 
-  def _process_scope_enter(self, vars_scope, process_kind, process_args):
+  @contextlib.contextmanager
+  def _process_scope(self, vars_scope):
     self._variables.append(dict())
     self._vars_places.append(vars_scope)
-    self._process_kind = process_kind
-    self._process_args = process_args
+    try:
+      yield self
+    finally:
+      self._process_scope_exit()
 
   def _process_scope_exit(self):
     alog.debug(lambda: f'Variables stack is {len(self._variables)} deep')
@@ -1022,33 +1023,22 @@ class CodeGen(_ExecVisitor):
 
   def generate_process(self, func, args, kwargs=None, sensitivity=None,
                        process_kind=None, process_args=None):
-    fkwargs = kwargs or dict()
+    with self.emitter.process(pyiu.func_name(func),
+                              process_kind,
+                              process_args,
+                              sensitivity):
+      if process_kind == ROOT_PROCESS:
+        with self._process_scope(self.emitter.module_vars_place):
+          result = self.run_function(func, args, kwargs or dict())
+      else:
+        self.emitter.emit_process_decl()
+        with (self._process_scope(self.emitter.process_vars_place),
+              self.emitter.indent()):
+          result = self.run_function(func, args, kwargs or dict())
 
-    if process_kind == ROOT_PROCESS:
-      self._process_scope_enter(self.emitter.module_vars_place, process_kind,
-                                process_args)
-      try:
-        result = self.run_function(func, args, fkwargs)
-      finally:
-        self._process_scope_exit()
-    else:
-      self.emitter.emit_process_decl(pyiu.func_name(func),
-                                     sensitivity=sensitivity,
-                                     process_kind=process_kind,
-                                     process_args=process_args)
+        self.emitter.emit_process_end()
 
-      self.emitter.emit_process_begin()
-      self._process_scope_enter(self.emitter.process_vars_place, process_kind,
-                                process_args)
-      try:
-        with self.emitter.indent():
-          result = self.run_function(func, args, fkwargs)
-      finally:
-        self._process_scope_exit()
-
-      self.emitter.emit_process_end()
-
-    return result
+      return result
 
   def _reset_entity_context(self):
     self._root_vars = dict()

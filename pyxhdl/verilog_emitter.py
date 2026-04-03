@@ -611,18 +611,15 @@ class Verilog_Emitter(Emitter):
     self._emit_line(f'endmodule')
     self._module_reset()
 
-  def emit_process_decl(self, name, sensitivity=None, process_kind=None,
-                        process_args=None):
-    self._process_init(name, process_kind, process_args, sensitivity)
-
-    if process_kind == INIT_PROCESS:
-      if sensitivity:
+  def emit_process_decl(self):
+    if self._proc.kind == INIT_PROCESS:
+      if self._proc.sens:
         fatal(f'Sensitivity list not allowed in init process')
 
       self._emit_line('initial')
-    elif sensitivity:
+    elif self._proc.sens:
       conds = []
-      for sname, sens in sensitivity.items():
+      for sname, sens in self._proc.sens.items():
         if sens.trigger == POSEDGE:
           conds.append(f'posedge {paren(sname)}')
           self._edge_inputs.append((sname, sens))
@@ -637,7 +634,7 @@ class Verilog_Emitter(Emitter):
       else:
         self._emit_line(f'always_ff @(' + ' or '.join(conds) + ')')
     else:
-      proc_mode = process_args.get('proc_mode') if process_args else None
+      proc_mode = self._proc.args.get('proc_mode')
       if proc_mode == 'comb':
         self._emit_line('always_comb')
       elif proc_mode == 'latch':
@@ -647,11 +644,11 @@ class Verilog_Emitter(Emitter):
       else:
         self._emit_line('always @(*)')
 
-  def emit_process_begin(self):
     if self._proc.name:
       self._emit_line(f'{self._proc.name} : begin')
     else:
       self._emit_line(f'begin')
+
     self.process_vars_place = self.emit_placement(extra_indent=1)
 
   def _process_reset(self):

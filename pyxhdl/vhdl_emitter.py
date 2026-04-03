@@ -607,22 +607,18 @@ class VHDL_Emitter(Emitter):
     self._mod_attributes = dict()
     self._module_reset()
 
-  def emit_process_decl(self, name, sensitivity=None, process_kind=None,
-                        process_args=None):
-    self._process_init(name, process_kind, process_args, sensitivity)
-
-    proc_decl = f'{name} : process'
-    if sensitivity:
-      proc_decl += ' (' + ', '.join(name for name in sensitivity.keys()) + ')'
+  def emit_process_decl(self):
+    proc_decl = f'{self._proc.name} : process'
+    if self._proc.sens:
+      proc_decl += ' (' + ', '.join(name for name in self._proc.sens.keys()) + ')'
     else:
-      proc_mode = process_args.get('proc_mode') if process_args else None
+      proc_mode = self._proc.args.get('proc_mode')
       if proc_mode == 'comb':
         proc_decl += ' (all)'
 
     self._emit_line(proc_decl)
     self.process_vars_place = self.emit_placement(extra_indent=1)
 
-  def emit_process_begin(self):
     self._emit_line(f'begin')
     if self._proc.sens:
       tests = []

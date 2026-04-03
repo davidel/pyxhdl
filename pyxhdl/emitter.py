@@ -438,11 +438,17 @@ class Emitter:
   def _expand(self):
     return self._expand_helper(self._code, [])
 
-  def _process_init(self, name, kind, args, sens):
-    self._proc = _ProcessInfo(name=name, kind=kind, args=args, sens=sens)
+  @contextlib.contextmanager
+  def process(self, name, kind, args, sens):
+    self._proc = _ProcessInfo(name=name, kind=kind, args=args or dict(), sens=sens)
+    try:
+      yield self
+    finally:
+      self._proc = _ProcessInfo(args=dict())
+      self._process_reset()
 
   def _process_reset(self):
-    self._proc = _ProcessInfo()
+    pass
 
   def _module_reset(self):
     self._mod_comment = None
