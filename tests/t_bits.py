@@ -45,7 +45,7 @@ class Degen(X.Entity):
 
   @X.hdl_process(sens='A, B')
   def run():
-    XOUT = A[0] ^ B
+    XOUT = (A[0] ^ B) if A[0] == 1 else (A[0] & B)
 
 
 class TestBits(unittest.TestCase):
@@ -70,7 +70,7 @@ class TestBits(unittest.TestCase):
 
   def test_degen(self):
     inputs = dict(
-      A=X.mkwire(X.Bits(2)),
+      A=X.mkwire(X.Bits(1)),
       B=X.mkwire(X.BIT),
       XOUT=X.mkwire(X.BIT),
     )

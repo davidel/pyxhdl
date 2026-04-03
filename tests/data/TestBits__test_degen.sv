@@ -38,14 +38,14 @@ endpackage
 
 
 // Entity "Degen" is "Degen" with:
-// 	args={'A': 'bits(2)', 'B': 'bits(1)', 'XOUT': 'bits(1)'}
+// 	args={'A': 'bits(1)', 'B': 'bits(1)', 'XOUT': 'bits(1)'}
 // 	kwargs={}
 module Degen(A, B, XOUT);
-  input logic [1: 0] A;
+  input logic [0: 0] A;
   input logic B;
   output logic XOUT;
   always @(A or B)
   run : begin
-    XOUT = A[0] ^ B;
+    XOUT = (A[0] == 1'(1)) ? A[0] ^ B : A[0] & B;
   end
 endmodule

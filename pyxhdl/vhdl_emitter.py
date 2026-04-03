@@ -127,13 +127,15 @@ class VHDL_Emitter(Emitter):
       if m:
         return Value(rdtype, f'\'{m.group(1)[-1]}\'')
       else:
-        # If the input value is an expression, we need to use the ident() hack, since
+        # If the input value is an expression, we need to use the bits_select(), since
         # things like `(A and B)(0)` (bit-selecting an expression) are illegal, while
-        # `ident(A and B)(0)` are.
-        def paren_fn(expr):
-          return f'pyxhdl.ident({expr})'
+        # `bits_select(A and B, 0)` is.
+        if re.match(r'\w+$', xvalue):
+          rvalue = f'{xvalue}(0)'
+        else:
+          rvalue = f'pyxhdl.bits_select({xvalue}, 0)'
 
-        return value.new_value(f'{paren(xvalue, kind=paren_fn)}(0)', dtype=rdtype)
+        return value.new_value(rvalue, dtype=rdtype)
 
     if value.dtype.nbits == dtype.nbits:
       return value
