@@ -610,18 +610,17 @@ class _ExecVisitor(ast.NodeVisitor):
 
     return _HdlChecker.hdl_function(getattr(func, '__init__', None))
 
-  def run_function(self, func, args, kwargs=None):
-    fkwargs = kwargs or dict()
+  def run_function(self, func, args, kwargs):
     if self._needs_hdl_processing(func):
       if inspect.isclass(func):
         # Running a function with a class function object, means object creation.
-        result = self._run_class_function(func, args, fkwargs)
+        result = self._run_class_function(func, args, kwargs)
       else:
-        result = self._run_function_helper(func, args, fkwargs)
+        result = self._run_function_helper(func, args, kwargs)
 
       return result
 
-    return self._call_direct(func, args, fkwargs)
+    return self._call_direct(func, args, kwargs)
 
 
 class CodeGen(_ExecVisitor):
@@ -831,7 +830,7 @@ class CodeGen(_ExecVisitor):
 
       self.emitter.emit_entity(result, kwargs, ent_name=ent_name)
     else:
-      result = self.run_function(func, args, kwargs=kwargs)
+      result = self.run_function(func, args, kwargs)
 
     return result
 
@@ -1023,11 +1022,13 @@ class CodeGen(_ExecVisitor):
 
   def generate_process(self, func, args, kwargs=None, sensitivity=None,
                        process_kind=None, process_args=None):
+    fkwargs = kwargs or dict()
+
     if process_kind == ROOT_PROCESS:
       self._process_scope_enter(self.emitter.module_vars_place, process_kind,
                                 process_args)
       try:
-        result = self.run_function(func, args, kwargs=kwargs)
+        result = self.run_function(func, args, fkwargs)
       finally:
         self._process_scope_exit()
     else:
@@ -1041,9 +1042,10 @@ class CodeGen(_ExecVisitor):
                                 process_args)
       try:
         with self.emitter.indent():
-          result = self.run_function(func, args, kwargs=kwargs)
+          result = self.run_function(func, args, fkwargs)
       finally:
         self._process_scope_exit()
+
       self.emitter.emit_process_end()
 
     return result
