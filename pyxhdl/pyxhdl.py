@@ -611,17 +611,17 @@ class _ExecVisitor(ast.NodeVisitor):
     return _HdlChecker.hdl_function(getattr(func, '__init__', None))
 
   def run_function(self, func, args, kwargs=None):
-    kwargs = kwargs or dict()
+    fkwargs = kwargs or dict()
     if self._needs_hdl_processing(func):
       if inspect.isclass(func):
         # Running a function with a class function object, means object creation.
-        result = self._run_class_function(func, args, kwargs)
+        result = self._run_class_function(func, args, fkwargs)
       else:
-        result = self._run_function_helper(func, args, kwargs)
+        result = self._run_function_helper(func, args, fkwargs)
 
       return result
 
-    return self._call_direct(func, args, kwargs)
+    return self._call_direct(func, args, fkwargs)
 
 
 class CodeGen(_ExecVisitor):
