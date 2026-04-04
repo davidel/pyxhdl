@@ -645,7 +645,7 @@ class Emitter:
     return cargs
 
   def _env_lookup(self, k, defval=None):
-    v = pyu.dict_rget(self._cfg, f'env/{k}')
+    v = pyu.dict_rget(self._cfg, ('env', k))
     if v is None:
       v = os.getenv(f'PYXHDL_{k}')
       if v is None:
