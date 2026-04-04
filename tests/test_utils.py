@@ -76,7 +76,7 @@ def generate_code(obj, inputs, backend):
     if inspect.isclass(obj):
       codegen.generate_entity(obj, inputs)
     else:
-      codegen.generate_process(obj, inputs)
+      codegen.generate_process(obj, [], kwargs=inputs)
 
     return codegen.flush()
 
