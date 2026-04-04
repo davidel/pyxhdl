@@ -41,6 +41,8 @@ class Test(X.Entity):
 
   @X.hdl_process(kind=X.ROOT_PROCESS)
   def root(self):
+    import py_misc_utils.utils as pyu
+
     from . import clock
 
     CLK = X.mkreg(X.BIT)
@@ -56,7 +58,7 @@ class Test(X.Entity):
             RST_N=RST_N,
             DIN=DIN,
             DOUT=DOUT,
-            **{k: locals()[k] for k in Flopper.ARGS.keys()})
+            **pyu.mget(locals(), *Flopper.ARGS.keys(), as_dict=True))
 
   @X.hdl_process(kind=X.INIT_PROCESS)
   def test_run(self):

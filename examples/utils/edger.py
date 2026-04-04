@@ -26,6 +26,8 @@ class Test(X.Entity):
 
   @X.hdl_process(kind=X.ROOT_PROCESS)
   def root(self):
+    import py_misc_utils.utils as pyu
+
     from . import clock
 
     CLK = X.mkreg(X.BIT)
@@ -43,7 +45,7 @@ class Test(X.Entity):
           DIN=DIN,
           POUT=POUT,
           NOUT=NOUT,
-          **{k: locals()[k] for k in Edger.ARGS.keys()})
+          **pyu.mget(locals(), *Edger.ARGS.keys(), as_dict=True))
 
   @X.hdl_process(kind=X.INIT_PROCESS)
   def test_run(self):

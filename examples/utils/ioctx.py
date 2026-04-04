@@ -90,6 +90,7 @@ class Test(X.Entity):
   @X.hdl_process(kind=X.ROOT_PROCESS)
   def root(self):
     import py_misc_utils.module_utils as pymu
+    import py_misc_utils.utils as pyu
 
     from . import clock
     from . import axis
@@ -106,7 +107,7 @@ class Test(X.Entity):
                         width=width)
 
     Ioctx(IFC=self.ifc,
-          **{k: locals()[k] for k in Ioctx.ARGS.keys()})
+          **pyu.mget(locals(), *Ioctx.ARGS.keys(), as_dict=True))
 
     RDEN = X.mkvreg(X.mkarray(X.BIT, num_channels), 0)
     DATA = X.mkreg(self.ifc.M_TDATA.dtype)

@@ -1,5 +1,3 @@
-import py_misc_utils.num_utils as pynu
-
 import pyxhdl as X
 from pyxhdl import xlib as XL
 
@@ -46,12 +44,14 @@ class Test(X.Entity):
 
   @X.hdl_process(kind=X.ROOT_PROCESS)
   def root(self):
+    import py_misc_utils.utils as pyu
+
     DATA = X.mkreg(X.Bits(width))
     BITIDX = X.mkreg(X.Sint(width.bit_length()))
 
     FirstBitSet(DATA=DATA,
                 BITIDX=BITIDX,
-                **{k: locals()[k] for k in FirstBitSet.ARGS.keys()})
+                **pyu.mget(locals(), *FirstBitSet.ARGS.keys(), as_dict=True))
 
   @X.hdl_process(kind=X.INIT_PROCESS)
   def test_run(self):

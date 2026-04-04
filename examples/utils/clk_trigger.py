@@ -1,5 +1,3 @@
-import random
-
 import pyxhdl as X
 from pyxhdl import xlib as XL
 
@@ -45,6 +43,8 @@ class Test(X.Entity):
 
   @X.hdl_process(kind=X.ROOT_PROCESS)
   def root(self):
+    import py_misc_utils.utils as pyu
+
     from . import clock
 
     CLK = X.mkreg(X.BIT)
@@ -62,10 +62,12 @@ class Test(X.Entity):
                COUNT=COUNT,
                EN=EN,
                ACTIVE=ACTIVE,
-               **{k: locals()[k] for k in ClkTrigger.ARGS.keys()})
+               **pyu.mget(locals(), *ClkTrigger.ARGS.keys(), as_dict=True))
 
   @X.hdl_process(kind=X.INIT_PROCESS)
   def test_run(self):
+    import random
+
     from pyxhdl import testbench as TB
 
     RST_N = 0

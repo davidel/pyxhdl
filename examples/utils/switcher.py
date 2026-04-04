@@ -27,6 +27,8 @@ class Test(X.Entity):
 
   @X.hdl_process(kind=X.ROOT_PROCESS)
   def root(self):
+    import py_misc_utils.utils as pyu
+
     SEL = X.mkreg(X.Uint(num_channels.bit_length()))
     DIN = X.mkreg(X.Uint(width))
     DOUT = X.mkreg(X.Uint(width))
@@ -38,7 +40,7 @@ class Test(X.Entity):
              SEL_DOUT=SEL_DOUT,
              SEL_DIN=SEL_DIN,
              DOUT=DOUT,
-             **{k: locals()[k] for k in Switcher.ARGS.keys()})
+             **pyu.mget(locals(), *Switcher.ARGS.keys(), as_dict=True))
 
   @X.hdl_process(kind=X.INIT_PROCESS)
   def test_run(self):

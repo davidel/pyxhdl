@@ -6,8 +6,6 @@ import py_misc_utils.num_utils as pynu
 import pyxhdl as X
 from pyxhdl import xlib as XL
 
-from . import clk_trigger
-
 
 class AluOps(enum.IntEnum):
   ADD = 0
@@ -57,6 +55,8 @@ class Alu(X.Entity):
 
   @X.hdl_process(kind=X.ROOT_PROCESS)
   def root(self):
+    from . import clk_trigger
+
     delay_count = X.mkreg(X.UINT8)
     delay_enable = X.mkreg(X.BIT)
 
@@ -186,6 +186,8 @@ class Test(X.Entity):
 
   @X.hdl_process(kind=X.ROOT_PROCESS)
   def root(self):
+    import py_misc_utils.utils as pyu
+
     from . import clock
 
     CLK = X.mkreg(X.BIT)
@@ -199,7 +201,7 @@ class Test(X.Entity):
                       width=width)
 
     Alu(IFC=self.ifc,
-        **{k: locals()[k] for k in Alu.ARGS.keys()})
+        **pyu.mget(locals(), *Alu.ARGS.keys(), as_dict=True))
 
   @X.hdl_process(kind=X.INIT_PROCESS)
   def test_run(self):
