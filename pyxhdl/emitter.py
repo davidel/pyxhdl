@@ -117,7 +117,7 @@ class Emitter:
 
   def __init__(self, cfg_file=None, **kwargs):
     self._cfg_file = cfg_file
-    self._cfg = pyu.load_config(cfg_file, extra=kwargs) if cfg_file else dict()
+    self._cfg = pyu.load_config(cfg_file, extra=kwargs) if cfg_file else kwargs
     self._indent_spaces = self._cfg.get('indent_spaces', 2)
     self._indent = 0
     self._placements = []
