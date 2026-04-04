@@ -644,7 +644,7 @@ class Emitter:
 
     return cargs
 
-  def _cfg_lookup(self, k, defval=None):
+  def _env_lookup(self, k, defval=None):
     v = pyu.dict_rget(self._cfg, f'env/{k}')
     if v is None:
       v = os.getenv(f'PYXHDL_{k}')
@@ -660,7 +660,7 @@ class Emitter:
     with open(path, mode='r') as fd:
       code = fd.read()
 
-    return pytr.template_replace(code, lookup_fn=self._cfg_lookup, delim='@')
+    return pytr.template_replace(code, lookup_fn=self._env_lookup, delim='@')
 
   def _collect_libpaths(self):
     libdir = os.path.join(os.path.dirname(__file__), 'hdl_libs', self.kind)
@@ -797,7 +797,7 @@ class Emitter:
     return self.cast(value, dtype)
 
   def time_unit(self):
-    return self._cfg_lookup('TIME_UNIT', defval='ns')
+    return self._env_lookup('TIME_UNIT', defval='ns')
 
   def _normalize_time(self, ts):
     tu = self.time_unit()
