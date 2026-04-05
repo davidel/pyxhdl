@@ -23,11 +23,7 @@ Sens = collections.namedtuple('Sens', 'trigger', defaults=[LEVEL])
 class _CoreEntity:
 
   def __init_subclass__(cls):
-    cls.PORTS = cls._get_ports(cls.PORTS)
-
-  @classmethod
-  def _get_ports(cls, cports):
-    return Port.parse_list(cports)
+    cls.PORTS = Port.parse_list(cls.PORTS)
 
 
 class Entity(_CoreEntity):
