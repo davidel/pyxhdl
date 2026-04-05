@@ -96,9 +96,9 @@ class _ExternalFunction:
       ckwargs[name] = arg
 
     if pycu.isdict(self._fnmap):
-      fmap = self._fnmap.get(ctx.emitter.kind)
+      fmap = self._fnmap.get(ctx.emitter.KIND)
       if fmap is None:
-        fatal(f'Unable to resolve function {self._fnname}() for {ctx.emitter.kind} backend')
+        fatal(f'Unable to resolve function {self._fnname}() for {ctx.emitter.KIND} backend')
     else:
       fmap = self._fnmap
 

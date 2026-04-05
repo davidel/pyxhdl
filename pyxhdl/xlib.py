@@ -158,7 +158,7 @@ def generate_name(name, shortzero=False):
 def backend():
   ctx = CodeGen.current()
 
-  return ctx.emitter.kind
+  return ctx.emitter.KIND
 
 
 def load_extern_module(path):

@@ -66,7 +66,7 @@ if __name__ == '__main__':
   parser.add_argument('--entity', required=True,
                       help='The root entity name')
   parser.add_argument('--backend', default='verilog',
-                      choices=set(Emitter.available()),
+                      choices=set(x[0] for x in Emitter.available()),
                       help='The backend to generate the code for')
   parser.add_argument('--inputs', nargs='+', action='extend',
                       help='The inputs for the root entity')

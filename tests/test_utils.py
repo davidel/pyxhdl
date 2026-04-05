@@ -37,10 +37,7 @@ def data_folder():
   return os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data')
 
 
-_BACKEND_EXTS = {
-  'vhdl': '.vhd',
-  'verilog': '.sv',
-}
+_BACKEND_EXTS = {cls.KIND: cls.FILE_EXT for _, cls in X.Emitter.available()}
 
 def reference_path(name, backend, path=None):
   ext = _BACKEND_EXTS.get(backend, f'.{backend}')
@@ -106,6 +103,6 @@ def _run_test(test_obj, name, obj, inputs, backend):
 
 
 def run(test_obj, name, obj, inputs):
-  for backend in X.Emitter.available():
+  for backend, _ in X.Emitter.available():
     _run_test(test_obj, name, obj, inputs, backend)
 

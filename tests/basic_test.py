@@ -280,7 +280,7 @@ if __name__ == '__main__':
   parser = argparse.ArgumentParser(description='PyXHDL Basic Tests',
                                    formatter_class=argparse.ArgumentDefaultsHelpFormatter)
   parser.add_argument('--backend', type=str, default='vhdl',
-                      choices=set(X.Emitter.available()),
+                      choices=set(x[0] for x in X.Emitter.available()),
                       help='The backend to generate the code for')
 
   app_main.main(parser, _main)

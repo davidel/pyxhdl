@@ -52,11 +52,12 @@ _FLOAT_OPFNS = {
 
 class Verilog_Emitter(Emitter):
 
+  KIND = 'verilog'
+  FILE_EXT = '.sv'
+  EOL = ';'
+
   def __init__(self, cfg_file=None, **kwargs):
     super().__init__(cfg_file=cfg_file, **kwargs)
-    self.kind = 'verilog'
-    self.file_ext = '.sv'
-    self.eol = ';'
 
     vfpu_path = pyu.dict_rget(self._cfg, 'backend/verilog/vfpu_conf',
                               defval='hdl_libs/verilog/vfpu.yaml')

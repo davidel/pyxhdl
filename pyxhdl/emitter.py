@@ -136,7 +136,7 @@ class Emitter:
 
   @classmethod
   def available(cls):
-    return sorted(cls._BACKEND_REGISTRY.keys())
+    return sorted(cls._BACKEND_REGISTRY.items(), key=lambda x: x[0])
 
   @classmethod
   def create(cls, name, **kwargs):
@@ -663,14 +663,14 @@ class Emitter:
     return pytr.template_replace(code, lookup_fn=self._env_lookup, delim='@')
 
   def _collect_libpaths(self):
-    libdir = os.path.join(os.path.dirname(__file__), 'hdl_libs', self.kind)
+    libdir = os.path.join(os.path.dirname(__file__), 'hdl_libs', self.KIND)
 
-    lib_paths = [libdir] + [os.path.join(path, self.kind) for path in self._lib_paths]
+    lib_paths = [libdir] + [os.path.join(path, self.KIND) for path in self._lib_paths]
 
     lib_paths.extend(pyfsu.normpath(x)
-                     for x in self._cfg.get('lib_paths', dict()).get(self.kind, ()))
+                     for x in self._cfg.get('lib_paths', dict()).get(self.KIND, ()))
 
-    if env_paths := os.getenv(f'PYXHDL_{self.kind.upper()}_LIBPATH'):
+    if env_paths := os.getenv(f'PYXHDL_{self.KIND.upper()}_LIBPATH'):
       lib_paths.extend(pyfsu.normpath(x) for x in pyu.resplit(env_paths, ';'))
 
     alog.debug(f'Using library folders {lib_paths}')
@@ -691,26 +691,26 @@ class Emitter:
 
     xlibs.extend(self._extra_libs)
 
-    if env_libs := os.getenv(f'PYXHDL_{self.kind.upper()}_LIBS'):
+    if env_libs := os.getenv(f'PYXHDL_{self.KIND.upper()}_LIBS'):
       xlibs.extend(pyu.resplit(env_libs, ';'))
 
-    xlibs.extend(self._cfg.get('libs', dict()).get(self.kind, ()))
+    xlibs.extend(self._cfg.get('libs', dict()).get(self.KIND, ()))
 
     for libname in pycu.enum_unique(xlibs):
       _, ext = os.path.splitext(libname)
 
-      libfname = (libname + self.file_ext) if not ext else libname
+      libfname = (libname + self.FILE_EXT) if not ext else libname
 
       if lpath := pyfsu.find_path(libfname, lib_paths):
-        alog.debug(f'Loading {self.kind} library file {lpath}')
+        alog.debug(f'Loading {self.KIND} library file {lpath}')
         libcode.extend(self._load_code(lpath).split('\n'))
       else:
         fatal(f'Library "{libname}" ("{libfname}") not found in {lib_paths}')
 
     # Add user defined modules within the PyXHDL code.
-    for cid, umod in self._MODULE_REGISTRY[self.kind].items():
+    for cid, umod in self._MODULE_REGISTRY[self.KIND].items():
       libcode.extend(umod)
-    for cid, umod in self._user_modules[self.kind].items():
+    for cid, umod in self._user_modules[self.KIND].items():
       libcode.extend(umod)
 
     return libcode
@@ -772,7 +772,7 @@ class Emitter:
     # and a return value, such return value must be used (assigned to something or
     # used within an expression) in order to the side effects to manifest.
     if dtype is None:
-      self.emit_code(f'{call}{self.eol}')
+      self.emit_code(f'{call}{self.EOL}')
     else:
       return Value(dtype, call)
 
@@ -805,7 +805,7 @@ class Emitter:
     return scaled_time(ts, tu), tu
 
   def _enum_attributes(self, attributes):
-    for aname in ('$common', self.kind):
+    for aname in ('$common', self.KIND):
       attrs = attributes.get(aname)
       if attrs is not None:
         for name, value in attrs.items():
