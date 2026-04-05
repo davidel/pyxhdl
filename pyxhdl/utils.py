@@ -5,7 +5,6 @@ import copy
 import inspect
 import os
 import re
-import sys
 import textwrap
 
 import py_misc_utils.core_utils as pycu
@@ -25,13 +24,13 @@ NONE = _None()
 
 
 def get_obj_globals(obj, defval=None):
-  mod = getattr(obj, '__module__', None)
-  if mod is not None:
-    imod = sys.modules.get(mod)
-    if imod is not None:
-      return imod.__dict__
+  mod = inspect.getmodule(obj)
+  if mod is None:
+    cls = getattr(obj, '__class__', None)
+    if cls is not None:
+      mod = inspect.getmodule(cls)
 
-  return getattr(obj, '__globals__', defval)
+  return mod.__dict__ if mod is not None else getattr(obj, '__globals__', defval)
 
 
 def create_globals(obj, source_globals=None):
