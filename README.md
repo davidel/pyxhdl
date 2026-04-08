@@ -1196,7 +1196,8 @@ class ExternIP(X.Entity):
 
 ```
 
-After that it can be instantiated like a normal *PyXHDL* entity.
+After that it can be instantiated like a normal *PyXHDL* entity (from within a root
+process).
 
 ```Python
 # To be called from a root process.
@@ -1213,9 +1214,6 @@ The *LIBNAME* setting is optional in case the library containing such entity is 
 loaded (not on demand).
 
 The *_P* argument allow to specify module/entity instantiation parameters/generics.
-
-The *XL.ExternalEntity()* class should be used from the root process of a module or entity,
-otherwise the generated code will not be valid.
 
 Note that modules/entities defined with Python using *PyXHDL* can be instatiated by
 simply constructing an object of that class from within a root process:
