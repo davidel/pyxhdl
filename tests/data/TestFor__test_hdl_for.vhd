@@ -66,6 +66,8 @@ package pyxhdl is
   function cvt_unsigned(value : in std_logic_vector; nbits : in natural) return unsigned;
   function cvt_signed(value : in std_logic_vector; nbits : in natural) return signed;
 
+  function cvt_bits(value : in unsigned) return std_logic_vector;
+
   function bit_shl(value : in unsigned; nbits : in natural) return unsigned;
   function bit_shr(value : in unsigned; nbits : in natural) return unsigned;
 
@@ -192,6 +194,13 @@ package body pyxhdl is
     return signed(bits_resize(value, nbits));
   end function;
 
+  function cvt_bits(value : in unsigned) return std_logic_vector is
+  begin
+    -- This API exists because std_logic_vector(value)(0) is illegal, while
+    -- cvt_bits(value)(0) is. Go figure.
+    return std_logic_vector(value);
+  end function;
+
   function bit_shl(value : in unsigned; nbits : in natural) return unsigned is
   begin
     return shift_left(value, nbits);
@@ -264,7 +273,7 @@ architecture behavior of HdlForEnt is
 begin
   run : process (A, B)
   begin
-    XOUT <= std_logic_vector(to_unsigned(0, 8));
+    XOUT <= pyxhdl.cvt_bits(to_unsigned(0, 8));
     for i in 0 to 7 loop
       XOUT(i) <= A(i) xor B(i);
       if A(i) = '1' then

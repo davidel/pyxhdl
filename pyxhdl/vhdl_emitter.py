@@ -168,22 +168,22 @@ class VHDL_Emitter(Emitter):
 
   def _to_int(self, value, dtype, itype):
     if isinstance(value, Value):
+      xvalue = self.svalue(value)
       if isinstance(value.dtype, (Uint, Sint)):
-        xvalue = self.svalue(value)
         rsvalue = f'resize({xvalue}, {dtype.nbits})' if value.dtype.nbits != dtype.nbits else xvalue
         return f'{itype}({rsvalue})' if type(dtype) != type(value.dtype) else rsvalue
       elif isinstance(value.dtype, Bits):
-        xvalue = self.svalue(value)
         return f'pyxhdl.cvt_{itype}({xvalue}, {dtype.nbits})'
       elif isinstance(value.dtype, Integer):
-        return f'to_{itype}({self.svalue(value)}, {dtype.nbits})'
+        return f'to_{itype}({xvalue}, {dtype.nbits})'
       elif isinstance(value.dtype, Real):
-        return f'to_{itype}(integer({self.svalue(value)}), {dtype.nbits})'
+        return f'to_{itype}(integer({xvalue}), {dtype.nbits})'
       elif isinstance(value.dtype, Bool):
         zero = f'to_{itype}(0, {dtype.nbits})'
         one = f'to_{itype}(1, {dtype.nbits})'
-        xvalue = self.svalue(value)
         return f'pyxhdl.{dtype.name}_ifexp({xvalue}, {one}, {zero})'
+      else:
+        fatal(f'Unable to convert to {dtype}: {value.dtype}')
 
     if bvalue := self._literal_bits(value, dtype):
       return (f'pyxhdl.cvt_{itype}("{bvalue}", {dtype.nbits})' if not dtype.degen
@@ -222,20 +222,25 @@ class VHDL_Emitter(Emitter):
 
   def _to_bits(self, value, dtype):
     if isinstance(value, Value):
+      xvalue = self.svalue(value)
       if isinstance(value.dtype, (Uint, Sint)):
-        xvalue = self.svalue(value)
-        if value.dtype.nbits != dtype.nbits:
-          xvalue = f'resize({xvalue}, {dtype.nbits})'
-        return f'std_logic_vector({xvalue})' if dtype.nbits > 1 else xvalue
+        result = (f'resize({xvalue}, {dtype.nbits})' if value.dtype.nbits != dtype.nbits
+                  else xvalue)
+
+        return (f'pyxhdl.cvt_bits({result})' if dtype.nbits > 1 or not dtype.degen
+                else result)
       elif isinstance(value.dtype, Bits):
         rvalue = self._resize_bits(value, dtype)
         return self.svalue(rvalue)
       elif isinstance(value.dtype, Integer):
-        return f'std_logic_vector(to_unsigned({self.svalue(value)}, {dtype.nbits}))'
+        result = f'pyxhdl.cvt_bits(to_unsigned({xvalue}, {dtype.nbits}))'
+
+        return result if dtype.nbits > 1 or not dtype.degen else f'{result}(0)'
       elif isinstance(value.dtype, Real):
-        return f'std_logic_vector(to_unsigned(integer({self.svalue(value)}), {dtype.nbits}))'
+        result = f'pyxhdl.cvt_bits(to_unsigned(integer({xvalue}), {dtype.nbits}))'
+
+        return result if dtype.nbits > 1 or not dtype.degen else f'{result}(0)'
       elif isinstance(value.dtype, Bool):
-        xvalue = self.svalue(value)
         result = f'pyxhdl.{dtype.name}_ifexp({xvalue}, \'1\', \'0\')'
         if dtype.nbits > 1:
           result = '"' + ('0' * (dtype.nbits - 1)) + '" & ' + result
@@ -247,7 +252,7 @@ class VHDL_Emitter(Emitter):
     if bvalue := self._literal_bits(value, dtype):
       return f'"{bvalue}"' if dtype.nbits != 1 or not dtype.degen else f'\'{bvalue}\''
 
-    return (f'std_logic_vector(to_unsigned({self.svalue(value)}, {dtype.nbits}))'
+    return (f'pyxhdl.cvt_bits(to_unsigned({self.svalue(value)}, {dtype.nbits}))'
             if dtype.nbits != 1 or not dtype.degen else f'\'{self.svalue(value)}\'')
 
   def _to_float(self, value, dtype):

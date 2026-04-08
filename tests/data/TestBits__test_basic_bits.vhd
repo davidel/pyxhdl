@@ -66,6 +66,8 @@ package pyxhdl is
   function cvt_unsigned(value : in std_logic_vector; nbits : in natural) return unsigned;
   function cvt_signed(value : in std_logic_vector; nbits : in natural) return signed;
 
+  function cvt_bits(value : in unsigned) return std_logic_vector;
+
   function bit_shl(value : in unsigned; nbits : in natural) return unsigned;
   function bit_shr(value : in unsigned; nbits : in natural) return unsigned;
 
@@ -192,6 +194,13 @@ package body pyxhdl is
     return signed(bits_resize(value, nbits));
   end function;
 
+  function cvt_bits(value : in unsigned) return std_logic_vector is
+  begin
+    -- This API exists because std_logic_vector(value)(0) is illegal, while
+    -- cvt_bits(value)(0) is. Go figure.
+    return std_logic_vector(value);
+  end function;
+
   function bit_shl(value : in unsigned; nbits : in natural) return unsigned is
   begin
     return shift_left(value, nbits);
@@ -268,6 +277,6 @@ begin
   begin
     z <= resize((pyxhdl.cvt_unsigned(A, 2) + resize(pyxhdl.cvt_unsigned(B, 1), 2)) + 3, 4);
     w := z;
-    XOUT <= std_logic_vector(resize(z * 17, 4) - w);
+    XOUT <= pyxhdl.cvt_bits(resize(z * 17, 4) - w);
   end process;
 end architecture;

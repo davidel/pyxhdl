@@ -67,7 +67,7 @@ class Ram(X.Entity):
     baddr = X.mkwire(IFC.ADDR.dtype)
     ovfl = X.mkwire(X.BIT)
 
-    ovfl = '0b1' if (IFC.ADDR % IFC.word_units) + IFC.WRCOUNT >= IFC.word_units else '0b0'
+    ovfl = 1 if (IFC.ADDR % IFC.word_units) + IFC.WRCOUNT >= IFC.word_units else 0
     waddr = IFC.ADDR / IFC.word_units
     baddr = (IFC.ADDR % IFC.word_units) * IFC.unit_size
     IFC.RDATA = rddata[baddr:: IFC.width]
