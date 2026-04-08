@@ -221,25 +221,36 @@ class VHDL_Emitter(Emitter):
     return value
 
   def _to_bits(self, value, dtype):
+
+    def ulogic_return(result):
+      if dtype.nbits == 1:
+        if dtype.degen and not value.dtype.degen:
+          return f'pyxhdl.cvt_bits({result})(0)'
+        elif value.dtype.degen and not dtype.degen:
+          return f'"" & {paren(result)}'
+        else:
+          return result
+      else:
+        return f'pyxhdl.cvt_bits({result})'
+
     if isinstance(value, Value):
       xvalue = self.svalue(value)
       if isinstance(value.dtype, (Uint, Sint)):
         result = (f'resize({xvalue}, {dtype.nbits})' if value.dtype.nbits != dtype.nbits
                   else xvalue)
 
-        return (f'pyxhdl.cvt_bits({result})' if dtype.nbits > 1 or not dtype.degen
-                else result)
+        return ulogic_return(result)
       elif isinstance(value.dtype, Bits):
         rvalue = self._resize_bits(value, dtype)
         return self.svalue(rvalue)
       elif isinstance(value.dtype, Integer):
-        result = f'pyxhdl.cvt_bits(to_unsigned({xvalue}, {dtype.nbits}))'
+        result = f'to_unsigned({xvalue}, {dtype.nbits})'
 
-        return result if dtype.nbits > 1 or not dtype.degen else f'{result}(0)'
+        return ulogic_return(result)
       elif isinstance(value.dtype, Real):
-        result = f'pyxhdl.cvt_bits(to_unsigned(integer({xvalue}), {dtype.nbits}))'
+        result = f'to_unsigned(integer({xvalue}), {dtype.nbits})'
 
-        return result if dtype.nbits > 1 or not dtype.degen else f'{result}(0)'
+        return ulogic_return(result)
       elif isinstance(value.dtype, Bool):
         result = f'pyxhdl.{dtype.name}_ifexp({xvalue}, \'1\', \'0\')'
         if dtype.nbits > 1:
