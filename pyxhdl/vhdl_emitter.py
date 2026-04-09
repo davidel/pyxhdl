@@ -190,35 +190,24 @@ class VHDL_Emitter(Emitter):
     return value
 
   def _resize_bits(self, value, dtype):
-    shape = list(value.dtype.shape)
-    shape[-1] = dtype.nbits
-
-    rdtype = value.dtype.new_shape(*shape, degen=dtype.degen)
-
     xvalue = self.svalue(value)
 
     if dtype.degen:
       # Select LSB if degenerate type.
       m = re.match(rf'"([{VALID_BITS}]+)"$', xvalue)
       if m:
-        return Value(rdtype, f'\'{m.group(1)[-1]}\'')
+        return f'\'{m.group(1)[-1]}\''
       else:
         # If the input value is an expression, we need to use the bits_select(), since
         # things like `(A and B)(0)` (bit-selecting an expression) are illegal, while
         # `bits_select(A and B, 0)` is.
-        if re.match(r'\w+$', xvalue):
-          rvalue = f'{xvalue}(0)'
-        else:
-          rvalue = f'pyxhdl.bits_select({xvalue}, 0)'
-
-        return value.new_value(rvalue, dtype=rdtype)
+        return (f'{xvalue}(0)' if re.match(r'\w+$', xvalue)
+                else f'pyxhdl.bits_select({xvalue}, 0)')
 
     if value.dtype.nbits == dtype.nbits:
-      return value
+      return xvalue
 
-    result = f'pyxhdl.bits_resize({xvalue}, {rdtype.nbits})'
-
-    return value.new_value(result, dtype=rdtype)
+    return f'pyxhdl.bits_resize({xvalue}, {dtype.nbits})'
 
   def _to_bits(self, value, dtype):
 
@@ -241,8 +230,7 @@ class VHDL_Emitter(Emitter):
 
         return ulogic_return(result)
       elif isinstance(value.dtype, Bits):
-        rvalue = self._resize_bits(value, dtype)
-        return self.svalue(rvalue)
+        return self._resize_bits(value, dtype)
       elif isinstance(value.dtype, Integer):
         result = f'to_unsigned({xvalue}, {dtype.nbits})'
 
