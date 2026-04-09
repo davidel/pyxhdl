@@ -114,37 +114,6 @@ class VHDL_Emitter(Emitter):
 
     fatal(f'Unknown type: {dtype}', exc=TypeError)
 
-  def _resize_bits(self, value, dtype):
-    shape = list(value.dtype.shape)
-    shape[-1] = dtype.nbits
-
-    rdtype = value.dtype.new_shape(*shape, degen=dtype.degen)
-
-    xvalue = self.svalue(value)
-
-    if dtype.degen:
-      # Select LSB if degenerate type.
-      m = re.match(rf'"([{VALID_BITS}]+)"$', xvalue)
-      if m:
-        return Value(rdtype, f'\'{m.group(1)[-1]}\'')
-      else:
-        # If the input value is an expression, we need to use the bits_select(), since
-        # things like `(A and B)(0)` (bit-selecting an expression) are illegal, while
-        # `bits_select(A and B, 0)` is.
-        if re.match(r'\w+$', xvalue):
-          rvalue = f'{xvalue}(0)'
-        else:
-          rvalue = f'pyxhdl.bits_select({xvalue}, 0)'
-
-        return value.new_value(rvalue, dtype=rdtype)
-
-    if value.dtype.nbits == dtype.nbits:
-      return value
-
-    result = f'pyxhdl.bits_resize({xvalue}, {rdtype.nbits})'
-
-    return value.new_value(result, dtype=rdtype)
-
   def _to_bool(self, value, dtype):
     if isinstance(value, Value):
       xvalue = self.svalue(value)
@@ -219,6 +188,37 @@ class VHDL_Emitter(Emitter):
           return Value(dtype, f'to_signed({ivalue}, {dtype.nbits})')
 
     return value
+
+  def _resize_bits(self, value, dtype):
+    shape = list(value.dtype.shape)
+    shape[-1] = dtype.nbits
+
+    rdtype = value.dtype.new_shape(*shape, degen=dtype.degen)
+
+    xvalue = self.svalue(value)
+
+    if dtype.degen:
+      # Select LSB if degenerate type.
+      m = re.match(rf'"([{VALID_BITS}]+)"$', xvalue)
+      if m:
+        return Value(rdtype, f'\'{m.group(1)[-1]}\'')
+      else:
+        # If the input value is an expression, we need to use the bits_select(), since
+        # things like `(A and B)(0)` (bit-selecting an expression) are illegal, while
+        # `bits_select(A and B, 0)` is.
+        if re.match(r'\w+$', xvalue):
+          rvalue = f'{xvalue}(0)'
+        else:
+          rvalue = f'pyxhdl.bits_select({xvalue}, 0)'
+
+        return value.new_value(rvalue, dtype=rdtype)
+
+    if value.dtype.nbits == dtype.nbits:
+      return value
+
+    result = f'pyxhdl.bits_resize({xvalue}, {rdtype.nbits})'
+
+    return value.new_value(result, dtype=rdtype)
 
   def _to_bits(self, value, dtype):
 
