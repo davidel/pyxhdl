@@ -59,8 +59,8 @@ class VHDL_Emitter(Emitter):
   FILE_EXT = '.vhd'
   EOL = ';'
 
-  def __init__(self, cfg_file=None, **kwargs):
-    super().__init__(cfg_file=cfg_file, **kwargs)
+  def __init__(self, **kwargs):
+    super().__init__(**kwargs)
     self._arch = self._cfg.get('backend/vhdl/entity_arch', 'behavior')
     self._mod_attributes = dict()
     self._proc_indent = 0

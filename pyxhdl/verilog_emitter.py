@@ -56,8 +56,8 @@ class Verilog_Emitter(Emitter):
   FILE_EXT = '.sv'
   EOL = ';'
 
-  def __init__(self, cfg_file=None, **kwargs):
-    super().__init__(cfg_file=cfg_file, **kwargs)
+  def __init__(self, **kwargs):
+    super().__init__(**kwargs)
 
     vfpu_path = pyu.dict_rget(self._cfg, 'backend/verilog/vfpu_conf',
                               defval='hdl_libs/verilog/vfpu.yaml')
