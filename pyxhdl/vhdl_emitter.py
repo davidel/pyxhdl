@@ -216,7 +216,7 @@ class VHDL_Emitter(Emitter):
         if dtype.degen and not value.dtype.degen:
           return f'pyxhdl.cvt_bits({result})(0)'
         elif value.dtype.degen and not dtype.degen:
-          return f'"" & {paren(result)}'
+          return f'pyxhdl.bits_resize({result}, 1)'
         else:
           return result
       else:
@@ -241,8 +241,8 @@ class VHDL_Emitter(Emitter):
         return ulogic_return(result)
       elif isinstance(value.dtype, Bool):
         result = f'pyxhdl.{dtype.name}_ifexp({xvalue}, \'1\', \'0\')'
-        if dtype.nbits > 1:
-          result = '"' + ('0' * (dtype.nbits - 1)) + '" & ' + result
+        if dtype.nbits > 1 or not dtype.degen:
+          result = f'pyxhdl.bits_resize({result}, {dtype.nbits})'
 
         return result
       else:

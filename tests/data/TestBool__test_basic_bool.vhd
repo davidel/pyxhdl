@@ -276,7 +276,7 @@ begin
   run : process (A, B, C)
     variable xx : std_logic_vector(3 downto 0) := "1001";
   begin
-    if xx = ("000" & pyxhdl.bits_ifexp(A, '1', '0')) then
+    if xx = pyxhdl.bits_resize(pyxhdl.bits_ifexp(A, '1', '0'), 4) then
       cc <= C - 3;
     else
       cc <= C + 17;
