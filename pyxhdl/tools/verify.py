@@ -84,7 +84,7 @@ class VivadoVerifier(Verifier):
       with os.fdopen(fd, mode='wt') as tfd:
         tfd.write(script)
 
-      cmdline = re.split(r'\s+', string.Template(self.CMDLINE).substitute(**sctx))
+      cmdline = re.findall(r'\S+', string.Template(self.CMDLINE).substitute(**sctx))
 
       try:
         output = subprocess.check_output([self._xpath] + cmdline + [path],
@@ -111,7 +111,7 @@ class GhdlVerifier(Verifier):
       sctx = self._make_subs_ctx(files, backend, top_entity,
                                  WORKDIR=tmp_path)
 
-      cmdline = re.split(r'\s+', string.Template(self.CMDLINE).substitute(**sctx))
+      cmdline = re.findall(r'\S+', string.Template(self.CMDLINE).substitute(**sctx))
 
       try:
         output = subprocess.check_output([self._xpath] + cmdline + list(files),
@@ -138,7 +138,7 @@ class VerilatorVerifier(Verifier):
       sctx = self._make_subs_ctx(files, backend, top_entity,
                                  WORKDIR=tmp_path)
 
-      cmdline = re.split(r'\s+', string.Template(self.CMDLINE).substitute(**sctx))
+      cmdline = re.findall(r'\S+', string.Template(self.CMDLINE).substitute(**sctx))
 
       try:
         output = subprocess.check_output([self._xpath] + cmdline + list(files),
@@ -165,7 +165,7 @@ class SlangVerifier(Verifier):
       sctx = self._make_subs_ctx(files, backend, top_entity,
                                  WORKDIR=tmp_path)
 
-      cmdline = re.split(r'\s+', string.Template(self.CMDLINE).substitute(**sctx))
+      cmdline = re.findall(r'\S+', string.Template(self.CMDLINE).substitute(**sctx))
 
       try:
         output = subprocess.check_output([self._xpath] + cmdline + list(files),
@@ -247,7 +247,7 @@ class YosysVerifier(Verifier):
       with os.fdopen(fd, mode='wt') as tfd:
         tfd.write(script)
 
-      cmdline = re.split(r'\s+', string.Template(self.CMDLINE).substitute(**sctx))
+      cmdline = re.findall(r'\S+', string.Template(self.CMDLINE).substitute(**sctx))
 
       plugins = []
       for mpath in self._plugins:
