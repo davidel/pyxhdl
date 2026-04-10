@@ -97,7 +97,7 @@ class VerilatorTester(Tester):
   def _create_dumper_module(self, tmp_path, vcd_path):
     template = """
       // verilator lint_off MULTITOP
-      module vcd_dumper;
+      module VcdDumper;
         initial begin
           $$dumpfile("$VCDPATH");
           $$dumpvars();
