@@ -28,7 +28,7 @@ class Tester:
     self._xpath = xpath
     self._args = cmdline_args
 
-  def _expand_cmdline(self, cmdline, source_file, backend, top_entity, **kwargs):
+  def _prepare_cmdline_ctx(self, source_file, backend, top_entity, **kwargs):
     args = getattr(self._args, f'{self.NAME}_args', None) or []
 
     sctx = {
@@ -39,7 +39,10 @@ class Tester:
     }
     sctx.update(kwargs)
 
-    return shlex.split(string.Template(cmdline).substitute(**sctx))
+    return sctx
+
+  def _expand_cmdline(self, cmdline, sctx):
+    return shlex.split(string.Template(cmdline).substitute(sctx))
 
   def _get_vcd_path(self, source_file):
     if self._args.vcdpath:
@@ -63,17 +66,21 @@ class GhdlTester(Tester):
   def backends(self):
     return ('vhdl',)
 
-  def _vcd_cmdline(self, source_file):
-    vcd_path = self._get_vcd_path(source_file)
+  def _parse_vcd_args(self, sctx, source_file):
+    if vcd_path := self._get_vcd_path(source_file):
+      sctx['VCD'] = f'--vcd={vcd_path}'
 
-    return f'--vcd={vcd_path}' if vcd_path else ''
+    return sctx
 
   def test(self, source_file, backend, top_entity):
     with tempfile.TemporaryDirectory() as tmp_path:
-      cmdline = [self._xpath] + self._expand_cmdline(
-        self.CMDLINE, source_file, backend, top_entity,
-        WORKDIR=tmp_path,
-        VCD=self._vcd_cmdline(source_file))
+      sctx = self._prepare_cmdline_ctx(source_file, backend, top_entity,
+                                       WORKDIR=tmp_path,
+                                       VCD='')
+
+      sctx = self._parse_vcd_args(sctx, source_file)
+
+      cmdline = [self._xpath] + self._expand_cmdline(self.CMDLINE, sctx)
 
       alog.debug(f'Running GHDL Tester: {cmdline}')
       try:
@@ -89,16 +96,18 @@ class VerilatorTester(Tester):
 
   NAME = 'verilator'
   BINARY = 'verilator'
-  CMDLINE = '--binary --timing --trace --assert -sv --Mdir $WORKDIR $ARGS -o VTest $INPUT $VCD'
+  CMDLINE = '--binary --timing --trace --assert -sv --Mdir $WORKDIR $ARGS -o VTest --top $TOP $INPUT $VCD'
 
   @property
   def backends(self):
     return ('verilog',)
 
-  def _create_dumper_module(self, tmp_path, vcd_path):
+  def _create_dumper_module(self, tmp_path, vcd_path, top_entity):
+    modname = 'VcdDumper'
+
     template = """
-      // verilator lint_off MULTITOP
-      module VcdDumper;
+      module $MODNAME;
+        $TOP umod();
         initial begin
           $$dumpfile("$VCDPATH");
           $$dumpvars();
@@ -106,29 +115,35 @@ class VerilatorTester(Tester):
       endmodule
     """
 
-    code = string.Template(template).substitute(VCDPATH=vcd_path)
+    code = string.Template(template).substitute(MODNAME=modname,
+                                                TOP=top_entity,
+                                                VCDPATH=vcd_path)
     dcode = textwrap.dedent(code)
 
     mod_path = os.path.join(tmp_path, 'vcd_dumper.sv')
     with open(mod_path, mode='w') as fd:
       fd.write(dcode)
 
-    return mod_path
+    return mod_path, modname
 
-  def _vcd_cmdline(self, tmp_path, source_file):
+  def _parse_vcd_args(self, sctx, tmp_path, source_file):
     if vcd_path := self._get_vcd_path(source_file):
-      mod_path = self._create_dumper_module(tmp_path, vcd_path)
+      mod_path, modname = self._create_dumper_module(tmp_path, vcd_path, sctx['TOP'])
 
-      return f'--trace-vcd {mod_path}'
+      sctx['VCD'] = f'--trace-vcd {mod_path}'
+      sctx['TOP'] = modname
 
-    return ''
+    return sctx
 
   def test(self, source_file, backend, top_entity):
     with tempfile.TemporaryDirectory() as tmp_path:
-      gen_cmdline = [self._xpath] + self._expand_cmdline(
-        self.CMDLINE, source_file, backend, top_entity,
-        WORKDIR=tmp_path,
-        VCD=self._vcd_cmdline(tmp_path, source_file))
+      sctx = self._prepare_cmdline_ctx(source_file, backend, top_entity,
+                                       WORKDIR=tmp_path,
+                                       VCD='')
+
+      sctx = self._parse_vcd_args(sctx, tmp_path, source_file)
+
+      gen_cmdline = [self._xpath] + self._expand_cmdline(self.CMDLINE, sctx)
 
       alog.debug(f'Running Verilator Tester: {gen_cmdline}')
       try:
