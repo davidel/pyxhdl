@@ -102,9 +102,7 @@ class VerilatorTester(Tester):
   def backends(self):
     return ('verilog',)
 
-  def _create_dumper_module(self, tmp_path, vcd_path, top_entity):
-    modname = 'VcdDumper'
-
+  def _create_dumper_module(self, tmp_path, vcd_path, top_entity, modname):
     template = """
       module $MODNAME;
         $TOP umod();
@@ -124,11 +122,12 @@ class VerilatorTester(Tester):
     with open(mod_path, mode='w') as fd:
       fd.write(dcode)
 
-    return mod_path, modname
+    return mod_path
 
   def _parse_vcd_args(self, sctx, tmp_path, source_file):
     if vcd_path := self._get_vcd_path(source_file):
-      mod_path, modname = self._create_dumper_module(tmp_path, vcd_path, sctx['TOP'])
+      modname = sctx['TOP'] + '_VCD'
+      mod_path = self._create_dumper_module(tmp_path, vcd_path, sctx['TOP'], modname)
 
       sctx['VCD'] = f'--trace-vcd {mod_path}'
       sctx['TOP'] = modname
