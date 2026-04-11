@@ -2,6 +2,7 @@ import argparse
 import collections
 import os
 import re
+import shlex
 import shutil
 import string
 import subprocess
@@ -38,7 +39,7 @@ class Tester:
     }
     sctx.update(kwargs)
 
-    return re.findall(r'\S+', string.Template(cmdline).substitute(**sctx))
+    return shlex.split(string.Template(cmdline).substitute(**sctx))
 
   def _get_vcd_path(self, source_file):
     if self._args.vcdpath:
