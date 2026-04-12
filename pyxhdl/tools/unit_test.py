@@ -176,17 +176,22 @@ class VerilatorTester(Tester):
 class VivadoTester(Tester):
 
   NAME = 'vivado'
-  BINARY = ('xvhdl', 'xvlog', 'xelab', 'xsim')
   CMDLINE = {
-    'xvlog': '--sv $INPUT',
-    'xvhdl': '--vhdl2008 $INPUT',
-    'xelab': '--debug wave $TOP',
-    'xsim': '-t $TCL_SCRIPT $TOP',
+    'xvlog': '$XVLOG_ARGS --sv $INPUT',
+    'xvhdl': '$XVHDL_ARGS --vhdl2008 $INPUT',
+    'xelab': '$XELAB_ARGS --debug wave $TOP',
+    'xsim': '$XSIM_ARGS -t $TCL_SCRIPT $TOP',
   }
+  BINARY = tuple(CMDLINE.keys())
 
   @property
   def backends(self):
     return ('verilog', 'vhdl')
+
+  def _binary_args(self, binary):
+    for arg in getattr(self._args, f'{self.NAME}_args', None) or []:
+      if m := re.match(rf'{binary}:(.*)'):
+        yield m.group(1)
 
   def _create_tcl_script(self, path, source_file):
     script = []
@@ -205,6 +210,9 @@ class VivadoTester(Tester):
     self._create_tcl_script(script_path, sctx['INPUT'])
 
     sctx['TCL_SCRIPT'] = script_path
+
+    for binary in self.BINARY:
+      sctx[f'{binary.upper()}_ARGS'] = ' '.join(self._binary_args(binary))
 
     return sctx
 
