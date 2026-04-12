@@ -69,7 +69,6 @@ module XLib(CLK, A, B, XOUT);
   always @(CLK or A or B)
   run : begin
     $display("%s%s%s%s%s%s%s%s%s%s%s", "TIME=", $sformatf("%0t", $time), " A=", $sformatf("%d", A - B), " B=", $sformatf("%d", A + B), " arg1=", "17", " arg2=", "PyXHDL", " $$vanilla");
-    $display("%s%s%s%s%s%s%s%s%s%s%s", "TIME=", $sformatf("%0t", $time), " A=", $sformatf("%d", A), " B=", $sformatf("%d", B), " arg1=", "17", " arg2=", "PyXHDL", " $$vanilla");
     dummy::proc((A + B) + B, A - 8'((A + B) * 2));
     e = dummy::func(A + 1, 8'(B * 3));
     #10 ctx = 8'(A * B);
