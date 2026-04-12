@@ -12,16 +12,27 @@ import textwrap
 
 import py_misc_utils.alog as alog
 import py_misc_utils.app_main as app_main
+import py_misc_utils.fs_utils as pyfsu
 import py_misc_utils.utils as pyu
 
 
 class Tester:
 
   def __init__(self, cmdline_args):
-    xpath = shutil.which(self.BINARY)
-    if not xpath:
-      alog.debug(f'Unable to find binary "{self.BINARY}" for {self.NAME} tester')
-      raise NotImplementedError(f'Unable to find binary "{self.BINARY}" for {self.NAME} tester')
+    if isinstance(self.BINARY, (list, tuple)):
+      xpath = dict()
+      for binary in self.BINARY:
+        bpath = shutil.which(binary)
+        if not bpath:
+          alog.debug(f'Unable to find binary "{binary}" for {self.NAME} tester')
+          raise NotImplementedError(f'Unable to find binary "{binary}" for {self.NAME} tester')
+
+        xpath[binary] = bpath
+    else:
+      xpath = shutil.which(self.BINARY)
+      if not xpath:
+        alog.debug(f'Unable to find binary "{self.BINARY}" for {self.NAME} tester')
+        raise NotImplementedError(f'Unable to find binary "{self.BINARY}" for {self.NAME} tester')
 
     alog.info(f'Found {self.NAME} tester at {xpath}')
 
@@ -66,8 +77,8 @@ class GhdlTester(Tester):
   def backends(self):
     return ('vhdl',)
 
-  def _parse_vcd_args(self, sctx, source_file):
-    if vcd_path := self._get_vcd_path(source_file):
+  def _parse_vcd_args(self, sctx):
+    if vcd_path := self._get_vcd_path(sctx['INPUT']):
       sctx['VCD'] = f'--vcd={vcd_path}'
 
     return sctx
@@ -78,7 +89,7 @@ class GhdlTester(Tester):
                                        WORKDIR=tmp_path,
                                        VCD='')
 
-      sctx = self._parse_vcd_args(sctx, source_file)
+      sctx = self._parse_vcd_args(sctx)
 
       cmdline = [self._xpath] + self._expand_cmdline(self.CMDLINE, sctx)
 
@@ -124,10 +135,11 @@ class VerilatorTester(Tester):
 
     return mod_path
 
-  def _parse_vcd_args(self, sctx, tmp_path, source_file):
-    if vcd_path := self._get_vcd_path(source_file):
+  def _parse_vcd_args(self, sctx):
+    if vcd_path := self._get_vcd_path(sctx['INPUT']):
       modname = sctx['TOP'] + '_VCD'
-      mod_path = self._create_dumper_module(tmp_path, vcd_path, sctx['TOP'], modname)
+      mod_path = self._create_dumper_module(sctx['WORKDIR'], vcd_path, sctx['TOP'],
+                                            modname)
 
       sctx['VCD'] = f'--trace-vcd {mod_path}'
       sctx['TOP'] = modname
@@ -140,7 +152,7 @@ class VerilatorTester(Tester):
                                        WORKDIR=tmp_path,
                                        VCD='')
 
-      sctx = self._parse_vcd_args(sctx, tmp_path, source_file)
+      sctx = self._parse_vcd_args(sctx)
 
       gen_cmdline = [self._xpath] + self._expand_cmdline(self.CMDLINE, sctx)
 
@@ -161,9 +173,90 @@ class VerilatorTester(Tester):
       return gen_output + run_output
 
 
+class VivadoTester(Tester):
+
+  NAME = 'Vivado'
+  BINARY = ('xvhdl', 'xvlog', 'xelab', 'xsim')
+  CMDLINE = {
+    'xvlog': '--sv $INPUT',
+    'xvhdl': '--vhdl2008 $INPUT',
+    'xelab': '--debug wave $TOP',
+    'xsim': '-t $TCL_SCRIPT $TOP',
+  }
+
+  @property
+  def backends(self):
+    return ('verilog', 'vhdl')
+
+  def _create_tcl_script(self, path, source_file):
+    script = []
+
+    if vcd_path := self._get_vcd_path(source_file):
+      script.extend((f'open_vcd {vcd_path}', 'log_wave -recursive *'))
+
+    script.extend(('run all', 'exit'))
+
+    with open(path, mode='w') as fd:
+      fd.write('\n'.join(script))
+
+  def _parse_args(self, sctx):
+    script_path = os.path.join(sctx['WORKDIR'], 'xsim.tcl')
+
+    self._create_tcl_script(script_path, sctx['INPUT'])
+
+    sctx['TCL_SCRIPT'] = script_path
+
+    return sctx
+
+  def test(self, source_file, backend, top_entity):
+    with (tempfile.TemporaryDirectory() as tmp_path, pyfsu.cwd(tmp_path)):
+      sctx = self._prepare_cmdline_ctx(source_file, backend, top_entity,
+                                       WORKDIR=tmp_path)
+
+      sctx = self._parse_args(sctx)
+
+      proc_tool = {
+        'verilog': 'xvlog',
+        'vhdl': 'xvhdl',
+      }[backend]
+
+      proc_cmdline = ([self._xpath[proc_tool]] +
+                      self._expand_cmdline(self.CMDLINE[proc_tool], sctx))
+
+      alog.debug(f'Running Vivado Tester (Processing): {proc_cmdline}')
+      try:
+        proc_output = subprocess.check_output(proc_cmdline, stderr=subprocess.STDOUT)
+      except subprocess.CalledProcessError as ex:
+        pyu.fatal(f'Test process exited with {ex.returncode} code: {proc_cmdline}\n' \
+                  f'Error output:\n' + ex.output.decode())
+
+      elab_cmdline = ([self._xpath['xelab']] +
+                      self._expand_cmdline(self.CMDLINE['xelab'], sctx))
+
+      alog.debug(f'Running Vivado Tester (Elaboration): {elab_cmdline}')
+      try:
+        elab_output = subprocess.check_output(elab_cmdline, stderr=subprocess.STDOUT)
+      except subprocess.CalledProcessError as ex:
+        pyu.fatal(f'Test process exited with {ex.returncode} code: {elab_cmdline}\n' \
+                  f'Error output:\n' + ex.output.decode())
+
+      run_cmdline = ([self._xpath['xsim']] +
+                     self._expand_cmdline(self.CMDLINE['xsim'], sctx))
+
+      alog.debug(f'Running Vivado Tester: {run_cmdline}')
+      try:
+        run_output = subprocess.check_output(run_cmdline, stderr=subprocess.STDOUT)
+      except subprocess.CalledProcessError as ex:
+        pyu.fatal(f'Test process exited with {ex.returncode} code: {run_cmdline}\n' \
+                  f'Error output:\n' + ex.output.decode())
+
+      return proc_output + elab_output + run_output
+
+
 TEST_TOOLS = {
   'GHDL': GhdlTester,
   'Verilator': VerilatorTester,
+  'Vivado': VivadoTester,
 }
 
 def add_tests_args(parser):
@@ -188,7 +281,7 @@ def load_testers(args):
 
 GenCode = collections.namedtuple('GenCode', 'input, output, backend')
 
-def generate_code(source_file, args, ouput_path):
+def generate_code(source_file, args, output_path):
   test_name, _ = os.path.splitext(os.path.basename(source_file))
 
   backends = re.split(r'\s*,\s*', args.backend)
@@ -197,7 +290,7 @@ def generate_code(source_file, args, ouput_path):
 
   code = []
   for backend in backends:
-    output_file = os.path.join(ouput_path, f'{test_name}.{backend}')
+    output_file = os.path.join(output_path, f'{test_name}.{backend}')
     cmdline = [
       python_path,
       '-m', 'pyxhdl.generator',
@@ -247,7 +340,7 @@ def main(args):
   with tempfile.TemporaryDirectory() as tmp_path:
     code = []
     for source_file in args.inputs:
-      code.extend(generate_code(source_file, args, tmp_path))
+      code.extend(generate_code(os.path.abspath(source_file), args, tmp_path))
 
     failed = []
     for tester in testers:
