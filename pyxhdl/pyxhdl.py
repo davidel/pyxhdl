@@ -1686,14 +1686,17 @@ class CodeGen(_ExecVisitor):
 
     alog.debug(lambda: f'RUN CODE: {asu.dump(cnode)}')
 
-    if mode == 'exec':
-      with self._exec_locals(args):
-        return self.eval_node(cnode)
-    elif mode == 'eval':
-      with self._eval_locals(args):
-        return self.eval_node(cnode)
-    else:
-      fatal(f'Invalid mode: {mode}')
+    match mode:
+      case 'exec':
+        with self._exec_locals(args):
+          return self.eval_node(cnode)
+
+      case 'eval':
+        with self._eval_locals(args):
+          return self.eval_node(cnode)
+
+      case _:
+        fatal(f'Invalid mode: {mode}')
 
   def flush(self):
     self._flush_generation()
