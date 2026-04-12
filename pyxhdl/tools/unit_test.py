@@ -301,7 +301,7 @@ def generate_code(source_file, args, output_path):
       '--log_level', args.log_level,
     ]
 
-    test_args = args.args or []
+    test_args = list(args.args) if args.args else []
     if env_args := os.getenv(f'{test_name.upper()}_UTARGS'):
       test_args.extend(pyu.comma_split(env_args))
 
