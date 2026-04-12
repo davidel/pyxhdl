@@ -1482,7 +1482,7 @@ same file, to unit test the module (see [ALU Example](https://github.com/davidel
 for reference).
 
 A script is provided to automatically generate the HDL code (both VHDL and Verilog) and
-run the currently supported testers:
+run the currently supported testers (**Vivado**, **Verilator**, **GHDL**):
 
 ```Shell
 $ python -m pyxhdl.tools.unit_test --log_level DEBUG --inputs examples/utils/alu.py
