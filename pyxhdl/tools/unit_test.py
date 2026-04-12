@@ -57,9 +57,9 @@ class Tester:
 
   def _get_vcd_path(self, source_file):
     if self._args.vcdpath:
-      test_name, _ = os.path.splitext(os.path.basename(source_file))
+      test_name, ext = os.path.splitext(os.path.basename(source_file))
 
-      return os.path.join(self._args.vcdpath, f'{test_name}_{self.NAME}.vcd')
+      return os.path.join(self._args.vcdpath, f'{test_name}_{self.NAME}_{ext[1: ]}.vcd')
 
   @classmethod
   def add_args(cls, parser):
@@ -175,7 +175,7 @@ class VerilatorTester(Tester):
 
 class VivadoTester(Tester):
 
-  NAME = 'Vivado'
+  NAME = 'vivado'
   BINARY = ('xvhdl', 'xvlog', 'xelab', 'xsim')
   CMDLINE = {
     'xvlog': '--sv $INPUT',
