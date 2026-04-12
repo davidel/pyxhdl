@@ -404,9 +404,6 @@ class VHDL_Emitter(Emitter):
   def emit_wait_until(self, arg):
     self.emit_code(f'wait until {paren(self.svalue(arg))};')
 
-  def emit_report(self, parts, severity=None):
-    self._emit_line('report ' + ' & '.join(parts) + ';')
-
   def emit_write(self, parts):
     self._emit_line('write(output, ' + ' & '.join(parts) + ' & LF);')
 

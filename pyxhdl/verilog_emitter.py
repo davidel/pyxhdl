@@ -464,9 +464,6 @@ class Verilog_Emitter(Emitter):
   def emit_wait_until(self, arg):
     self.emit_code(f'@({paren(self.svalue(arg))});')
 
-  def emit_report(self, parts, severity=None):
-    self.emit_write(parts)
-
   def emit_write(self, parts):
     self._emit_line('$display("' + ('%s' * len(parts)) + '", ' + ', '.join(parts) + ');')
 

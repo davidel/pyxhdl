@@ -102,11 +102,6 @@ def wait_until(arg):
       ctx.emitter.emit_wait_until(arg)
 
 
-def report(fmt, **kwargs):
-  ctx = CodeGen.current()
-  ctx.emit_report(fmt, **kwargs)
-
-
 def write(fmt, **kwargs):
   ctx = CodeGen.current()
   ctx.emit_write(fmt, **kwargs)

@@ -233,18 +233,18 @@ def compare_value(var, value, toll=1e-5, debug=None, msg=''):
     for idx in np.ndindex(shape):
       tmp = cvar[idx]
       if _values_differ(tmp, value[idx].item(), toll=toll):
-        XL.report(f'{{NOW}} Output mismatch: {tmp.value} = {{tmp}} (should be {_repr(value[idx], tmp.dtype)}){msg}')
+        XL.write(f'{{NOW}} Output mismatch: {tmp.value} = {{tmp}} (should be {_repr(value[idx], tmp.dtype)}){msg}')
       elif cdebug:
-        XL.report(f'{{NOW}} Output match: {tmp.value} = {{tmp}}{msg}')
+        XL.write(f'{{NOW}} Output match: {tmp.value} = {{tmp}}{msg}')
 
       # TODO: Fix the fact we end up with HDL variable write, instead of locals
       # assignment, in case we write the same symbol more than once.
       del tmp
   else:
     if _values_differ(cvar, value, toll=toll):
-      XL.report(f'{{NOW}} Output mismatch: {cvar.value} = {{cvar}} (should be {_repr(value, cvar.dtype)}){msg}')
+      XL.write(f'{{NOW}} Output mismatch: {cvar.value} = {{cvar}} (should be {_repr(value, cvar.dtype)}){msg}')
     elif cdebug:
-      XL.report(f'{{NOW}} Output match: {cvar.value} = {{cvar}}{msg}')
+      XL.write(f'{{NOW}} Output match: {cvar.value} = {{cvar}}{msg}')
 
 
 @hdl

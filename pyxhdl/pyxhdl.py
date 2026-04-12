@@ -1706,11 +1706,6 @@ class CodeGen(_ExecVisitor):
     hcode = self._resolve_code(dcode, kwargs)
     self.emitter.emit_code(hcode)
 
-  def emit_report(self, fmt, **kwargs):
-    parts = self._get_format_parts(fmt, kwargs)
-
-    self.emitter.emit_report(parts, **kwargs)
-
   def emit_write(self, fmt, **kwargs):
     parts = self._get_format_parts(fmt, kwargs)
 
