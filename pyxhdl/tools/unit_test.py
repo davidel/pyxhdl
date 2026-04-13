@@ -177,10 +177,10 @@ class VivadoTester(Tester):
 
   NAME = 'vivado'
   CMDLINE = {
-    'xvlog': '$XVLOG_ARGS --sv $INPUT',
-    'xvhdl': '$XVHDL_ARGS --vhdl2008 $INPUT',
-    'xelab': '$XELAB_ARGS --debug wave $TOP',
-    'xsim': '$XSIM_ARGS --onerror quit -t $TCL_SCRIPT $TOP',
+    'xvlog': '$XVLOG_ARGS -sv $INPUT',
+    'xvhdl': '$XVHDL_ARGS -2008 $INPUT',
+    'xelab': '$XELAB_ARGS -debug wave $TOP',
+    'xsim': '$XSIM_ARGS -onerror quit -t $TCL_SCRIPT $TOP',
   }
   BINARY = tuple(CMDLINE.keys())
 
