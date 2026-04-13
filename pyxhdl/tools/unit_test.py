@@ -193,23 +193,36 @@ class VivadoTester(Tester):
       if m := re.match(rf'{binary}:(.*)'):
         yield m.group(1)
 
-  def _create_tcl_script(self, path, source_file, top_entity):
-    script = []
+  def _create_tcl_script(self, sctx):
+    template = """
+    proc testbench {} {
+      $VCD
+      run all
+      exit
+    }
 
-    if vcd_path := self._get_vcd_path(source_file):
-      script.extend((f'open_vcd {vcd_path}', f'log_vcd /{top_entity}/*'))
+    if { [ catch { testbench } ERRMSG ] } {
+      puts stderr "TCL_SCRIPT: $$ERRMSG"
+      exit 1
+    }
+    """
 
-    script.extend(('run all', 'exit'))
+    if vcd_path := self._get_vcd_path(sctx['INPUT']):
+      sctx['VCD'] = f'open_vcd {vcd_path}; log_vcd /{sctx["TOP"]}/*'
 
-    with open(path, mode='w') as fd:
-      fd.write('\n'.join(script))
+    script = string.Template(template).substitute(sctx)
+    dscript = textwrap.dedent(script)
 
-  def _parse_args(self, sctx):
     script_path = os.path.join(sctx['WORKDIR'], 'xsim.tcl')
-
-    self._create_tcl_script(script_path, sctx['INPUT'], sctx['TOP'])
+    with open(script_path, mode='w') as fd:
+      fd.write(dscript)
 
     sctx['TCL_SCRIPT'] = script_path
+
+    return sctx
+
+  def _parse_args(self, sctx):
+    sctx = self._create_tcl_script(sctx)
 
     for binary in self.BINARY:
       sctx[f'{binary.upper()}_ARGS'] = ' '.join(self._binary_args(binary))
