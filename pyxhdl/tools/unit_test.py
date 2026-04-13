@@ -180,7 +180,7 @@ class VivadoTester(Tester):
     'xvlog': '$XVLOG_ARGS --sv $INPUT',
     'xvhdl': '$XVHDL_ARGS --vhdl2008 $INPUT',
     'xelab': '$XELAB_ARGS --debug wave $TOP',
-    'xsim': '$XSIM_ARGS -t $TCL_SCRIPT $TOP',
+    'xsim': '$XSIM_ARGS --onerror quit -t $TCL_SCRIPT $TOP',
   }
   BINARY = tuple(CMDLINE.keys())
 
