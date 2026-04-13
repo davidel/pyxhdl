@@ -197,8 +197,8 @@ class VivadoTester(Tester):
     template = """
     proc testbench {} {
       if { [ info exists ::env(VCDPATH)] } {
-        open_vcd $::env(VCDPATH)
-        log_vcd /$::env(TOP)/*
+        open_vcd $$::env(VCDPATH)
+        log_vcd /$$::env(TOP)/*
       }
       run all
       exit
