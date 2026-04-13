@@ -332,9 +332,9 @@ def generate_code(source_file, args, output_path):
 def filter_errors(soutput):
   lines = []
   for line in soutput.split('\n'):
-    m = re.search(r'(\d+(\s*[^\s]+)? Output mismatch:.*)', line)
+    m = re.match(r'ERR:\s+\d+\s+', line)
     if m:
-      lines.append(m.group(1))
+      lines.append(line)
 
   return lines
 

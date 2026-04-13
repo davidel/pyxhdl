@@ -1712,7 +1712,7 @@ class CodeGen(_ExecVisitor):
   def emit_write(self, fmt, **kwargs):
     parts = self._get_format_parts(fmt, kwargs)
 
-    self.emitter.emit_write(parts, **kwargs)
+    self.emitter.emit_write(parts)
 
   def emit_call(self, fname, args, dtype):
     return self.emitter.emit_call(fname, args, dtype)

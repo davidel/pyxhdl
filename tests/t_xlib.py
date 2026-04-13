@@ -86,6 +86,8 @@ class XLib(X.Entity):
   @X.hdl_process(sens='CLK, A, B')
   def run():
     XL.write('TIME={NOW} A={A - B} B={A + B} arg1={arg1} arg2={arg2} $$vanilla')
+    XL.report('A={A + B} B={A - B} arg1={arg1} arg2={arg2} $$vanilla',
+              severity=XL.DEBUG)
 
     c = XL.xeval(f'A + B')
     XL.xexec(f'd = c * 2')

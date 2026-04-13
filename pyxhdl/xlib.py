@@ -107,6 +107,21 @@ def write(fmt, **kwargs):
   ctx.emit_write(fmt, **kwargs)
 
 
+# NOTE: The tools/unit_test.py module parses the "ERR: {{NOW}}" string to
+# detect mismatches during unit testing. If changed here, must be reflected there.
+DEBUG = 'DBG'
+INFO = 'INF'
+WARNING = 'WRN'
+ERROR = 'ERR'
+
+def report(fmt, severity=INFO, **kwargs):
+  ctx = CodeGen.current()
+
+  hdr = f'{severity}: {{NOW}} '
+
+  ctx.emit_write(hdr + fmt, **kwargs)
+
+
 def xeval(code, **args):
   ctx = CodeGen.current()
 

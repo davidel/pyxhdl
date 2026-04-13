@@ -223,8 +223,6 @@ def compare_value(var, value, toll=1e-5, debug=None, msg=''):
 
   cvar = XL.load(var) if isinstance(var, str) else var
 
-  # NOTE: The unit_test.py module parses the "{{NOW}} Output mismatch:" string to
-  # detect mismatches during unit testing. If changed here, must be reflected there.
   if isinstance(value, np.ndarray):
     shape = cvar.dtype.array_shape
     if tuple(shape) != tuple(value.shape):
@@ -233,18 +231,28 @@ def compare_value(var, value, toll=1e-5, debug=None, msg=''):
     for idx in np.ndindex(shape):
       tmp = cvar[idx]
       if _values_differ(tmp, value[idx].item(), toll=toll):
-        XL.write(f'{{NOW}} Output mismatch: {tmp.value} = {{tmp}} (should be {_repr(value[idx], tmp.dtype)}){msg}')
+        XL.report(f'Output mismatch: {tmp.value} = {{cvalue}} ' \
+                  f'(should be {_repr(value[idx], tmp.dtype)}){msg}',
+                  severity=XL.ERROR,
+                  cvalue=tmp)
       elif cdebug:
-        XL.write(f'{{NOW}} Output match: {tmp.value} = {{tmp}}{msg}')
+        XL.report(f'Output match: {tmp.value} = {{cvalue}}{msg}',
+                  severity=XL.DEBUG,
+                  cvalue=tmp)
 
       # TODO: Fix the fact we end up with HDL variable write, instead of locals
       # assignment, in case we write the same symbol more than once.
       del tmp
   else:
     if _values_differ(cvar, value, toll=toll):
-      XL.write(f'{{NOW}} Output mismatch: {cvar.value} = {{cvar}} (should be {_repr(value, cvar.dtype)}){msg}')
+      XL.report(f'Output mismatch: {cvar.value} = {{cvalue}} ' \
+                f'(should be {_repr(value, cvar.dtype)}){msg}',
+                severity=XL.ERROR,
+                cvalue=cvar)
     elif cdebug:
-      XL.write(f'{{NOW}} Output match: {cvar.value} = {{cvar}}{msg}')
+      XL.report(f'Output match: {cvar.value} = {{cvalue}}{msg}',
+                severity=XL.DEBUG,
+                cvalue=cvar)
 
 
 @hdl
