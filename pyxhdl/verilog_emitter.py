@@ -465,7 +465,7 @@ class Verilog_Emitter(Emitter):
     self.emit_code(f'@({paren(self.svalue(arg))});')
 
   def emit_write(self, parts):
-    self._emit_line('$display("' + ('%s' * len(parts)) + '", ' + ', '.join(parts) + ');')
+    self._emit_line('$display(' + ', '.join(parts) + ');')
 
   def _gen_based_slice(self, idx, shape, base, step):
     astep = abs(step)
