@@ -196,7 +196,10 @@ class VivadoTester(Tester):
   def _create_tcl_script(self, sctx):
     template = """
     proc testbench {} {
-      $VCD
+      if { [ info exists ::env(VCDPATH)] } {
+        open_vcd $::env(VCDPATH)
+        log_vcd /$::env(TOP)/*
+      }
       run all
       exit
     }
@@ -208,7 +211,7 @@ class VivadoTester(Tester):
     """
 
     if vcd_path := self._get_vcd_path(sctx['INPUT']):
-      sctx['VCD'] = f'open_vcd {vcd_path}; log_vcd /{sctx["TOP"]}/*'
+      sctx['VCDPATH'] = vcd_path
 
     script = pytr.template_replace(template, lookup_fn=pytr.defval_lookup(sctx, ''))
     dscript = textwrap.dedent(script)
@@ -266,7 +269,10 @@ class VivadoTester(Tester):
 
       alog.debug(f'Running Vivado Tester: {run_cmdline}')
       try:
-        run_output = subprocess.check_output(run_cmdline, stderr=subprocess.STDOUT)
+        env = os.environ.copy()
+        env.update(sctx)
+
+        run_output = subprocess.check_output(run_cmdline, stderr=subprocess.STDOUT, env=env)
       except subprocess.CalledProcessError as ex:
         pyu.fatal(f'Test process exited with {ex.returncode} code: {run_cmdline}\n' \
                   f'Error output:\n' + ex.output.decode())
