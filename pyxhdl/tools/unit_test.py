@@ -193,11 +193,11 @@ class VivadoTester(Tester):
       if m := re.match(rf'{binary}:(.*)'):
         yield m.group(1)
 
-  def _create_tcl_script(self, path, source_file):
+  def _create_tcl_script(self, path, source_file, top_entity):
     script = []
 
     if vcd_path := self._get_vcd_path(source_file):
-      script.extend((f'open_vcd {vcd_path}', 'log_vcd -recursive *'))
+      script.extend((f'open_vcd {vcd_path}', f'log_vcd /{top_entity}/*'))
 
     script.extend(('run all', 'exit'))
 
@@ -207,7 +207,7 @@ class VivadoTester(Tester):
   def _parse_args(self, sctx):
     script_path = os.path.join(sctx['WORKDIR'], 'xsim.tcl')
 
-    self._create_tcl_script(script_path, sctx['INPUT'])
+    self._create_tcl_script(script_path, sctx['INPUT'], sctx['TOP'])
 
     sctx['TCL_SCRIPT'] = script_path
 
