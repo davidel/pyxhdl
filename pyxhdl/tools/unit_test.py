@@ -4,7 +4,6 @@ import os
 import re
 import shlex
 import shutil
-import string
 import subprocess
 import sys
 import tempfile
@@ -13,6 +12,7 @@ import textwrap
 import py_misc_utils.alog as alog
 import py_misc_utils.app_main as app_main
 import py_misc_utils.fs_utils as pyfsu
+import py_misc_utils.template_replace as pytr
 import py_misc_utils.utils as pyu
 
 
@@ -53,7 +53,9 @@ class Tester:
     return sctx
 
   def _expand_cmdline(self, cmdline, sctx):
-    return shlex.split(string.Template(cmdline).substitute(sctx))
+    cmdstr = pytr.template_replace(cmdline, lookup_fn=pytr.defval_lookup(sctx, ''))
+
+    return shlex.split(cmdstr)
 
   def _get_vcd_path(self, source_file):
     if self._args.vcdpath:
@@ -86,8 +88,7 @@ class GhdlTester(Tester):
   def test(self, source_file, backend, top_entity):
     with tempfile.TemporaryDirectory() as tmp_path:
       sctx = self._prepare_cmdline_ctx(source_file, backend, top_entity,
-                                       WORKDIR=tmp_path,
-                                       VCD='')
+                                       WORKDIR=tmp_path)
 
       sctx = self._parse_vcd_args(sctx)
 
@@ -124,9 +125,9 @@ class VerilatorTester(Tester):
       endmodule
     """
 
-    code = string.Template(template).substitute(MODNAME=modname,
-                                                TOP=top_entity,
-                                                VCDPATH=vcd_path)
+    vals = dict(MODNAME=modname, TOP=top_entity, VCDPATH=vcd_path)
+
+    code = pytr.template_replace(template, lookup_fn=pytr.defval_lookup(vals, ''))
     dcode = textwrap.dedent(code)
 
     mod_path = os.path.join(tmp_path, 'vcd_dumper.sv')
@@ -149,8 +150,7 @@ class VerilatorTester(Tester):
   def test(self, source_file, backend, top_entity):
     with tempfile.TemporaryDirectory() as tmp_path:
       sctx = self._prepare_cmdline_ctx(source_file, backend, top_entity,
-                                       WORKDIR=tmp_path,
-                                       VCD='')
+                                       WORKDIR=tmp_path)
 
       sctx = self._parse_vcd_args(sctx)
 
@@ -210,7 +210,7 @@ class VivadoTester(Tester):
     if vcd_path := self._get_vcd_path(sctx['INPUT']):
       sctx['VCD'] = f'open_vcd {vcd_path}; log_vcd /{sctx["TOP"]}/*'
 
-    script = string.Template(template).substitute(sctx)
+    script = pytr.template_replace(template, lookup_fn=pytr.defval_lookup(sctx, ''))
     dscript = textwrap.dedent(script)
 
     script_path = os.path.join(sctx['WORKDIR'], 'xsim.tcl')

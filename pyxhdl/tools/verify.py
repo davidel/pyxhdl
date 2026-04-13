@@ -3,13 +3,13 @@ import os
 import re
 import shlex
 import shutil
-import string
 import subprocess
 import tempfile
 import textwrap
 
 import py_misc_utils.alog as alog
 import py_misc_utils.app_main as app_main
+import py_misc_utils.template_replace as pytr
 import py_misc_utils.utils as pyu
 
 
@@ -77,7 +77,7 @@ class VivadoVerifier(Verifier):
       sctx = self._make_subs_ctx(files, backend, top_entity,
                                  WORKDIR=tmp_path)
 
-      script = string.Template(script).substitute(**sctx)
+      script = pytr.template_replace(script, vals=sctx)
 
       alog.debug(f'Vivado Script:\n{textwrap.indent(script, "  ")}')
 
@@ -85,11 +85,13 @@ class VivadoVerifier(Verifier):
       with os.fdopen(fd, mode='wt') as tfd:
         tfd.write(script)
 
-      cmdline = shlex.split(string.Template(self.CMDLINE).substitute(**sctx))
+      cmdline = [self._xpath,
+                 *shlex.split(pytr.template_replace(self.CMDLINE, vals=sctx)),
+                 path]
 
+      alog.debug(f'Running {self.NAME} verifier: {cmdline}')
       try:
-        output = subprocess.check_output([self._xpath] + cmdline + [path],
-                                         stderr=subprocess.STDOUT)
+        output = subprocess.check_output(cmdline, stderr=subprocess.STDOUT)
       except subprocess.CalledProcessError as ex:
         pyu.fatal(f'Verification process exited with {ex.returncode} code. ' \
                   f'Error output:\n' + ex.output.decode())
@@ -112,11 +114,13 @@ class GhdlVerifier(Verifier):
       sctx = self._make_subs_ctx(files, backend, top_entity,
                                  WORKDIR=tmp_path)
 
-      cmdline = shlex.split(string.Template(self.CMDLINE).substitute(**sctx))
+      cmdline = [self._xpath,
+                 *shlex.split(pytr.template_replace(self.CMDLINE, vals=sctx)),
+                 *files]
 
+      alog.debug(f'Running {self.NAME} verifier: {cmdline}')
       try:
-        output = subprocess.check_output([self._xpath] + cmdline + list(files),
-                                         stderr=subprocess.STDOUT)
+        output = subprocess.check_output(cmdline, stderr=subprocess.STDOUT)
       except subprocess.CalledProcessError as ex:
         pyu.fatal(f'Verification process exited with {ex.returncode} code. ' \
                   f'Error output:\n' + ex.output.decode())
@@ -139,11 +143,13 @@ class VerilatorVerifier(Verifier):
       sctx = self._make_subs_ctx(files, backend, top_entity,
                                  WORKDIR=tmp_path)
 
-      cmdline = shlex.split(string.Template(self.CMDLINE).substitute(**sctx))
+      cmdline = [self._xpath,
+                 *shlex.split(pytr.template_replace(self.CMDLINE, vals=sctx)),
+                 *files]
 
+      alog.debug(f'Running {self.NAME} verifier: {cmdline}')
       try:
-        output = subprocess.check_output([self._xpath] + cmdline + list(files),
-                                         stderr=subprocess.STDOUT)
+        output = subprocess.check_output(cmdline, stderr=subprocess.STDOUT)
       except subprocess.CalledProcessError as ex:
         pyu.fatal(f'Verification process exited with {ex.returncode} code. ' \
                   f'Error output:\n' + ex.output.decode())
@@ -166,11 +172,13 @@ class SlangVerifier(Verifier):
       sctx = self._make_subs_ctx(files, backend, top_entity,
                                  WORKDIR=tmp_path)
 
-      cmdline = shlex.split(string.Template(self.CMDLINE).substitute(**sctx))
+      cmdline = [self._xpath,
+                 *shlex.split(pytr.template_replace(self.CMDLINE, vals=sctx)),
+                 *files]
 
+      alog.debug(f'Running {self.NAME} verifier: {cmdline}')
       try:
-        output = subprocess.check_output([self._xpath] + cmdline + list(files),
-                                         stderr=subprocess.STDOUT)
+        output = subprocess.check_output(cmdline, stderr=subprocess.STDOUT)
       except subprocess.CalledProcessError as ex:
         pyu.fatal(f'Verification process exited with {ex.returncode} code. ' \
                   f'Error output:\n' + ex.output.decode())
@@ -240,7 +248,7 @@ class YosysVerifier(Verifier):
       sctx = self._make_subs_ctx(files, backend, top_entity,
                                  WORKDIR=tmp_path)
 
-      script = string.Template(script).substitute(**sctx)
+      script = pytr.template_replace(script, vals=sctx)
 
       alog.debug(f'Yosys Script:\n{textwrap.indent(script, "  ")}')
 
@@ -248,15 +256,17 @@ class YosysVerifier(Verifier):
       with os.fdopen(fd, mode='wt') as tfd:
         tfd.write(script)
 
-      cmdline = shlex.split(string.Template(self.CMDLINE).substitute(**sctx))
-
       plugins = []
       for mpath in self._plugins:
         plugins.extend(['-m', mpath])
 
+      cmdline = [self._xpath,
+                 *plugins,
+                 *shlex.split(pytr.template_replace(self.CMDLINE, vals=sctx)),
+                 path]
+
       try:
-        output = subprocess.check_output([self._xpath] + plugins + cmdline + [path],
-                                         stderr=subprocess.STDOUT)
+        output = subprocess.check_output(cmdline, stderr=subprocess.STDOUT)
       except subprocess.CalledProcessError as ex:
         pyu.fatal(f'Verification process exited with {ex.returncode} code. ' \
                   f'Error output:\n' + ex.output.decode())
