@@ -197,7 +197,7 @@ class VivadoTester(Tester):
     script = []
 
     if vcd_path := self._get_vcd_path(source_file):
-      script.extend((f'open_vcd {vcd_path}', 'log_wave -recursive *'))
+      script.extend((f'open_vcd {vcd_path}', 'log_vcd -recursive *'))
 
     script.extend(('run all', 'exit'))
 
