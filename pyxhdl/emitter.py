@@ -1,5 +1,6 @@
 import collections
 import contextlib
+import enum
 import functools
 import inspect
 import os
@@ -333,7 +334,10 @@ class Emitter:
     if mvalue is not None:
       xvalue = mvalue
     elif not isinstance(xvalue, str):
-      xvalue = str(xvalue)
+      if isinstance(xvalue, enum.Enum):
+        xvalue = str(xvalue.value)
+      else:
+        xvalue = str(xvalue)
 
     return xvalue
 
