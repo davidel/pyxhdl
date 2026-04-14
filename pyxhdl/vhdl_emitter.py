@@ -132,7 +132,7 @@ class VHDL_Emitter(Emitter):
   def _literal_bits(self, value, dtype):
     if isinstance(value, str):
       return self._parse_bits(value, dtype.nbits)
-    elif isinstance(value, int) and abs(value) >= 2**31:
+    elif isinstance(value, int) and (value < 0 or abs(value) >= 2**31):
       return self._int2bits(value, dtype.nbits)
 
   def _to_int(self, value, dtype, itype):
