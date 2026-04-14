@@ -64,7 +64,7 @@ class Tester:
 
   @classmethod
   def add_args(cls, parser):
-    parser.add_argument(f'--{cls.NAME}_args', nargs='+',
+    parser.add_argument(f'--{cls.NAME}_args', nargs='+', action='extend',
                         help=f'The arguments for the {cls.NAME} tester')
 
 
