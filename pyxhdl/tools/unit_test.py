@@ -38,15 +38,14 @@ class Tester:
 
     self._xpath = xpath
     self._args = cmdline_args
+    self._binary_args = getattr(cmdline_args, f'{self.NAME}_args', None) or []
 
   def _prepare_cmdline_ctx(self, source_file, backend, top_entity, **kwargs):
-    args = getattr(self._args, f'{self.NAME}_args', None) or []
-
     sctx = {
       'INPUT': source_file,
       'TOP': top_entity,
       'BACKEND': backend,
-      'ARGS': ' '.join(args),
+      'ARGS': ' '.join(self._binary_args),
     }
     sctx.update(kwargs)
 
@@ -188,8 +187,8 @@ class VivadoTester(Tester):
   def backends(self):
     return ('verilog', 'vhdl')
 
-  def _binary_args(self, binary):
-    for arg in getattr(self._args, f'{self.NAME}_args', None) or []:
+  def _select_args(self, binary):
+    for arg in self._binary_args:
       if m := re.match(rf'{binary}:(.*)'):
         yield m.group(1)
 
@@ -231,7 +230,7 @@ class VivadoTester(Tester):
     sctx = self._create_tcl_script(sctx)
 
     for binary in self.BINARY:
-      sctx[f'{binary.upper()}_ARGS'] = ' '.join(self._binary_args(binary))
+      sctx[f'{binary.upper()}_ARGS'] = ' '.join(self._select_args(binary))
 
     return sctx
 
