@@ -97,7 +97,6 @@ class Fifo(X.Entity):
       IFC.WFULL = wfull_next
 
 
-
 class Test(X.Entity):
 
   ARGS = dict(rclock_frequency=100e6,
