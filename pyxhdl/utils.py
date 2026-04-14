@@ -142,7 +142,7 @@ class EntityVersions:
       ver = len(eldict)
       eldict[erec] = ver
 
-    return ent_name if ver == 0 else f'{ent_name}_{ver}', erec
+    return ent_name if ver == 0 else f'{ent_name}_V{ver}', erec
 
 
 def subscript_setter(arr, idx):

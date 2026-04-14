@@ -36,6 +36,7 @@ _Prec = collections.namedtuple('Prec', 'prec, prio, rtype', defaults=[0, None])
 
 _ARITH_TYPE_PREC = {
   Bool: _Prec(-1, rtype=Uint(1)),
+  Bits: _Prec(0),
   Sint: _Prec(1, 2),
   Uint: _Prec(1, 1),
   Integer: _Prec(2),
