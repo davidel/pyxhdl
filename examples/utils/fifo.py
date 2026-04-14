@@ -101,8 +101,8 @@ class Fifo(X.Entity):
 class Test(X.Entity):
 
   ARGS = dict(rclock_frequency=100e6,
-              wclock_frequency=80e6,
-              num_tests=10,
+              wclock_frequency=65e6,
+              num_tests=25,
               width=8,
               size=32)
 
@@ -121,7 +121,7 @@ class Test(X.Entity):
     RRST_N = X.mkreg(X.BIT)
     WRST_N = X.mkreg(X.BIT)
 
-    self.ifc = FifoIfc(WCLK, WRST_N, RCLK, RRST_N, width, size)
+    self.ifc = FifoIfc(WCLK, RCLK, WRST_N, RRST_N, width, size)
 
     Fifo(IFC=self.ifc)
 
@@ -137,6 +137,7 @@ class Test(X.Entity):
 
     self.ifc.WUP = 0
     self.ifc.RUP = 0
+    self.ifc.WDATA = 0
 
     TB.wait_rising(RCLK)
     TB.wait_rising(WCLK)
@@ -147,6 +148,59 @@ class Test(X.Entity):
     TB.wait_rising(RCLK)
     TB.wait_rising(WCLK)
 
+    for i in range(num_tests):
+      value = random.randint(0, self.ifc.size - 1)
+
+      self.ifc.WUP = 1
+      self.ifc.WDATA = value
+      TB.wait_rising(WCLK)
+
+      self.ifc.WUP = 0
+      self.ifc.WDATA = ~value
+      TB.wait_rising(WCLK)
+      TB.wait_rising(RCLK)
+
+      TB.compare_value(self.ifc.RDATA, value, msg=f' : testno={i}')
+
+      self.ifc.RUP = 1
+      TB.wait_rising(RCLK)
+
+      self.ifc.RUP = 0
+      TB.wait_rising(RCLK)
+      TB.wait_rising(WCLK)
+
+    TB.wait_rising(WCLK)
+    self.ifc.WUP = 1
+
+    for i in range(size - 1):
+      self.ifc.WDATA = i
+      TB.wait_rising(WCLK)
+
+    self.ifc.WUP = 0
+    TB.wait_rising(WCLK)
+
+    TB.compare_value(self.ifc.WFULL, 0)
+
+    self.ifc.WUP = 1
+    self.ifc.WDATA = size - 1
+    TB.wait_rising(WCLK)
+
+    self.ifc.WUP = 0
+    TB.wait_rising(WCLK)
+
+    TB.compare_value(self.ifc.WFULL, 1)
+
+    TB.wait_rising(RCLK)
+    self.ifc.RUP = 1
+
+    for i in range(size):
+      TB.compare_value(self.ifc.RDATA, i)
+      TB.wait_rising(RCLK)
+
+    self.ifc.RUP = 0
+    TB.wait_rising(RCLK)
+
+    TB.compare_value(self.ifc.REMPTY, 1)
 
     XL.finish()
 
