@@ -194,6 +194,9 @@ class VivadoTester(Tester):
         yield m.group(1)
 
   def _create_tcl_script(self, sctx):
+    # We need to insert a catch{} within the script, otherwise if there is some
+    # error in the script, the simulation hangs since xsim drops to an interactive
+    # shell (even though we pass the '-onerror quit' command line argument).
     template = """
     proc testbench {} {
       if { [ info exists ::env(VCDPATH)] } {
@@ -244,8 +247,8 @@ class VivadoTester(Tester):
         'vhdl': 'xvhdl',
       }[backend]
 
-      proc_cmdline = ([self._xpath[proc_tool]] +
-                      self._expand_cmdline(self.CMDLINE[proc_tool], sctx))
+      proc_cmdline = [self._xpath[proc_tool],
+                      *self._expand_cmdline(self.CMDLINE[proc_tool], sctx)]
 
       alog.debug(f'Running Vivado Tester (Processing): {proc_cmdline}')
       try:
@@ -254,8 +257,8 @@ class VivadoTester(Tester):
         pyu.fatal(f'Test process exited with {ex.returncode} code: {proc_cmdline}\n' \
                   f'Error output:\n' + ex.output.decode())
 
-      elab_cmdline = ([self._xpath['xelab']] +
-                      self._expand_cmdline(self.CMDLINE['xelab'], sctx))
+      elab_cmdline = [self._xpath['xelab'],
+                      *self._expand_cmdline(self.CMDLINE['xelab'], sctx)]
 
       alog.debug(f'Running Vivado Tester (Elaboration): {elab_cmdline}')
       try:
@@ -264,15 +267,20 @@ class VivadoTester(Tester):
         pyu.fatal(f'Test process exited with {ex.returncode} code: {elab_cmdline}\n' \
                   f'Error output:\n' + ex.output.decode())
 
-      run_cmdline = ([self._xpath['xsim']] +
-                     self._expand_cmdline(self.CMDLINE['xsim'], sctx))
+      run_cmdline = [self._xpath['xsim'],
+                     *self._expand_cmdline(self.CMDLINE['xsim'], sctx)]
 
       alog.debug(f'Running Vivado Tester: {run_cmdline}')
       try:
+        # The TCL script gets its arguments from the environment (no way to pass
+        # them to the xsim command line ATM), so we need to create an updated copy
+        # of the current environment.
         env = os.environ.copy()
         env.update(sctx)
 
-        run_output = subprocess.check_output(run_cmdline, stderr=subprocess.STDOUT, env=env)
+        run_output = subprocess.check_output(run_cmdline,
+                                             stderr=subprocess.STDOUT,
+                                             env=env)
       except subprocess.CalledProcessError as ex:
         pyu.fatal(f'Test process exited with {ex.returncode} code: {run_cmdline}\n' \
                   f'Error output:\n' + ex.output.decode())
