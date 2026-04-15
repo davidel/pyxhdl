@@ -1496,3 +1496,90 @@ provided within the *PyXHDL* repository:
 ```Shell
 $ LOG_LEVEL=DEBUG make -C examples
 ```
+
+
+## Blinky
+
+Here is the trivial LED blinking code that is a staple of every HDL examples.
+
+```Python
+import pyxhdl as X
+
+
+class Blinky(X.Entity):
+
+  PORTS = 'CLK=bit, RST_N=bit, =LED=bit'
+  ARGS = dict(clk_freq_hz=10e6, led_period_sec=1.0)
+
+  @X.hdl_process(sens='+CLK')
+  def blinker():
+    trigger_count = int(clk_freq_hz * led_period_sec)
+
+    counter = X.mkreg(X.Uint(trigger_count.bit_length()))
+
+    if RST_N != 1:
+      counter = 0
+      LED = 0
+    elif counter == trigger_count:
+      LED = ~LED
+      counter = 0
+    else:
+      counter += 1
+```
+
+The HDL code is generated using the following command(s):
+
+```Shell
+python -m pyxhdl.generator --input_file blinky.py --entity Blinky --backend verilog > blinky.sv
+python -m pyxhdl.generator --input_file blinky.py --entity Blinky --backend vhdl > blinky.vhd
+```
+
+It is also possible to override the *Blinky* entity/module parameters by passing extra command
+line arguments like ```--inputs clk_freq_hz=10e6 led_period_sec=1.0```.
+
+The generated code for the *Blinky* entity/module will look like the following VHDL code:
+
+```VHDL
+architecture behavior of Blinky is
+  signal counter : unsigned(23 downto 0);
+begin
+  blinker : process (CLK)
+  begin
+    if rising_edge(CLK) then
+      if RST_N /= '1' then
+        counter <= to_unsigned(0, 24);
+        LED <= '0';
+      elsif counter = to_unsigned(10000000, 24) then
+        LED <= not LED;
+        counter <= to_unsigned(0, 24);
+      else
+        counter <= counter + 1;
+      end if;
+    end if;
+  end process;
+end architecture;
+```
+
+And Verilog code:
+
+```Verilog
+module Blinky(CLK, RST_N, LED);
+  input logic CLK;
+  input logic RST_N;
+  output logic LED;
+  logic [23: 0] counter;
+  always_ff @(posedge CLK)
+  blinker : begin
+    if (RST_N != 1'(1)) begin
+      counter <= 24'(0);
+      LED <= 1'(0);
+    end else if (counter == 24'(10000000)) begin
+      LED <= ~LED;
+      counter <= 24'(0);
+    end else begin
+      counter <= counter + 1;
+    end
+  end
+endmodule
+```
+
