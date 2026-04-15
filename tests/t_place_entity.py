@@ -94,6 +94,27 @@ class PlaceLibEntity(X.Entity):
                       _P=dict(NBITS=A.dtype.nbits, DELTA=7))
 
 
+class Repeated(X.Entity):
+
+  PORTS = 'A, B, =XOUT'
+  ARGS = dict(index=1)
+
+  @X.hdl_process(sens='A, B')
+  def run():
+    XOUT = A + B - index
+
+
+class RepeatFew(X.Entity):
+
+  PORTS = 'A, B, =XOUT1, =XOUT2'
+
+  @X.hdl_process(sens='A, B', kind=X.ROOT_PROCESS)
+  def root():
+    Repeated(A=A, B=B, XOUT=XOUT1, index=17)
+    Repeated(A=B, B=A, XOUT=XOUT2, index=21)
+
+
+
 class TestPlaceEntity(unittest.TestCase):
 
   def test_place_entity(self):
@@ -113,4 +134,14 @@ class TestPlaceEntity(unittest.TestCase):
     )
 
     tu.run(self, tu.test_name(self, pyu.fname()), PlaceLibEntity, inputs)
+
+  def test_repeated_entity(self):
+    inputs = dict(
+      A=X.mkwire(X.UINT8),
+      B=X.mkwire(X.UINT16),
+      XOUT1=X.mkwire(X.UINT8),
+      XOUT2=X.mkwire(X.UINT8),
+    )
+
+    tu.run(self, tu.test_name(self, pyu.fname()), RepeatFew, inputs)
 
