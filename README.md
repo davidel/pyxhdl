@@ -18,6 +18,8 @@ Otherwise it can be installed directly from the Github repo.
 $ pip install git+https://github.com/davidel/pyxhdl.git
 ```
 
+For the impatients, here the [Blinky](#Blinky) example.
+
 
 ## Description
 
@@ -1530,8 +1532,8 @@ class Blinky(X.Entity):
 The HDL code is generated using the following command(s):
 
 ```Shell
-python -m pyxhdl.generator --input_file blinky.py --entity Blinky --backend verilog > blinky.sv
-python -m pyxhdl.generator --input_file blinky.py --entity Blinky --backend vhdl > blinky.vhd
+$ python -m pyxhdl.generator --input_file blinky.py --entity Blinky --backend verilog > blinky.sv
+$ python -m pyxhdl.generator --input_file blinky.py --entity Blinky --backend vhdl > blinky.vhd
 ```
 
 It is also possible to override the *Blinky* entity/module parameters by passing extra command
