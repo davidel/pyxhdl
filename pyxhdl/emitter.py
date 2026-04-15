@@ -11,6 +11,7 @@ import py_misc_utils.alog as alog
 import py_misc_utils.context_managers as pycm
 import py_misc_utils.core_utils as pycu
 import py_misc_utils.fs_utils as pyfsu
+import py_misc_utils.gfs as gfs
 import py_misc_utils.inspect_utils as pyiu
 import py_misc_utils.obj as obj
 import py_misc_utils.ordered_set as pyos
@@ -662,7 +663,7 @@ class Emitter:
     return v
 
   def _load_code(self, path):
-    with open(path, mode='r') as fd:
+    with gfs.open(path, mode='r') as fd:
       code = fd.read()
 
     return pytr.template_replace(code, lookup_fn=self._env_lookup, delim='@')
@@ -688,8 +689,8 @@ class Emitter:
     libcode, xlibs = [], []
 
     # Loading internal libraries by manifest (always load ones).
-    if lpath := pyfsu.find_path('LIBS', lib_paths):
-      with open(lpath, mode='r') as mfd:
+    if lpath := pyfsu.find_path('LIBS', lib_paths, checkfn=gfs.exists):
+      with gfs.open(lpath, mode='r') as mfd:
         for libname in [l.strip() for l in mfd.read().split('\n')]:
           if libname and not libname.startswith('#'):
             xlibs.append(libname)
@@ -706,7 +707,7 @@ class Emitter:
 
       libfname = (libname + self.FILE_EXT) if not ext else libname
 
-      if lpath := pyfsu.find_path(libfname, lib_paths):
+      if lpath := pyfsu.find_path(libfname, lib_paths, checkfn=gfs.exists):
         alog.debug(f'Loading {self.KIND} library file {lpath}')
         libcode.extend(self._load_code(lpath).split('\n'))
       else:
