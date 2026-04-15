@@ -1478,13 +1478,21 @@ $ python3 -m pyxhdl.tools.verify --inputs generated_output.vhd --backend vhdl --
 ## Unit Testing Tool
 
 *PyXHDL* modules are encouraged to have a *Test* entity/module declared within the
-same file, to unit test the module (see [ALU Example](https://github.com/davidel/pyxhdl/blob/main/examples/utils/alu.py)
-for reference).
+same file, to unit test the module (see the [ALU](https://github.com/davidel/pyxhdl/blob/main/examples/utils/alu.py)
+or the [FIFO](https://github.com/davidel/pyxhdl/blob/main/examples/utils/fifo.py)
+examples for reference).
 
 A script is provided to automatically generate the HDL code (both VHDL and Verilog) and
 run the currently supported testers (**Vivado**, **Verilator**, **GHDL**):
 
 ```Shell
 $ python -m pyxhdl.tools.unit_test --log_level DEBUG --inputs examples/utils/alu.py
+$ python -m pyxhdl.tools.unit_test --log_level DEBUG --inputs examples/utils/fifo.py
 ```
 
+It is also provided a Makefile to run the unit tests against all the examples
+provided within the *PyXHDL* repository:
+
+```Shell
+$ LOG_LEVEL=DEBUG make -C examples
+```
