@@ -4,7 +4,7 @@ from pyxhdl import xlib as XL
 
 class TestIfc(X.Interface):
 
-  FIELDS = 'X:u16, Y:u16=0'
+  FIELDS = 'X:u16'
 
   IPORT = 'CLK, RST_N, +X, +Y, =XOUT'
 
@@ -13,6 +13,7 @@ class TestIfc(X.Interface):
     self.mkfield('CLK', clk)
     self.mkfield('RST_N', rst_n)
     self.mkfield('XOUT', xout)
+    self.mkfield('Y', X.Uint(xout.dtype.nbits))
 
 
 class IfcEnt(X.Entity):

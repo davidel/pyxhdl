@@ -746,7 +746,7 @@ from pyxhdl import xlib as XL
 
 class TestIfc(X.Interface):
 
-  FIELDS = 'X:u16, Y:u16=0'
+  FIELDS = 'X:u16'
 
   IPORT = 'CLK, RST_N, +X, +Y, =XOUT'
 
@@ -755,7 +755,7 @@ class TestIfc(X.Interface):
     self.mkfield('CLK', clk)
     self.mkfield('RST_N', rst_n)
     self.mkfield('XOUT', xout)
-
+    self.mkfield('Y', X.Uint(xout.dtype.nbits))
 
 class IfcEnt(X.Entity):
 
@@ -771,7 +771,6 @@ class IfcEnt(X.Entity):
       IFC.XOUT = A * IFC.X + IFC.Y - IFC.an_int
       IFC.X += 1
       IFC.Y += 2
-
 
 class IfcTest(X.Entity):
 
@@ -791,7 +790,7 @@ The generated code is mapped to the following VHDL one:
 ```VHDL
 architecture behavior of IfcTest is
   signal TEST_X : unsigned(15 downto 0);
-  signal TEST_Y : unsigned(15 downto 0) := to_unsigned(0, 16);
+  signal TEST_Y : unsigned(15 downto 0);
 begin
   IfcEnt_1 : entity IfcEnt
   port map (
@@ -832,7 +831,7 @@ module IfcTest(CLK, RST_N, A, XOUT);
   input logic [15: 0] A;
   output logic [15: 0] XOUT;
   logic [15: 0] TEST_X;
-  logic [15: 0] TEST_Y = 16'(0);
+  logic [15: 0] TEST_Y;
   IfcEnt IfcEnt_1(
     .IFC_CLK(CLK),
     .IFC_RST_N(RST_N),
