@@ -1,3 +1,5 @@
+![PyXHDL](./LOGO.png)
+
 # PyXHDL - Python Frontend For VHDL And Verilog
 
 *PyXHDL* born for developers who are not really in love with any of the HDL languages
