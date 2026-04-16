@@ -1,4 +1,4 @@
-![PyXHDL](./LOGO.png)
+![PyXHDL](https://raw.githubusercontent.com/davidel/pyxhdl/main/LOGO.png)
 
 # PyXHDL - Python Frontend For VHDL And Verilog
 
