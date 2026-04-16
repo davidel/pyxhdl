@@ -12,6 +12,7 @@ import py_misc_utils.alog as alog
 import py_misc_utils.ast_utils as asu
 import py_misc_utils.core_utils as pycu
 import py_misc_utils.inspect_utils as pyiu
+import py_misc_utils.ordered_set as pyos
 import py_misc_utils.thread_context as pytc
 import py_misc_utils.utils as pyu
 
@@ -629,8 +630,8 @@ class CodeGen(_ExecVisitor):
     super().__init__(globs)
     self.emitter = emitter
     self._module_decls_place = emitter.emit_placement()
-    self._used_entities = set()
-    self._generated_entities = set()
+    self._used_entities = pyos.OrderedSet()
+    self._generated_entities = pyos.OrderedSet()
     self._ent_versions = EntityVersions()
     self._vars_places = []
     self._root_vars = dict()

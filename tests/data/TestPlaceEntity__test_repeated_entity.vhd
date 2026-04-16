@@ -267,13 +267,13 @@ use std.textio.all;
 library work;
 use work.all;
 
--- Entity "Repeated_V1" is "Repeated" with:
--- 	args={'A': 'uint(16)', 'B': 'uint(8)', 'XOUT': 'uint(8)'}
--- 	kwargs={index=21}
-entity Repeated_V1 is
+-- Entity "Repeated" is "Repeated" with:
+-- 	args={'A': 'uint(8)', 'B': 'uint(16)', 'XOUT': 'uint(8)'}
+-- 	kwargs={index=17}
+entity Repeated is
   port (
-    A : in unsigned(15 downto 0);
-    B : in unsigned(7 downto 0);
+    A : in unsigned(7 downto 0);
+    B : in unsigned(15 downto 0);
     XOUT : out unsigned(7 downto 0)
   );
 end entity;
@@ -287,13 +287,13 @@ use std.textio.all;
 library work;
 use work.all;
 
--- Entity "Repeated" is "Repeated" with:
--- 	args={'A': 'uint(8)', 'B': 'uint(16)', 'XOUT': 'uint(8)'}
--- 	kwargs={index=17}
-entity Repeated is
+-- Entity "Repeated_V1" is "Repeated" with:
+-- 	args={'A': 'uint(16)', 'B': 'uint(8)', 'XOUT': 'uint(8)'}
+-- 	kwargs={index=21}
+entity Repeated_V1 is
   port (
-    A : in unsigned(7 downto 0);
-    B : in unsigned(15 downto 0);
+    A : in unsigned(15 downto 0);
+    B : in unsigned(7 downto 0);
     XOUT : out unsigned(7 downto 0)
   );
 end entity;
@@ -335,14 +335,14 @@ use std.textio.all;
 library work;
 use work.all;
 
--- Entity "Repeated_V1" is "Repeated" with:
--- 	args={'A': 'uint(16)', 'B': 'uint(8)', 'XOUT': 'uint(8)'}
--- 	kwargs={index=21}
-architecture behavior of Repeated_V1 is
+-- Entity "Repeated" is "Repeated" with:
+-- 	args={'A': 'uint(8)', 'B': 'uint(16)', 'XOUT': 'uint(8)'}
+-- 	kwargs={index=17}
+architecture behavior of Repeated is
 begin
   run : process (A, B)
   begin
-    XOUT <= resize((A + resize(B, 16)) - 21, 8);
+    XOUT <= resize((resize(A, 16) + B) - 17, 8);
   end process;
 end architecture;
 library ieee;
@@ -355,13 +355,13 @@ use std.textio.all;
 library work;
 use work.all;
 
--- Entity "Repeated" is "Repeated" with:
--- 	args={'A': 'uint(8)', 'B': 'uint(16)', 'XOUT': 'uint(8)'}
--- 	kwargs={index=17}
-architecture behavior of Repeated is
+-- Entity "Repeated_V1" is "Repeated" with:
+-- 	args={'A': 'uint(16)', 'B': 'uint(8)', 'XOUT': 'uint(8)'}
+-- 	kwargs={index=21}
+architecture behavior of Repeated_V1 is
 begin
   run : process (A, B)
   begin
-    XOUT <= resize((resize(A, 16) + B) - 17, 8);
+    XOUT <= resize((A + resize(B, 16)) - 21, 8);
   end process;
 end architecture;

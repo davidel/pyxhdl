@@ -56,18 +56,6 @@ module RepeatFew(A, B, XOUT1, XOUT2);
     .XOUT(XOUT2)
   );
 endmodule
-// Entity "Repeated_V1" is "Repeated" with:
-// 	args={'A': 'uint(16)', 'B': 'uint(8)', 'XOUT': 'uint(8)'}
-// 	kwargs={index=21}
-module Repeated_V1(A, B, XOUT);
-  input logic [15: 0] A;
-  input logic [7: 0] B;
-  output logic [7: 0] XOUT;
-  always @(A or B)
-  run : begin
-    XOUT = 8'((A + 16'(B)) - 21);
-  end
-endmodule
 // Entity "Repeated" is "Repeated" with:
 // 	args={'A': 'uint(8)', 'B': 'uint(16)', 'XOUT': 'uint(8)'}
 // 	kwargs={index=17}
@@ -78,5 +66,17 @@ module Repeated(A, B, XOUT);
   always @(A or B)
   run : begin
     XOUT = 8'((16'(A) + B) - 17);
+  end
+endmodule
+// Entity "Repeated_V1" is "Repeated" with:
+// 	args={'A': 'uint(16)', 'B': 'uint(8)', 'XOUT': 'uint(8)'}
+// 	kwargs={index=21}
+module Repeated_V1(A, B, XOUT);
+  input logic [15: 0] A;
+  input logic [7: 0] B;
+  output logic [7: 0] XOUT;
+  always @(A or B)
+  run : begin
+    XOUT = 8'((A + 16'(B)) - 21);
   end
 endmodule
