@@ -85,6 +85,59 @@ class InterfaceArrayTest(X.Entity):
       XOUT[1] = self.ifc.Q * 3
 
 
+class InnerIfc(X.Interface):
+
+  IPORT = 'CLK, X, =Y, =Z'
+
+  def __init__(self, clk, x, y, **kwargs):
+    super().__init__('INNER', **kwargs)
+    self.mkfield('CLK', clk)
+    self.mkfield('X', x)
+    self.mkfield('Y', y)
+    self.mkfield('Z', X.Uint(y.dtype.nbits))
+
+
+class OuterIfc(X.Interface):
+
+  IPORT = f'CLK, *IIFCA:{__name__}.InnerIfc.IPORT, *IIFCB:{__name__}.InnerIfc.IPORT, =Q, =W'
+
+  def __init__(self, clk, iifca, iifcb, q, **kwargs):
+    super().__init__('OUTER', **kwargs)
+    self.mkfield('CLK', clk)
+    self.mkfield('IIFCA', iifca)
+    self.mkfield('IIFCB', iifcb)
+    self.mkfield('Q', q)
+    self.mkfield('W', X.Uint(q.dtype.nbits))
+
+
+class NestedIfc(X.Entity):
+
+  PORTS = f'CLK, *OIFC:{__name__}.OuterIfc.IPORT'
+
+  @X.hdl_process(sens='+CLK')
+  def nested_process(self):
+    OIFC.W = OIFC.IIFCA.X + 2
+    OIFC.IIFCA.Z = OIFC.IIFCB.X - OIFC.an_int
+    OIFC.IIFCB.Y = OIFC.IIFCA.X % 16
+    OIFC.Q = OIFC.IIFCB.X + OIFC.IIFCA.X
+
+
+class NestedInterfaceTest(X.Entity):
+
+  PORTS = 'CLK, X, =Y, =Q'
+
+  @X.hdl_process(kind=X.ROOT_PROCESS)
+  def root(self):
+    self.inner_ifca = InnerIfc(CLK, X, Y)
+    self.inner_ifcb = InnerIfc(CLK, X, Y)
+
+    self.outer_ifc = OuterIfc(CLK, self.inner_ifca, self.inner_ifcb, Q,
+                              an_int=17)
+
+    NestedIfc(CLK=CLK,
+              OIFC=self.outer_ifc)
+
+
 class TestInterface(unittest.TestCase):
 
   def test_interface(self):
@@ -107,4 +160,14 @@ class TestInterface(unittest.TestCase):
     )
 
     tu.run(self, tu.test_name(self, pyu.fname()), InterfaceArrayTest, inputs)
+
+  def test_nested(self):
+    inputs = dict(
+      CLK=X.mkwire(X.BIT),
+      X=X.mkwire(X.UINT8),
+      Y=X.mkwire(X.UINT8),
+      Q=X.mkwire(X.UINT8),
+    )
+
+    tu.run(self, tu.test_name(self, pyu.fname()), NestedInterfaceTest, inputs)
 

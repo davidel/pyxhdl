@@ -36,11 +36,16 @@ class _InterfaceBase:
     return Port.parse_list(ports_spec)
 
   def __hash__(self):
-    hargs = tuple(getattr(self, name) for name in self._args)
-    hfields = tuple((name, getattr(self, name).dtype) for name in
-                    sorted(self._fields.keys()))
+    hargs = [getattr(self, name) for name in self._args]
 
-    return hash(hargs + hfields)
+    for name in sorted(self._fields.keys()):
+      value = getattr(self, name)
+      if isinstance(value, Value):
+        hargs.append((name, value.dtype))
+      else:
+        hargs.append((name, value))
+
+    return hash(tuple(hargs))
 
   def __eq__(self, other):
     if self._args != other._args:
@@ -54,14 +59,24 @@ class _InterfaceBase:
         return False
 
     for name in self._fields.keys():
-      if getattr(self, name).dtype != getattr(other, name).dtype:
+      value, ovalue = getattr(self, name), getattr(other, name)
+      if isinstance(value, Value):
+        if value.dtype != ovalue.dtype:
+          return False
+      elif value != ovalue:
         return False
 
     return True
 
   def __repr__(self):
     parts = [f'{name}:{getattr(self, name)}' for name in self._args]
-    parts += [f'{name}:{getattr(self, name).dtype}' for name in self._fields.keys()]
+
+    for name in self._fields.keys():
+      value = getattr(self, name)
+      if isinstance(value, Value):
+        parts.append(f'{name}:{value.dtype}')
+      else:
+        parts.append(f'{name}:{value}')
 
     return pyiu.cname(self) + '(' + ', '.join(parts) + ')'
 
@@ -91,6 +106,9 @@ class InterfaceView(_InterfaceBase):
 
     self._set_field(name, xname, value.new_value(vref))
 
+  def add_view(self, name, value):
+    self._set_field(name, name, value)
+
 
 class Interface(_InterfaceBase):
 
@@ -113,16 +131,20 @@ class Interface(_InterfaceBase):
       if value.name is not None:
         xname, fvalue = value.name, value
       else:
-        xname, fvalue = subname(self._uname, name), value
+        xname, xvalue = subname(self._uname, name), value
 
-        self._xlib.assign(xname, fvalue)
+        self._xlib.assign(xname, xvalue)
+        fvalue = self._xlib.load(xname)
+    elif isinstance(value, Interface):
+      xname, fvalue = name, value
     else:
       xname = subname(self._uname, name)
-      fvalue = self._mkvalue(xname, value, init=init)
+      xvalue = self._mkvalue(xname, value, init=init)
 
-      self._xlib.assign(xname, fvalue)
+      self._xlib.assign(xname, xvalue)
+      fvalue = self._xlib.load(xname)
 
-    self._set_field(name, xname, self._xlib.load(xname))
+    self._set_field(name, xname, fvalue)
 
   def create_fields(self, fstr):
     for fs in pyu.comma_split(fstr):
@@ -143,7 +165,11 @@ class Interface(_InterfaceBase):
 
     view = InterfaceView(self, name)
     for pin in ports:
-      view.add_field(pin.name, getattr(self, pin.name), pin.get_mode())
+      value = getattr(self, pin.name)
+      if isinstance(value, Interface):
+        view.add_view(pin.name, pin.ifc_view(value))
+      else:
+        view.add_field(pin.name, value, pin.get_mode())
 
     return view
 
@@ -152,8 +178,11 @@ class Interface(_InterfaceBase):
 
     expanded = []
     for pin in ports:
-      expanded.append((pycu.new_with(pin, name=subname(name, pin.name)),
-                       getattr(self, pin.name)))
+      value = getattr(self, pin.name)
+      if isinstance(value, Interface):
+        expanded.extend(pin.ifc_expand(value))
+      else:
+        expanded.append((pycu.new_with(pin, name=subname(name, pin.name)), value))
 
     return tuple(expanded)
 
