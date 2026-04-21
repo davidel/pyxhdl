@@ -1,6 +1,7 @@
 import argparse
 import os
 import re
+import sys
 import unittest
 
 import py_misc_utils.alog as alog
@@ -31,7 +32,9 @@ def _main(args):
   loader = unittest.TestLoader()
   tests = loader.discover(test_folder, pattern=args.files)
   runner = unittest.runner.TextTestRunner(verbosity=args.verbosity)
-  runner.run(tests)
+  result = runner.run(tests)
+
+  sys.exit(0 if result.wasSuccessful() else 1)
 
 
 if __name__ == '__main__':
