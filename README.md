@@ -740,6 +740,10 @@ The interfaces within *PyXHDL* are not generated into the specific HDL
 backend ones, but are expanded at code generation time. For the user there
 is no visible effect among the two options.
 
+A *PyXHDL* Interface object should be created within a root process
+(```@X.hdl_process(kind=X.ROOT_PROCESS)```) and then used within the entity
+scope and/or passed to other entity creations.
+
 Example interface use in *PyXHDL*:
 
 ```Python
