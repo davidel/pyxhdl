@@ -146,9 +146,11 @@ class Interface(_InterfaceBase):
       if value.name is not None:
         xname, fvalue = value.name, value
       else:
-        xname, xvalue = subname(self._uname, name), value
+        xname = subname(self._uname, name)
+        if value.ref is None or value.ref.mode == Ref.RO:
+          self._xlib.assign(xname, mkwire(value.dtype))
 
-        self._xlib.assign(xname, xvalue)
+        self._xlib.assign(xname, value)
         fvalue = self._xlib.load(xname)
     elif isinstance(value, Interface):
       xname, fvalue = name, value

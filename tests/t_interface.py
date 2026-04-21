@@ -16,7 +16,7 @@ class MyInterface(X.Interface):
 
   def __init__(self, **kwargs):
     super().__init__('MYIFC', **kwargs)
-    if not 'Z' in kwargs:
+    if 'Z' not in kwargs:
       self.mkfield('Z', 'u16')
 
   @X.hdl
@@ -43,7 +43,7 @@ class InterfaceTest(X.Entity):
 
   @X.hdl_process(kind=X.ROOT_PROCESS)
   def root(self):
-    self.ifc = MyInterface(Q=A)
+    self.ifc = MyInterface(Q=A + 1)
 
     IfcEnt(A=A,
            B=B,
@@ -126,8 +126,8 @@ class NestedInterfaceTest(X.Entity):
 
   @X.hdl_process(kind=X.ROOT_PROCESS)
   def root(self):
-    self.inner_ifca = InnerIfc(CLK, X, Y)
-    self.inner_ifcb = InnerIfc(CLK, X, Y)
+    self.inner_ifca = InnerIfc(CLK, X + 1, Y)
+    self.inner_ifcb = InnerIfc(CLK, X - 1, Y)
 
     self.outer_ifc = OuterIfc(CLK, self.inner_ifca, self.inner_ifcb, Q,
                               an_int=17)

@@ -46,6 +46,7 @@ module InterfaceTest(CLK, RST_N, A, B, XOUT);
   input logic [7: 0] A;
   input logic [7: 0] B;
   output logic [7: 0] XOUT;
+  logic [7: 0] MYIFC_Q;
   logic [15: 0] MYIFC_X;
   logic [15: 0] MYIFC_Y = 16'(0);
   logic [15: 0] MYIFC_Z;
@@ -54,9 +55,10 @@ module InterfaceTest(CLK, RST_N, A, B, XOUT);
     .B(B),
     .IFC_X(MYIFC_X),
     .IFC_Y(MYIFC_Y),
-    .IFC_Q(A),
+    .IFC_Q(MYIFC_Q),
     .IFC_Z(MYIFC_Z)
   );
+  assign MYIFC_Q = A + 1;
   always_ff @(posedge CLK)
   run : begin
     if (&(!RST_N)) begin
@@ -64,9 +66,9 @@ module InterfaceTest(CLK, RST_N, A, B, XOUT);
       MYIFC_X <= 16'(17);
       MYIFC_Y <= 16'(21);
     end else begin
-      MYIFC_X <= MYIFC_X + 16'(A);
+      MYIFC_X <= MYIFC_X + 16'(MYIFC_Q);
       MYIFC_Y <= MYIFC_Y - 1;
-      XOUT <= A + 3;
+      XOUT <= MYIFC_Q + 3;
     end
   end
 endmodule
