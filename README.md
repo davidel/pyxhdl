@@ -1,5 +1,7 @@
 ![PyXHDL](https://raw.githubusercontent.com/davidel/pyxhdl/main/LOGO.png)
 
+[![PyXHDL Regression Test](https://github.com/davidel/pyxhdl/actions/workflows/regression_test.yml/badge.svg)](https://github.com/davidel/pyxhdl/actions/workflows/regression_test.yml)
+
 # PyXHDL - Python Frontend For VHDL And Verilog
 
 *PyXHDL* born for developers who are not really in love with any of the HDL languages
