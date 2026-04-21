@@ -113,10 +113,25 @@ class InterfaceView(_InterfaceBase):
 class Interface(_InterfaceBase):
 
   def __init__(self, name, **kwargs):
-    super().__init__(name, **kwargs)
+    args, fields = Interface._split_args(kwargs)
+
+    super().__init__(name, **args)
     self._uname = self._xlib.generate_name(name, shortzero=True)
+    for field_name, field_value in fields.items():
+      self.mkfield(field_name, field_value)
     if fstr := getattr(self, 'FIELDS', None):
       self.create_fields(fstr)
+
+  @staticmethod
+  def _split_args(kwargs):
+    args, fields = dict(), dict()
+    for k, v in kwargs.items():
+      if isinstance(v, (Value, Interface, Type)):
+        fields[k] = v
+      else:
+        args[k] = v
+
+    return args, fields
 
   def _mkvalue(self, name, dtype, init=None):
     vtype = dtype_from_string(dtype) if isinstance(dtype, str) else dtype

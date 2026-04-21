@@ -14,12 +14,10 @@ class MyInterface(X.Interface):
 
   IPORT = 'X, Y, Q, =Z'
 
-  def __init__(self, fields, **kwargs):
+  def __init__(self, **kwargs):
     super().__init__('MYIFC', **kwargs)
-    if not 'Z' in fields:
+    if not 'Z' in kwargs:
       self.mkfield('Z', 'u16')
-    for k, v in fields.items():
-      self.mkfield(k, v)
 
   @X.hdl
   def reset(self):
@@ -45,7 +43,7 @@ class InterfaceTest(X.Entity):
 
   @X.hdl_process(kind=X.ROOT_PROCESS)
   def root(self):
-    self.ifc = MyInterface(dict(Q=A))
+    self.ifc = MyInterface(Q=A)
 
     IfcEnt(A=A,
            B=B,
@@ -68,7 +66,7 @@ class InterfaceArrayTest(X.Entity):
 
   @X.hdl_process(kind=X.ROOT_PROCESS)
   def root(self):
-    self.ifc = MyInterface(dict(Q=A[0], Z=XOUT[0]))
+    self.ifc = MyInterface(Q=A[0], Z=XOUT[0])
 
     IfcEnt(A=A[0],
            B=A[1],
