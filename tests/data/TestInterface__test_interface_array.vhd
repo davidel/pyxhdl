@@ -294,7 +294,6 @@ use work.all;
 -- 	args={'CLK': 'bits(1)', 'RST_N': 'bits(1)', 'A': 'uint(2, 8)', 'XOUT': 'uint(2, 8)'}
 -- 	kwargs={}
 architecture behavior of InterfaceArrayTest is
-  signal MYIFC_Q : unsigned(7 downto 0);
   signal MYIFC_X : unsigned(15 downto 0);
   signal MYIFC_Y : unsigned(15 downto 0) := to_unsigned(0, 16);
 begin
@@ -304,10 +303,9 @@ begin
     B => A(1),
     IFC_X => MYIFC_X,
     IFC_Y => MYIFC_Y,
-    IFC_Q => MYIFC_Q,
+    IFC_Q => A(0),
     IFC_Z => XOUT(0)
   );
-  MYIFC_Q <= A(0);
   run : process (CLK)
   begin
     if rising_edge(CLK) then
@@ -316,9 +314,9 @@ begin
         MYIFC_X <= to_unsigned(17, 16);
         MYIFC_Y <= to_unsigned(21, 16);
       else
-        MYIFC_X <= MYIFC_X - resize(MYIFC_Q, 16);
+        MYIFC_X <= MYIFC_X - resize(A(0), 16);
         MYIFC_Y <= MYIFC_Y + 1;
-        XOUT(1) <= resize(MYIFC_Q * 3, 8);
+        XOUT(1) <= resize(A(0) * 3, 8);
       end if;
     end if;
   end process;

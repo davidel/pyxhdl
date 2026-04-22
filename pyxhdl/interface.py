@@ -95,14 +95,14 @@ class InterfaceView(_InterfaceBase):
     if not isinstance(value, Value):
       fatal(f'Wrong field value type (should be Value): {value}')
 
-    vref = value.ref
-    if vref is None:
-      fatal(f'Wrong field value type (should contain a Ref): {value}')
-
     xname = subname(self.name, name)
 
-    vref = vref.new_mode(minor_mode(vref.mode, mode))
-    vref = vref.new_name(xname, vname=xname)
+    vref = value.ref
+    if vref is None:
+      vref = Ref(xname, mode=mode, vname=xname)
+    else:
+      vref = vref.new_mode(minor_mode(vref.mode, mode))
+      vref = vref.new_name(xname, vname=xname)
 
     self._set_field(name, xname, value.new_value(vref))
 
@@ -146,12 +146,7 @@ class Interface(_InterfaceBase):
       if value.name is not None:
         xname, fvalue = value.name, value
       else:
-        xname = subname(self._uname, name)
-        if value.ref is None or value.ref.mode == Ref.RO:
-          self._xlib.assign(xname, mkwire(value.dtype))
-
-        self._xlib.assign(xname, value)
-        fvalue = self._xlib.load(xname)
+        xname, fvalue = subname(self._uname, name), value
     elif isinstance(value, Interface):
       xname, fvalue = name, value
     else:

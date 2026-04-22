@@ -45,27 +45,23 @@ module NestedInterfaceTest(CLK, X, Y, Q);
   input logic [7: 0] X;
   output logic [7: 0] Y;
   output logic [7: 0] Q;
-  logic [7: 0] INNER_X;
   logic [7: 0] INNER_Z;
-  logic [7: 0] INNER1_X;
   logic [7: 0] INNER1_Z;
   logic [7: 0] OUTER_W;
   NestedIfc NestedIfc_1(
     .CLK(CLK),
     .OIFC_CLK(CLK),
     .IIFCA_CLK(CLK),
-    .IIFCA_X(INNER_X),
+    .IIFCA_X(X + 1),
     .IIFCA_Y(Y),
     .IIFCA_Z(INNER_Z),
     .IIFCB_CLK(CLK),
-    .IIFCB_X(INNER1_X),
+    .IIFCB_X(X - 1),
     .IIFCB_Y(Y),
     .IIFCB_Z(INNER1_Z),
     .OIFC_Q(Q),
     .OIFC_W(OUTER_W)
   );
-  assign INNER_X = X + 1;
-  assign INNER1_X = X - 1;
 endmodule
 // Entity "NestedIfc" is "NestedIfc" with:
 // 	args={'CLK': 'bits(1)', 'OIFC': 'InterfaceView(an_int:17, CLK:bits(1), IIFCA:InterfaceView(CLK:bits(1), X:uint(8), Y:uint(8), Z:uint(8)), IIFCB:InterfaceView(CLK:bits(1), X:uint(8), Y:uint(8), Z:uint(8)), Q:uint(8), W:uint(8))'}

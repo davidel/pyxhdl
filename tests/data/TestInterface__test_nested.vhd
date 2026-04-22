@@ -300,9 +300,7 @@ use work.all;
 -- 	args={'CLK': 'bits(1)', 'X': 'uint(8)', 'Y': 'uint(8)', 'Q': 'uint(8)'}
 -- 	kwargs={}
 architecture behavior of NestedInterfaceTest is
-  signal INNER_X : unsigned(7 downto 0);
   signal INNER_Z : unsigned(7 downto 0);
-  signal INNER1_X : unsigned(7 downto 0);
   signal INNER1_Z : unsigned(7 downto 0);
   signal OUTER_W : unsigned(7 downto 0);
 begin
@@ -311,18 +309,16 @@ begin
     CLK => CLK,
     OIFC_CLK => CLK,
     IIFCA_CLK => CLK,
-    IIFCA_X => INNER_X,
+    IIFCA_X => X + 1,
     IIFCA_Y => Y,
     IIFCA_Z => INNER_Z,
     IIFCB_CLK => CLK,
-    IIFCB_X => INNER1_X,
+    IIFCB_X => X - 1,
     IIFCB_Y => Y,
     IIFCB_Z => INNER1_Z,
     OIFC_Q => Q,
     OIFC_W => OUTER_W
   );
-  INNER_X <= X + 1;
-  INNER1_X <= X - 1;
 end architecture;
 library ieee;
 use ieee.std_logic_1164.all;

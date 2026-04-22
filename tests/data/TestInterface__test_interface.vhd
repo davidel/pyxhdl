@@ -295,7 +295,6 @@ use work.all;
 -- 	args={'CLK': 'bits(1)', 'RST_N': 'bits(1)', 'A': 'uint(8)', 'B': 'uint(8)', 'XOUT': 'uint(8)'}
 -- 	kwargs={}
 architecture behavior of InterfaceTest is
-  signal MYIFC_Q : unsigned(7 downto 0);
   signal MYIFC_X : unsigned(15 downto 0);
   signal MYIFC_Y : unsigned(15 downto 0) := to_unsigned(0, 16);
   signal MYIFC_Z : unsigned(15 downto 0);
@@ -306,10 +305,9 @@ begin
     B => B,
     IFC_X => MYIFC_X,
     IFC_Y => MYIFC_Y,
-    IFC_Q => MYIFC_Q,
+    IFC_Q => A + 1,
     IFC_Z => MYIFC_Z
   );
-  MYIFC_Q <= A + 1;
   run : process (CLK)
   begin
     if rising_edge(CLK) then
@@ -318,9 +316,9 @@ begin
         MYIFC_X <= to_unsigned(17, 16);
         MYIFC_Y <= to_unsigned(21, 16);
       else
-        MYIFC_X <= MYIFC_X + resize(MYIFC_Q, 16);
+        MYIFC_X <= MYIFC_X + resize(A + 1, 16);
         MYIFC_Y <= MYIFC_Y - 1;
-        XOUT <= MYIFC_Q + 3;
+        XOUT <= (A + 1) + 3;
       end if;
     end if;
   end process;
