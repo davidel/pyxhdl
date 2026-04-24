@@ -313,7 +313,7 @@ def load_testers(args):
   return testers
 
 
-GenCode = collections.namedtuple('GenCode', 'input, output, backend')
+GenCode = collections.namedtuple('GenCode', 'input, output, backend, entity')
 
 def generate_code(source_file, args, output_path):
   test_name, _ = os.path.splitext(os.path.basename(source_file))
@@ -335,7 +335,8 @@ def generate_code(source_file, args, output_path):
       '--log_level', args.log_level,
     ]
 
-    cmdline += args.gargs or []
+    for arg in args.gargs or []:
+      cmdline.extend(pyu.comma_split(arg))
 
     test_args = list(args.args) if args.args else []
     if env_args := os.getenv(f'{test_name.upper()}_UTARGS'):
@@ -352,7 +353,7 @@ def generate_code(source_file, args, output_path):
       pyu.fatal(f'Generation process exited with {ex.returncode} code: {cmdline}\n' \
                 f'Error output:\n' + ex.output.decode())
 
-    code.append(GenCode(source_file, output_file, backend))
+    code.append(GenCode(source_file, output_file, backend, args.entity))
 
   return code
 
@@ -384,7 +385,7 @@ def main(args):
         if gcode.backend in tester.backends:
           alog.info(f'Running {tester.NAME} tester on {gcode.backend} file {gcode.output}')
 
-          output = tester.test(gcode.output, gcode.backend, args.entity)
+          output = tester.test(gcode.output, gcode.backend, gcode.entity)
 
           soutput = output.decode()
           alog.debug(soutput)
