@@ -1255,8 +1255,8 @@ $ python -m pyxhdl.generator \
     --output_file my_entity.vhd
 ```
 
-The *--input_file* argument specifies the path to the Python file defining the
-root entity, while the *--entity* sets the name of the root entity itself.
+The ```--input_file``` argument specifies the path to the Python file defining the
+root entity, while the ```--entity``` sets the name of the root entity itself.
 
 The example above specifies the **CLK**, **RESET** and **READY** ports of the
 root entity to be one bit, while the **A**, **B** and **XOUT** ones to be 8bit
@@ -1289,9 +1289,9 @@ $ python -m pyxhdl.generator \
     --tb_clock 'CLK,10ns'
 ```
 
-The *--testbench* argument triggers the *testbench* module code generation.
+The ```--testbench``` argument triggers the *testbench* module code generation.
 
-The *--tb_input_file* points to the input data file for the test (both *YAML*
+The ```--tb_input_file``` points to the input data file for the test (both *YAML*
 and *JSON* are supported), which has the following format:
 
 ```YAML
@@ -1341,15 +1341,15 @@ pipe ("|") *YAML* separator. It needs to be properly indented though, example:
         XL.wait_rising(CLK)
 ```
 
-Where the value of *ENV_VAR* comes from the *env* section of the *--tb_input_file*
+Where the value of *ENV_VAR* comes from the *env* section of the ```--tb_input_file```
 configuration.
 
-The wait condition can also be specified in the command line, using the *--tb_wait*
-argument. The *--tb_wait* specifies a wait time in nanoseconds. In case the
-*--tb_wait* option is used in the command line, there is no need for *_wait_expr*
+The wait condition can also be specified in the command line, using the ```--tb_wait```
+argument. The ```--tb_wait``` specifies a wait time in nanoseconds. In case the
+```--tb_wait``` option is used in the command line, there is no need for *_wait_expr*
 entries in the data.
 
-Via the *--tb_clock_sync* argument it is also possible to configure a different
+Via the ```--tb_clock_sync``` argument it is also possible to configure a different
 wait rule, specifying the clock port name and the sync mode. Example:
 
 ```
@@ -1359,7 +1359,7 @@ wait rule, specifying the clock port name and the sync mode. Example:
 In such cases, there is no need for the explicit *_wait_expr* in the input data
 at all.
 
-The *--tb_clock* enables the generation of a clock signal, on the specified port.
+The ```--tb_clock``` enables the generation of a clock signal, on the specified port.
 For example, to generate a 10ns period clock signal on the **CLK** port:
 
 ```
@@ -1412,7 +1412,7 @@ So, taking as example the above test data, the *testbench* will generate HDL
 code to:
 
  - Set the **RESET** input to 1, and wait for the **CLK** rising edge (according
-   to the *--tb_clock_sync* command line argument).
+   to the ```--tb_clock_sync``` command line argument).
 
  - Set the **RESET** input to 0, and wait for the **CLK** rising edge.
 
@@ -1426,7 +1426,7 @@ code to:
 
  - ...
 
-The *--tb_input_file* argument can also point to a Python file, implementing
+The ```--tb_input_file``` argument can also point to a Python file, implementing
 a *tb_iterator()* API, returning a Python iterator yielding *TbData* structures.
 For a full example, see [UART TB Generator](https://github.com/davidel/pyxhdl/blob/main/examples/test/uart_echo/tb_generator.py).
 
