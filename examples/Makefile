@@ -26,7 +26,7 @@ TARGETS = ${MM_DATA_FILE} ${MM_VHDL_FILE} ${MM_SVL_FILE}
 UNIT_FILES = $(shell grep -l -r "class Test(X.Entity):" --include "*.py" ${SRCDIR})
 
 
-all: ${TARGETS} hdl_generate unit_test
+all: ${TARGETS} hdl_generate unit_test tests
 
 hdl_generate: ${MM_VHDL_FILE} ${MM_SVL_FILE}
 
@@ -35,6 +35,12 @@ unit_test:
 		--log_level ${LOG_LEVEL} \
 		${UNIT_ARGS} \
 		--inputs ${UNIT_FILES}
+
+tests:
+	for TDIR in $(shell ls -1 -d ${SRCDIR}/test/*/) ; do \
+		make -C $$TDIR; \
+	done
+
 
 ${MM_DATA_FILE}:
 	python ${SRCDIR}/matmul_gen_tbdata.py \
