@@ -335,6 +335,11 @@ def generate_code(source_file, args, output_path):
       '--log_level', args.log_level,
     ]
 
+    if args.tb_input_file:
+      cmdline.extend(('--testbench', '--tb_input_file', args.tb_input_file))
+      for arg in args.tb_inputs or []:
+        cmdline.extend(('--inputs', arg))
+
     for arg in args.gargs or []:
       cmdline.extend(pyu.comma_split(arg))
 
@@ -353,7 +358,10 @@ def generate_code(source_file, args, output_path):
       pyu.fatal(f'Generation process exited with {ex.returncode} code: {cmdline}\n' \
                 f'Error output:\n' + ex.output.decode())
 
-    code.append(GenCode(source_file, output_file, backend, args.entity))
+    code.append(GenCode(input=source_file,
+                        output=output_file,
+                        backend=backend,
+                        entity='TestBench' if args.tb_input_file else args.entity))
 
   return code
 
@@ -415,6 +423,10 @@ if __name__ == '__main__':
                       help='The code generator extra arguments')
   parser.add_argument('--args', nargs='+', action='extend',
                       help='The code generator input keyword arguments with NAME=VALUE format')
+  parser.add_argument('--tb_input_file',
+                      help='The inputs for the testbench')
+  parser.add_argument('--tb_inputs', nargs='+', action='extend',
+                      help='The inputs for the testbench')
   parser.add_argument('--vcdpath',
                       help='The patch of the VCD trace file')
 
