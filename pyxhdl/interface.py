@@ -142,15 +142,11 @@ class Interface(_InterfaceBase):
       return mkreg(vtype, name=name)
 
   def mkfield(self, name, value, init=None):
-    if isinstance(value, Value):
-      if value.name is not None:
-        xname, fvalue = value.name, value
-      else:
-        xname, fvalue = subname(self._uname, name), value
-    elif isinstance(value, Interface):
-      xname, fvalue = name, value
+    xname = subname(self._uname, name)
+
+    if isinstance(value, (Value, Interface)):
+      fvalue = value
     else:
-      xname = subname(self._uname, name)
       xvalue = self._mkvalue(xname, value, init=init)
 
       self._xlib.assign(xname, xvalue)
