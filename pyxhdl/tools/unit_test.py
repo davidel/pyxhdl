@@ -335,6 +335,8 @@ def generate_code(source_file, args, output_path):
       '--log_level', args.log_level,
     ]
 
+    cmdline += args.gargs or []
+
     test_args = list(args.args) if args.args else []
     if env_args := os.getenv(f'{test_name.upper()}_UTARGS'):
       test_args.extend(pyu.comma_split(env_args))
@@ -408,8 +410,10 @@ if __name__ == '__main__':
                       help='The root entity name')
   parser.add_argument('--backend', type=str, default='verilog,vhdl',
                       help='The backends to test for')
+  parser.add_argument('--gargs', nargs='+', action='extend',
+                      help='The code generator extra arguments')
   parser.add_argument('--args', nargs='+', action='extend',
-                      help='The input arguments with NAME=VALUE format')
+                      help='The code generator input keyword arguments with NAME=VALUE format')
   parser.add_argument('--vcdpath',
                       help='The patch of the VCD trace file')
 
