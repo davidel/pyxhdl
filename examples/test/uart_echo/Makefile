@@ -21,6 +21,5 @@ uart_echo:
 			"clk_freq=${CLK_FREQ}" \
 			"baud_rate=${BAUD_RATE}" \
 			"num_tests=${NUM_TESTS}" \
-		--gargs=--tb_clock \
-		--gargs="CLK,${CLK}"
+		--gargs="--tb_clock;CLK,${CLK}"
 

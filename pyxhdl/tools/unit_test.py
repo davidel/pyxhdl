@@ -340,7 +340,8 @@ def generate_code(source_file, args, output_path):
       for arg in args.tb_inputs or []:
         cmdline.extend(('--inputs', arg))
 
-    cmdline.extend(args.gargs or [])
+    for arg in args.gargs or []:
+      cmdline.extend(re.split(r'\s*;\s*', arg))
 
     test_args = list(args.args) if args.args else []
     if env_args := os.getenv(f'{test_name.upper()}_UTARGS'):
