@@ -37,10 +37,7 @@ unit_test:
 		--inputs ${UNIT_FILES}
 
 tests:
-	for TDIR in $(shell ls -1 -d ${SRCDIR}/test/*/) ; do \
-		make -C $$TDIR; \
-	done
-
+	make -C ${SRCDIR}/test all
 
 ${MM_DATA_FILE}:
 	python ${SRCDIR}/matmul_gen_tbdata.py \
@@ -102,4 +99,5 @@ mm_svl_test: ${MM_SVL_FILE}
 clean:
 	rm -rf ${TARGETS} ${VERILATOR_BINDIR}
 
-.PHONY: clean
+.PHONY: clean hdl_generate unit_test tests
+
