@@ -341,7 +341,7 @@ def generate_code(source_file, args, output_path):
         cmdline.extend(('--inputs', arg))
 
     for arg in args.gargs or []:
-      cmdline.extend(re.split(r'\s*;\s*', arg))
+      cmdline.extend(pyu.resplit(arg, ';', unescape=True))
 
     test_args = list(args.args) if args.args else []
     if env_args := os.getenv(f'{test_name.upper()}_UTARGS'):
