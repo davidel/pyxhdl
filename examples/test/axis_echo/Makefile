@@ -13,7 +13,9 @@ axis_echo:
 		--inputs ${SRCDIR}/axis_echo.py \
 		--entity AxisEcho \
 		--tb_input_file ${SRCDIR}/axis_tb.yaml \
-		--tb_inputs "CLK,RST_N,WREN,RDEN=mkvreg(BIT, 0)" "WDATA,RDATA=mkvreg(Bits(32), 0)"
+		--tb_inputs "CLK,RST_N,WREN,RDEN=mkvreg(BIT, 0)" "WDATA,RDATA=mkvreg(Bits(32), 0)" \
+		--gargs=--tb_clock \
+		--gargs="CLK,10ns"
 
 axis_echo_ifc:
 	python -m pyxhdl.tools.unit_test \
@@ -21,5 +23,7 @@ axis_echo_ifc:
 		--inputs ${SRCDIR}/axis_echo_ifc.py \
 		--entity AxisEcho \
 		--tb_input_file ${SRCDIR}/axis_tb.yaml \
-		--tb_inputs "CLK,RST_N,WREN,RDEN=mkvreg(BIT, 0)" "WDATA,RDATA=mkvreg(Bits(32), 0)"
+		--tb_inputs "CLK,RST_N,WREN,RDEN=mkvreg(BIT, 0)" "WDATA,RDATA=mkvreg(Bits(32), 0)" \
+		--gargs=--tb_clock \
+		--gargs="CLK,10ns"
 
