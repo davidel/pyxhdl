@@ -247,15 +247,16 @@ library work;
 use work.all;
 
 -- Entity "Misc" is "Misc" with:
--- 	args={'A': 'uint(8)', 'B': 'uint(4)', 'C': 'bits(8)', 'XOUT1': 'uint(8)', 'XOUT2': 'uint(8)'}
+-- 	args={'A': 'uint(8)', 'B': 'uint(4)', 'C': 'bits(8)', 'XOUT1': 'uint(8)', 'XOUT2': 'uint(8)', 'IO1': 'uint(8)'}
 -- 	kwargs={}
 entity Misc is
   port (
     A : in unsigned(7 downto 0);
     B : in unsigned(3 downto 0);
     C : in std_logic_vector(7 downto 0);
-    XOUT1 : inout unsigned(7 downto 0);
-    XOUT2 : inout unsigned(7 downto 0)
+    XOUT1 : out unsigned(7 downto 0);
+    XOUT2 : out unsigned(7 downto 0);
+    IO1 : inout unsigned(7 downto 0)
   );
 end entity;
 library ieee;
@@ -269,10 +270,11 @@ library work;
 use work.all;
 
 -- Entity "Misc" is "Misc" with:
--- 	args={'A': 'uint(8)', 'B': 'uint(4)', 'C': 'bits(8)', 'XOUT1': 'uint(8)', 'XOUT2': 'uint(8)'}
+-- 	args={'A': 'uint(8)', 'B': 'uint(4)', 'C': 'bits(8)', 'XOUT1': 'uint(8)', 'XOUT2': 'uint(8)', 'IO1': 'uint(8)'}
 -- 	kwargs={}
 architecture behavior of Misc is
 begin
+  IO1 <= to_unsigned(pyxhdl.integer_ifexp(A > resize(B, 8), 17, 21), 8);
   run : process (A, B, C)
     variable na : unsigned(7 downto 0);
     variable nb : unsigned(7 downto 0);
@@ -351,6 +353,6 @@ begin
   end process;
   use_self : process (A, B, C)
   begin
-    XOUT2 <= ((A - resize(B, 8)) + pyxhdl.cvt_unsigned(C, 8)) + 5;
+    XOUT2 <= ((A - resize(B, 8)) + pyxhdl.cvt_unsigned(C, 8)) + 6;
   end process;
 end architecture;

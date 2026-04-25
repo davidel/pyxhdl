@@ -74,7 +74,11 @@ def twice_decl(a, b):
 
 class Misc(X.Entity):
 
-  PORTS = 'A, B, C, +XOUT1, +XOUT2'
+  PORTS = 'A, B, C, =XOUT1, =XOUT2, +IO1'
+
+  @X.hdl_process(kind=X.ROOT_PROCESS)
+  def root():
+    IO1 = 17 if A > B else 21
 
   @X.hdl_process(sens='A, B, C')
   def run():
@@ -139,6 +143,7 @@ class TestMisc(unittest.TestCase):
       C=X.mkwire(X.Bits(8)),
       XOUT1=X.mkreg(X.UINT8),
       XOUT2=X.mkreg(X.UINT8),
+      IO1=X.mkreg(X.UINT8),
     )
 
     tu.run(self, tu.test_name(self, pyu.fname()), Misc, inputs)
@@ -150,6 +155,7 @@ class TestMisc(unittest.TestCase):
       C=X.mkwire(X.Bits(8)),
       XOUT1=X.mkreg(X.UINT8),
       XOUT2=X.mkreg(X.UINT8),
+      IO1=X.mkreg(X.UINT8),
     )
 
     tu.run(self, tu.test_name(self, pyu.fname()), Misc, inputs)

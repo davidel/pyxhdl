@@ -96,8 +96,8 @@ class Verilog_Emitter(Emitter):
     if isinstance(value, bool):
       return '1' if value else '0'
 
-  def _type_of(self, dtype):
-    kind = 'logic'
+  def _type_of(self, dtype, ntype=None):
+    kind = f'{ntype} logic' if ntype else 'logic'
     nbits, shape = dtype.nbits, dtype.array_shape
 
     adims = ''.join(f'[{x}]' for x in shape)
@@ -592,9 +592,10 @@ class Verilog_Emitter(Emitter):
         pin, arg = ap.port, ap.arg
 
         pdir = 'input' if pin.is_ro() else 'output' if pin.is_wo() else 'inout'
-        ntype = self._type_of(arg.dtype).format(pin.name)
+        ntype = 'wire' if pdir == 'inout' else None
+        ptype = self._type_of(arg.dtype, ntype=ntype).format(pin.name)
 
-        self._emit_line(f'{pdir} {ntype};')
+        self._emit_line(f'{pdir} {ptype};')
 
       self._init_module_places()
 

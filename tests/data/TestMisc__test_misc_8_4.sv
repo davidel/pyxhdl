@@ -38,14 +38,16 @@ endpackage
 
 
 // Entity "Misc" is "Misc" with:
-// 	args={'A': 'uint(8)', 'B': 'uint(4)', 'C': 'bits(8)', 'XOUT1': 'uint(8)', 'XOUT2': 'uint(8)'}
+// 	args={'A': 'uint(8)', 'B': 'uint(4)', 'C': 'bits(8)', 'XOUT1': 'uint(8)', 'XOUT2': 'uint(8)', 'IO1': 'uint(8)'}
 // 	kwargs={}
-module Misc(A, B, C, XOUT1, XOUT2);
+module Misc(A, B, C, XOUT1, XOUT2, IO1);
   input logic [7: 0] A;
   input logic [3: 0] B;
   input logic [7: 0] C;
-  inout logic [7: 0] XOUT1;
-  inout logic [7: 0] XOUT2;
+  output logic [7: 0] XOUT1;
+  output logic [7: 0] XOUT2;
+  inout wire logic [7: 0] IO1;
+  assign IO1 = 8'((A > 8'(B)) ? 17 : 21);
   always @(A or B or C)
   run : begin
     automatic logic [7: 0] na;
@@ -124,6 +126,6 @@ module Misc(A, B, C, XOUT1, XOUT2);
   end
   always @(A or B or C)
   use_self : begin
-    XOUT2 = ((A - 8'(B)) + C) + 5;
+    XOUT2 = ((A - 8'(B)) + C) + 6;
   end
 endmodule
