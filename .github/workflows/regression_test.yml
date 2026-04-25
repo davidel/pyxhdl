@@ -28,7 +28,7 @@ jobs:
       run: |
         sudo apt update
         sudo apt -y upgrade
-        sudo apt install verilator ghdl yosys
+        sudo apt install verilator ghdl yosys perl-doc
         python -m pip install --upgrade pip
         pip install .
     - name: Check Code Generation
