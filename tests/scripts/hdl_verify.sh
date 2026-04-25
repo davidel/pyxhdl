@@ -20,7 +20,7 @@ for HDLF in $(ls -1 "$TESTDIR"/*.sv 2> /dev/null); do
     if [[ ! -z "$VERILATOR" ]]; then
         echo "[VERILATOR] Analyzing $HDLF ..."
 
-        "$VERILATOR" -sv --lint-only --timing -Mdir "$WDIR" "$HDLF"
+        "$VERILATOR" --quiet -sv --lint-only --timing -Mdir "$WDIR" "$HDLF"
         rm -f "$WDIR"/work*.cf
     fi
 done
