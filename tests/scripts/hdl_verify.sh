@@ -19,25 +19,26 @@ trap exit_cleanup EXIT
 VERILATOR_CMDLN=()
 if [[ ! -z "$VERILATOR" ]]; then
     if [[ ! -z $("$VERILATOR" --help | egrep -o -- '--quiet\s+') ]]; then
-	VERILATOR_CMDLN+=(--quiet)
+	"$VERILATOR" --help | cat
+        VERILATOR_CMDLN+=(--quiet)
     fi
 fi
 
 for HDLF in $(ls -1 "$TESTDIR"/*.sv 2> /dev/null); do
     if [[ ! -z "$VERILATOR" ]]; then
-	echo "[VERILATOR] Analyzing $HDLF ..."
+        echo "[VERILATOR] Analyzing $HDLF ..."
 
-	"$VERILATOR" "${VERILATOR_CMDLN[@]}" -sv --lint-only --timing -Mdir "$WDIR" "$HDLF"
-	rm -f "$WDIR"/work*.cf
+        "$VERILATOR" "${VERILATOR_CMDLN[@]}" -sv --lint-only --timing -Mdir "$WDIR" "$HDLF"
+        rm -f "$WDIR"/work*.cf
     fi
 done
 
 for HDLF in $(ls -1 "$TESTDIR"/*.vhd 2> /dev/null); do
     if [[ ! -z "$GHDL" ]]; then
-	echo "[GHDL] Analyzing $HDLF ..."
+        echo "[GHDL] Analyzing $HDLF ..."
 
-	"$GHDL" -a --std=08 --workdir="$WDIR" "$HDLF"
-	rm -f "$WDIR"/work*.cf
+        "$GHDL" -a --std=08 --workdir="$WDIR" "$HDLF"
+        rm -f "$WDIR"/work*.cf
     fi
 done
 
