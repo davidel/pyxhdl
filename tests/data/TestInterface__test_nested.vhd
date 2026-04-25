@@ -247,13 +247,14 @@ library work;
 use work.all;
 
 -- Entity "NestedInterfaceTest" is "NestedInterfaceTest" with:
--- 	args={'CLK': 'bits(1)', 'X': 'uint(8)', 'Y': 'uint(8)', 'Q': 'uint(8)'}
+-- 	args={'CLK': 'bits(1)', 'X': 'uint(8)', 'YA': 'uint(8)', 'YB': 'uint(8)', 'Q': 'uint(8)'}
 -- 	kwargs={}
 entity NestedInterfaceTest is
   port (
     CLK : in std_logic;
     X : in unsigned(7 downto 0);
-    Y : out unsigned(7 downto 0);
+    YA : out unsigned(7 downto 0);
+    YB : out unsigned(7 downto 0);
     Q : out unsigned(7 downto 0)
   );
 end entity;
@@ -297,7 +298,7 @@ library work;
 use work.all;
 
 -- Entity "NestedInterfaceTest" is "NestedInterfaceTest" with:
--- 	args={'CLK': 'bits(1)', 'X': 'uint(8)', 'Y': 'uint(8)', 'Q': 'uint(8)'}
+-- 	args={'CLK': 'bits(1)', 'X': 'uint(8)', 'YA': 'uint(8)', 'YB': 'uint(8)', 'Q': 'uint(8)'}
 -- 	kwargs={}
 architecture behavior of NestedInterfaceTest is
   signal INNER_Z : unsigned(7 downto 0);
@@ -310,11 +311,11 @@ begin
     OIFC_CLK => CLK,
     IIFCA_CLK => CLK,
     IIFCA_X => X + 1,
-    IIFCA_Y => Y,
+    IIFCA_Y => YA,
     IIFCA_Z => INNER_Z,
     IIFCB_CLK => CLK,
     IIFCB_X => X - 1,
-    IIFCB_Y => Y,
+    IIFCB_Y => YB,
     IIFCB_Z => INNER1_Z,
     OIFC_Q => Q,
     OIFC_W => OUTER_W

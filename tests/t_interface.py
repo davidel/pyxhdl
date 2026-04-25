@@ -122,12 +122,12 @@ class NestedIfc(X.Entity):
 
 class NestedInterfaceTest(X.Entity):
 
-  PORTS = 'CLK, X, =Y, =Q'
+  PORTS = 'CLK, X, =YA, =YB, =Q'
 
   @X.hdl_process(kind=X.ROOT_PROCESS)
   def root(self):
-    self.inner_ifca = InnerIfc(CLK, X + 1, Y)
-    self.inner_ifcb = InnerIfc(CLK, X - 1, Y)
+    self.inner_ifca = InnerIfc(CLK, X + 1, YA)
+    self.inner_ifcb = InnerIfc(CLK, X - 1, YB)
 
     self.outer_ifc = OuterIfc(CLK, self.inner_ifca, self.inner_ifcb, Q,
                               an_int=17)
@@ -163,7 +163,8 @@ class TestInterface(unittest.TestCase):
     inputs = dict(
       CLK=X.mkwire(X.BIT),
       X=X.mkwire(X.UINT8),
-      Y=X.mkwire(X.UINT8),
+      YA=X.mkwire(X.UINT8),
+      YB=X.mkwire(X.UINT8),
       Q=X.mkwire(X.UINT8),
     )
 

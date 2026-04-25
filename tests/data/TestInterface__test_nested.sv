@@ -38,12 +38,13 @@ endpackage
 
 
 // Entity "NestedInterfaceTest" is "NestedInterfaceTest" with:
-// 	args={'CLK': 'bits(1)', 'X': 'uint(8)', 'Y': 'uint(8)', 'Q': 'uint(8)'}
+// 	args={'CLK': 'bits(1)', 'X': 'uint(8)', 'YA': 'uint(8)', 'YB': 'uint(8)', 'Q': 'uint(8)'}
 // 	kwargs={}
-module NestedInterfaceTest(CLK, X, Y, Q);
+module NestedInterfaceTest(CLK, X, YA, YB, Q);
   input logic CLK;
   input logic [7: 0] X;
-  output logic [7: 0] Y;
+  output logic [7: 0] YA;
+  output logic [7: 0] YB;
   output logic [7: 0] Q;
   logic [7: 0] INNER_Z;
   logic [7: 0] INNER1_Z;
@@ -53,11 +54,11 @@ module NestedInterfaceTest(CLK, X, Y, Q);
     .OIFC_CLK(CLK),
     .IIFCA_CLK(CLK),
     .IIFCA_X(X + 1),
-    .IIFCA_Y(Y),
+    .IIFCA_Y(YA),
     .IIFCA_Z(INNER_Z),
     .IIFCB_CLK(CLK),
     .IIFCB_X(X - 1),
-    .IIFCB_Y(Y),
+    .IIFCB_Y(YB),
     .IIFCB_Z(INNER1_Z),
     .OIFC_Q(Q),
     .OIFC_W(OUTER_W)
