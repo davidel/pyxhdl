@@ -18,7 +18,9 @@ trap exit_cleanup EXIT
 
 VERILATOR_CMDLN=()
 if [[ ! -z "$VERILATOR" ]]; then
-    if [[ ! -z $("$VERILATOR" --help | egrep -o -- '--quiet[ ]+') ]]; then
+    XXOO=$("$VERILATOR" --help | egrep -o -- '--quiet[ ]+')
+    if [[ ! -z "$XXOO" ]]; then
+	echo "FOUND: '$XXOO'"
         VERILATOR_CMDLN+=(--quiet)
     fi
 fi
