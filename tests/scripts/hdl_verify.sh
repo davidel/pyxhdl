@@ -16,20 +16,11 @@ exit_cleanup() {
 
 trap exit_cleanup EXIT
 
-VERILATOR_CMDLN=()
-if [[ ! -z "$VERILATOR" ]]; then
-    XXOO=$("$VERILATOR" --help | egrep -o -- '--quiet[ ]+')
-    if [[ ! -z "$XXOO" ]]; then
-	echo "FOUND: '$XXOO'"
-        VERILATOR_CMDLN+=(--quiet)
-    fi
-fi
-
 for HDLF in $(ls -1 "$TESTDIR"/*.sv 2> /dev/null); do
     if [[ ! -z "$VERILATOR" ]]; then
         echo "[VERILATOR] Analyzing $HDLF ..."
 
-        "$VERILATOR" "${VERILATOR_CMDLN[@]}" -sv --lint-only --timing -Mdir "$WDIR" "$HDLF"
+        "$VERILATOR" -sv --lint-only --timing -Mdir "$WDIR" "$HDLF"
         rm -f "$WDIR"/work*.cf
     fi
 done
