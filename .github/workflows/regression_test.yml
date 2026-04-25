@@ -32,6 +32,9 @@ jobs:
     - name: Check Code Generation
       run: |
         REGEN_TESTS=1 python tests/test_runner.py
+    - name: Check Generated Test HDL Code
+      run: |
+        ./tests/scripts/hdl_verify.sh
     - name: Test Examples
       run: |
         LOG_LEVEL=DEBUG make -C examples
