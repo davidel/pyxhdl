@@ -37,7 +37,7 @@ unit_test:
 		--inputs ${UNIT_FILES}
 
 tests:
-	make -C ${SRCDIR}/test all
+	make -C ${SRCDIR}/test
 
 ${MM_DATA_FILE}:
 	python ${SRCDIR}/matmul_gen_tbdata.py \
