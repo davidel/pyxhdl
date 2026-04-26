@@ -49,7 +49,7 @@ module HdlForEnt(A, B, XOUT);
     XOUT = 8'(0);
     for (int i = 0; i <= 7; i += 1) begin
       XOUT[i] = A[i] ^ B[i];
-      if (A[i] == 1'(1)) begin
+      if (A[i] == 1'd1) begin
         break;
       end
     end

@@ -48,26 +48,26 @@ module InitProcess(A, B, XOUT);
   input logic [7: 0] B;
   output logic [7: 0] XOUT;
   logic [7: 0] arr[4][4];
-  logic [7: 0] zarr[4][4] = '{4{'{4{8'(1)}}}};
-  logic [7: 0] rtemp = 8'(21);
+  logic [7: 0] zarr[4][4] = '{4{'{4{8'd1}}}};
+  logic [7: 0] rtemp = 8'd21;
   initial
   init : begin
-    arr[0][0] = 8'(0);
-    arr[0][1] = 8'(1);
-    arr[0][2] = 8'(2);
-    arr[0][3] = 8'(3);
-    arr[1][0] = 8'(4);
-    arr[1][1] = 8'(5);
-    arr[1][2] = 8'(6);
-    arr[1][3] = 8'(7);
-    arr[2][0] = 8'(8);
-    arr[2][1] = 8'(9);
-    arr[2][2] = 8'(10);
-    arr[2][3] = 8'(11);
-    arr[3][0] = 8'(12);
-    arr[3][1] = 8'(13);
-    arr[3][2] = 8'(14);
-    arr[3][3] = 8'(15);
+    arr[0][0] = 8'd0;
+    arr[0][1] = 8'd1;
+    arr[0][2] = 8'd2;
+    arr[0][3] = 8'd3;
+    arr[1][0] = 8'd4;
+    arr[1][1] = 8'd5;
+    arr[1][2] = 8'd6;
+    arr[1][3] = 8'd7;
+    arr[2][0] = 8'd8;
+    arr[2][1] = 8'd9;
+    arr[2][2] = 8'd10;
+    arr[2][3] = 8'd11;
+    arr[3][0] = 8'd12;
+    arr[3][1] = 8'd13;
+    arr[3][2] = 8'd14;
+    arr[3][3] = 8'd15;
   end
   always @(A or B)
   run_initreg : begin
@@ -76,7 +76,7 @@ module InitProcess(A, B, XOUT);
   end
   always @(A or B)
   run_initwire : begin
-    automatic logic [7: 0] wtemp = 8'(21);
+    automatic logic [7: 0] wtemp = 8'd21;
     wtemp = wtemp - (A - B);
     XOUT = ((A - 8'(7 * B)) - 8'(wtemp * arr[2][1])) + 8'(17 * zarr[2][3]);
   end

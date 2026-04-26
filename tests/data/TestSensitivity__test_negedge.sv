@@ -47,7 +47,7 @@ module NegEdge(CLK, RESET, XOUT);
   always @(negedge CLK or RESET)
   run : begin
     if (RESET != 1'(0)) begin
-      XOUT = 8'(0);
+      XOUT = 8'd0;
     end
   end
 endmodule

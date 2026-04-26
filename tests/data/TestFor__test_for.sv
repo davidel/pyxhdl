@@ -44,7 +44,7 @@ module ForEnt(A, B, XOUT);
   input logic [7: 0] A;
   input logic [7: 0] B;
   output logic [7: 0] XOUT;
-  logic [7: 0] temp = 8'(1);
+  logic [7: 0] temp = 8'd1;
   always @(A or B)
   run : begin
     temp = temp + 1;

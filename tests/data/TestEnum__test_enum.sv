@@ -47,13 +47,13 @@ module EnumEnt(A, B, XOUT);
   always @(A or B)
   tester : begin
     case (A)
-      8'(17): begin
+      8'd17: begin
         XOUT = A + 1;
       end
-      8'(18): begin
+      8'd18: begin
         XOUT = A + B;
       end
-      8'(19): begin
+      8'd19: begin
         XOUT = A - B;
       end
       default: begin

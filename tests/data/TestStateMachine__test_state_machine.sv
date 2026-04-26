@@ -46,45 +46,45 @@ module StateMachine(CLK, RST_N, BITLINE, RDEN, RDATA);
   input logic BITLINE;
   output logic RDEN;
   output logic [7: 0] RDATA;
-  logic [2: 0] state = 3'(0);
-  logic [3: 0] count = 4'(0);
+  logic [2: 0] state = 3'd0;
+  logic [3: 0] count = 4'd0;
   logic [7: 0] value;
   always_ff @(posedge CLK)
   state_machine : begin
     if (&(!RST_N)) begin
-      state <= 3'(0);
-      count <= 4'(0);
+      state <= 3'd0;
+      count <= 4'd0;
       RDEN <= 1'(0);
       RDATA <= 8'(1'bX);
     end else begin
       case (state)
-        3'(0): begin
+        3'd0: begin
           if (BITLINE == 1'(1)) begin
-            state <= 3'(1);
+            state <= 3'd1;
           end
         end
-        3'(1): begin
+        3'd1: begin
           if (BITLINE == 1'(0)) begin
-            state <= 3'(2);
-            count <= 4'(0);
-            value <= 8'(0);
+            state <= 3'd2;
+            count <= 4'd0;
+            value <= 8'd0;
             RDEN <= 1'(0);
           end
         end
-        3'(2): begin
+        3'd2: begin
           value <= (value << 1) | 8'(BITLINE);
-          if (count == 4'(7)) begin
-            state <= 3'(4);
+          if (count == 4'd7) begin
+            state <= 3'd4;
           end else begin
             count <= count + 1;
           end
         end
-        3'(4): begin
+        3'd4: begin
           if (BITLINE == 1'(0)) begin
             RDEN <= 1'(1);
             RDATA <= value;
           end
-          state <= 3'(0);
+          state <= 3'd0;
         end
         default: begin
         end

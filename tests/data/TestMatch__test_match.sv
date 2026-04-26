@@ -47,13 +47,13 @@ module MatchEnt(A, B, XOUT);
   always @(A or B)
   tester : begin
     case (A)
-      8'(17): begin
+      8'd17: begin
         XOUT = A + 1;
       end
-      8'(21): begin
+      8'd21: begin
         XOUT = A + B;
       end
-      8'(34): begin
+      8'd34: begin
         XOUT = A - B;
       end
       default: begin

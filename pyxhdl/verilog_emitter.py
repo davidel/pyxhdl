@@ -194,8 +194,15 @@ class Verilog_Emitter(Emitter):
     if isinstance(value, str):
       value = pycu.infer_value(value)
 
-    xvalue = f'{dtype.nbits}\'({int(value)})'
-    return f'signed\'({xvalue})' if signed else xvalue
+    ivalue = int(value)
+    if ivalue < 0:
+      if not signed:
+        fatal(f'Invalid value for unsigned integer: {value} ({ivalue})',
+              exc=ValueError)
+
+      return f'-{dtype.nbits}\'sd{abs(ivalue)}'
+
+    return f'{dtype.nbits}\'d{ivalue}'
 
   def _to_uint(self, value, dtype):
     return self._to_int(value, dtype, False)

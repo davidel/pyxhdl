@@ -70,10 +70,10 @@ module HdlForEnt(A, B, XOUT);
   output logic [7: 0] XOUT;
   always @(A or B)
   run : begin
-    XOUT = 8'(0);
+    XOUT = 8'd0;
     for (int i = 0; i <= 7; i += 1) begin
       XOUT[i] = A[i] ^ B[i];
-      if (A[i] == 1'(1)) begin
+      if (A[i] == 1'd1) begin
         break;
       end
     end
@@ -859,10 +859,10 @@ module IfcEnt(IFC_CLK, IFC_RST_N, IFC_X, IFC_Y, IFC_XOUT, A);
   input logic [15: 0] A;
   always_ff @(posedge IFC_CLK)
   run : begin
-    if (IFC_RST_N != 1'(1)) begin
-      IFC_X <= 16'(1);
-      IFC_Y <= 16'(0);
-      IFC_XOUT <= 16'(0);
+    if (IFC_RST_N != 1'd1) begin
+      IFC_X <= 16'd1;
+      IFC_Y <= 16'd0;
+      IFC_XOUT <= 16'd0;
     end else begin
       IFC_XOUT <= (16'(A * IFC_X) + IFC_Y) - 17;
       IFC_X <= IFC_X + 1;
@@ -950,7 +950,7 @@ module BlockRam(CLK, RST_N, RDEN, WREN, ADDR, IN_DATA, OUT_DATA);
   always_ff @(posedge CLK)
   run : begin
     if (&(!RST_N)) begin
-      OUT_DATA <= 16'(0);
+      OUT_DATA <= 16'd0;
     end else if (&WREN) begin
       mem[int'(ADDR)] <= IN_DATA;
     end else if (&RDEN) begin
@@ -1579,12 +1579,12 @@ module Blinky(CLK, RST_N, LED);
   logic [23: 0] counter;
   always_ff @(posedge CLK)
   blinker : begin
-    if (RST_N != 1'(1)) begin
-      counter <= 24'(0);
-      LED <= 1'(0);
-    end else if (counter == 24'(10000000)) begin
+    if (RST_N != 1'd1) begin
+      counter <= 24'd0;
+      LED <= 1'd0;
+    end else if (counter == 24'd10000000) begin
       LED <= ~LED;
-      counter <= 24'(0);
+      counter <= 24'd0;
     end else begin
       counter <= counter + 1;
     end

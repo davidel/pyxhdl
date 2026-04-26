@@ -60,7 +60,7 @@ module NetsTest(CLK, A, B, XOUT);
   end
   always_ff @(posedge CLK)
   clocker : begin
-    if (B == 8'(1)) begin
+    if (B == 8'd1) begin
       XOUT = ROOT_REG;
     end
   end

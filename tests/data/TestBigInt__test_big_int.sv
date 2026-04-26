@@ -46,6 +46,6 @@ module BigInt(A, B, XOUT);
   output logic [63: 0] XOUT;
   always_comb
   big_int : begin
-    XOUT = (A + B) - 64'(35184372088831);
+    XOUT = (A + B) - 64'd35184372088831;
   end
 endmodule

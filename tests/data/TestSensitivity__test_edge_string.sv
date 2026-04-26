@@ -47,7 +47,7 @@ module EdgeString(CLK, RESET, XOUT);
   always @(posedge CLK or RESET)
   run : begin
     if (RESET != 1'(0)) begin
-      XOUT = 8'(0);
+      XOUT = 8'd0;
     end
   end
 endmodule

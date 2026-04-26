@@ -48,13 +48,13 @@ module MatchReturnEnt(A, B, XOUT);
   tester : begin
     automatic logic [7: 0] match_return0;
     case (A)
-      8'(17): begin
+      8'd17: begin
         match_return0 = A + 1;
       end
-      8'(21): begin
+      8'd21: begin
         match_return0 = A + B;
       end
-      8'(34): begin
+      8'd34: begin
         match_return0 = A - B;
       end
       default: begin

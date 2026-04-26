@@ -79,8 +79,8 @@ module XLib(CLK, A, B, XOUT);
   end
   always @(*)
   waiter : begin
-    if (!(A == 8'(1))) begin
-      @((A == 8'(1)));
+    if (!(A == 8'd1)) begin
+      @((A == 8'd1));
     end
   end
 endmodule
