@@ -37,20 +37,16 @@ endpackage
 
 
 
-// Entity "IntReal" is "IntReal" with:
-// 	args={'A': 'integer()', 'B': 'real()', 'XOUT': 'real(4)'}
+// Entity "ArraySliceAssignTestEnt" is "ArraySliceAssignTestEnt" with:
+// 	args={'A': 'uint(2, 2, 16)', 'B': 'uint(2, 2, 16)', 'XOUT': 'uint(16)'}
 // 	kwargs={}
-module IntReal(A, B, XOUT);
-  input integer A;
-  input real B;
-  output real  XOUT[4];
-  integer idx = 3;
-  always @(A)
-  test : begin
-    XOUT[idx] = ((real'(A) + B) * 17.0) - 3.14;
-    idx = idx - 1;
-    XOUT[idx] = ((real'(A) + B) / 21.0) + 2.718281828459045;
-    idx = idx - 1;
-    XOUT[idx] = (real'(A) + B) + real'(idx);
+module ArraySliceAssignTestEnt(A, B, XOUT);
+  input logic [1: 0][1: 0][15: 0] A;
+  input logic [1: 0][1: 0][15: 0] B;
+  output logic [15: 0] XOUT;
+  always @(A or B)
+  assign_slicing : begin
+    XOUT[3: 0] = A[1][0][7: 4];
+    XOUT[7: 4] = B[0][1][3: 0];
   end
 endmodule

@@ -25,7 +25,7 @@ class MatMult(X.Entity):
         XOUT[i, j] = temp
 
 
-class ArrayTestEnt(X.Entity):
+class ArraySliceTestEnt(X.Entity):
 
   PORTS = 'A, B, =XOUT'
 
@@ -36,15 +36,30 @@ class ArrayTestEnt(X.Entity):
 
     XOUT = tempa + tempb
 
+
+class ArraySliceAssignTestEnt(X.Entity):
+
+  PORTS = 'A, B, =XOUT'
+
   @X.hdl_process(sens='A, B')
   def assign_slicing():
     XOUT[: 4] = A[1, 0, 4: 8]
     XOUT[4: 8] = B[0, 1, : 4]
 
+
+class ArrayIndexingTestEnt(X.Entity):
+
+  PORTS = 'A, B, =XOUT'
+
   @X.hdl_process(sens='A, B')
   def indexing():
     idx = A[0, 1]
     XOUT = B[0, idx]
+
+
+class ArrayNpInitTestEnt(X.Entity):
+
+  PORTS = 'A, B, =XOUT'
 
   @X.hdl_process(sens='A, B')
   def np_init():
@@ -122,14 +137,41 @@ class TestArray(unittest.TestCase):
 
     tu.run(self, tu.test_name(self, pyu.fname()), MatMult, inputs)
 
-  def test_array(self):
+  def test_array_slice(self):
     inputs = dict(
       A=X.mkwire(X.Uint(2, 2, 16)),
       B=X.mkwire(X.Uint(2, 2, 16)),
       XOUT=X.mkwire(X.UINT16),
     )
 
-    tu.run(self, tu.test_name(self, pyu.fname()), ArrayTestEnt, inputs)
+    tu.run(self, tu.test_name(self, pyu.fname()), ArraySliceTestEnt, inputs)
+
+  def test_array_slice_assign(self):
+    inputs = dict(
+      A=X.mkwire(X.Uint(2, 2, 16)),
+      B=X.mkwire(X.Uint(2, 2, 16)),
+      XOUT=X.mkwire(X.UINT16),
+    )
+
+    tu.run(self, tu.test_name(self, pyu.fname()), ArraySliceAssignTestEnt, inputs)
+
+  def test_array_indexing(self):
+    inputs = dict(
+      A=X.mkwire(X.Uint(2, 2, 16)),
+      B=X.mkwire(X.Uint(2, 2, 16)),
+      XOUT=X.mkwire(X.UINT16),
+    )
+
+    tu.run(self, tu.test_name(self, pyu.fname()), ArrayIndexingTestEnt, inputs)
+
+  def test_array_npinit(self):
+    inputs = dict(
+      A=X.mkwire(X.Uint(2, 2, 16)),
+      B=X.mkwire(X.Uint(2, 2, 16)),
+      XOUT=X.mkwire(X.UINT16),
+    )
+
+    tu.run(self, tu.test_name(self, pyu.fname()), ArrayNpInitTestEnt, inputs)
 
   def test_assign(self):
     inputs = dict(

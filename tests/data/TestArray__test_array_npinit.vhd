@@ -246,10 +246,10 @@ use std.textio.all;
 library work;
 use work.all;
 
--- Entity "ArrayTestEnt" is "ArrayTestEnt" with:
+-- Entity "ArrayNpInitTestEnt" is "ArrayNpInitTestEnt" with:
 -- 	args={'A': 'uint(2, 2, 16)', 'B': 'uint(2, 2, 16)', 'XOUT': 'uint(16)'}
 -- 	kwargs={}
-entity ArrayTestEnt is
+entity ArrayNpInitTestEnt is
   port (
     A : in pyxhdl.uint_array2d(0 to 1)(0 to 1)(15 downto 0);
     B : in pyxhdl.uint_array2d(0 to 1)(0 to 1)(15 downto 0);
@@ -266,26 +266,13 @@ use std.textio.all;
 library work;
 use work.all;
 
--- Entity "ArrayTestEnt" is "ArrayTestEnt" with:
+-- Entity "ArrayNpInitTestEnt" is "ArrayNpInitTestEnt" with:
 -- 	args={'A': 'uint(2, 2, 16)', 'B': 'uint(2, 2, 16)', 'XOUT': 'uint(16)'}
 -- 	kwargs={}
-architecture behavior of ArrayTestEnt is
+architecture behavior of ArrayNpInitTestEnt is
   signal ar : pyxhdl.uint_array3d(0 to 2)(0 to 1)(0 to 3)(15 downto 0) := (((to_unsigned(0, 16), to_unsigned(1, 16), to_unsigned(2, 16), to_unsigned(3, 16)), (to_unsigned(4, 16), to_unsigned(5, 16), to_unsigned(6, 16), to_unsigned(7, 16))), ((to_unsigned(8, 16), to_unsigned(9, 16), to_unsigned(10, 16), to_unsigned(11, 16)), (to_unsigned(12, 16), to_unsigned(13, 16), to_unsigned(14, 16), to_unsigned(15, 16))), ((to_unsigned(16, 16), to_unsigned(17, 16), to_unsigned(18, 16), to_unsigned(19, 16)), (to_unsigned(20, 16), to_unsigned(21, 16), to_unsigned(22, 16), to_unsigned(23, 16))));
   constant ar_const : pyxhdl.uint_array3d(0 to 2)(0 to 1)(0 to 3)(15 downto 0) := (((to_unsigned(0, 16), to_unsigned(1, 16), to_unsigned(2, 16), to_unsigned(3, 16)), (to_unsigned(4, 16), to_unsigned(5, 16), to_unsigned(6, 16), to_unsigned(7, 16))), ((to_unsigned(8, 16), to_unsigned(9, 16), to_unsigned(10, 16), to_unsigned(11, 16)), (to_unsigned(12, 16), to_unsigned(13, 16), to_unsigned(14, 16), to_unsigned(15, 16))), ((to_unsigned(16, 16), to_unsigned(17, 16), to_unsigned(18, 16), to_unsigned(19, 16)), (to_unsigned(20, 16), to_unsigned(21, 16), to_unsigned(22, 16), to_unsigned(23, 16))));
 begin
-  slicing : process (A, B)
-  begin
-    XOUT <= resize(A(1)(0)(7 downto 4) + B(0)(1)(3 downto 0), 16);
-  end process;
-  assign_slicing : process (A, B)
-  begin
-    XOUT(3 downto 0) <= A(1)(0)(7 downto 4);
-    XOUT(7 downto 4) <= B(0)(1)(3 downto 0);
-  end process;
-  indexing : process (A, B)
-  begin
-    XOUT <= B(0)(to_integer(A(0)(1)));
-  end process;
   np_init : process (A, B)
   begin
     XOUT <= (B(0)(1) - ar(1)(0)(1)) + ar_const(2)(1)(2);

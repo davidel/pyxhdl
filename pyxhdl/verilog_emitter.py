@@ -96,42 +96,47 @@ class Verilog_Emitter(Emitter):
     if isinstance(value, bool):
       return '1' if value else '0'
 
+  def _gen_type_decl(self, vtype, shape, nbits, packed):
+    nbspec = f'[{nbits - 1}: 0] ' if nbits else ' '
+
+    if shape:
+      if packed:
+        dims = ''.join(f'[{x - 1}: 0]' for x in reversed(shape))
+
+        return f'{vtype} {dims}{nbspec}{{}}'
+      else:
+        dims = ''.join(f'[{x}]' for x in shape)
+
+        return f'{vtype} {nbspec}{{}}{dims}'
+    elif nbits:
+      return f'{vtype} {nbspec}{{}}'
+    else:
+      return f'{vtype} {{}}'
+
   def _type_of(self, dtype, ntype=None):
     kind = f'{ntype} logic' if ntype else 'logic'
     nbits, shape = dtype.nbits, dtype.array_shape
 
-    adims = ''.join(f'[{x}]' for x in shape)
     if isinstance(dtype, Uint):
-      if shape:
-        return f'{kind} [{nbits - 1}: 0] {{}}{adims}'
-      else:
-        return f'{kind} [{nbits - 1}: 0] {{}}'
+      return self._gen_type_decl(kind, shape, nbits, True)
     elif isinstance(dtype, Sint):
-      if shape:
-        return f'{kind} signed [{nbits - 1}: 0] {{}}{adims}'
-      else:
-        return f'{kind} signed [{nbits - 1}: 0] {{}}'
+      return self._gen_type_decl(f'{kind} signed', shape, nbits, True)
     elif isinstance(dtype, Bits):
       if dtype.degen:
-        return f'{kind} {{}}{adims}' if shape else f'{kind} {{}}'
+        return self._gen_type_decl(kind, shape, None, True)
 
-      if shape:
-        return f'{kind} [{nbits - 1}: 0] {{}}{adims}'
-      else:
-        return f'{kind} [{nbits - 1}: 0] {{}}'
+      return self._gen_type_decl(kind, shape, nbits, True)
     elif isinstance(dtype, Bool):
-      return f'{kind} {{}}{adims}' if shape else f'{kind} {{}}'
+      return self._gen_type_decl(kind, shape, None, True)
     elif isinstance(dtype, Integer):
-      return f'integer {{}}{adims}' if shape else f'integer {{}}'
+      return self._gen_type_decl('integer', shape, None, False)
     elif isinstance(dtype, Real):
-      return f'real {{}}{adims}' if shape else f'real {{}}'
+      return self._gen_type_decl('real', shape, None, False)
     elif isinstance(dtype, Float):
       fspec = self.float_spec(dtype)
       nfbits = 1 + fspec.exp + fspec.mant
-      if shape:
-        return f'{kind} [{nfbits - 1}: 0] {{}}{adims}'
-      else:
-        return f'{kind} [{nfbits - 1}: 0] {{}}'
+
+      return self._gen_type_decl(kind, shape, nfbits, True)
 
     fatal(f'Unknown type: {dtype}', exc=TypeError)
 

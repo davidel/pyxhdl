@@ -41,9 +41,9 @@ endpackage
 // 	args={'A': 'uint(4, 4, 16)', 'B': 'uint(4, 4, 16)', 'XOUT': 'uint(4, 4, 16)'}
 // 	kwargs={}
 module MatMult(A, B, XOUT);
-  input logic [15: 0] A[4][4];
-  input logic [15: 0] B[4][4];
-  output logic [15: 0] XOUT[4][4];
+  input logic [3: 0][3: 0][15: 0] A;
+  input logic [3: 0][3: 0][15: 0] B;
+  output logic [3: 0][3: 0][15: 0] XOUT;
   always @(A or B)
   mat_mult : begin
     XOUT[0][0] = (((0 + 16'(A[0][0] * B[0][0])) + 16'(A[0][1] * B[1][0])) + 16'(A[0][2] * B[2][0])) + 16'(A[0][3] * B[3][0]);
