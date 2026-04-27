@@ -97,19 +97,21 @@ class Verilog_Emitter(Emitter):
       return '1' if value else '0'
 
   def _gen_type_decl(self, vtype, shape, nbits, packed):
-    nbspec = f'[{nbits - 1}: 0] ' if nbits else ' '
-
     if shape:
       if packed:
         dims = ''.join(f'[{x - 1}: 0]' for x in reversed(shape))
+        nbspec = f'[{nbits - 1}: 0]' if nbits else ''
 
-        return f'{vtype} {dims}{nbspec}{{}}'
+        return f'{vtype} {dims}{nbspec} {{}}'
       else:
         dims = ''.join(f'[{x}]' for x in shape)
+        nbspec = f' [{nbits - 1}: 0]' if nbits else ''
 
-        return f'{vtype} {nbspec}{{}}{dims}'
+        return f'{vtype}{nbspec} {{}}{dims}'
     elif nbits:
-      return f'{vtype} {nbspec}{{}}'
+      nbspec = f' [{nbits - 1}: 0]' if nbits else ''
+
+      return f'{vtype}{nbspec} {{}}'
     else:
       return f'{vtype} {{}}'
 
