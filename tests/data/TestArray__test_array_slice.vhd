@@ -271,7 +271,7 @@ use work.all;
 -- 	kwargs={}
 architecture behavior of ArraySliceTestEnt is
 begin
-  slicing : process (A, B)
+  slicing : process (all)
   begin
     XOUT <= resize(A(1)(0)(7 downto 4) + B(0)(1)(3 downto 0), 16);
   end process;

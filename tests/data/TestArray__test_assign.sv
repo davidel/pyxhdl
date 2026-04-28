@@ -41,10 +41,10 @@ endpackage
 // 	args={'A': 'uint(2, 2, 16)', 'B': 'sint(2, 2, 16)', 'XOUT': 'sint(2, 2, 16)'}
 // 	kwargs={}
 module ArrayAssignTestEnt(A, B, XOUT);
-  input logic [1: 0][1: 0][15: 0] A;
-  input logic signed [1: 0][1: 0][15: 0] B;
-  output logic signed [1: 0][1: 0][15: 0] XOUT;
-  always @(A or B)
+  input logic [15: 0] A[2][2];
+  input logic signed [15: 0] B[2][2];
+  output logic signed [15: 0] XOUT[2][2];
+  always_comb
   assign_element : begin
     XOUT[1] = B[0];
   end

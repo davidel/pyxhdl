@@ -43,8 +43,8 @@ endpackage
 module InterfaceArrayTest(CLK, RST_N, A, XOUT);
   input logic CLK;
   input logic RST_N;
-  input logic [1: 0][7: 0] A;
-  output logic [1: 0][7: 0] XOUT;
+  input logic [7: 0] A[2];
+  output logic [7: 0] XOUT[2];
   logic [15: 0] MYIFC_X;
   logic [15: 0] MYIFC_Y = 16'd0;
   IfcEnt IfcEnt_1(

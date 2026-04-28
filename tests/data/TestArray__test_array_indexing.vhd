@@ -271,7 +271,7 @@ use work.all;
 -- 	kwargs={}
 architecture behavior of ArrayIndexingTestEnt is
 begin
-  indexing : process (A, B)
+  indexing : process (all)
   begin
     XOUT <= B(0)(to_integer(A(0)(1)));
   end process;

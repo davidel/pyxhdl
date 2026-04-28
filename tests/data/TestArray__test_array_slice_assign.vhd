@@ -271,7 +271,7 @@ use work.all;
 -- 	kwargs={}
 architecture behavior of ArraySliceAssignTestEnt is
 begin
-  assign_slicing : process (A, B)
+  assign_slicing : process (all)
   begin
     XOUT(3 downto 0) <= A(1)(0)(7 downto 4);
     XOUT(7 downto 4) <= B(0)(1)(3 downto 0);

@@ -44,7 +44,7 @@ module ArrayIntSliceEnt(A, B, XOUT);
   input logic signed [7: 0] A;
   input logic signed [7: 0] B;
   output logic signed [3: 0] XOUT;
-  always @(A or B)
+  always_comb
   int_slice : begin
     XOUT = 4'(A[0: 0] + B[1: 1]);
   end

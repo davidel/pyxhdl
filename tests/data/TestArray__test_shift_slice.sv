@@ -44,7 +44,7 @@ module ArrayShiftSliceEnt(A, B, XOUT);
   input logic [31: 0] A;
   input logic [3: 0] B;
   output logic [3: 0] XOUT;
-  always @(A or B)
+  always_comb
   var_slice : begin
     XOUT = {A >> int'(B)}[3: 0];
   end

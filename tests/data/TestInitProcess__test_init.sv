@@ -47,8 +47,8 @@ module InitProcess(A, B, XOUT);
   input logic [7: 0] A;
   input logic [7: 0] B;
   output logic [7: 0] XOUT;
-  logic [3: 0][3: 0][7: 0] arr;
-  logic [3: 0][3: 0][7: 0] zarr = '{4{'{4{8'd1}}}};
+  logic [7: 0] arr[4][4];
+  logic [7: 0] zarr[4][4] = '{4{'{4{8'd1}}}};
   logic [7: 0] rtemp = 8'd21;
   initial
   init : begin

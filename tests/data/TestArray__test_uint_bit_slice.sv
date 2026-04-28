@@ -44,7 +44,7 @@ module ArrayIntBitSliceEnt(A, B, XOUT);
   input logic [3: 0] A;
   input logic [3: 0] B;
   output logic [0: 0] XOUT;
-  always @(A or B)
+  always_comb
   int_bit_slice : begin
     XOUT = A[0: 0] + B[1: 1];
   end

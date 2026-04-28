@@ -271,7 +271,7 @@ use work.all;
 -- 	kwargs={}
 architecture behavior of MatMult is
 begin
-  mat_mult : process (A, B)
+  mat_mult : process (all)
   begin
     XOUT(0)(0) <= (((0 + resize(A(0)(0) * B(0)(0), 16)) + resize(A(0)(1) * B(1)(0), 16)) + resize(A(0)(2) * B(2)(0), 16)) + resize(A(0)(3) * B(3)(0), 16);
     XOUT(0)(1) <= (((0 + resize(A(0)(0) * B(0)(1), 16)) + resize(A(0)(1) * B(1)(1), 16)) + resize(A(0)(2) * B(2)(1), 16)) + resize(A(0)(3) * B(3)(1), 16);

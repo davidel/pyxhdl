@@ -271,7 +271,7 @@ use work.all;
 -- 	kwargs={}
 architecture behavior of ArrayMultiSliceEnt is
 begin
-  multi_slice : process (A, B)
+  multi_slice : process (all)
   begin
     XOUT <= A(2 downto 0)(1) and B(3 downto 1)(2);
   end process;

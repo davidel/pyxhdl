@@ -271,7 +271,7 @@ use work.all;
 -- 	kwargs={}
 architecture behavior of ArrayAssignTestEnt is
 begin
-  assign_element : process (A, B)
+  assign_element : process (all)
   begin
     XOUT(1) <= B(0);
   end process;

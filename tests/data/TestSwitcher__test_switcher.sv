@@ -43,8 +43,8 @@ endpackage
 module Switcher(SEL, DIN, SEL_DOUT, SEL_DIN, DOUT);
   input logic [2: 0] SEL;
   input logic [15: 0] DIN;
-  output logic [7: 0][15: 0] SEL_DOUT;
-  input logic [7: 0][15: 0] SEL_DIN;
+  output logic [15: 0] SEL_DOUT[8];
+  input logic [15: 0] SEL_DIN[8];
   output logic [15: 0] DOUT;
   always_comb
   switch : begin

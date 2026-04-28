@@ -271,7 +271,7 @@ use work.all;
 -- 	kwargs={}
 architecture behavior of ArrayIntBitSliceEnt is
 begin
-  int_bit_slice : process (A, B)
+  int_bit_slice : process (all)
   begin
     XOUT <= A(0 downto 0) + B(1 downto 1);
   end process;

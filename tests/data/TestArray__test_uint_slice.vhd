@@ -271,7 +271,7 @@ use work.all;
 -- 	kwargs={}
 architecture behavior of ArrayIntSliceEnt is
 begin
-  int_slice : process (A, B)
+  int_slice : process (all)
   begin
     XOUT <= resize(A(0 downto 0) + B(1 downto 1), 4);
   end process;

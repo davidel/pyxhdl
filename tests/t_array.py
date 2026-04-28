@@ -14,7 +14,7 @@ class MatMult(X.Entity):
 
   PORTS = 'A, B, =XOUT'
 
-  @X.hdl_process(sens='A, B')
+  @X.hdl_process(proc_mode='comb')
   def mat_mult():
     for i in range(A.dtype.shape[0]):
       for j in range(B.dtype.shape[1]):
@@ -29,7 +29,7 @@ class ArraySliceTestEnt(X.Entity):
 
   PORTS = 'A, B, =XOUT'
 
-  @X.hdl_process(sens='A, B')
+  @X.hdl_process(proc_mode='comb')
   def slicing():
     tempa = A[1, 0, 4: 8]
     tempb = B[0, 1, : 4]
@@ -41,7 +41,7 @@ class ArraySliceAssignTestEnt(X.Entity):
 
   PORTS = 'A, B, =XOUT'
 
-  @X.hdl_process(sens='A, B')
+  @X.hdl_process(proc_mode='comb')
   def assign_slicing():
     XOUT[: 4] = A[1, 0, 4: 8]
     XOUT[4: 8] = B[0, 1, : 4]
@@ -51,7 +51,7 @@ class ArrayIndexingTestEnt(X.Entity):
 
   PORTS = 'A, B, =XOUT'
 
-  @X.hdl_process(sens='A, B')
+  @X.hdl_process(proc_mode='comb')
   def indexing():
     idx = A[0, 1]
     XOUT = B[0, idx]
@@ -61,7 +61,7 @@ class ArrayNpInitTestEnt(X.Entity):
 
   PORTS = 'A, B, =XOUT'
 
-  @X.hdl_process(sens='A, B')
+  @X.hdl_process(proc_mode='comb')
   def np_init():
     ar = XL.mkvreg(X.mkarray(X.UINT16, 3, 2, 4), np.arange(0, 24, dtype=np.uint16).reshape(3, 2, 4))
     ar_const = XL.mkvreg(X.mkarray(X.UINT16, 3, 2, 4), np.arange(0, 24, dtype=np.uint16).reshape(3, 2, 4), const=True)
@@ -73,7 +73,7 @@ class ArrayAssignTestEnt(X.Entity):
 
   PORTS = 'A, B, =XOUT'
 
-  @X.hdl_process(sens='A, B')
+  @X.hdl_process(proc_mode='comb')
   def assign_element():
     XOUT[1] = B[0]
 
@@ -82,7 +82,7 @@ class ArrayShiftSliceEnt(X.Entity):
 
   PORTS = 'A, B, =XOUT'
 
-  @X.hdl_process(sens='A, B')
+  @X.hdl_process(proc_mode='comb')
   def var_slice():
     tmp = A >> B
     XOUT = tmp[: 4]
@@ -92,7 +92,7 @@ class ArrayVarSliceEnt(X.Entity):
 
   PORTS = 'A, B, =XOUT'
 
-  @X.hdl_process(sens='A, B')
+  @X.hdl_process(proc_mode='comb')
   def var_slice():
     XOUT = A[B + 1::4] + A[B + 2::-3]
 
@@ -101,7 +101,7 @@ class ArrayMultiSliceEnt(X.Entity):
 
   PORTS = 'A, B, =XOUT'
 
-  @X.hdl_process(sens='A, B')
+  @X.hdl_process(proc_mode='comb')
   def multi_slice():
     a = A[0: 3]
     b = B[1: 4]
@@ -112,7 +112,7 @@ class ArrayIntSliceEnt(X.Entity):
 
   PORTS = 'A, B, =XOUT'
 
-  @X.hdl_process(sens='A, B')
+  @X.hdl_process(proc_mode='comb')
   def int_slice():
     XOUT = A[0: 1] + B[1: 2]
 
@@ -121,7 +121,7 @@ class ArrayIntBitSliceEnt(X.Entity):
 
   PORTS = 'A, B, =XOUT'
 
-  @X.hdl_process(sens='A, B')
+  @X.hdl_process(proc_mode='comb')
   def int_bit_slice():
     XOUT = A[0: 1] + B[1: 2]
 

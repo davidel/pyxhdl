@@ -96,7 +96,7 @@ class Verilog_Emitter(Emitter):
     if isinstance(value, bool):
       return '1' if value else '0'
 
-  def _gen_type_decl(self, vtype, shape, nbits, packed):
+  def _gen_type_decl(self, vtype, shape, nbits=None, packed=False):
     if shape:
       if packed:
         dims = ''.join(f'[{x - 1}: 0]' for x in reversed(shape))
@@ -117,28 +117,28 @@ class Verilog_Emitter(Emitter):
 
   def _type_of(self, dtype, ntype=None):
     kind = f'{ntype} logic' if ntype else 'logic'
-    nbits, shape = dtype.nbits, dtype.array_shape
+    nbits, shape, packed = dtype.nbits, dtype.array_shape, False
 
     if isinstance(dtype, Uint):
-      return self._gen_type_decl(kind, shape, nbits, True)
+      return self._gen_type_decl(kind, shape, nbits=nbits, packed=packed)
     elif isinstance(dtype, Sint):
-      return self._gen_type_decl(f'{kind} signed', shape, nbits, True)
+      return self._gen_type_decl(f'{kind} signed', shape, nbits=nbits, packed=packed)
     elif isinstance(dtype, Bits):
       if dtype.degen:
-        return self._gen_type_decl(kind, shape, None, True)
+        return self._gen_type_decl(kind, shape, packed=packed)
 
-      return self._gen_type_decl(kind, shape, nbits, True)
+      return self._gen_type_decl(kind, shape, nbits=nbits, packed=packed)
     elif isinstance(dtype, Bool):
-      return self._gen_type_decl(kind, shape, None, True)
+      return self._gen_type_decl(kind, shape, packed=packed)
     elif isinstance(dtype, Integer):
-      return self._gen_type_decl('integer', shape, None, False)
+      return self._gen_type_decl('integer', shape)
     elif isinstance(dtype, Real):
-      return self._gen_type_decl('real', shape, None, False)
+      return self._gen_type_decl('real', shape)
     elif isinstance(dtype, Float):
       fspec = self.float_spec(dtype)
       nfbits = 1 + fspec.exp + fspec.mant
 
-      return self._gen_type_decl(kind, shape, nfbits, True)
+      return self._gen_type_decl(kind, shape, nbits=nfbits, packed=packed)
 
     fatal(f'Unknown type: {dtype}', exc=TypeError)
 
@@ -389,7 +389,7 @@ class Verilog_Emitter(Emitter):
       for idx in np.ndindex(shape):
         parts.append(self._scalar_cast(value[idx].item(), element_type))
 
-      xvalue = flat2shape(parts, shape, '{', '}')
+      xvalue = flat2shape(parts, shape, '\'{', '}')
     elif isinstance(value, Value) and value.dtype.array_shape:
       shape, vshape = dtype.array_shape, value.dtype.array_shape
       if shape != vshape:
@@ -404,7 +404,7 @@ class Verilog_Emitter(Emitter):
         svalue = Value(velement_type, f'{avalue}{substr}')
         parts.append(self._scalar_cast(svalue, element_type))
 
-      xvalue = flat2shape(parts, shape, '{', '}')
+      xvalue = flat2shape(parts, shape, '\'{', '}')
     else:
       xvalue = self._scalar_cast(unwrap(value), dtype)
       for size in reversed(dtype.array_shape):

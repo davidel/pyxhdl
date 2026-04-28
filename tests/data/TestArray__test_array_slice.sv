@@ -41,10 +41,10 @@ endpackage
 // 	args={'A': 'uint(2, 2, 16)', 'B': 'uint(2, 2, 16)', 'XOUT': 'uint(16)'}
 // 	kwargs={}
 module ArraySliceTestEnt(A, B, XOUT);
-  input logic [1: 0][1: 0][15: 0] A;
-  input logic [1: 0][1: 0][15: 0] B;
+  input logic [15: 0] A[2][2];
+  input logic [15: 0] B[2][2];
   output logic [15: 0] XOUT;
-  always @(A or B)
+  always_comb
   slicing : begin
     XOUT = 16'(A[1][0][7: 4] + B[0][1][3: 0]);
   end

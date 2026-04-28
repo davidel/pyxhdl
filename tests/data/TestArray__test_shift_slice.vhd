@@ -271,7 +271,7 @@ use work.all;
 -- 	kwargs={}
 architecture behavior of ArrayShiftSliceEnt is
 begin
-  var_slice : process (A, B)
+  var_slice : process (all)
   begin
     XOUT <= pyxhdl.cvt_bits(pyxhdl.bit_shr(A, to_integer(B))(3 downto 0));
   end process;

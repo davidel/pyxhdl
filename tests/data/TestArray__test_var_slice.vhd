@@ -271,7 +271,7 @@ use work.all;
 -- 	kwargs={}
 architecture behavior of ArrayVarSliceEnt is
 begin
-  var_slice : process (A, B)
+  var_slice : process (all)
   begin
     XOUT <= pyxhdl.cvt_bits(A((to_integer(B + 1) + 3) downto to_integer(B + 1)) + resize(A(to_integer(B + 2) to (to_integer(B + 2) + 2)), 4));
   end process;
