@@ -109,9 +109,7 @@ class Verilog_Emitter(Emitter):
 
         return f'{vtype}{nbspec} {{}}{dims}'
     elif nbits:
-      nbspec = f' [{nbits - 1}: 0]' if nbits else ''
-
-      return f'{vtype}{nbspec} {{}}'
+      return f'{vtype} [{nbits - 1}: 0] {{}}'
     else:
       return f'{vtype} {{}}'
 
