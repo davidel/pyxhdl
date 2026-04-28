@@ -43,7 +43,7 @@ endpackage
 module IntReal(A, B, XOUT);
   input integer A;
   input real B;
-  output real  XOUT[4];
+  output real XOUT[4];
   integer idx = 3;
   always @(A)
   test : begin
