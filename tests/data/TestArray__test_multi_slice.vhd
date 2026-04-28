@@ -272,7 +272,11 @@ use work.all;
 architecture behavior of ArrayMultiSliceEnt is
 begin
   multi_slice : process (all)
+    variable x : unsigned(2 downto 0);
+    variable y : unsigned(2 downto 0);
   begin
-    XOUT <= A(2 downto 0)(1) and B(3 downto 1)(2);
+    x := A(2 downto 0);
+    y := B(3 downto 1);
+    XOUT <= x(1) and y(2);
   end process;
 end architecture;

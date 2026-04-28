@@ -46,6 +46,10 @@ module ArrayMultiSliceEnt(A, B, XOUT);
   output logic XOUT;
   always_comb
   multi_slice : begin
-    XOUT = A[2: 0][1] & B[3: 1][2];
+    automatic logic [2: 0] x;
+    automatic logic [2: 0] y;
+    x = A[2: 0];
+    y = B[3: 1];
+    XOUT = x[1] & y[2];
   end
 endmodule

@@ -103,9 +103,12 @@ class ArrayMultiSliceEnt(X.Entity):
 
   @X.hdl_process(proc_mode='comb')
   def multi_slice():
-    a = A[0: 3]
-    b = B[1: 4]
-    XOUT = a[1] & b[2]
+    x = X.mkwire(X.Uint(3))
+    y = X.mkwire(X.Uint(3))
+
+    x = A[0: 3]
+    y = B[1: 4]
+    XOUT = x[1] & y[2]
 
 
 class ArrayIntSliceEnt(X.Entity):

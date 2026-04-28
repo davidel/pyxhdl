@@ -8,9 +8,7 @@ WDIR=$(mktemp -d --suffix $(basename $0))
 
 GHDL=$(which ghdl)
 VERILATOR=$(which verilator)
-
-# We need to handle slice-of-slice which Verilator agrees on, while slang do not.
-# SLANG=$(which slang)
+SLANG=$(which slang)
 
 
 exit_cleanup() {
