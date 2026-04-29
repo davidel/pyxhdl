@@ -39,7 +39,7 @@ def gather(src, start, stop, step=1) -> Value:
 
 
 @hdl
-def gather2(src, indiices) -> Value:
+def gather2(src, idxseq) -> Value:
   shape = list(src.dtype.shape)
   indices = tuple(idxseq)
   shape[0] = len(indices)
