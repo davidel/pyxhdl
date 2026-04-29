@@ -272,9 +272,9 @@ use work.all;
 architecture behavior of SnapTest is
 begin
   run : process (A, B)
-    variable snap0 : unsigned(7 downto 0);
+    variable XU_snap0 : unsigned(7 downto 0);
   begin
-    snap0 := A + B;
-    XOUT <= snap0;
+    XU_snap0 := A + B;
+    XOUT <= XU_snap0;
   end process;
 end architecture;

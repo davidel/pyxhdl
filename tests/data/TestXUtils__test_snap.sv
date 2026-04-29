@@ -46,8 +46,8 @@ module SnapTest(A, B, XOUT);
   output logic [7: 0] XOUT;
   always @(A or B)
   run : begin
-    automatic logic [7: 0] snap0;
-    snap0 = A + B;
-    XOUT = snap0;
+    automatic logic [7: 0] XU_snap0;
+    XU_snap0 = A + B;
+    XOUT = XU_snap0;
   end
 endmodule
