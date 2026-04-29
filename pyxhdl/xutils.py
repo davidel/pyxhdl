@@ -1,3 +1,5 @@
+import py_misc_utils.core_utils as pycu
+
 from .decorators import *
 from .emitter import *
 from .pyxhdl import *
@@ -12,19 +14,39 @@ def _xname(base):
 
 
 @hdl
-def bit_swap(src) -> Value:
-  dest = mkwire(src.dtype, name=_xname('bit_swap'))
-  for i in range(dest.dtype.nbits):
-    dest[i] = src[dest.dtype.nbits - 1 - i]
-
-  return dest
-
-
-@hdl
 def snap(value) -> Value:
   svalue = mkwire(value.dtype, name=_xname('snap'))
 
   svalue = value
 
   return svalue
+
+
+@hdl
+def bit_swap(src) -> Value:
+  result = mkwire(src.dtype, name=_xname('bit_swap'))
+  for i in range(result.dtype.nbits):
+    result[i] = src[result.dtype.nbits - 1 - i]
+
+  return result
+
+
+@hdl
+def gather(src, start, stop, step=1) -> Value:
+  shape = list(src.dtype.shape)
+
+  nstart, nstop = pycu.norm_slice(start, stop, shape[0])
+
+  nsize = (nstop - nstart + step - 1) // step
+  if nsize <= 0:
+    fatal(f'Invalid slice ({nstart}, {nstop}, {step}) for shape {tuple(shape)}',
+          exc=ValueError)
+
+  shape[0] = nsize
+
+  result = mkwire(src.dtype.new_shape(*shape), name=_xname('gather'))
+  for i, pos in enumerate(range(nstart, nstop, step)):
+    result[i] = src[pos]
+
+  return result
 
