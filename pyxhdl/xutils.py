@@ -40,9 +40,8 @@ def gather(src, start, stop, step=1) -> Value:
 
 @hdl
 def gather2(src, idxseq) -> Value:
-  shape = list(src.dtype.shape)
   indices = tuple(idxseq)
-  shape[0] = len(indices)
+  shape = (len(indices),) + src.dtype.shape[1: ]
 
   result = mkwire(src.dtype.new_shape(*shape), name=_xname('gather'))
   for i, pos in enumerate(indices):
