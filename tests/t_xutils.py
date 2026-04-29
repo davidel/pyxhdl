@@ -26,8 +26,8 @@ class GatherTest(X.Entity):
 
   @X.hdl_process(sens='A')
   def run():
-    g1 = XU.gather(A, 0, A.dtype.nbits, step=2)
-    g2 = XU.gather(A, 1, A.dtype.nbits, step=2)
+    g1 = XU.gather(A, range(0, A.dtype.nbits, 2))
+    g2 = XU.gather(A, range(1, A.dtype.nbits, 2))
 
     XOUT = g1 @ g2
 
