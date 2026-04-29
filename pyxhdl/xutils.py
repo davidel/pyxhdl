@@ -32,14 +32,7 @@ def bit_swap(src) -> Value:
 
 
 @hdl
-def gather(src, start, stop, step=1) -> Value:
-  nstart, nstop = pycu.norm_slice(start, stop, src.dtype.shape[0])
-
-  return gather2(src, range(nstart, nstop, step))
-
-
-@hdl
-def gather2(src, idxseq) -> Value:
+def gather(src, idxseq) -> Value:
   indices = tuple(idxseq)
   shape = (len(indices),) + src.dtype.shape[1: ]
 
