@@ -33,20 +33,19 @@ def bit_swap(src) -> Value:
 
 @hdl
 def gather(src, start, stop, step=1) -> Value:
+  nstart, nstop = pycu.norm_slice(start, stop, src.dtype.shape[0])
+
+  return gather2(src, range(nstart, nstop, step))
+
+
+@hdl
+def gather2(src, indiices) -> Value:
   shape = list(src.dtype.shape)
-
-  nstart, nstop = pycu.norm_slice(start, stop, shape[0])
-
-  nsize = (nstop - nstart + step - 1) // step
-  if nsize <= 0:
-    fatal(f'Invalid slice ({nstart}, {nstop}, {step}) for shape {tuple(shape)}',
-          exc=ValueError)
-
-  shape[0] = nsize
+  indices = tuple(idxseq)
+  shape[0] = len(indices)
 
   result = mkwire(src.dtype.new_shape(*shape), name=_xname('gather'))
-  for i, pos in enumerate(range(nstart, nstop, step)):
+  for i, pos in enumerate(indices):
     result[i] = src[pos]
 
   return result
-
