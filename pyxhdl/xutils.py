@@ -30,16 +30,38 @@ def bit_swap(src) -> Value:
 
 
 @hdl
-def gather(src, idxseq) -> Value:
+def select(src, idxseq) -> Value:
   indices = tuple(idxseq)
   if not indices:
     fatal(f'Empty index set', exc=ValueError)
 
   shape = (len(indices),) + src.dtype.shape[1: ]
 
-  result = mkwire(src.dtype.new_shape(*shape), name=_xname('gather'))
+  result = mkwire(src.dtype.new_shape(*shape), name=_xname('select'))
   for i, pos in enumerate(indices):
     result[i] = src[pos]
 
   return result
+
+
+@hdl
+def split(src, *sizes, base=0) -> tuple[Value]:
+  tsize = base + sum(sizes)
+  if tsize > src.dtype.shape[0]:
+    fatal(f'Cannot split {sizes} with base {base} from a source shape {src.dtype.shape}',
+          exc=ValueError)
+
+  values, pos = [], base
+  for size in sizes:
+    shape = (size,) + src.dtype.shape[1: ]
+    svalue = mkwire(src.dtype.new_shape(*shape), name=_xname('split'))
+
+    svalue = src[pos: pos + size]
+    values.append(svalue)
+
+    del svalue
+
+    pos += size
+
+  return tuple(values)
 

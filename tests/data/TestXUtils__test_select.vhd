@@ -246,10 +246,10 @@ use std.textio.all;
 library work;
 use work.all;
 
--- Entity "GatherTest" is "GatherTest" with:
+-- Entity "SelectTest" is "SelectTest" with:
 -- 	args={'A': 'bits(32)', 'XOUT': 'bits(32)'}
 -- 	kwargs={}
-entity GatherTest is
+entity SelectTest is
   port (
     A : in std_logic_vector(31 downto 0);
     XOUT : out std_logic_vector(31 downto 0)
@@ -265,47 +265,47 @@ use std.textio.all;
 library work;
 use work.all;
 
--- Entity "GatherTest" is "GatherTest" with:
+-- Entity "SelectTest" is "SelectTest" with:
 -- 	args={'A': 'bits(32)', 'XOUT': 'bits(32)'}
 -- 	kwargs={}
-architecture behavior of GatherTest is
+architecture behavior of SelectTest is
 begin
   run : process (A)
-    variable XU_gather0 : std_logic_vector(15 downto 0);
-    variable XU_gather1 : std_logic_vector(15 downto 0);
+    variable XU_select0 : std_logic_vector(15 downto 0);
+    variable XU_select1 : std_logic_vector(15 downto 0);
   begin
-    XU_gather0(0) := A(0);
-    XU_gather0(1) := A(2);
-    XU_gather0(2) := A(4);
-    XU_gather0(3) := A(6);
-    XU_gather0(4) := A(8);
-    XU_gather0(5) := A(10);
-    XU_gather0(6) := A(12);
-    XU_gather0(7) := A(14);
-    XU_gather0(8) := A(16);
-    XU_gather0(9) := A(18);
-    XU_gather0(10) := A(20);
-    XU_gather0(11) := A(22);
-    XU_gather0(12) := A(24);
-    XU_gather0(13) := A(26);
-    XU_gather0(14) := A(28);
-    XU_gather0(15) := A(30);
-    XU_gather1(0) := A(1);
-    XU_gather1(1) := A(3);
-    XU_gather1(2) := A(5);
-    XU_gather1(3) := A(7);
-    XU_gather1(4) := A(9);
-    XU_gather1(5) := A(11);
-    XU_gather1(6) := A(13);
-    XU_gather1(7) := A(15);
-    XU_gather1(8) := A(17);
-    XU_gather1(9) := A(19);
-    XU_gather1(10) := A(21);
-    XU_gather1(11) := A(23);
-    XU_gather1(12) := A(25);
-    XU_gather1(13) := A(27);
-    XU_gather1(14) := A(29);
-    XU_gather1(15) := A(31);
-    XOUT <= XU_gather0 & XU_gather1;
+    XU_select0(0) := A(0);
+    XU_select0(1) := A(2);
+    XU_select0(2) := A(4);
+    XU_select0(3) := A(6);
+    XU_select0(4) := A(8);
+    XU_select0(5) := A(10);
+    XU_select0(6) := A(12);
+    XU_select0(7) := A(14);
+    XU_select0(8) := A(16);
+    XU_select0(9) := A(18);
+    XU_select0(10) := A(20);
+    XU_select0(11) := A(22);
+    XU_select0(12) := A(24);
+    XU_select0(13) := A(26);
+    XU_select0(14) := A(28);
+    XU_select0(15) := A(30);
+    XU_select1(0) := A(1);
+    XU_select1(1) := A(3);
+    XU_select1(2) := A(5);
+    XU_select1(3) := A(7);
+    XU_select1(4) := A(9);
+    XU_select1(5) := A(11);
+    XU_select1(6) := A(13);
+    XU_select1(7) := A(15);
+    XU_select1(8) := A(17);
+    XU_select1(9) := A(19);
+    XU_select1(10) := A(21);
+    XU_select1(11) := A(23);
+    XU_select1(12) := A(25);
+    XU_select1(13) := A(27);
+    XU_select1(14) := A(29);
+    XU_select1(15) := A(31);
+    XOUT <= XU_select0 & XU_select1;
   end process;
 end architecture;

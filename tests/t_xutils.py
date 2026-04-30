@@ -20,16 +20,27 @@ class SnapTest(X.Entity):
     XOUT = snap_value
 
 
-class GatherTest(X.Entity):
+class SelectTest(X.Entity):
 
   PORTS = 'A, =XOUT'
 
   @X.hdl_process(sens='A')
   def run():
-    g1 = XU.gather(A, range(0, A.dtype.nbits, 2))
-    g2 = XU.gather(A, range(1, A.dtype.nbits, 2))
+    s1 = XU.select(A, range(0, A.dtype.nbits, 2))
+    s2 = XU.select(A, range(1, A.dtype.nbits, 2))
 
-    XOUT = g1 @ g2
+    XOUT = s1 @ s2
+
+
+class SplitTest(X.Entity):
+
+  PORTS = 'A, =XOUT'
+
+  @X.hdl_process(sens='A')
+  def run():
+    s1, s2, s3 = XU.split(A, 4, 5, A.dtype.nbits - 10, base=1)
+
+    XOUT = s3 @ s1 @ s2
 
 
 class TestXUtils(unittest.TestCase):
@@ -43,11 +54,19 @@ class TestXUtils(unittest.TestCase):
 
     tu.run(self, tu.test_name(self, pyu.fname()), SnapTest, inputs)
 
-  def test_gather(self):
+  def test_select(self):
     inputs = dict(
       A=X.mkwire(X.Bits(32)),
       XOUT=X.mkreg(X.Bits(32)),
     )
 
-    tu.run(self, tu.test_name(self, pyu.fname()), GatherTest, inputs)
+    tu.run(self, tu.test_name(self, pyu.fname()), SelectTest, inputs)
+
+  def test_split(self):
+    inputs = dict(
+      A=X.mkwire(X.Bits(32)),
+      XOUT=X.mkreg(X.Bits(32)),
+    )
+
+    tu.run(self, tu.test_name(self, pyu.fname()), SplitTest, inputs)
 
