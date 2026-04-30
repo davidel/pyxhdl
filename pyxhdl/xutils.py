@@ -32,6 +32,9 @@ def bit_swap(src) -> Value:
 @hdl
 def gather(src, idxseq) -> Value:
   indices = tuple(idxseq)
+  if not indices:
+    fatal(f'Empty index set', exc=ValueError)
+
   shape = (len(indices),) + src.dtype.shape[1: ]
 
   result = mkwire(src.dtype.new_shape(*shape), name=_xname('gather'))
@@ -39,3 +42,4 @@ def gather(src, idxseq) -> Value:
     result[i] = src[pos]
 
   return result
+
