@@ -1,5 +1,3 @@
-import py_misc_utils.core_utils as pycu
-
 from .decorators import *
 from .emitter import *
 from .pyxhdl import *
