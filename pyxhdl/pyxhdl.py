@@ -137,11 +137,11 @@ class _HdlChecker(ast.NodeVisitor):
     if pyiu.is_subclass(type(value), self.HDL_TYPES):
       self.count += 1
 
-  def _is_hdl_return(self, atype):
+  def _has_hdl_annotation(self, atype):
     otype = typing.get_origin(atype)
     if otype is not None:
       for stype in typing.get_args(atype):
-        if self._is_hdl_return(stype):
+        if self._has_hdl_annotation(stype):
           return True
 
       return False
@@ -153,7 +153,7 @@ class _HdlChecker(ast.NodeVisitor):
       return True
     if inspect.isfunction(func):
       sig = inspect.signature(func)
-      if self._is_hdl_return(sig.return_annotation):
+      if self._has_hdl_annotation(sig.return_annotation):
         return True
     if not inspect.isclass(func):
       return False
