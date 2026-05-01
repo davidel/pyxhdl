@@ -7,6 +7,7 @@ import functools
 import inspect
 import re
 import textwrap
+import typing
 
 import py_misc_utils.alog as alog
 import py_misc_utils.ast_utils as asu
@@ -136,12 +137,23 @@ class _HdlChecker(ast.NodeVisitor):
     if pyiu.is_subclass(type(value), self.HDL_TYPES):
       self.count += 1
 
+  def _is_hdl_return(self, atype):
+    otype = typing.get_origin(atype)
+    if otype is not None:
+      for stype in typing.get_args(atype):
+        if self._is_hdl_return(stype):
+          return True
+
+      return False
+    else:
+      return pyiu.is_subclass(atype, self.HDL_TYPES)
+
   def _needs_hdl_call(self, func):
     if self.hdl_function(func):
       return True
     if inspect.isfunction(func):
       sig = inspect.signature(func)
-      if pyiu.is_subclass(sig.return_annotation, self.HDL_TYPES):
+      if self._is_hdl_return(sig.return_annotation):
         return True
     if not inspect.isclass(func):
       return False
