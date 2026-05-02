@@ -26,8 +26,8 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
       run: |
-        # sudo apt update
-        # sudo apt -y upgrade
+        sudo apt update
+        sudo apt -y upgrade
         sudo apt install verilator ghdl yosys perl-doc
         python -m pip install --upgrade pip
         pip install .
