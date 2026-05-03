@@ -5,14 +5,14 @@ from pyxhdl import xlib as XL
 class Flopper(X.Entity):
 
   PORTS = 'CLK, RST_N, DIN:bit, =DOUT:bit'
-  ARGS = dict(stages=1, sides='+-')
+  ARGS = dict(stages=1, sides='+-', init=0)
 
   @X.hdl_process(sens='+CLK')
   def run(self):
     prev_din = X.mkreg(X.Bits(stages))
 
     if RST_N != 1:
-      prev_din = 0
+      prev_din = init
     else:
       DOUT = prev_din[0]
 
