@@ -67,7 +67,6 @@ def split(src, *sizes, base=0) -> tuple[Value]:
   return tuple(values)
 
 
-
 def bitfill(bitval, n):
   bitstr = str(bitval) if not isinstance(bitval, str) else bitval
   if bitstr not in VALID_BITS:
