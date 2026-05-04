@@ -52,12 +52,20 @@ def bitmux(orig, base, value, nr, usize) -> X.Value:
 class Ram(X.Entity):
 
   PORTS = f'*IFC:{__name__}.RamIfc.PORT'
+  ARGS = dict(ram_style='block')
 
   WR_STATE = pyen.make_enum('WR_STATE', 'IDLE, WR_LOW, WR_HIGH')
 
   @X.hdl_process(kind=X.ROOT_PROCESS)
   def root(self):
-    mem = X.mkreg(X.mkarray(IFC.RDATA.dtype, IFC.size))
+    RAM_ATTRS = {
+      '$common': {
+        'ram_style': ram_style,
+      },
+    }
+
+    mem = X.mkreg(X.mkarray(IFC.RDATA.dtype, IFC.size),
+                  attributes=RAM_ATTRS)
     rddata = X.mkreg(X.Bits(2 * IFC.width))
     wrdata = X.mkreg(X.Bits(2 * IFC.width))
     wr_state = X.mkreg(X.Uint(self.WR_STATE._last.bit_length()))
@@ -123,10 +131,12 @@ class Test(X.Entity):
               width=32,
               size=4096,
               unit_size=8,
-              tdp_ram=False)
+              tdp_ram=False) | Ram.ARGS
 
   @X.hdl_process(kind=X.ROOT_PROCESS)
   def root(self):
+    import py_misc_utils.utils as pyu
+
     from . import clock
 
     CLK = X.mkreg(X.BIT)
@@ -140,7 +150,8 @@ class Test(X.Entity):
                       unit_size=unit_size,
                       tdp_ram=tdp_ram)
 
-    Ram(IFC=self.ifc)
+    Ram(IFC=self.ifc,
+        **pyu.mget(locals(), *Ram.ARGS.keys(), as_dict=True))
 
   @X.hdl_process(kind=X.INIT_PROCESS)
   def test_run(self):

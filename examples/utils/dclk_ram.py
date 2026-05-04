@@ -26,12 +26,20 @@ class DClkRamIfc(X.Interface):
 class DClkRam(X.Entity):
 
   PORTS = f'*IFC:{__name__}.DClkRamIfc.PORT'
+  ARGS = dict(ram_style='block')
 
   @X.hdl_process(kind=X.ROOT_PROCESS)
   def root(self):
     from . import flopper
 
-    mem = X.mkreg(X.mkarray(IFC.RDATA.dtype, IFC.size))
+    RAM_ATTRS = {
+      '$common': {
+        'ram_style': ram_style,
+      },
+    }
+
+    mem = X.mkreg(X.mkarray(IFC.RDATA.dtype, IFC.size),
+                  attributes=RAM_ATTRS)
     req_sync = X.mkreg(X.BIT)
     ready_raw = X.mkreg(X.BIT)
 
@@ -66,10 +74,12 @@ class Test(X.Entity):
               ram_frequency=100e6,
               num_tests=50,
               width=32,
-              size=4096)
+              size=4096) | DClkRam.ARGS
 
   @X.hdl_process(kind=X.ROOT_PROCESS)
   def root(self):
+    import py_misc_utils.utils as pyu
+
     from . import clock
 
     CLK = X.mkreg(X.BIT)
@@ -86,7 +96,8 @@ class Test(X.Entity):
 
     self.ifc = DClkRamIfc(CLK, RST_N, RCLK, width, size)
 
-    DClkRam(IFC=self.ifc)
+    DClkRam(IFC=self.ifc,
+            **pyu.mget(locals(), *DClkRam.ARGS.keys(), as_dict=True))
 
   @X.hdl_process(kind=X.INIT_PROCESS)
   def test_run(self):
