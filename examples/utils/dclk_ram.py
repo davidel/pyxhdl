@@ -101,9 +101,8 @@ class Test(X.Entity):
     self.ifc.ADDR = 0
     self.ifc.WDATA = 0
 
-    for _ in range(4):
-      TB.wait_rising(CLK)
-      TB.wait_rising(RCLK)
+    TB.wait_rising(CLK)
+    TB.wait_rising(RCLK)
 
     RST_N = 1
 
