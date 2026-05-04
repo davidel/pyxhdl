@@ -46,6 +46,6 @@ module ArrayIndexingTestEnt(A, B, XOUT);
   output logic [15: 0] XOUT;
   always_comb
   indexing : begin
-    XOUT = B[0][int'(A[0][1])];
+    XOUT = B[0][longint'(A[0][1])];
   end
 endmodule

@@ -55,9 +55,9 @@ module RamTest(CLK, RST_N, RDEN, WREN, ADDR, IN_DATA, OUT_DATA);
     if (&(!RST_N)) begin
       OUT_DATA <= 16'(0);
     end else if (&WREN) begin
-      mem[int'(ADDR)] <= IN_DATA;
+      mem[longint'(ADDR)] <= IN_DATA;
     end else if (&RDEN) begin
-      OUT_DATA <= mem[int'(ADDR)];
+      OUT_DATA <= mem[longint'(ADDR)];
     end
   end
 endmodule

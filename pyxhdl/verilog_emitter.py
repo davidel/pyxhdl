@@ -317,11 +317,13 @@ class Verilog_Emitter(Emitter):
     return f'{dtype.nbits}\'b{fbits:0{dtype.nbits}b}'
 
   def _to_integer(self, value, dtype):
+    itype = 'longint'
+
     if isinstance(value, Value):
       if value.dtype == dtype:
         return self.svalue(value)
       elif isinstance(value.dtype, (Bool, Sint, Uint, Bits)):
-        return f'int\'({self.svalue(value)})'
+        return f'{itype}\'({self.svalue(value)})'
       elif isinstance(value.dtype, Float):
         fspec = self.float_spec(value.dtype)
 
@@ -330,13 +332,13 @@ class Verilog_Emitter(Emitter):
                                FPMANT=fspec.mant,
                                INTSIZE=32)
 
-        return f'int\'({mcall})'
+        return f'{itype}\'({mcall})'
       elif isinstance(value.dtype, Real):
-        return f'int\'({self.svalue(value)})'
+        return f'{itype}\'({self.svalue(value)})'
       else:
         fatal(f'Unable to convert to integer: {value} {dtype}')
 
-    return str(value) if isinstance(value, int) else f'int\'({value})'
+    return str(value) if isinstance(value, int) else f'{itype}\'({value})'
 
   def _to_real(self, value, dtype):
     if isinstance(value, Value):
@@ -694,7 +696,7 @@ class Verilog_Emitter(Emitter):
     else:
       loop_cmp, loop_incr = '>=', '-='
 
-    vtype = 'genvar' if self._proc.kind == ROOT_PROCESS else 'int'
+    vtype = 'genvar' if self._proc.kind == ROOT_PROCESS else 'longint'
 
     self._emit_line(f'for ({vtype} {vname} = {start}; {vname} {loop_cmp} {end}; ' \
                     f'{vname} {loop_incr} {abs(step)}) begin')

@@ -46,6 +46,6 @@ module ArrayVarSliceEnt(A, B, XOUT);
   output logic [3: 0] XOUT;
   always_comb
   var_slice : begin
-    XOUT = A[int'(B + 1) + 3 -: 4] + 4'(A[int'(B + 2) +: 3]);
+    XOUT = A[longint'(B + 1) + 3 -: 4] + 4'(A[longint'(B + 2) +: 3]);
   end
 endmodule
