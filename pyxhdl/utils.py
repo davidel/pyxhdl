@@ -183,7 +183,7 @@ def varname(name):
   return '_' + vname if vname[0].isdigit() else vname
 
 
-_TIME_SCALES = {'s': 1.0, 'ms': 1e3, 'us': 1e6, 'ns': 1e9, 'ps': 1e12}
+_TIME_SCALES = {'s': 1.0, 'ms': 1e3, 'us': 1e6, 'ns': 1e9, 'ps': 1e12, 'fs': 1e15}
 _TIME_UNITS = '|'.join(_TIME_SCALES.keys())
 _TIME_REX = re.compile(rf'([+\-]?\d+(\.(\d*))?([eE][+\-]?\d+)?)\s*({_TIME_UNITS})?$')
 
