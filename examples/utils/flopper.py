@@ -1,5 +1,4 @@
 import pyxhdl as X
-from pyxhdl import xlib as XL
 
 
 class Flopper(X.Entity):
@@ -9,6 +8,8 @@ class Flopper(X.Entity):
 
   @X.hdl_process(sens='+CLK')
   def run(self):
+    from pyxhdl import xutils as XU
+
     prev_din = X.mkreg(X.Bits(stages))
 
     if RST_N != 1:
@@ -21,14 +22,14 @@ class Flopper(X.Entity):
           if '+' in sides:
             prev_din = prev_din[1: ] @ DIN if stages > 1 else 1
           else:
-            prev_din = X.bitfill(1, prev_din.dtype.nbits)
+            prev_din = XU.bitfill(1, prev_din.dtype.nbits)
             DOUT = 1
 
         case 0:
           if '-' in sides:
             prev_din = prev_din[1: ] @ DIN if stages > 1 else 0
           else:
-            prev_din = X.bitfill(0, prev_din.dtype.nbits)
+            prev_din = XU.bitfill(0, prev_din.dtype.nbits)
             DOUT = 0
 
         case _:
@@ -63,6 +64,7 @@ class Test(X.Entity):
   @X.hdl_process(kind=X.INIT_PROCESS)
   def test_run(self):
     from pyxhdl import testbench as TB
+    from pyxhdl import xlib as XL
 
     RST_N = 0
     DIN = 0

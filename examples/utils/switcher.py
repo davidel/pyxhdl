@@ -1,5 +1,4 @@
 import pyxhdl as X
-from pyxhdl import xlib as XL
 
 
 class Switcher(X.Entity):
@@ -8,10 +7,12 @@ class Switcher(X.Entity):
 
   @X.hdl_process(proc_mode='comb')
   def switch():
+    from pyxhdl import xutils as XU
+
     N = SEL_DIN.dtype.array_shape[0]
 
-    SEL_DOUT = X.bitfill('X', SEL_DOUT.dtype.nbits)
-    DOUT = X.bitfill('X', DOUT.dtype.nbits)
+    SEL_DOUT = XU.bitfill('X', SEL_DOUT.dtype.nbits)
+    DOUT = XU.bitfill('X', DOUT.dtype.nbits)
 
     for i in range(N):
       if SEL == i:
@@ -46,6 +47,7 @@ class Test(X.Entity):
   def test_run(self):
     import random
 
+    from pyxhdl import xlib as XL
     from pyxhdl import testbench as TB
 
     for i in range(num_tests):

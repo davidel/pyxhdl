@@ -1,3 +1,4 @@
+from .common_defs import *
 from .decorators import *
 from .emitter import *
 from .pyxhdl import *
@@ -64,4 +65,21 @@ def split(src, *sizes, base=0) -> tuple[Value]:
     pos += size
 
   return tuple(values)
+
+
+
+def bitfill(bitval, n):
+  bitstr = str(bitval) if not isinstance(bitval, str) else bitval
+  if bitstr not in VALID_BITS:
+    fatal(f'Unknow bit value: {bitstr}')
+
+  return '0b' + bitstr * n
+
+
+def common_attributes(**kwargs):
+  return {
+    '$common': {
+      **kwargs,
+    },
+  }
 

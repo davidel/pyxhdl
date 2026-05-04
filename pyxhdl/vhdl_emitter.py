@@ -176,7 +176,7 @@ class VHDL_Emitter(Emitter):
     if value is None:
       return Value(VOID)
     if isinstance(value, str):
-      bvalue = bitstring(value)
+      bvalue = self._bitstring(value)
       if bvalue is not None:
         return Value(Bits(len(bvalue)), f'"{bvalue}"')
 

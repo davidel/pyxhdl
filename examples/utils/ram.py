@@ -5,6 +5,8 @@ import py_misc_utils.num_utils as pynu
 
 import pyxhdl as X
 
+from pyxhdl import xutils as XU
+
 
 class RamIfc(X.Interface):
 
@@ -58,14 +60,8 @@ class Ram(X.Entity):
 
   @X.hdl_process(kind=X.ROOT_PROCESS)
   def root(self):
-    RAM_ATTRS = {
-      '$common': {
-        'ram_style': ram_style,
-      },
-    }
-
     mem = X.mkreg(X.mkarray(IFC.RDATA.dtype, IFC.size),
-                  attributes=RAM_ATTRS)
+                  attributes=XU.common_attributes(ram_style=ram_style))
     rddata = X.mkreg(X.Bits(2 * IFC.width))
     wrdata = X.mkreg(X.Bits(2 * IFC.width))
     wr_state = X.mkreg(X.Uint(self.WR_STATE._last.bit_length()))
@@ -82,7 +78,7 @@ class Ram(X.Entity):
   def run(self):
     if IFC.RST_N != 1:
       IFC.READY = 0
-      rddata = X.bitfill('X', rddata.dtype.nbits)
+      rddata = XU.bitfill('X', rddata.dtype.nbits)
       wr_state = self.WR_STATE.IDLE
     elif IFC.RDEN == 1:
       rddata[0: IFC.width] = mem[waddr]

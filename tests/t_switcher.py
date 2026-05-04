@@ -3,7 +3,6 @@ import unittest
 import py_misc_utils.utils as pyu
 
 import pyxhdl as X
-from pyxhdl import xlib as XL
 
 import test_utils as tu
 
@@ -14,10 +13,12 @@ class Switcher(X.Entity):
 
   @X.hdl_process(proc_mode='comb')
   def switch():
+    from pyxhdl import xutils as XU
+
     N = SEL_DIN.dtype.array_shape[0]
 
-    SEL_DOUT = X.bitfill('X', SEL_DOUT.dtype.nbits)
-    DOUT = X.bitfill('X', DOUT.dtype.nbits)
+    SEL_DOUT = XU.bitfill('X', SEL_DOUT.dtype.nbits)
+    DOUT = XU.bitfill('X', DOUT.dtype.nbits)
 
     for i in range(N):
       if SEL == i:

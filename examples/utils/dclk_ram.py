@@ -3,6 +3,8 @@ import py_misc_utils.num_utils as pynu
 
 import pyxhdl as X
 
+from pyxhdl import xutils as XU
+
 
 class DClkRamIfc(X.Interface):
 
@@ -32,14 +34,8 @@ class DClkRam(X.Entity):
   def root(self):
     from . import flopper
 
-    RAM_ATTRS = {
-      '$common': {
-        'ram_style': ram_style,
-      },
-    }
-
     mem = X.mkreg(X.mkarray(IFC.RDATA.dtype, IFC.size),
-                  attributes=RAM_ATTRS)
+                  attributes=XU.common_attributes(ram_style=ram_style))
     req_sync = X.mkreg(X.BIT)
     ready_raw = X.mkreg(X.BIT)
 

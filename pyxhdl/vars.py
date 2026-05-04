@@ -250,18 +250,3 @@ def has_hdl_vars(v):
 
   return False
 
-
-def bitstring(value):
-  # 0b0010 -> dtype=Bits(4), value="0010"
-  m = re.match(rf'0b([{VALID_BITS}]+)$', value)
-
-  return m.group(1) if m else None
-
-
-def bitfill(bitval, n):
-  bitstr = str(bitval) if not isinstance(bitval, str) else bitval
-  if bitstr not in VALID_BITS:
-    fatal(f'Unknow bit value: {bitstr}')
-
-  return '0b' + bitstr * n
-

@@ -467,6 +467,11 @@ class Emitter:
 
     return f'{value:0{n}b}'
 
+  def _bitstring(self, value):
+    m = re.match(rf'0b([{VALID_BITS}]+)$', value)
+
+    return m.group(1) if m else None
+
   def _parse_bits(self, value, nbits):
     evalue = value[2: ] if value.startswith('0b') else value
 
