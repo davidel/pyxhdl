@@ -297,7 +297,7 @@ module VarSlice(A, B, XOUT);
   output logic [3: 0] XOUT;
   always @(A or B)
   var_slice : begin
-    XOUT = A[int'(B + 1) -: 4];
+    XOUT = A[longint'(B + 1) + 3 -: 4];
   end
 endmodule
 ```
@@ -309,7 +309,7 @@ architecture behavior of VarSlice is
 begin
   var_slice : process (A, B)
   begin
-    XOUT <= std_logic_vector(A((to_integer(B + 1) - 3) downto to_integer(B + 1)));
+    XOUT <= A((to_integer(B + 1) + 3) downto to_integer(B + 1));
   end process;
 end architecture;
 ```
@@ -952,9 +952,9 @@ module BlockRam(CLK, RST_N, RDEN, WREN, ADDR, IN_DATA, OUT_DATA);
     if (&(!RST_N)) begin
       OUT_DATA <= 16'd0;
     end else if (&WREN) begin
-      mem[int'(ADDR)] <= IN_DATA;
+      mem[longint'(ADDR)] <= IN_DATA;
     end else if (&RDEN) begin
-      OUT_DATA <= mem[int'(ADDR)];
+      OUT_DATA <= mem[longint'(ADDR)];
     end
   end
 endmodule
