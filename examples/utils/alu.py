@@ -33,10 +33,10 @@ class AluIfc(X.Interface):
 
   IFC = 'CLK, RST_N, OP, A_VALUE, B_VALUE, IN_VALID, =XOUT, =XOUT_HI, =FLAGS, =OUT_VALID'
 
-  def __init__(self, clk, reset, *, width=8):
+  def __init__(self, clk, rst_n, *, width=8):
     super().__init__('ALU', width=width)
     self.mkfield('CLK', clk)
-    self.mkfield('RST_N', reset)
+    self.mkfield('RST_N', rst_n)
 
     self.mkfield('OP', X.Uint(pycu.enum_bits(AluOps)))
     self.mkfield('A_VALUE', X.Uint(width))

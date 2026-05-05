@@ -1,10 +1,9 @@
 import re
 
-import py_misc_utils.core_utils as pycu
 import py_misc_utils.utils as pyu
 
 
-def _add_inputs(inseq, gglobals, ddict):
+def _add_inputs(inseq, gglobals, dest):
   for ein in inseq:
     names, expr = re.split(r'\s*=\s*', ein, maxsplit=1)
 
@@ -14,23 +13,23 @@ def _add_inputs(inseq, gglobals, ddict):
       value = expr
 
     for name in pyu.comma_split(names):
-      pycu.dict_add(ddict, name, value)
+      pyu.dict_rset(dest, name, value)
 
 
-def parse_kwargs(kwargs, gglobals, ddict=None):
-  ddict = pyu.value_or(ddict, dict())
+def parse_kwargs(kwargs, gglobals, dest=None):
+  dest = pyu.value_or(dest, dict())
   if kwargs:
-    _add_inputs(kwargs, gglobals, ddict)
+    _add_inputs(kwargs, gglobals, dest)
 
-  return ddict
+  return dest
 
 
 def parse_inputs(inputs, kwargs, gglobals):
-  ddict = dict()
+  dest = dict()
   if inputs:
-    _add_inputs(inputs, gglobals, ddict)
+    _add_inputs(inputs, gglobals, dest)
 
-  return parse_kwargs(kwargs, gglobals, ddict=ddict)
+  return parse_kwargs(kwargs, gglobals, dest=dest)
 
 
 def parse_args(cfgfile, args):
