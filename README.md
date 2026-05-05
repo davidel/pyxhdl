@@ -400,7 +400,7 @@ FLOAT80 = Float(80)
 FLOAT128 = Float(128)
 
 BOOL = Bool()
-BIT = Bits(1)
+BIT = Bits(1, degen=True)
 INT = Integer()
 REAL = Real()
 VOID = Void()
