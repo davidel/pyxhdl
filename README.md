@@ -480,6 +480,31 @@ Slicing the last dimension of a bits sequence type, will result in selecting the
 C = ARR[0, 1, 2: 6]
 ```
 
+The bits are accessed in in major-to-minor fashion. Example, given *ARR* a *Bits(8)*
+type, *PyXHDL* will map the following Python code:
+
+```Python
+ARR[0: 4]
+ARR[: 4]
+ARR[1: -1]
+```
+
+To the following Verilog code:
+
+```Verilog
+ARR[3: 0]
+ARR[3: 0]
+ARR[6: 1]
+```
+
+And VHDL code:
+
+```VHDL
+ARR(3 downto 0)
+ARR(3 downto 0)
+ARR(6 downto 1)
+```
+
 Sliced assign works in a similar fashion:
 
 ```Python
@@ -497,9 +522,15 @@ Also works assigning whole sub-arrays, if the type matches (in shape and core ty
 XOUT[1] = A[2]
 ```
 
-Complex Python slice operations (e.g *A[0 : 8 : 2]*) are not supported (though in theory
-they could be expanded in element-wise operations on the complex slice component).
+Complex Python slice operations (e.g *A[0 : 8 : 2]*) are not supported, but a
+_select()_ APIis provided within the _xutils_ module which allows to select a bit
+set within an array, in a Pythonic way.
 
+```Python
+from pyxhdl import xutils as XU
+
+XU.select(A, range(0, 8, 2))
+```
 
 ## Creating Modules/Entities
 
