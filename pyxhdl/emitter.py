@@ -473,10 +473,11 @@ class Emitter:
     return m.group(1) if m else None
 
   def _parse_bits(self, value, nbits):
-    evalue = value[2: ] if value.startswith('0b') else value
-
-    if any(b not in VALID_BITS for b in evalue):
+    m = re.match(rf'(0b)?([{VALID_BITS}]+)$', value)
+    if not m:
       fatal(f'Invalid bit string: {value}')
+
+    evalue = m.group(2)
 
     pad = nbits - len(evalue)
     if pad >= 0:
