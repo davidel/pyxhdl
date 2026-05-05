@@ -493,7 +493,8 @@ class VHDL_Emitter(Emitter):
         fatal(f'Cannot use delay/trans within a root process: {var}')
 
       if delay is not None:
-        xdelay = f' after {self.svalue(delay)} {self.time_unit()}'
+        dtime, dtu = self._normalize_time(delay)
+        xdelay = f' after {round(dtime)} {dtu}'
       if trans is True:
         xtrans = 'transport '
 

@@ -72,7 +72,7 @@ module XLib(CLK, A, B, XOUT);
     $display("DBG: ", $sformatf("%0t", $time), " A=", $sformatf("%d", A + B), " B=", $sformatf("%d", A - B), " arg1=", "17", " arg2=", "PyXHDL", " $$vanilla");
     dummy::proc((A + B) + B, A - 8'((A + B) * 2));
     e = dummy::func(A + 1, 8'(B * 3));
-    #10 ctx = 8'(A * B);
+    #10ns ctx = 8'(A * B);
     z = ((A + B) - A) + B;
     z = 8'(A * B);
     assigned = z - B;

@@ -48,8 +48,8 @@ module ContextEnt(A, B, XOUT);
   logic [7: 0] d;
   always @(A or B)
   tester : begin
-    #10 c = A - B;
-    #17 d = d + (A / B);
+    #10ns c = A - B;
+    #17ns d = d + (A / B);
     XOUT = c + 8'(A * B);
   end
 endmodule

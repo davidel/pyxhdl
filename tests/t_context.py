@@ -21,9 +21,9 @@ class ContextEnt(X.Entity):
     c = X.mkreg(A.dtype)
     d = X.mkreg(A.dtype)
 
-    with XL.context(delay=10):
+    with XL.context(delay=10e-9):
       c = A - B
-    with XL.context(delay=17, trans=True):
+    with XL.context(delay=17e-9, trans=True):
       d += A / B
 
     XOUT = c + A * B

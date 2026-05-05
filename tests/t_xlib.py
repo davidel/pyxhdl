@@ -98,7 +98,7 @@ class XLib(X.Entity):
     e = _dummy_func(A + 1, B * 3)
 
     ctx = X.mkreg(A.dtype)
-    with XL.context(delay=10):
+    with XL.context(delay=10e-9):
       ctx = A * B
 
     z = X.mkreg(A.dtype)

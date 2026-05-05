@@ -542,8 +542,10 @@ class Verilog_Emitter(Emitter):
   def emit_assign(self, var, name, value):
     xvalue = self._cast(value, var.dtype)
 
-    delay = self.get_context('delay')
-    xdelay = f'#{paren(self.svalue(delay))} ' if delay is not None else ''
+    delay, xdelay = self.get_context('delay'), ''
+    if delay is not None:
+      dtime, dtu = self._normalize_time(delay)
+      xdelay = f'#{round(dtime)}{dtu} '
 
     cont_assign = 'assign ' if self._proc.kind == ROOT_PROCESS else ''
     # Sequential designs (processes having posedge/negedge sensitivity) should use non
