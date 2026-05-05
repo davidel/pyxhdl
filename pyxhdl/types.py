@@ -10,7 +10,7 @@ import py_misc_utils.utils as pyu
 from .utils import *
 
 
-class Type:
+class Type(Hashed):
 
   __slots__ = ('name', 'full_shape', 'ctype', 'degen')
 
@@ -44,13 +44,6 @@ class Type:
   def size(self):
     return np.prod(self.full_shape[: -1])
 
-  def __hash__(self):
-    return hash((self.name, self.full_shape, self.ctype, self.degen))
-
-  def __eq__(self, other):
-    return (self.name == other.name and self.full_shape == other.full_shape and
-            self.ctype == other.ctype and self.degen == other.degen)
-
   def __str__(self):
     return f'{self.name}(' + ', '.join(str(x) for x in self.shape) + ')'
 
@@ -64,7 +57,7 @@ class Type:
       shape = shape + (None,)
 
     return pycu.new_with(self,
-                         full_shape=shape, 
+                         full_shape=shape,
                          degen=degen if degen is not None else self.degen)
 
   def element_type(self):

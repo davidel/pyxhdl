@@ -7,9 +7,10 @@ import py_misc_utils.utils as pyu
 from .common_defs import *
 from .types import *
 from .value_base import *
+from .utils import *
 
 
-class VSpec:
+class VSpec(Hashed):
 
   __slots__ = ('const', 'port', 'attributes')
 
@@ -23,18 +24,11 @@ class VSpec:
 
     return f'{pyiu.cname(self)}({rfmt})'
 
-  def __hash__(self):
-    return pycu.genhash((self.const, self.port, self.attributes))
-
-  def __eq__(self, other):
-    return (self.const == other.const and self.port == other.port and
-            self.attributes == other.attributes)
-
   def for_new_variable(self):
     return pycu.new_with(self, port=None)
 
 
-class Ref:
+class Ref(Hashed):
 
   __slots__ = ('name', 'mode', 'vspec', 'cname', 'vname')
 
@@ -64,14 +58,6 @@ class Ref:
 
     return f'{pyiu.cname(self)}({rfmt})'
 
-  def __hash__(self):
-    return hash((self.name, self.mode, self.vspec, self.cname, self.vname))
-
-  def __eq__(self, other):
-    return (self.name == other.name and self.mode == other.mode and
-            self.vspec == other.vspec and self.cname == other.cname and
-            self.vname == other.vname)
-
   def new_name(self, name, vname=None):
     return pycu.new_with(self, name=name, vname=vname, cname=None)
 
@@ -79,7 +65,7 @@ class Ref:
     return pycu.new_with(self, mode=mode)
 
 
-class Init:
+class Init(Hashed):
 
   __slots__ = ('value', 'name', 'vspec')
 
@@ -88,25 +74,17 @@ class Init:
     self.name = name
     self.vspec = vspec
 
-  def __hash__(self):
-    return hash((self.value, self.name, self.vspec))
-
-  def __eq__(self, other):
-    return (self.value == other.value and self.name == other.name and
-            self.vspec == other.vspec)
-
   def __repr__(self):
     rfmt = pyu.repr_fmt(self, 'value=,name,vspec')
 
     return f'{pyiu.cname(self)}({rfmt})'
 
 
-class Value(ValueBase):
+class Value(Hashed, ValueBase):
 
   __slots__ = ('dtype', '_value', 'isreg')
 
   def __init__(self, dtype, value, isreg=None):
-    super().__init__()
     self.dtype = dtype
     self._value = value
     self.isreg = isreg
@@ -143,13 +121,6 @@ class Value(ValueBase):
     rfmt = pyu.repr_fmt(self, '_value=,dtype,isreg')
 
     return f'{pyiu.cname(self)}({rfmt})'
-
-  def __hash__(self):
-    return hash((self.dtype, self._value, self.isreg))
-
-  def __eq__(self, other):
-    return (self.dtype == other.dtype and self._value == other._value and
-            self.isreg == other.isreg)
 
   def new_value(self, value, shape=None, dtype=None, keepref=False):
     if dtype is None:

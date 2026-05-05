@@ -10,7 +10,7 @@ from .vars import *
 from .utils import *
 
 
-class Port:
+class Port(Hashed):
 
   __slots__ = ('name', 'idir', 'type', 'default')
 
@@ -33,13 +33,6 @@ class Port:
     rfmt = pyu.repr_fmt(self, 'name=,idir=,type,default')
 
     return f'{pyiu.cname(self)}({rfmt})'
-
-  def __hash__(self):
-    return hash((self.name, self.idir, self.type, self.default))
-
-  def __eq__(self, other):
-    return (self.name == other.name and self.idir == other.idir and
-            self.type == other.type and self.default == other.default)
 
   def get_mode(self):
     match self.idir:

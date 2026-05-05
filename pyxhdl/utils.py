@@ -224,3 +224,22 @@ def validate_slice(start, stop, size, step):
 
   return nstart, nstop
 
+
+# This class should have no fields and no __init__().
+class Hashed:
+
+  def _hashed_fields(self):
+    fields = getattr(self, '_HASHED_FIELDS', None)
+    if fields is None:
+      fields = getattr(self, '__slots__', None)
+      if fields is None:
+        fatal(f'Missing declaration of Hashed fields')
+
+    return fields
+
+  def __hash__(self):
+    return pycu.genhash(tuple(getattr(self, f) for f in self._hashed_fields()))
+
+  def __eq__(self, other):
+    return all(getattr(self, f) == getattr(other, f) for f in self._hashed_fields())
+
