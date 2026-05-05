@@ -523,7 +523,7 @@ XOUT[1] = A[2]
 ```
 
 Complex Python slice operations (e.g *A[0 : 8 : 2]*) are not supported, but a
-_select()_ APIis provided within the _xutils_ module which allows to select a bit
+_select()_ API is provided within the _xutils_ module which allows to select a bit
 set within an array, in a Pythonic way.
 
 ```Python
