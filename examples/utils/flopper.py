@@ -15,19 +15,19 @@ class Flopper(X.Entity):
     if RST_N != 1:
       prev_din = init
     else:
-      DOUT = prev_din[0]
+      DOUT = prev_din[-1]
 
       match DIN:
         case 1:
           if '+' in sides:
-            prev_din = prev_din[1: ] @ DIN if stages > 1 else 1
+            prev_din = prev_din[: -1] @ DIN if stages > 1 else 1
           else:
             prev_din = XU.bitfill(1, prev_din.dtype.nbits)
             DOUT = 1
 
         case 0:
           if '-' in sides:
-            prev_din = prev_din[1: ] @ DIN if stages > 1 else 0
+            prev_din = prev_din[: -1] @ DIN if stages > 1 else 0
           else:
             prev_din = XU.bitfill(0, prev_din.dtype.nbits)
             DOUT = 0
