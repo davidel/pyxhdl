@@ -23,7 +23,7 @@ VERILATOR_TRACE ?= --trace
 VERILATOR_ASSERT ?= --assert
 TARGETS = ${MM_DATA_FILE} ${MM_VHDL_FILE} ${MM_SVL_FILE}
 
-UNIT_FILES = $(shell grep -l -r "class Test(X.Entity):" --include "*.py" ${SRCDIR})
+UNIT_FILES = $(shell egrep -l -r "^UNIT_TESTS = " --include "*.py" ${SRCDIR})
 
 
 all: ${TARGETS} hdl_generate unit_test tests

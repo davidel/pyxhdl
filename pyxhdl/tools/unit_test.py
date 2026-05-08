@@ -12,6 +12,8 @@ import textwrap
 import py_misc_utils.alog as alog
 import py_misc_utils.app_main as app_main
 import py_misc_utils.fs_utils as pyfsu
+import py_misc_utils.inspect_utils as pyiu
+import py_misc_utils.module_utils as pymu
 import py_misc_utils.template_replace as pytr
 import py_misc_utils.utils as pyu
 
@@ -313,7 +315,20 @@ def load_testers(args):
   return testers
 
 
-GenCode = collections.namedtuple('GenCode', 'input, output, backend, entity')
+def gather_tests(source_file, args):
+  if args.entity:
+    return (args.entity,)
+  else:
+    mod = pymu.load_module(source_file)
+    tests = getattr(mod, 'UNIT_TESTS', None)
+    if not tests:
+      pyu.fatal(f'Unable to gather tests from source (you must use --entity) if ' \
+                f'the source file does not declare a UNIT_TESTS global: {source_file}')
+
+    return tuple(pyiu.cname(test_class) for test_class in tests)
+
+
+GenCode = collections.namedtuple('GenCode', 'input, test, output, backend, entity')
 
 def generate_code(source_file, args, output_path):
   test_name, _ = os.path.splitext(os.path.basename(source_file))
@@ -323,45 +338,47 @@ def generate_code(source_file, args, output_path):
   python_path = shutil.which('python') or shutil.which('python3')
 
   code = []
-  for backend in backends:
-    output_file = os.path.join(output_path, f'{test_name}.{backend}')
-    cmdline = [
-      python_path,
-      '-m', 'pyxhdl.generator',
-      '--backend', backend,
-      '--input_file', source_file,
-      '--output_file', output_file,
-      '--entity', args.entity,
-      '--log_level', args.log_level,
-    ]
+  for test in gather_tests(source_file, args):
+    for backend in backends:
+      output_file = os.path.join(output_path, f'{test_name}_{test}.{backend}')
+      cmdline = [
+        python_path,
+        '-m', 'pyxhdl.generator',
+        '--backend', backend,
+        '--input_file', source_file,
+        '--output_file', output_file,
+        '--entity', test,
+        '--log_level', args.log_level,
+      ]
 
-    if args.tb_input_file:
-      cmdline.extend(('--testbench', '--tb_input_file', args.tb_input_file))
-      for arg in args.tb_inputs or []:
-        cmdline.extend(('--inputs', arg))
+      if args.tb_input_file:
+        cmdline.extend(('--testbench', '--tb_input_file', args.tb_input_file))
+        for arg in args.tb_inputs or []:
+          cmdline.extend(('--inputs', arg))
 
-    for arg in args.gargs or []:
-      cmdline.extend(pyu.resplit(arg, ';', unescape=True))
+      for arg in args.gargs or []:
+        cmdline.extend(pyu.resplit(arg, ';', unescape=True))
 
-    test_args = list(args.args) if args.args else []
-    if env_args := os.getenv(f'{test_name.upper()}_UTARGS'):
-      test_args.extend(pyu.comma_split(env_args))
+      test_args = list(args.args) if args.args else []
+      if env_args := os.getenv(f'{test_name.upper()}_UTARGS'):
+        test_args.extend(pyu.comma_split(env_args))
 
-    if test_args:
-      cmdline.append('--kwargs')
-      cmdline.extend(test_args)
+      if test_args:
+        cmdline.append('--kwargs')
+        cmdline.extend(test_args)
 
-    alog.debug(f'Running Code Generator: {cmdline}')
-    try:
-      output = subprocess.check_output(cmdline, stderr=subprocess.STDOUT)
-    except subprocess.CalledProcessError as ex:
-      pyu.fatal(f'Generation process exited with {ex.returncode} code: {cmdline}\n' \
-                f'Error output:\n' + ex.output.decode())
+      alog.debug(f'Running Code Generator: {cmdline}')
+      try:
+        output = subprocess.check_output(cmdline, stderr=subprocess.STDOUT)
+      except subprocess.CalledProcessError as ex:
+        pyu.fatal(f'Generation process exited with {ex.returncode} code: {cmdline}\n' \
+                  f'Error output:\n' + ex.output.decode())
 
-    code.append(GenCode(input=source_file,
-                        output=output_file,
-                        backend=backend,
-                        entity='TestBench' if args.tb_input_file else args.entity))
+      code.append(GenCode(input=source_file,
+                          test=test,
+                          output=output_file,
+                          backend=backend,
+                          entity='TestBench' if args.tb_input_file else test))
 
   return code
 
@@ -415,8 +432,9 @@ if __name__ == '__main__':
                                    formatter_class=argparse.ArgumentDefaultsHelpFormatter)
   parser.add_argument('--inputs', nargs='+', action='extend', required=True,
                       help='The PyXHDL input files to be tested')
-  parser.add_argument('--entity', type=str, default='Test',
-                      help='The root entity name')
+  parser.add_argument('--entity', type=str,
+                      help='The root entity name (if missing, the UNIT_TESTS variable ' \
+                      f'from the input source file will be used to gather all the test entities/modules)')
   parser.add_argument('--backend', type=str, default='verilog,vhdl',
                       help='The backends to test for')
   parser.add_argument('--gargs', nargs='+', action='extend',

@@ -94,3 +94,6 @@ class Test(X.Entity):
 
     XL.finish()
 
+
+UNIT_TESTS = (Test,)
+
