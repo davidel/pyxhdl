@@ -38,14 +38,40 @@ class AluIfc(X.Interface):
     self.mkfield('CLK', clk)
     self.mkfield('RST_N', rst_n)
 
-    self.mkfield('OP', X.Uint(pycu.enum_bits(AluOps)))
-    self.mkfield('A_VALUE', X.Uint(width))
-    self.mkfield('B_VALUE', X.Uint(width))
-    self.mkfield('IN_VALID', X.BIT)
-    self.mkfield('XOUT', X.Uint(width))
-    self.mkfield('XOUT_HI', X.Uint(width))
-    self.mkfield('FLAGS', X.Bits(pycu.enum_max(AluFlags) + 1))
-    self.mkfield('OUT_VALID', X.BIT)
+  @classmethod
+  def flags_nbits(cls):
+    return pycu.enum_max(AluFlags) + 1
+
+  @classmethod
+  def create(cls, clk, rst_n, **kwargs):
+    ifc = cls(clk, rst_n, **kwargs)
+
+    ifc.mkfield('OP', X.Uint(pycu.enum_bits(AluOps)))
+    ifc.mkfield('A_VALUE', X.Uint(ifc.width))
+    ifc.mkfield('B_VALUE', X.Uint(ifc.width))
+    ifc.mkfield('IN_VALID', X.BIT)
+    ifc.mkfield('XOUT', X.Uint(ifc.width))
+    ifc.mkfield('XOUT_HI', X.Uint(ifc.width))
+    ifc.mkfield('FLAGS', X.Bits(cls.flags_nbits()))
+    ifc.mkfield('OUT_VALID', X.BIT)
+
+    return ifc
+
+  @classmethod
+  def create_external(cls, clk, rst_n, op, a_value, b_value, in_valid, xout, xout_hi,
+                      flags, out_valid, **kwargs):
+    ifc = cls(clk, rst_n, **kwargs)
+
+    ifc.mkfield('OP', op)
+    ifc.mkfield('A_VALUE', a_value)
+    ifc.mkfield('B_VALUE', b_value)
+    ifc.mkfield('IN_VALID', in_valid)
+    ifc.mkfield('XOUT', xout)
+    ifc.mkfield('XOUT_HI', xout_hi)
+    ifc.mkfield('FLAGS', flags)
+    ifc.mkfield('OUT_VALID', out_valid)
+
+    return ifc
 
 
 class Alu(X.Entity):
@@ -178,7 +204,74 @@ class Alu(X.Entity):
         delay_enable = 0
 
 
-class Test(X.Entity):
+class _TestBase:
+
+  def vstr(self, v, n):
+    sv = pynu.sign_extend(v, n)
+    return f'{v} ({sv})' if sv < 0 else f'{sv}'
+
+  def mkvalues(self, op, width):
+    import random
+
+    value_mask = 2**width - 1
+
+    a_value = random.randint(0, value_mask)
+    if op in (AluOps.DIV, AluOps.SDIV):
+      b_value = random.randint(1, value_mask)
+    elif op in (AluOps.SHR, AluOps.SHL):
+      b_value = random.randint(0, width)
+    else:
+      b_value = random.randint(0, value_mask)
+
+    xa_value, xb_value = a_value, b_value
+    match op:
+      case AluOps.ADD:
+        result = a_value + b_value
+
+      case AluOps.SUB:
+        result = a_value - b_value
+
+      case AluOps.CMP:
+        result = None
+
+      case AluOps.MUL:
+        result = a_value * b_value
+
+      case AluOps.DIV:
+        result = int(a_value / b_value)
+
+      case AluOps.SDIV:
+        xa_value = pynu.sign_extend(a_value, width)
+        xb_value = pynu.sign_extend(b_value, width)
+        result = int(xa_value / xb_value)
+
+      case AluOps.AND:
+        result = a_value & b_value
+
+      case AluOps.OR:
+        result = a_value | b_value
+
+      case AluOps.XOR:
+        result = a_value ^ b_value
+
+      case AluOps.NOT:
+        result = ~a_value
+
+      case AluOps.SHR:
+        result = a_value >> b_value
+
+      case AluOps.SHL:
+        result = a_value << b_value
+
+      case _:
+        result = None
+
+    mresult = result & value_mask if result is not None else None
+
+    return (a_value, xa_value), (b_value, xb_value), mresult
+
+
+class Test(X.Entity, _TestBase):
 
   ARGS = dict(clock_frequency=100e6,
               num_tests=20,
@@ -197,8 +290,8 @@ class Test(X.Entity):
 
     RST_N = X.mkreg(X.BIT)
 
-    self.ifc = AluIfc(CLK, RST_N,
-                      width=width)
+    self.ifc = AluIfc.create(CLK, RST_N,
+                             width=width)
 
     Alu(IFC=self.ifc,
         **pyu.mget(locals(), *Alu.ARGS.keys(), as_dict=True))
@@ -210,11 +303,6 @@ class Test(X.Entity):
     from pyxhdl import xlib as XL
     from pyxhdl import testbench as TB
 
-    def vstr(v, n):
-      sv = pynu.sign_extend(v, n)
-      return f'{v} ({sv})' if sv < 0 else f'{sv}'
-
-
     RST_N = 0
     self.ifc.IN_VALID = 0
 
@@ -222,17 +310,9 @@ class Test(X.Entity):
 
     RST_N = 1
 
-    value_mask = 2**width - 1
-
     for i in range(num_tests):
       op = random.randint(0, pycu.enum_max(AluOps))
-      a_value = random.randint(0, value_mask)
-      if op in (AluOps.DIV, AluOps.SDIV):
-        b_value = random.randint(1, value_mask)
-      elif op in (AluOps.SHR, AluOps.SHL):
-        b_value = random.randint(0, width)
-      else:
-        b_value = random.randint(0, value_mask)
+      (a_value, xa_value), (b_value, xb_value), mresult = self.mkvalues(op, width)
 
       self.ifc.OP = op
       self.ifc.A_VALUE = a_value
@@ -241,51 +321,8 @@ class Test(X.Entity):
 
       TB.wait_until(CLK, self.ifc.OUT_VALID == 1)
 
-      match op:
-        case AluOps.ADD:
-          result = a_value + b_value
-
-        case AluOps.SUB:
-          result = a_value - b_value
-
-        case AluOps.CMP:
-          result = None
-
-        case AluOps.MUL:
-          result = a_value * b_value
-
-        case AluOps.DIV:
-          result = int(a_value / b_value)
-
-        case AluOps.SDIV:
-          a_value = pynu.sign_extend(a_value, width)
-          b_value = pynu.sign_extend(b_value, width)
-          result = int(a_value / b_value)
-
-        case AluOps.AND:
-          result = a_value & b_value
-
-        case AluOps.OR:
-          result = a_value | b_value
-
-        case AluOps.XOR:
-          result = a_value ^ b_value
-
-        case AluOps.NOT:
-          result = ~a_value
-
-        case AluOps.SHR:
-          result = a_value >> b_value
-
-        case AluOps.SHL:
-          result = a_value << b_value
-
-        case _:
-          result = None
-
-      if result is not None:
-        mresult = result & value_mask
-        avs, bvs, rvs = [vstr(x, width) for x in (a_value, b_value, mresult)]
+      if mresult is not None:
+        avs, bvs, rvs = [self.vstr(x, width) for x in (xa_value, xb_value, mresult)]
 
         TB.compare_value(self.ifc.XOUT, mresult,
                          msg=f' : op={AluOps(op).name}, a={avs}, b={bvs}, res={rvs}')
@@ -296,5 +333,102 @@ class Test(X.Entity):
     XL.finish()
 
 
-UNIT_TESTS = (Test,)
+class TestVectored(X.Entity, _TestBase):
+
+  ARGS = dict(clock_frequency=100e6,
+              num_tests=20,
+              width=8,
+              vsize=8) | Alu.ARGS
+
+  @X.hdl_process(kind=X.ROOT_PROCESS)
+  def root(self):
+    import py_misc_utils.utils as pyu
+
+    from . import clock
+
+    CLK = X.mkreg(X.BIT)
+
+    clock.Clock(CLK=CLK,
+                frequency=clock_frequency)
+
+    RST_N = X.mkreg(X.BIT)
+
+    vtype = X.Uint(width)
+
+    OP = X.mkreg(X.Uint(pycu.enum_bits(AluOps)))
+    A_VALUE = X.mkreg(X.mkarray(vtype, vsize))
+    B_VALUE = X.mkreg(X.mkarray(vtype, vsize))
+    XOUT = X.mkreg(X.mkarray(vtype, vsize))
+    XOUT_HI = X.mkreg(X.mkarray(vtype, vsize))
+    IN_VALID = X.mkreg(X.Bits(vsize))
+    OUT_VALID = X.mkreg(X.Bits(vsize))
+    FLAGS = X.mkreg(X.mkarray(X.Bits(AluIfc.flags_nbits()), vsize))
+
+    self.ifcs = []
+    for i in range(vsize):
+      ifc = AluIfc.create_external(CLK,
+                                   RST_N,
+                                   OP,
+                                   A_VALUE[i],
+                                   B_VALUE[i],
+                                   IN_VALID[i],
+                                   XOUT[i],
+                                   XOUT_HI[i],
+                                   FLAGS[i],
+                                   OUT_VALID[i],
+                                   width=width)
+
+      self.ifcs.append(ifc)
+
+      Alu(IFC=ifc,
+          **pyu.mget(locals(), *Alu.ARGS.keys(), as_dict=True))
+
+  @X.hdl_process(kind=X.INIT_PROCESS)
+  def test_run(self):
+    import random
+
+    from pyxhdl import xlib as XL
+    from pyxhdl import testbench as TB
+    from pyxhdl import xutils as XU
+
+    RST_N = 0
+    IN_VALID = 0
+
+    TB.wait_rising(CLK)
+
+    RST_N = 1
+
+    for i in range(num_tests):
+      op = random.randint(0, pycu.enum_max(AluOps))
+
+      OP = op
+
+      results = []
+      for ifc in self.ifcs:
+        (a_value, xa_value), (b_value, xb_value), mresult = self.mkvalues(op, width)
+
+        ifc.A_VALUE = a_value
+        ifc.B_VALUE = b_value
+        ifc.IN_VALID = 1
+
+        results.append((xa_value, xb_value, mresult))
+
+      TB.wait_until(CLK, OUT_VALID == XU.bitfill(1, vsize))
+
+      for i, (xa_value, xb_value, mresult) in enumerate(results):
+        ifc = self.ifcs[i]
+
+        if mresult is not None:
+          avs, bvs, rvs = [self.vstr(x, width) for x in (xa_value, xb_value, mresult)]
+
+          TB.compare_value(ifc.XOUT, mresult,
+                           msg=f' : op={AluOps(op).name}, a={avs}, b={bvs}, res={rvs}')
+
+      IN_VALID = 0
+      TB.wait_rising(CLK)
+
+    XL.finish()
+
+
+UNIT_TESTS = (Test, TestVectored)
 
