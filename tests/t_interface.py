@@ -136,6 +136,30 @@ class NestedInterfaceTest(X.Entity):
               OIFC=self.outer_ifc)
 
 
+class SliceWriteIfc(X.Entity):
+
+  PORTS = f'CLK, A, B, =XOUT'
+
+  @X.hdl_process(sens='+CLK')
+  def writeit(self):
+    XOUT = A + B
+
+
+class SlicedWriteInterfaceTest(X.Entity):
+
+  PORTS = 'CLK, A, B, =XOUT'
+
+  @X.hdl_process(kind=X.ROOT_PROCESS)
+  def root(self):
+    for i in range(0, A.dtype.nbits, 4):
+      size = min(4, A.dtype.nbits - i)
+
+      SliceWriteIfc(CLK=CLK,
+                    A=A[i: i + size],
+                    B=B[i: i + size],
+                    XOUT=XOUT[i: i + size])
+
+
 class TestInterface(unittest.TestCase):
 
   def test_interface(self):
@@ -169,4 +193,14 @@ class TestInterface(unittest.TestCase):
     )
 
     tu.run(self, tu.test_name(self, pyu.fname()), NestedInterfaceTest, inputs)
+
+  def test_sliced_write(self):
+    inputs = dict(
+      CLK=X.mkwire(X.BIT),
+      A=X.mkwire(X.Uint(15)),
+      B=X.mkwire(X.Uint(15)),
+      XOUT=X.mkreg(X.Uint(15)),
+    )
+
+    tu.run(self, tu.test_name(self, pyu.fname()), SlicedWriteInterfaceTest, inputs)
 
