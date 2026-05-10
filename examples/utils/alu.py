@@ -353,28 +353,28 @@ class TestVectored(X.Entity, _TestBase):
 
     RST_N = X.mkreg(X.BIT)
 
-    vtype = X.Uint(width)
+    vtype, flags_nbits = X.Uint(width * vsize), AluIfc.flags_nbits()
 
     OP = X.mkreg(X.Uint(pycu.enum_bits(AluOps)))
-    A_VALUE = X.mkreg(X.mkarray(vtype, vsize))
-    B_VALUE = X.mkreg(X.mkarray(vtype, vsize))
-    XOUT = X.mkreg(X.mkarray(vtype, vsize))
-    XOUT_HI = X.mkreg(X.mkarray(vtype, vsize))
+    A_VALUE = X.mkreg(vtype)
+    B_VALUE = X.mkreg(vtype)
+    XOUT = X.mkreg(vtype)
+    XOUT_HI = X.mkreg(vtype)
     IN_VALID = X.mkreg(X.Bits(vsize))
     OUT_VALID = X.mkreg(X.Bits(vsize))
-    FLAGS = X.mkreg(X.mkarray(X.Bits(AluIfc.flags_nbits()), vsize))
+    FLAGS = X.mkreg(X.Bits(flags_nbits * vsize))
 
     self.ifcs = []
     for i in range(vsize):
       ifc = AluIfc.create_external(CLK,
                                    RST_N,
                                    OP,
-                                   A_VALUE[i],
-                                   B_VALUE[i],
+                                   A_VALUE[i * width: (i + 1) * width],
+                                   B_VALUE[i * width: (i + 1) * width],
                                    IN_VALID[i],
-                                   XOUT[i],
-                                   XOUT_HI[i],
-                                   FLAGS[i],
+                                   XOUT[i * width: (i + 1) * width],
+                                   XOUT_HI[i * width: (i + 1) * width],
+                                   FLAGS[i * flags_nbits: (i + 1) * flags_nbits],
                                    OUT_VALID[i],
                                    width=width)
 
