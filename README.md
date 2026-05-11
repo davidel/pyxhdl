@@ -1471,8 +1471,8 @@ the generated VHDL code letting explain their purpose:
 # 1
 XL.wait_until(A == 1)
 
-# 2
-with XL.context(delay=10):
+# 2 (a 5ns delay in assignment).
+with XL.context(delay=5e-9):
   ctx = A * B
 ```
 
@@ -1483,7 +1483,7 @@ Generated VHDL code assuming *A* and *B* being an *X.UINT8* and *CLK* an *X.BIT*
 wait until (A = to_unsigned(1, 8));
 
 -- 2
-ctx <= resize(A * B, 8) after 10 ns;
+ctx <= resize(A * B, 8) after 5 ns;
 ```
 
 It is possible, within an HDL function, to disable to Python to HDL rewrite by
