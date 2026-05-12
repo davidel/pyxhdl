@@ -785,6 +785,8 @@ from pyxhdl import xlib as XL
 
 class TestIfc(X.Interface):
 
+  # The FIELDS declaration can also use Interface keyword arguments. Example,
+  # if a "width" keyword argument exists, 'X:u${width}' is allowed when declaring the field type.
   FIELDS = 'X:u16'
 
   IPORT = 'CLK, RST_N, +X, +Y, =XOUT'
