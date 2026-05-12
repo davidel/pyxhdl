@@ -160,6 +160,36 @@ class SlicedWriteInterfaceTest(X.Entity):
                     XOUT=XOUT[i: i + size])
 
 
+class FieldsReplaceIfc(X.Interface):
+
+  FIELDS = 'RF:u${width}'
+
+  PORTS = f'CLK, A, =RF, =XOUT'
+
+  def __init__(self, clk, a, xout, width=32):
+    super().__init__('FREPL', width=width)
+    self.mkfield('CLK', clk)
+    self.mkfield('A', a)
+    self.mkfield('XOUT', xout)
+
+
+class FieldsReplaceInterfaceTest(X.Entity):
+
+  PORTS = 'CLK, A, =XOUT'
+
+  @X.hdl_process(kind=X.ROOT_PROCESS)
+  def root(self):
+    self.ifc = FieldsReplaceIfc(CLK, A, XOUT, width=A.dtype.nbits)
+
+  @X.hdl_process(sens='+CLK')
+  def clk_proc(self):
+    if self.ifc.A == 0:
+      self.ifc.RF = 0
+    else:
+      self.ifc.XOUT = self.ifc.A + self.ifc.RF
+      self.ifc.RF += 1
+
+
 class TestInterface(unittest.TestCase):
 
   def test_interface(self):
@@ -203,4 +233,13 @@ class TestInterface(unittest.TestCase):
     )
 
     tu.run(self, tu.test_name(self, pyu.fname()), SlicedWriteInterfaceTest, inputs)
+
+  def test_fields_replace(self):
+    inputs = dict(
+      CLK=X.mkwire(X.BIT),
+      A=X.mkwire(X.Uint(15)),
+      XOUT=X.mkreg(X.Uint(15)),
+    )
+
+    tu.run(self, tu.test_name(self, pyu.fname()), FieldsReplaceInterfaceTest, inputs)
 

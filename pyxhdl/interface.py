@@ -2,6 +2,7 @@ import re
 
 import py_misc_utils.core_utils as pycu
 import py_misc_utils.inspect_utils as pyiu
+import py_misc_utils.template_replace as pytr
 import py_misc_utils.utils as pyu
 
 from .decorators import *
@@ -155,7 +156,12 @@ class Interface(_InterfaceBase):
     self._set_field(name, xname, fvalue)
 
   def create_fields(self, fstr):
-    for fs in pyu.comma_split(fstr):
+    def lookup_fn(k, defval=None):
+      return getattr(self, k, defval)
+
+    fields = pytr.template_replace(fstr, lookup_fn=lookup_fn)
+
+    for fs in pyu.comma_split(fields):
       m = re.match(r'(\w+)\s*:\s*([^=]+)(\s*=\s*(.+))?', fs)
       if not m:
         fatal(f'Invalid field format: {fs}')
