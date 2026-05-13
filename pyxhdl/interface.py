@@ -156,10 +156,7 @@ class Interface(_InterfaceBase):
     self._set_field(name, xname, fvalue)
 
   def create_fields(self, fstr):
-    def lookup_fn(k, defval=None):
-      return getattr(self, k, defval)
-
-    fields = pytr.template_replace(fstr, lookup_fn=lookup_fn)
+    fields = pytr.template_replace(fstr, lookup_fn=pytr.attr_lookup(self, None))
 
     for fs in pyu.comma_split(fields):
       m = re.match(r'(\w+)\s*:\s*([^=]+)(\s*=\s*(.+))?', fs)
