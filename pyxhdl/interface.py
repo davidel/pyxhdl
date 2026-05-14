@@ -120,8 +120,8 @@ class Interface(_InterfaceBase):
     self._uname = self._xlib.generate_name(name, shortzero=True)
     for field_name, field_value in fields.items():
       self.mkfield(field_name, field_value)
-    if fstr := getattr(self, 'FIELDS', None):
-      self.create_fields(fstr)
+    if fields_spec := getattr(self, 'FIELDS', None):
+      self.create_fields(fields_spec)
 
   @staticmethod
   def _split_args(kwargs):
@@ -155,17 +155,24 @@ class Interface(_InterfaceBase):
 
     self._set_field(name, xname, fvalue)
 
-  def create_fields(self, fstr):
-    fields = pytr.template_replace(fstr, lookup_fn=pytr.attr_lookup(self, None))
+  def create_fields(self, fields_spec):
+    for fspec in pyu.expand_strings(fields_spec):
+      fs = pytr.template_replace(fspec, lookup_fn=pytr.attr_lookup(self, None))
 
-    for fs in pyu.comma_split(fields):
       m = re.match(r'(\w+)\s*:\s*([^=]+)(\s*=\s*(.+))?', fs)
       if not m:
         fatal(f'Invalid field format: {fs}')
 
       name, ftype, fvalue = m.group(1), m.group(2), m.group(4)
 
-      self.mkfield(name, ftype, init=pycu.infer_value(fvalue) if fvalue else None)
+      dtype = dtype_from_string(ftype)
+      if name not in self._fields:
+        self.mkfield(name, dtype, init=pycu.infer_value(fvalue) if fvalue else None)
+      else:
+        value = getattr(self, name)
+        if isinstance(value, Value) and value.dtype != dtype:
+          fatal(f'Invalid type {value.dtype} for "{name}" field. Should be {dtype}',
+                exc=ValueError)
 
   @hdl
   def reset(self):

@@ -28,50 +28,27 @@ class AluFlags(enum.IntEnum):
   CARRY = enum.auto()
   SIGN = enum.auto()
 
+  @staticmethod
+  def nbits():
+    return pycu.enum_max(AluFlags) + 1
+
 
 class AluIfc(X.Interface):
 
+  FIELDS = ('CLK:bit',
+            'RST_N:bit',
+            f'OP:u{pycu.enum_bits(AluOps)}',
+            'A_VALUE:u${width}',
+            'B_VALUE:u${width}',
+            'IN_VALID:bit',
+            'XOUT:u${width}',
+            'XOUT_HI:u${width}',
+            f'FLAGS:b{AluFlags.nbits()}',
+            'OUT_VALID:bit')
   IFC = 'CLK, RST_N, OP, A_VALUE, B_VALUE, IN_VALID, =XOUT, =XOUT_HI, =FLAGS, =OUT_VALID'
 
-  def __init__(self, clk, rst_n, *, width=8):
-    super().__init__('ALU', width=width)
-    self.mkfield('CLK', clk)
-    self.mkfield('RST_N', rst_n)
-
-  @classmethod
-  def flags_nbits(cls):
-    return pycu.enum_max(AluFlags) + 1
-
-  @classmethod
-  def create(cls, clk, rst_n, **kwargs):
-    ifc = cls(clk, rst_n, **kwargs)
-
-    ifc.mkfield('OP', X.Uint(pycu.enum_bits(AluOps)))
-    ifc.mkfield('A_VALUE', X.Uint(ifc.width))
-    ifc.mkfield('B_VALUE', X.Uint(ifc.width))
-    ifc.mkfield('IN_VALID', X.BIT)
-    ifc.mkfield('XOUT', X.Uint(ifc.width))
-    ifc.mkfield('XOUT_HI', X.Uint(ifc.width))
-    ifc.mkfield('FLAGS', X.Bits(cls.flags_nbits()))
-    ifc.mkfield('OUT_VALID', X.BIT)
-
-    return ifc
-
-  @classmethod
-  def create_external(cls, clk, rst_n, op, a_value, b_value, in_valid, xout, xout_hi,
-                      flags, out_valid, **kwargs):
-    ifc = cls(clk, rst_n, **kwargs)
-
-    ifc.mkfield('OP', op)
-    ifc.mkfield('A_VALUE', a_value)
-    ifc.mkfield('B_VALUE', b_value)
-    ifc.mkfield('IN_VALID', in_valid)
-    ifc.mkfield('XOUT', xout)
-    ifc.mkfield('XOUT_HI', xout_hi)
-    ifc.mkfield('FLAGS', flags)
-    ifc.mkfield('OUT_VALID', out_valid)
-
-    return ifc
+  def __init__(self, **kwargs):
+    super().__init__('ALU', **kwargs)
 
 
 class Alu(X.Entity):
@@ -290,8 +267,9 @@ class Test(X.Entity, _TestBase):
 
     RST_N = X.mkreg(X.BIT)
 
-    self.ifc = AluIfc.create(CLK, RST_N,
-                             width=width)
+    self.ifc = AluIfc(CLK=CLK,
+                      RST_N=RST_N,
+                      width=width)
 
     Alu(IFC=self.ifc,
         **pyu.mget(locals(), *Alu.ARGS.keys(), as_dict=True))
@@ -353,7 +331,7 @@ class TestVectored(X.Entity, _TestBase):
 
     RST_N = X.mkreg(X.BIT)
 
-    vtype, flags_nbits = X.Uint(width * vsize), AluIfc.flags_nbits()
+    vtype, flags_nbits = X.Uint(width * vsize), AluFlags.nbits()
 
     OP = X.mkreg(X.Uint(pycu.enum_bits(AluOps)))
     A_VALUE = X.mkreg(vtype)
@@ -366,17 +344,17 @@ class TestVectored(X.Entity, _TestBase):
 
     self.ifcs = []
     for i in range(vsize):
-      ifc = AluIfc.create_external(CLK,
-                                   RST_N,
-                                   OP,
-                                   A_VALUE[i * width: (i + 1) * width],
-                                   B_VALUE[i * width: (i + 1) * width],
-                                   IN_VALID[i],
-                                   XOUT[i * width: (i + 1) * width],
-                                   XOUT_HI[i * width: (i + 1) * width],
-                                   FLAGS[i * flags_nbits: (i + 1) * flags_nbits],
-                                   OUT_VALID[i],
-                                   width=width)
+      ifc = AluIfc(CLK=CLK,
+                   RST_N=RST_N,
+                   OP=OP,
+                   A_VALUE=A_VALUE[i * width: (i + 1) * width],
+                   B_VALUE=B_VALUE[i * width: (i + 1) * width],
+                   IN_VALID=IN_VALID[i],
+                   XOUT=XOUT[i * width: (i + 1) * width],
+                   XOUT_HI=XOUT_HI[i * width: (i + 1) * width],
+                   FLAGS=FLAGS[i * flags_nbits: (i + 1) * flags_nbits],
+                   OUT_VALID=OUT_VALID[i],
+                   width=width)
 
       self.ifcs.append(ifc)
 
