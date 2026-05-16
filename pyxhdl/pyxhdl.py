@@ -749,7 +749,7 @@ class CodeGen(_ExecVisitor):
           base_name = vref.cname
 
     if vspec is not None:
-      vspec = vspec.for_new_variable()
+      vspec = vspec.for_new_variable(self._pinfo)
 
     vname = self._revgen.newname(base_name or name, shortzero=True)
 

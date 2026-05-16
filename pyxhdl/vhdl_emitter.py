@@ -501,6 +501,9 @@ class VHDL_Emitter(Emitter):
     vspec = var.vspec
     if (vspec is not None and vspec.port is not None and vspec.port.is_wr()):
       asop = '<='
+    elif (vspec is not None and vspec.pinfo is not None and
+          vspec.pinfo.kind == ROOT_PROCESS):
+      asop = '<='
     elif self._proc.kind == ROOT_PROCESS:
       asop = '<='
     else:

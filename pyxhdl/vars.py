@@ -12,20 +12,21 @@ from .utils import *
 
 class VSpec(Hashed):
 
-  __slots__ = ('const', 'port', 'attributes')
+  __slots__ = ('const', 'port', 'attributes', 'pinfo')
 
-  def __init__(self, const=False, port=None, attributes=None):
+  def __init__(self, const=False, port=None, attributes=None, pinfo=None):
     self.const = const
     self.port = port
     self.attributes = attributes
+    self.pinfo = pinfo
 
   def __repr__(self):
-    rfmt = pyu.repr_fmt(self, 'const,port,attributes')
+    rfmt = pyu.repr_fmt(self, 'const,port,attributes,pinfo')
 
     return f'{pyiu.cname(self)}({rfmt})'
 
-  def for_new_variable(self):
-    return pycu.new_with(self, port=None)
+  def for_new_variable(self, pinfo):
+    return pycu.new_with(self, port=None, pinfo=pinfo)
 
 
 class Ref(Hashed):
