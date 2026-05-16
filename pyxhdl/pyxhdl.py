@@ -28,6 +28,8 @@ from .utils import *
 from .wrap import *
 
 
+_ProcessInfo = collections.namedtuple('ProcessInfo', 'name, kind, args, sensitivity',
+                                      defaults=(None, None, None, None))
 _LoopContext = collections.namedtuple('LoopContext', 'mode')
 _ForLoop = collections.namedtuple('ForLoop', 'data, ivar, start, end, step',
                                   defaults=(None, None, None, None))
@@ -42,11 +44,12 @@ _FUNC_LOCALS = '_func_locals'
 
 class Variable:
 
-  __slots__ = ('dtype', 'isreg', 'init', 'vspec')
+  __slots__ = ('dtype', 'isreg', 'pinfo', 'init', 'vspec')
 
-  def __init__(self, dtype, isreg, init=None, vspec=None):
+  def __init__(self, dtype, isreg, pinfo, init=None, vspec=None):
     self.dtype = dtype
     self.isreg = isreg
+    self.pinfo = pinfo
     self.init = init
     self.vspec = vspec
 
@@ -54,7 +57,9 @@ class Variable:
     return self.vspec is not None and self.vspec.const
 
   def __repr__(self):
-    return f'{pyiu.cname(self)}({self.dtype}, {self.isreg}, {self.init}, {self.vspec})'
+    rfmt = pyu.repr_fmt(self, 'dtype=,isreg=,pinfo,init,vspec')
+
+    return f'{pyiu.cname(self)}({rfmt})'
 
 
 class _LoopModes(enum.IntEnum):
@@ -384,10 +389,10 @@ class _ExecVisitor(ast.NodeVisitor):
     else:
       self.locals[name] = value
 
-  def _add_variable(self, name, dtype, isreg, init=None, vspec=None):
+  def _add_variable(self, name, dtype, isreg, pinfo, init=None, vspec=None):
     alog.debug(lambda: f'NEW VAR: {valkind(isreg)} {dtype}\t{name}\t{init}\t{vspec}')
 
-    self.variables[name] = Variable(dtype, isreg, init=init, vspec=vspec)
+    self.variables[name] = Variable(dtype, isreg, pinfo, init=init, vspec=vspec)
 
   def _static_eval(self, node):
     self.location.set_lineno(node.lineno)
@@ -647,6 +652,7 @@ class CodeGen(_ExecVisitor):
     self._ent_versions = EntityVersions()
     self._vars_places = []
     self._root_vars = dict()
+    self._pinfo = _ProcessInfo()
     self._setup_handlers()
 
   def _setup_handlers(self):
@@ -748,7 +754,9 @@ class CodeGen(_ExecVisitor):
     vname = self._revgen.newname(base_name or name, shortzero=True)
 
     var = Value(value.dtype, Ref(vname, vspec=vspec, vname=vname), isreg=isreg)
-    self._add_variable(vname, var.dtype, var.isreg, init=init, vspec=vspec)
+    self._add_variable(vname, var.dtype, var.isreg, self._pinfo,
+                       init=init,
+                       vspec=vspec)
     self._store_value(name, var)
 
     return var
@@ -846,7 +854,8 @@ class CodeGen(_ExecVisitor):
     return result
 
   @contextlib.contextmanager
-  def _process_scope(self, vars_scope):
+  def _process_scope(self, pinfo, vars_scope):
+    self._pinfo = pinfo
     self._variables.append(dict())
     self._vars_places.append(vars_scope)
     try:
@@ -880,6 +889,7 @@ class CodeGen(_ExecVisitor):
           emt.emit_declare_variable(name, var)
 
     self._root_vars.update(root_vars)
+    self._pinfo = _ProcessInfo()
 
   def _register_entity(self, eclass, kwargs, generated=False):
     pargs, rkwargs = dict(), kwargs.copy()
@@ -1015,10 +1025,12 @@ class CodeGen(_ExecVisitor):
     for func in ent.enum_processes():
       hdl_args = get_hdl_args(func) or dict()
 
-      alog.debug(lambda: f'Process function: {pyiu.func_name(func)}')
+      pinfo = _ProcessInfo(name=pyiu.func_name(func),
+                           kind=hdl_args.get('kind'),
+                           args=hdl_args,
+                           sensitivity=self._get_sensitivity(hdl_args, din))
 
-      sensitivity = self._get_sensitivity(hdl_args, din)
-      process_kind = hdl_args.get('kind')
+      alog.debug(lambda: f'Process function: {pinfo.name}')
 
       with self.emitter.indent():
         # Process functions will automatically see port names as locals, so the
@@ -1026,26 +1038,23 @@ class CodeGen(_ExecVisitor):
         # arguments, which will be correctly populated.
         self.generate_process(func, [ent],
                               kwargs=ent_args,
-                              sensitivity=sensitivity,
-                              process_kind=process_kind,
-                              process_args=hdl_args)
+                              pinfo=pinfo)
 
     self.emitter.emit_module_end()
 
     self._reset_entity_context()
 
-  def generate_process(self, func, args, kwargs=None, sensitivity=None,
-                       process_kind=None, process_args=None):
+  def generate_process(self, func, args, kwargs=None, pinfo=_ProcessInfo()):
     with self.emitter.process(pyiu.func_name(func),
-                              process_kind,
-                              process_args,
-                              sensitivity):
-      if process_kind == ROOT_PROCESS:
-        with self._process_scope(self.emitter.module_vars_place):
+                              pinfo.kind,
+                              pinfo.args,
+                              pinfo.sensitivity):
+      if pinfo.kind == ROOT_PROCESS:
+        with self._process_scope(pinfo, self.emitter.module_vars_place):
           result = self.run_function(func, args, kwargs or dict())
       else:
         self.emitter.emit_process_decl()
-        with (self._process_scope(self.emitter.process_vars_place),
+        with (self._process_scope(pinfo, self.emitter.process_vars_place),
               self.emitter.indent()):
           result = self.run_function(func, args, kwargs or dict())
 

@@ -602,7 +602,7 @@ class Emitter:
     elif type(right) != int:
       fatal(f'Shift amount should be an integer: {right}')
     if not isinstance(left, Value):
-      left = self._try_convert_literal(arg)
+      left = self._try_convert_literal(left)
       if not isinstance(left, Value):
         pyu.assert_instance('Shift operand should be an integer', left, int)
         dtype = Uint(left.bit_length())
