@@ -44,13 +44,13 @@ class AxiDRAM(X.Entity):
 
     IFC.RLAST = (rstate == self.RSTATE.DATA and r_len_reg == 0)
 
-    addr_lsb = pynu.address_bits(IFC.data_width // 8)
-
     w_stride = XL.cast(1, w_stride.dtype) << IFC.AWSIZE
     r_stride = XL.cast(1, r_stride.dtype) << IFC.ARSIZE
 
     bram_din = IFC.WDATA
     IFC.RDATA = bram_dout
+
+    addr_lsb = pynu.address_bits(IFC.data_width // 8)
 
     bram_addr = (w_addr_reg[addr_lsb: -1] if wstate == self.WSTATE.DATA else
                  r_addr_reg[addr_lsb: -1])
@@ -301,7 +301,7 @@ class Test(X.Entity):
     RST_N = 1
 
     for i in range(num_tests):
-      count = random.randint(1, 15)
+      count = random.randint(1, 16)
       data = [random.randint(0, 2**self.ifc.data_width - 1) for _ in range(count)]
       addr = random.randint(0, 2**self.ifc.addr_width - 1)
 
@@ -311,11 +311,12 @@ class Test(X.Entity):
 
       WDATA = data[0]
       TB.wait_until(CLK, self.ifc.WREADY == 1)
-      TB.wait_rising(CLK)
 
       for value in data[1: ]:
-        WDATA = value
         TB.wait_rising(CLK)
+        WDATA = value
+
+      TB.wait_rising(CLK)
 
       IOMODE = AxiBurstIO.MODE.IDLE
 
