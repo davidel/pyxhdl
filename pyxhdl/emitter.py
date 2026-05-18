@@ -1,3 +1,4 @@
+import ast
 import collections
 import contextlib
 import enum
@@ -594,7 +595,7 @@ class Emitter:
 
     return [Value(dtype, self._cast(arg, dtype)) for arg in margs]
 
-  def _marshal_shift_op(self, left, right):
+  def _marshal_shift_op(self, op, left, right):
     if isinstance(right, Value):
       if not isinstance(right.dtype, Integer):
         rdtype = Integer()
@@ -605,7 +606,13 @@ class Emitter:
       left = self._try_convert_literal(left)
       if not isinstance(left, Value):
         pyu.assert_instance('Shift operand should be an integer', left, int)
-        dtype = Uint(left.bit_length())
+
+        if isinstance(op, ast.LShift):
+          nbits = int(self._env_lookup('INT_SIZE', defval=32))
+          dtype = Uint(max(nbits, left.bit_length()))
+        else:
+          dtype = Uint(left.bit_length())
+
         left = Value(dtype, self._cast(left, dtype))
       else:
         pyu.assert_instance('Unexpected type', left.dtype, (Bits, Sint, Uint, Integer))

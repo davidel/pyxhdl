@@ -780,7 +780,7 @@ class Verilog_Emitter(Emitter):
 
       return Value(left.dtype, result)
     elif isinstance(op, (ast.LShift, ast.RShift)):
-      left, right = self._marshal_shift_op(left, right)
+      left, right = self._marshal_shift_op(op, left, right)
       xleft, xright = self.svalue(left), self.svalue(right)
 
       alog.debug(lambda: f'\tBinOp: {xleft}\t{pyiu.cname(op)}\t{xright}')
