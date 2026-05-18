@@ -249,13 +249,18 @@ class Test(X.Entity):
   ARGS = dict(clock_frequency=100e6,
               num_tests=10,
               data_width=32,
-              size=1024) | AxiDRAM.ARGS
+              size=4096) | AxiDRAM.ARGS
 
   @X.hdl_process(kind=X.ROOT_PROCESS)
   def root(self):
+    import py_misc_utils.assert_checks as tas
     import py_misc_utils.utils as pyu
 
     from . import clock
+
+    tas.check_eq(data_width % 8, 0)
+
+    data_words = (size * 8) // data_width
 
     CLK = X.mkreg(X.BIT)
 
@@ -267,8 +272,8 @@ class Test(X.Entity):
     self.ifc = axi.AxiIfc(CLK=CLK,
                           RST_N=RST_N,
                           data_width=data_width,
-                          addr_width=pynu.address_bits(size),
-                          strb_width=(data_width + 7) // 8)
+                          addr_width=pynu.address_bits(data_words),
+                          strb_width=data_width // 8)
 
     AxiDRAM(IFC=self.ifc,
             **pyu.mget(locals(), *AxiDRAM.ARGS.keys(), as_dict=True))
@@ -303,7 +308,7 @@ class Test(X.Entity):
     for i in range(num_tests):
       count = random.randint(1, 16)
       data = [random.randint(0, 2**self.ifc.data_width - 1) for _ in range(count)]
-      addr = random.randint(0, 2**self.ifc.addr_width - 1)
+      addr = random.randint(0, 2**self.ifc.addr_width - 1) * (self.ifc.data_width // 8)
 
       IOMODE = AxiBurstIO.MODE.WR
       BURST_LEN = count
